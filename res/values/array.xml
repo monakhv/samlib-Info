@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+Copyright 2013 Dmitry Monakhov.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+     http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+-->
+<resources>
+    <string-array name="UpdateFreqValues">
+        <item>1HOUR</item>
+        <item>3HOUR</item>
+        <item>6HOUR</item>
+        <item>12HOUR</item>
+        <item>DAY</item>
+    </string-array>
+ 
+    <string-array name="UpdateFreqTitle">
+        <item>Каждый час</item>
+        <item>Каждые 3 часа</item>
+        <item>Каждые 6 часов</item>
+        <item>Два раза в день</item>
+        <item>Каждый день</item>
+    </string-array>
+
+
+<string-array name="UpdateAutoloadLimitValues">
+        <item>20</item>
+        <item>40</item>
+        <item>80</item>
+        <item>100</item>
+        <item>0</item>
+    </string-array>
+ 
+    <string-array name="UpdateAutoloadLimitTitles">
+        <item>20K</item>
+        <item>40K</item>
+        <item>80K</item>
+        <item>100K</item>
+        <item>Без ограничений</item>
+    </string-array>
+    
+    <string-array name="BooksLifeTimeValues">
+        <item>7</item>
+        <item>30</item>
+        <item>182</item>
+        <item>365</item>        
+    </string-array>
+ 
+    <string-array name="BooksLifeTimeTitle">
+        <item>Неделя</item>
+        <item>Месяц</item>
+        <item>Пол года</item>
+        <item>Год</item>        
+    </string-array>
+    
+</resources>
