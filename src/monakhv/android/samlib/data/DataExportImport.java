@@ -105,8 +105,11 @@ public class DataExportImport {
 
 
 
-            backupDIR.mkdir();
-
+            boolean mkres = backupDIR.mkdir();
+            if (! mkres){
+                Log.e(DEBUG_TAG, "Can not  create directory "+backupDIR.toString() );
+            }
+            
             if (backupDIR.canWrite()) {
                 backupDBPath = DB_PREFIX + "_" + getTimesuffix() + DB_EXT;
                 File currentDB = context.getDatabasePath(DB_PREFIX);
@@ -116,6 +119,9 @@ public class DataExportImport {
 
                 fileCopy(currentDB, backupDB);
 
+            }
+            else {
+                 Log.e(DEBUG_TAG, "Can not write to "+backupDIR.toString() );
             }
         } catch (Exception e) {
             Log.e(DEBUG_TAG, "Error to Copy DB: ", e);
