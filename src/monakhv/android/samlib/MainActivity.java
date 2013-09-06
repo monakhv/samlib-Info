@@ -147,20 +147,28 @@ public class MainActivity extends ActionBarActivity {
         if (sel == R.id.add_option_item) {
             View v = findViewById(R.id.add_author_panel);
             v.setVisibility(View.VISIBLE);
+            ClipboardManager clipboard;
+            try {
+                clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
+            }
+            catch(Exception ex){
+                clipboard = null;
+            }
             
-            ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
             
-            if (clipboard.hasPrimaryClip() ){
-                Item itm = clipboard.getPrimaryClip().getItemAt(0);
-                String txt =  itm.getText().toString();
-                if (txt != null){
-                    
-                    if (txt.startsWith(SamLibConfig.SAMLIB_URL)){
-                        EditText editText = (EditText) findViewById(R.id.addUrlText);
-                        editText.setText(txt);
+            if (clipboard != null) {
+                if (clipboard.hasPrimaryClip()) {
+                    Item itm = clipboard.getPrimaryClip().getItemAt(0);
+                    String txt = itm.getText().toString();
+                    if (txt != null) {
+
+                        if (txt.startsWith(SamLibConfig.SAMLIB_URL)) {
+                            EditText editText = (EditText) findViewById(R.id.addUrlText);
+                            editText.setText(txt);
+                        }
                     }
+
                 }
-                
             }
 
         }
