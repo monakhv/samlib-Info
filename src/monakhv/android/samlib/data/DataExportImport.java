@@ -38,7 +38,6 @@ import monakhv.android.samlib.sql.AuthorController;
 import monakhv.android.samlib.sql.SQLController;
 import monakhv.android.samlib.sql.entity.Author;
 import monakhv.android.samlib.sql.entity.Book;
-import monakhv.android.samlib.sql.entity.SamLibConfig;
 import monakhv.android.samlib.tasks.AddAuthor;
 
 /**
@@ -286,7 +285,7 @@ public class DataExportImport {
      * @param msg message
      * @param ex Exception
      */
-    public static void log(String tag, String msg, Exception ex) {
+    static void log(String tag, String msg, Exception ex) {
         SimpleDateFormat df = new SimpleDateFormat(DATE_FORMAT_DEBUG);
         File save = new File(backupDIR, DEBUG_FILE);
         FileOutputStream dst;
@@ -307,7 +306,7 @@ public class DataExportImport {
 
     }
 
-    public static void log(String tag, String msg) {
+    static void log(String tag, String msg) {
         log(tag, msg, null);
     }
 }
