@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 import monakhv.android.samlib.exception.AuthorParseException;
 import monakhv.android.samlib.exception.BookParseException;
@@ -67,36 +68,16 @@ public class HttpClientController {
     }
 
     /**
-     * Construct Author object using samlib URL
+     * Construct Author object using reduced URL
      *
      * @param link
      * @return
      */
-    public Author getAuthorByURL(URL link) throws IOException, AuthorParseException {
+    public Author getAuthorByURL(String link) throws IOException, AuthorParseException {
         Author a = new Author();
         a.setUrl(link);
-        String str = null;
-        boolean retry = true;
-        int loopCount = 0;
-        while (retry) {
-            try {
-                str = getAuthorPage(a);
-                retry = false;
-            } catch (SamLibIsBusyException ex) {
-                loopCount++;
-                Log.w(DEBUG_TAG, "Retry number: " + loopCount + "  sleep 1 second");
-                try {
-                    TimeUnit.SECONDS.sleep(loopCount);
-                } catch (InterruptedException ex1) {
-                    Log.e(DEBUG_TAG, "Sleep interapted: ", ex);
-                }
-                if (loopCount >= RETRY_LIMIT) {
-                    retry = false;
-                    throw new IOException("Retry Limit exeeded");
-                }
-            }
-        }
-
+        String str = getURL(a.getRequestURL(), null);
+        
         parseData(a, str);
         return a;
     }
@@ -109,13 +90,13 @@ public class HttpClientController {
      * @throws IOException
      * @throws AuthorParseException 
      */
-    public Author addAuthor(URL link)  throws IOException, AuthorParseException{
+    public Author addAuthor(String link)  throws IOException, AuthorParseException{
         Author a = getAuthorByURL(link);
         a.extractName();
         return a;
     }
     /**
-     * Save book to apropriate file and make file transformation to make it
+     * Save book to appropriate file and make file transformation to make it
      * readable by android web Client
      *
      * @param book
@@ -125,14 +106,41 @@ public class HttpClientController {
     public void downloadBook(Book book) throws IOException, AuthorParseException {
         File f = book.getFile();
         BufferedWriter bw = new BufferedWriter(new FileWriter(f));
-        URL url = new URL(book.getURL());
+        
+        getURL(book.getURL(), f);
+        SamLibConfig.transformBook(f);
+    }
 
-
+    private String getURL(List<String> urls, File f) throws IOException,  AuthorParseException  {
+        String res = null;
+        Exception ex = null;
+        for (String surl: urls){
+            try {
+                URL url = new URL(surl);
+                res = _getURL(url, f);
+            }
+            catch(IOException e) {
+                ex = e;
+                Log.e(DEBUG_TAG, "IOException: "+surl, e);
+            }
+            catch(AuthorParseException e) {
+                ex = e;
+                 Log.e(DEBUG_TAG, "AuthorParseException: "+surl, e);
+            }
+            
+            if (ex == null){
+                return res;
+            }
+        }
+        throw new IOException("URL Limit exeeded");
+    }
+    private String _getURL(URL url, File f) throws IOException,  AuthorParseException {
+        String res = null;
         boolean retry = true;
         int loopCount = 0;
         while (retry) {
             try {
-                getURL(url, bw);
+                res = __getURL(url, f);
                 retry = false;
             } catch (SamLibIsBusyException ex) {
                 loopCount++;
@@ -148,11 +156,10 @@ public class HttpClientController {
                 }
             }
         }
-
-        SamLibConfig.transformBook(f);
+        return res;
     }
-
-    private String getURL(URL url, BufferedWriter bw) throws IOException, SamLibIsBusyException, AuthorParseException {
+    
+    private String __getURL(URL url, File f) throws IOException, SamLibIsBusyException, AuthorParseException {
 
         HttpGet method = new HttpGet(url.toString());
 
@@ -189,15 +196,9 @@ public class HttpClientController {
         InputStream content = response.getEntity().getContent();
         BufferedReader in = new BufferedReader(new InputStreamReader(content, ENCODING));
 
-        String result = doReadPage(in, bw);
+        String result = doReadPage(in, f);
         httpclient.getConnectionManager().shutdown();
         return result;
-
-    }
-
-    protected String getAuthorPage(Author a) throws IOException, SamLibIsBusyException, AuthorParseException {
-        URL requestUrl = a.getRequestURL();
-        return getURL(requestUrl, null);
 
     }
 
@@ -222,7 +223,15 @@ public class HttpClientController {
      * @return
      * @throws IOException 
      */
-    protected static String doReadPage(BufferedReader in, BufferedWriter bw) throws IOException {
+    protected static String doReadPage(BufferedReader in, File f) throws IOException {
+        BufferedWriter bw;
+        if (f != null){
+             bw = new BufferedWriter(new FileWriter(f));
+        }
+        else {
+            bw = null;
+        }
+       
         StringBuilder sb = new StringBuilder();
         String inputLine = in.readLine();
         while (inputLine != null) {

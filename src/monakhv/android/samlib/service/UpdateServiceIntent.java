@@ -21,7 +21,6 @@ import android.content.Intent;
 import android.os.PowerManager;
 import android.util.Log;
 import java.io.IOException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import monakhv.android.samlib.MainActivity.UpdateActivityReceiver;
@@ -99,7 +98,7 @@ public class UpdateServiceIntent extends IntentService {
         PowerManager.WakeLock wl = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, DEBUG_TAG);
         wl.acquire();
         for (Author a : ctl.getAll(selection)) {
-            URL url = a.getUrl();
+            String url = a.getUrl();
             Author newA;
             try {
                 newA = http.getAuthorByURL(url);

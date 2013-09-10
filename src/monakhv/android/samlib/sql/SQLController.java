@@ -31,6 +31,7 @@ import monakhv.android.samlib.sql.entity.Author;
  * Version - 2: Separate table for Book
  * Version - 3: COL_BOOK_DATE into GMT
  * Version - 4: Tags for the authors
+ * Version - 5: Remove samlib URL from the  Author url to use several mirrors
  * 
  */
 public class SQLController {
@@ -47,7 +48,7 @@ public class SQLController {
     }
 
     public static final String DB_NAME   = "AUTHOR_DATA";
-    public static final int    DB_VERSION = 4;
+    public static final int    DB_VERSION = 5;
     
     public static final String COL_ID = "_id";
     public static final String COL_NAME = "NAME";

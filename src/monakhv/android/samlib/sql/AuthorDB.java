@@ -66,18 +66,21 @@ public class AuthorDB extends SQLiteOpenHelper {
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {      
         
-        if (oldVersion ==1 && newVersion ==4){
+        if (oldVersion ==1 && newVersion ==5){
             upgradeSchema1To2(db);
             upgradeSchema2To3(db);
             upgradeSchema3To4(db);
+            upgradeSchema4To5(db);
             
         }
-        if (oldVersion ==2 && newVersion ==4){           
+        if (oldVersion ==2 && newVersion ==5){           
             upgradeSchema2To3(db);
             upgradeSchema3To4(db);
+            upgradeSchema4To5(db);
         }
-        if (oldVersion ==3 && newVersion ==4){                       
+        if (oldVersion ==3 && newVersion ==5){                       
             upgradeSchema3To4(db);
+            upgradeSchema4To5(db);
         }
     }    
     private void upgradeSchema3To4(SQLiteDatabase db) {
@@ -131,7 +134,30 @@ public class AuthorDB extends SQLiteOpenHelper {
         //db.execSQL(SQLController.ALTER2_1);
         db.execSQL(SQLController.ALTER2_2);
     }
-    
+    /**
+     * Schema update to version 5 
+     * Remove samlib URL
+     * 
+     * @param db 
+     */
+     private void upgradeSchema4To5(SQLiteDatabase db) {
+        String[] columns = {SQLController.COL_ID, SQLController.COL_URL};
+        Map<Integer, String> data = new HashMap();
+        Cursor cursor = db.query(SQLController.TABLE_AUTHOR, columns, null, null, null, null, null);
+         while(cursor.moveToNext()){
+             int    idx = cursor.getInt(cursor.getColumnIndex(SQLController.COL_ID));
+             String url = cursor.getString(cursor.getColumnIndex(SQLController.COL_URL));
+             url = url.replaceAll("http://samlib.ot.ru", "");
+             data.put(idx, url);
+         }
+         cursor.close();
+         String where =SQLController.COL_ID +" = ?";
+          for (Integer idx : data.keySet() ){
+              ContentValues cv = new ContentValues();
+              cv.put(SQLController.COL_URL, data.get(idx));
+              db.update(SQLController.TABLE_AUTHOR, cv, where, new String [] {idx.toString()});
+          }
+    }
 
     private void upgradeSchema2To3(SQLiteDatabase db){
         String [] columns = {SQLController.COL_ID,SQLController.COL_BOOK_DATE};

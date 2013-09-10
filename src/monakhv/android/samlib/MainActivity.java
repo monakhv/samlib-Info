@@ -168,7 +168,7 @@ public class MainActivity extends ActionBarActivity {
 
             if (txt != null) {
 
-                if (txt.startsWith(SamLibConfig.SAMLIB_URL)) {
+                if (SamLibConfig.testFullUrl(txt)) {
                     EditText editText = (EditText) findViewById(R.id.addUrlText);
                     editText.setText(txt);
                 }
