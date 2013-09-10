@@ -16,8 +16,6 @@
 package monakhv.android.samlib;
 
 import android.content.BroadcastReceiver;
-import android.content.ClipData.Item;
-import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -72,7 +70,7 @@ public class MainActivity extends ActionBarActivity {
         //addAuthorDilog = new AddAuthorDialog();
         SettingsHelper.addAuthenticator(this.getApplicationContext());
         getActionBarHelper().setRefreshActionItemState(refreshStatus);
-               
+
     }
 
     @Override
@@ -90,13 +88,12 @@ public class MainActivity extends ActionBarActivity {
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if ((keyCode == KeyEvent.KEYCODE_BACK)) { //Back key pressed
-            if (selection != null){
+            if (selection != null) {
                 refreshList(null);
-            }
-            else {
+            } else {
                 finish();
             }
-            
+
             return true;
         }
         return super.onKeyDown(keyCode, event);
@@ -147,29 +144,37 @@ public class MainActivity extends ActionBarActivity {
         if (sel == R.id.add_option_item) {
             View v = findViewById(R.id.add_author_panel);
             v.setVisibility(View.VISIBLE);
-            ClipboardManager clipboard;
+            int sdk = android.os.Build.VERSION.SDK_INT;
+            String txt = null;
             try {
-                clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
-            }
-            catch(Exception ex){
-                clipboard = null;
-            }
-            
-            
-            if (clipboard != null) {
-                if (clipboard.hasPrimaryClip()) {
-                    Item itm = clipboard.getPrimaryClip().getItemAt(0);
-                    String txt = itm.getText().toString();
-                    if (txt != null) {
 
-                        if (txt.startsWith(SamLibConfig.SAMLIB_URL)) {
-                            EditText editText = (EditText) findViewById(R.id.addUrlText);
-                            editText.setText(txt);
+                if (sdk < android.os.Build.VERSION_CODES.HONEYCOMB) {
+                    android.text.ClipboardManager clipboard = (android.text.ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
+                    if (clipboard != null) {
+                        txt = clipboard.getText().toString();
+                    }
+                } else {
+                    android.content.ClipboardManager clipboard = (android.content.ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
+                    if (clipboard != null) {
+                        if (clipboard.hasPrimaryClip()) {
+                            txt = clipboard.getPrimaryClip().getItemAt(0).getText().toString();
                         }
                     }
+                }
 
+            } catch (Exception ex) {
+                Log.e(DEBUG_TAG, "Clipboard Error!", ex);
+            }
+
+            if (txt != null) {
+
+                if (txt.startsWith(SamLibConfig.SAMLIB_URL)) {
+                    EditText editText = (EditText) findViewById(R.id.addUrlText);
+                    editText.setText(txt);
                 }
             }
+
+
 
         }
         if (sel == R.id.settings_option_item) {
@@ -233,7 +238,7 @@ public class MainActivity extends ActionBarActivity {
                     refreshList(select);
                 }
             };
-            dialog = new FilterSelectDialog(extendedCursor, listener,getText(R.string.dialog_title_filtr).toString());
+            dialog = new FilterSelectDialog(extendedCursor, listener, getText(R.string.dialog_title_filtr).toString());
             dialog.show(getSupportFragmentManager(), "FilterDialogShow");
 
 
