@@ -22,6 +22,7 @@ import android.database.Cursor;
 import android.net.Uri;
 import java.util.ArrayList;
 import java.util.List;
+import monakhv.android.samlib.data.SettingsHelper;
 import monakhv.android.samlib.sql.entity.Author;
 import monakhv.android.samlib.sql.entity.Book;
 
@@ -33,21 +34,24 @@ public class BookController implements AbstractController<Book> {
 
     private static final String DEBUG_TAG = "BookController";
     private Context context;
+    private SettingsHelper settings;
 
     BookController(Context context) {
         this.context = context;
+        settings = new SettingsHelper(context);
     }
 
     public int update(Book book) {
 
         int i = context.getContentResolver().update(AuthorProvider.BOOKS_URI, book2Content(book), SQLController.COL_ID + "=" + book.getId(), null);
-
+        settings.log(DEBUG_TAG, "update: "+i);
         return i;
     }
 
     public long insert(Book book) {
         Uri uri = context.getContentResolver().insert(AuthorProvider.BOOKS_URI, book2Content(book));
         long id = ContentUris.parseId(uri);
+        settings.log(DEBUG_TAG, "insert: "+id);
         return id;
     }
 
@@ -59,7 +63,8 @@ public class BookController implements AbstractController<Book> {
      */
     public List<Book> getBooksByAuthor(Author a) {
         List<Book> books = new ArrayList<Book>();
-        String author_id = (new Long(a.getId())).toString();
+
+        String author_id = (Long.valueOf(a.getId())).toString();
         String[] selectionArgs = {author_id};
         Cursor bc = context.getContentResolver().query(AuthorProvider.BOOKS_URI, null, AuthorDB.WHERE_AUTHOR_ID, selectionArgs, null);
         while (bc.moveToNext()) {
@@ -95,13 +100,14 @@ public class BookController implements AbstractController<Book> {
     public int delete(Book book) {
         Uri singleUri = ContentUris.withAppendedId(AuthorProvider.BOOKS_URI, book.getId());
         int res = context.getContentResolver().delete(singleUri, null, null);
+        settings.log(DEBUG_TAG, "delete: "+res);
         return res;
     }
 
     public int markRead(Book book) {
         book.setIsNew(false);
         int i = context.getContentResolver().update(AuthorProvider.BOOKS_URI, book2Content(book), SQLController.COL_ID + "=" + book.getId(), null);
-
+        settings.log(DEBUG_TAG, "markRead: "+i);
         return i;
 
 

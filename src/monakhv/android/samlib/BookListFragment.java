@@ -63,6 +63,7 @@ public class BookListFragment extends ListFragment implements
     private GestureDetector detector;
     private long author_id;
     private AuthorController sql ;
+    private SettingsHelper settings;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -88,7 +89,8 @@ public class BookListFragment extends ListFragment implements
         setListAdapter(adapter);
         detector = new GestureDetector(getActivity(), new ListSwipeListener(this));
 
-
+        
+        settings = new SettingsHelper(getActivity());
     }
 
     @Override
@@ -129,8 +131,9 @@ public class BookListFragment extends ListFragment implements
 
             
             selected = sql.getBookController().getById(book_id);
-
-            menu.add(1, menu_mark_read, 1, getText(R.string.menu_read));
+            if (selected.isIsNew()){
+                menu.add(1, menu_mark_read, 1, getText(R.string.menu_read));
+            }            
             menu.add(1, menu_browser, 20, getText(R.string.menu_open_web));
             if (selected.getGroup_id() == Book.SELECTED_GROUP_ID) {
                 menu.add(1, menu_deselected, 40, getText(R.string.menu_deselected));
@@ -144,14 +147,14 @@ public class BookListFragment extends ListFragment implements
 
     @Override
     public boolean onContextItemSelected(MenuItem item) {
-        
+        settings.log("MARK_READ", "BookListFragment:   onContextItemSelected  item id: " +item.getItemId());
         BookController bookSQL = sql.getBookController();
 
         if (item.getItemId() == menu_browser) {
             launchBrowser(selected);
         }
         if (item.getItemId() == menu_mark_read) {
-
+            settings.log("MARK_READ", "BookListFragment:  onContextItemSelected call markRead for book: "+selected.getId()+"  -  "+selected.getURL());
             bookSQL.markRead(selected);
             sql.testMarkRead(sql.getByBook(selected));
         }
@@ -281,7 +284,7 @@ public class BookListFragment extends ListFragment implements
         long book_id = c.getLong(c.getColumnIndex(SQLController.COL_ID));
 
         Book book = sql.getBookController().getById(book_id);
-
+        settings.log("MARK_READ", "BookListFragment: call markRead for book: "+book_id+"  -  "+book.getURL());
         sql.getBookController().markRead(book);
         Author a = sql.getByBook(book);
         sql.testMarkRead(a);
