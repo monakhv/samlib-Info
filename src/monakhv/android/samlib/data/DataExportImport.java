@@ -298,6 +298,8 @@ public class DataExportImport {
             if (ex != null) {
                 ex.printStackTrace(ps);
             }
+            ps.flush();
+            dst.flush();
             ps.close();
             dst.close();
         } catch (Exception ex1) {
