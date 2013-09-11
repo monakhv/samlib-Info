@@ -82,6 +82,10 @@ public class AuthorDB extends SQLiteOpenHelper {
             upgradeSchema3To4(db);
             upgradeSchema4To5(db);
         }
+        if (oldVersion ==4 && newVersion ==5){                       
+           
+            upgradeSchema4To5(db);
+        }
     }    
     private void upgradeSchema3To4(SQLiteDatabase db) {
         db.execSQL(SQLController.DB_CREATE_TAGS);
