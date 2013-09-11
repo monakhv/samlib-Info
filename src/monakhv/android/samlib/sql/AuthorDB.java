@@ -145,13 +145,16 @@ public class AuthorDB extends SQLiteOpenHelper {
      * @param db 
      */
      private void upgradeSchema4To5(SQLiteDatabase db) {
+        Log.d("upgradeSchema4To5", "Begin upgrade schema 4->5");
         String[] columns = {SQLController.COL_ID, SQLController.COL_URL};
         Map<Integer, String> data = new HashMap();
         Cursor cursor = db.query(SQLController.TABLE_AUTHOR, columns, null, null, null, null, null);
          while(cursor.moveToNext()){
              int    idx = cursor.getInt(cursor.getColumnIndex(SQLController.COL_ID));
              String url = cursor.getString(cursor.getColumnIndex(SQLController.COL_URL));
-             url = url.replaceAll("http://samlib.ot.ru", "");
+             Log.d("upgradeSchema4To5", "Change url: "+url);             
+             url = url.replaceAll("http://samlib.ru", "");
+             Log.d("upgradeSchema4To5", "To url: "+url);
              data.put(idx, url);
          }
          cursor.close();
@@ -161,6 +164,7 @@ public class AuthorDB extends SQLiteOpenHelper {
               cv.put(SQLController.COL_URL, data.get(idx));
               db.update(SQLController.TABLE_AUTHOR, cv, where, new String [] {idx.toString()});
           }
+          Log.d("upgradeSchema4To5", "End upgrade schema 4->5");
     }
 
     private void upgradeSchema2To3(SQLiteDatabase db){
