@@ -17,7 +17,6 @@ package monakhv.android.samlib.sql.entity;
 
 import java.io.Serializable;
 import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -148,6 +147,14 @@ public class Author  implements Serializable{
         return SamLibConfig.getAuthorRequestURL(url);
     }
 
+    /**
+     * Get book url to open it using web browser
+     * @return 
+     */
+    public String getUrlForBrowser(){
+        return SamLibConfig.getAuthorUrlForBrowser(this);
+    }
+    
     /**
      * Making Author name as the author of the biggest book on the page
      */

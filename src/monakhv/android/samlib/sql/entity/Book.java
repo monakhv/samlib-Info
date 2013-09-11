@@ -248,7 +248,7 @@ public class Book implements Serializable {
      * @return 
      */
     public String getUrlForBrowser(){
-        return SamLibConfig.SAMLIB_URL + "/" + this.getUri() + ".shtml";
+        return SamLibConfig.getBookUrlForBrowser(this);
     }
     
     /**

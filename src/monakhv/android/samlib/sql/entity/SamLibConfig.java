@@ -29,83 +29,24 @@ import java.util.List;
  * @author monakhv
  */
 public class SamLibConfig {
-
-    static final String SAMLIB_URL = "http://samlib.ru";
-    static final String BDCLB_URL = "http://budclub.ru";
-    private static final String[] URLs = {SAMLIB_URL, BDCLB_URL};
-    private static final String SLASH = "/";
-    private static final String URLPTR = "/\\w/\\w+/";
-    private static final String SAMLIB_PROTO = "http://";
-    private static final String REQUEST_AUTHOR_TEXTS = "/cgi-bin/areader?q=razdel&order=date&object=";
-    private static final String REQUEST_BOOK_TEXT = "/cgi-bin/areader?q=book&object=";
-
+    private static final SamIzdat[]   URLs = {SamIzdat.SamLib, SamIzdat.BudClub};//Samizdat mirrors. Order is important this is the order mirror is selected by
+    private static final SamIzdat     samizdDefault = SamIzdat.SamLib;//Default Mirror to open 
+    private static final String     SLASH = "/";
+    private static final String     URLPTR = "/\\w/\\w+/";
+    private static final String     SAMLIB_PROTO = "http://";
+    private static final String     REQUEST_AUTHOR_TEXTS = "/cgi-bin/areader?q=razdel&order=date&object=";
+    private static final String     REQUEST_BOOK_TEXT = "/cgi-bin/areader?q=book&object=";
     /**
-     * Test whether URL has a form http://<url>/w/www_w_w/ Must be ended by /
-     * Must be begin with one of the valid URL
-     *
-     * @param txt
-     * @return
+     * Small Internal class to store Samizdat mirrors data
      */
-    public static boolean testFullUrl(String txt) {
-        for (String uu : URLs) {
-            Sz sz = new Sz(uu);
-            if (sz.testFullUrl(txt)) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    /**
-     * Take URL check syntax
-     *
-     * @param str reduced URL or NULL if the syntax is wrong
-     * @return
-     */
-    public static String reduceUrl(String str) {
-        if (str.startsWith(SAMLIB_PROTO)) {//full URL case
-            for (String uu : URLs) {
-                Sz sz = new Sz(uu);
-                if (sz.testFullUrl(str)) {
-                    return str.replaceAll(uu, "");
-                }
-            }
-            return null;
-        } else {//reduced AUTHOR URL
-            if (str.matches(URLPTR)) {//checking syntax
-                return str;
-            } else {
-                return null;//wrong syntax retrn null
-            }
-        }
-
-    }
-
-    static List<String> getAuthorRequestURL(String url) {
-        List<String> res = new ArrayList<String>();
-        for (String uu : URLs) {
-            Sz sz = new Sz(uu);
-            res.add(sz.getAuthorRequestURL(url));
-        }
-        return res;
-    }
-
-    static List<String> getBookUrl(String uri) {
-        List<String> res = new ArrayList<String>();
-        for(String uu : URLs){
-            Sz sz = new Sz(uu);
-            res.add(sz.getBookURL(uri));
-        }
-        return res;
-    }
-
-    private static class Sz {
-
+        private static enum SamIzdat {
+        SamLib("SamLib","http://samlib.ru"),
+        BudClub("BudClub","http://budclub.ru");
         private String url;
-
-        private Sz(String url) {
+        private String name;
+        private SamIzdat(String url,String name) {
             this.url = url;
+            this.name = name;
         }
 
         /**
@@ -129,9 +70,88 @@ public class SamLibConfig {
 
         }
         private String getBookURL(String uu){
-            return SAMLIB_URL+REQUEST_BOOK_TEXT+uu;
+            return url+REQUEST_BOOK_TEXT+uu;
         }
     }
+        //End SamIzdat class
+        
+        /**
+         * Construct URL to open the book in WEB browser
+         * 
+         * @param book the Book object to open
+         * @return 
+         */
+        public static String getBookUrlForBrowser(Book book){
+            return samizdDefault.url + SLASH + book.getUri() + ".shtml";
+        }
+        
+        public static String getAuthorUrlForBrowser(Author author){
+            return samizdDefault.url + SLASH + author.getUrl() ;
+        }
+
+   
+    
+
+    /**
+     * Test whether URL has a form http://<url>/w/www_w_w/ Must be ended by /
+     * Must be begin with one of the valid URL
+     *
+     * @param txt
+     * @return
+     */
+    public static boolean testFullUrl(String txt) {
+        for (SamIzdat sz : URLs) {           
+            if (sz.testFullUrl(txt)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Take URL check syntax
+     *
+     * @param str reduced URL or NULL if the syntax is wrong
+     * @return
+     */
+    public static String reduceUrl(String str) {
+        if (str.startsWith(SAMLIB_PROTO)) {//full URL case
+            for (SamIzdat sz : URLs) {
+               
+                if (sz.testFullUrl(str)) {
+                    return str.replaceAll(sz.url, "");
+                }
+            }
+            return null;
+        } else {//reduced AUTHOR URL
+            if (str.matches(URLPTR)) {//checking syntax
+                return str;
+            } else {
+                return null;//wrong syntax retrn null
+            }
+        }
+
+    }
+
+    static List<String> getAuthorRequestURL(String url) {
+        List<String> res = new ArrayList<String>();
+        for (SamIzdat sz : URLs) {
+            
+            res.add(sz.getAuthorRequestURL(url));
+        }
+        return res;
+    }
+
+    static List<String> getBookUrl(String uri) {
+        List<String> res = new ArrayList<String>();
+        for(SamIzdat sz : URLs){
+            
+            res.add(sz.getBookURL(uri));
+        }
+        return res;
+    }
+
 
     public static void transformBook(File orig) throws IOException {
         File tmp = new File(orig.getAbsoluteFile() + ".tmp");
