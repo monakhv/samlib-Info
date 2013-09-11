@@ -44,7 +44,7 @@ public class SamLibConfig {
         BudClub("BudClub","http://budclub.ru");
         private String url;
         private String name;
-        private SamIzdat(String url,String name) {
+        private SamIzdat(String name,String url) {
             this.url = url;
             this.name = name;
         }
@@ -86,7 +86,7 @@ public class SamLibConfig {
         }
         
         public static String getAuthorUrlForBrowser(Author author){
-            return samizdDefault.url + SLASH + author.getUrl() ;
+            return samizdDefault.url +  author.getUrl() ;
         }
 
    
