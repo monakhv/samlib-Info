@@ -344,7 +344,7 @@ public class AuthorListFragment extends ListFragment implements
      * @param a
      */
     private void launchBrowser(Author a) {
-        Uri uri = Uri.parse(a.getUrl().toString());
+        Uri uri = Uri.parse(a.getUrlForBrowser());
         Intent launchBrowser = new Intent(Intent.ACTION_VIEW, uri);
         startActivity(launchBrowser);
 

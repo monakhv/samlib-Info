@@ -17,7 +17,6 @@ package monakhv.android.samlib.sql.entity;
 
 import java.io.Serializable;
 import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -32,7 +31,7 @@ public class Author  implements Serializable{
     protected List<Book> books;
     protected String name;
     protected long updateDate;
-    protected URL url;
+    protected String url;
     protected boolean isNew = false;
     protected int id;
     
@@ -81,11 +80,11 @@ public class Author  implements Serializable{
         this.updateDate = updateDate;
     }
 
-    public URL getUrl() {
+    public String getUrl() {
         return url;
     }
 
-    public void setUrl(URL url) {
+    public void setUrl(String url) {
         this.url = url;
     }
 
@@ -97,10 +96,7 @@ public class Author  implements Serializable{
         this.isNew = isNew;
     }
 
-    public void setUrl(String string) throws MalformedURLException {
-        url = new URL(string);
-
-    }
+   
 
     public List<Integer> getTags_id() {
         return tags_id;
@@ -146,11 +142,19 @@ public class Author  implements Serializable{
     
     
 
-    public URL getRequestURL() throws MalformedURLException {
+    public List<String> getRequestURL() throws MalformedURLException {
         
         return SamLibConfig.getAuthorRequestURL(url);
     }
 
+    /**
+     * Get book url to open it using web browser
+     * @return 
+     */
+    public String getUrlForBrowser(){
+        return SamLibConfig.getAuthorUrlForBrowser(this);
+    }
+    
     /**
      * Making Author name as the author of the biggest book on the page
      */

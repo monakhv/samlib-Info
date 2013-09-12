@@ -19,6 +19,7 @@ import java.io.File;
 import java.io.Serializable;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 import java.util.TimeZone;
 import monakhv.android.samlib.data.DataExportImport;
 import monakhv.android.samlib.exception.BookParseException;
@@ -237,7 +238,7 @@ public class Book implements Serializable {
      *
      * @return
      */
-    public String getURL() {
+    public List<String> getURL() {
         return SamLibConfig.getBookUrl( this.getUri()) ;
 
     }
@@ -247,7 +248,7 @@ public class Book implements Serializable {
      * @return 
      */
     public String getUrlForBrowser(){
-        return SamLibConfig.SAMLIB_URL + "/" + this.getUri() + ".shtml";
+        return SamLibConfig.getBookUrlForBrowser(this);
     }
     
     /**

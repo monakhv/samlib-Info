@@ -20,6 +20,7 @@ limitations under the License.
     <string name="author_url">http://samlib.ru/...</string>    
     <string name="author_tag">Новый тэг</string>    
     
+    <string name="update_update">Обновление</string>    
     
     <string name="dialog_title_filtr">Категория авторов</string>    
     <string name="dialog_title_file">Выбор файла</string>
