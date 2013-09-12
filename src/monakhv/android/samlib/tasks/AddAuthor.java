@@ -29,7 +29,9 @@ import monakhv.android.samlib.sql.entity.Author;
 import monakhv.android.samlib.sql.entity.SamLibConfig;
 
 /**
- *
+ * The task to load Author into data base.
+ * Take the array of full Authors URL
+ * 
  * @author monakhv
  */
 public class AddAuthor extends AsyncTask<String, Void, Boolean> {
