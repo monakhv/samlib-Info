@@ -261,7 +261,7 @@ public class DataExportImport {
             while (inputLine != null) {
                 String resstr =  SamLibConfig.getParsedUrl(inputLine);
                 if (resstr != null){
-                    urls.add(inputLine);
+                    urls.add(resstr);
                 }                
                 inputLine = in.readLine();
             }
