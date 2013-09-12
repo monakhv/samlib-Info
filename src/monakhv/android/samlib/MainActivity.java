@@ -31,6 +31,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 import monakhv.android.samlib.actionbar.ActionBarActivity;
 import monakhv.android.samlib.data.SettingsHelper;
@@ -51,6 +52,7 @@ public class MainActivity extends ActionBarActivity {
     private boolean refreshStatus = false;
     private FilterSelectDialog dialog;
     private String selection = null;
+    private TextView progressview;
 
     @Override
     public void onCreate(Bundle icicle) {
@@ -70,7 +72,7 @@ public class MainActivity extends ActionBarActivity {
         //addAuthorDilog = new AddAuthorDialog();
         SettingsHelper.addAuthenticator(this.getApplicationContext());
         getActionBarHelper().setRefreshActionItemState(refreshStatus);
-
+        progressview = (TextView) findViewById(R.id.updateProgress);
     }
 
     @Override
@@ -295,14 +297,27 @@ public class MainActivity extends ActionBarActivity {
 
         public static final String ACTION_RESP = "monakhv.android.samlib.action.UPDATED";
         public static final String TOAST_STRING = "TOAST_STRING";
+        public static final String ACTION = "ACTION";
+        public static final String ACTION_TOAST = "TOAST";
+        public static final String ACTION_PROGRESS = "PROGRESS";
 
         @Override
         public void onReceive(Context context, Intent intent) {
-            int duration = Toast.LENGTH_SHORT;
-            Toast toast = Toast.makeText(context, intent.getCharSequenceExtra(TOAST_STRING), duration);
-            toast.show();
-            refreshStatus = false;
-            getActionBarHelper().setRefreshActionItemState(refreshStatus);
+            progressview.setVisibility(View.GONE);
+            String action = intent.getStringExtra(ACTION);
+            if (action.equalsIgnoreCase(ACTION_TOAST)) {
+                int duration = Toast.LENGTH_SHORT;
+                Toast toast = Toast.makeText(context, intent.getCharSequenceExtra(TOAST_STRING), duration);
+                toast.show();
+                refreshStatus = false;
+                getActionBarHelper().setRefreshActionItemState(refreshStatus);
+            }//
+            if (action.equalsIgnoreCase(ACTION_PROGRESS)) {
+                progressview.setVisibility(View.VISIBLE);
+                progressview.setText(intent.getStringExtra(TOAST_STRING));
+            }
+            
+
         }
     }
 }

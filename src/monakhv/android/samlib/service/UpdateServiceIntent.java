@@ -33,15 +33,14 @@ import monakhv.android.samlib.sql.entity.Author;
 import monakhv.android.samlib.sql.entity.Book;
 
 /**
- * Service to making check for author updates
- * Can be called from activity or from alarm manager
- * 
+ * Service to making check for author updates Can be called from activity or
+ * from alarm manager
+ *
  * @author monakhv
  */
 public class UpdateServiceIntent extends IntentService {
 
-    
-    public static final String CALLER_TYPE     = "CALLER_TYPE";
+    public static final String CALLER_TYPE = "CALLER_TYPE";
     public static final String SELECT_STRING = "SELECT_STRING";
     public static final int CALLER_IS_ACTIVITY = 1;
     public static final int CALLER_IS_RECIVER = 2;
@@ -89,7 +88,7 @@ public class UpdateServiceIntent extends IntentService {
 
         }
 
-        Log.i(DEBUG_TAG, "selection string: "+selection);
+        Log.i(DEBUG_TAG, "selection string: " + selection);
 
         SettingsHelper.addAuthenticator(this.getApplicationContext());
         HttpClientController http = HttpClientController.getInstance();
@@ -97,7 +96,13 @@ public class UpdateServiceIntent extends IntentService {
         PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
         PowerManager.WakeLock wl = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, DEBUG_TAG);
         wl.acquire();
-        for (Author a : ctl.getAll(selection)) {
+        List<Author> authors = ctl.getAll(selection);
+        int total = authors.size();
+        int icurrent = 0;
+        for (Author a : authors) {
+            if (currentCaller == CALLER_IS_ACTIVITY) {
+                sendUpdate(total, ++icurrent, a.getName());
+            }
             String url = a.getUrl();
             Author newA;
             try {
@@ -119,13 +124,13 @@ public class UpdateServiceIntent extends IntentService {
                 updatedAuthors.add(a);
                 Log.i(DEBUG_TAG, "We need update author: " + a.getName());
                 ctl.update(a);
-                
-                if (settings.getAutoLoadFlag() ) {
-                   
-                    for (Book book : ctl.getBookController().getBooksByAuthor(a)) {                       
+
+                if (settings.getAutoLoadFlag()) {
+
+                    for (Book book : ctl.getBookController().getBooksByAuthor(a)) {
                         if (book.isIsNew() && settings.testAutoLoadLimit(book) && book.needUpdateFile()) {
-                            Log.i(DEBUG_TAG, "Auto Load book: "+book.getId());
-                            DownloadBookServiceIntent.start(this, book);                            
+                            Log.i(DEBUG_TAG, "Auto Load book: " + book.getId());
+                            DownloadBookServiceIntent.start(this, book);
                         }
                     }
                 }
@@ -140,9 +145,9 @@ public class UpdateServiceIntent extends IntentService {
 
         Log.d(DEBUG_TAG, "Finish intent.");
         settings = new SettingsHelper(context);
-        if (settings.getLimitBookLifeTimeFlag()){
+        if (settings.getLimitBookLifeTimeFlag()) {
             CleanBookServiceIntent.start(context);
-        }        
+        }
         if (currentCaller == CALLER_IS_ACTIVITY) {//Call from activity
 
             CharSequence text;
@@ -160,12 +165,13 @@ public class UpdateServiceIntent extends IntentService {
             Intent broadcastIntent = new Intent();
             broadcastIntent.addCategory(Intent.CATEGORY_DEFAULT);
             broadcastIntent.setAction(UpdateActivityReceiver.ACTION_RESP);
+            broadcastIntent.putExtra(UpdateActivityReceiver.ACTION, UpdateActivityReceiver.ACTION_TOAST);
             broadcastIntent.putExtra(UpdateActivityReceiver.TOAST_STRING, text);
             sendBroadcast(broadcastIntent);
         }
 
         if (currentCaller == CALLER_IS_RECIVER) {//Call as a regular service
-            
+
 
             if (result && updatedAuthors.isEmpty() && !settings.getDebugFlag()) {
                 return;//no errors and no updates - no notification
@@ -174,22 +180,34 @@ public class UpdateServiceIntent extends IntentService {
             if (!result && settings.getIgnoreErrorFlag()) {
                 return;//error and we ignore them
             }
-            
+
             NotificationData notifyData = NotificationData.getInstance(context);
             if (result) {//we have updates
-                
+
                 if (updatedAuthors.isEmpty()) {//DEBUG CASE
                     notifyData.notifyUpdateDebug(context);
 
                 } else {
-                    
+
                     notifyData.notifyUpdate(context, updatedAuthors);
                 }
 
             } else {//connection Error
                 notifyData.notifyUpdateError(context);
-                
+
             }
         }
+    }
+
+    private void sendUpdate(int total, int icurrent, String name) {
+
+        String str = context.getText(R.string.update_update)+"  ["+icurrent+"/"+total+"]:   "+name;
+        Intent broadcastIntent = new Intent();
+        broadcastIntent.addCategory(Intent.CATEGORY_DEFAULT);
+        broadcastIntent.setAction(UpdateActivityReceiver.ACTION_RESP);
+        broadcastIntent.putExtra(UpdateActivityReceiver.ACTION, UpdateActivityReceiver.ACTION_PROGRESS);
+        broadcastIntent.putExtra(UpdateActivityReceiver.TOAST_STRING, str);
+        sendBroadcast(broadcastIntent);
+
     }
 }
