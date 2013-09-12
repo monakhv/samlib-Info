@@ -23,6 +23,8 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  *
@@ -30,7 +32,7 @@ import java.util.List;
  */
 public class SamLibConfig {
     private static final SamIzdat[]   URLs = {SamIzdat.SamLib, SamIzdat.BudClub};//Samizdat mirrors. Order is important this is the order mirror is selected by
-    private static final SamIzdat     samizdDefault = SamIzdat.SamLib;//Default Mirror to open 
+    private static final SamIzdat     samizdDefault = SamIzdat.SamLib;//Default Mirror to open in browser and to store bookmark list
     private static final String     SLASH = "/";
     private static final String     URLPTR = "/\\w/\\w+/";
     private static final String     SAMLIB_PROTO = "http://";
@@ -44,9 +46,14 @@ public class SamLibConfig {
         BudClub("BudClub","http://budclub.ru");
         private String url;
         private String name;
+        private Pattern pattern;//search url pattern
         private SamIzdat(String name,String url) {
             this.url = url;
             this.name = name;
+            pattern=Pattern.compile(".*("+url+"/\\w/\\w+)($|\\b)");
+        }
+        public Pattern getSearchPattern(){
+            return pattern;
         }
 
         /**
@@ -84,13 +91,15 @@ public class SamLibConfig {
         public static String getBookUrlForBrowser(Book book){
             return samizdDefault.url + SLASH + book.getUri() + ".shtml";
         }
-        
+        /**
+         * Construct URL to open the book in WEB browser and to store bookmark list
+         * 
+         * @param author
+         * @return 
+         */
         public static String getAuthorUrlForBrowser(Author author){
             return samizdDefault.url +  author.getUrl() ;
         }
-
-   
-    
 
     /**
      * Test whether URL has a form http://<url>/w/www_w_w/ Must be ended by /
@@ -109,6 +118,18 @@ public class SamLibConfig {
         return false;
     }
 
+    public static String getParsedUrl(String str){
+        String res = null;
+        for (SamIzdat sz : URLs) {       
+            Matcher m = sz.getSearchPattern().matcher(str);
+            if (m.find()){
+                res = m.group(1);
+                return res;
+            }
+        }
+        
+        return res;
+    }
     /**
      * Take URL check syntax
      *
