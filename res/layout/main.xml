@@ -18,21 +18,15 @@ limitations under the License.
               android:orientation="vertical"
               android:layout_width="match_parent"
               android:layout_height="match_parent">
-    <TextView
-        android:id="@+id/updateProgress"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:visibility="gone">
-    </TextView>
     
     
-    <fragment
+    <monakhv.android.samlib.PullToRefresh
         android:id="@+id/listAuthirFragment"
-        android:name="monakhv.android.samlib.AuthorListFragment"
+        
         android:layout_weight="1"
         android:layout_width="match_parent"
         android:layout_height="0dp">
-    </fragment>
+    </monakhv.android.samlib.PullToRefresh>
     
     
     <LinearLayout 

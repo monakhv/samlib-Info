@@ -171,4 +171,8 @@ limitations under the License.
     <string name="download_book_error">Ошибка загрузки книги</string>
     <string name="download_Loading">Загрузка...</string>
     
+    <string name="pull_to_refresh_pull_label">Потяните, чтобы обновить...</string>
+    <string name="pull_to_refresh_release_label">Отпустите для обновления...</string>
+    <string name="pull_to_refresh_refreshing_label">Загрузка...</string>
+    
 </resources>

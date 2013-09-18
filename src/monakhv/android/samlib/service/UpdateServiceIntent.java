@@ -201,7 +201,8 @@ public class UpdateServiceIntent extends IntentService {
 
     private void sendUpdate(int total, int icurrent, String name) {
 
-        String str = context.getText(R.string.update_update)+"  ["+icurrent+"/"+total+"]:   "+name;
+        //String str = context.getText(R.string.update_update)+"  ["+icurrent+"/"+total+"]:   "+name;
+        String str = " ["+icurrent+"/"+total+"]:   "+name;
         Intent broadcastIntent = new Intent();
         broadcastIntent.addCategory(Intent.CATEGORY_DEFAULT);
         broadcastIntent.setAction(UpdateActivityReceiver.ACTION_RESP);
