@@ -82,10 +82,10 @@ public class MainActivity extends ActionBarActivity {
         getActionBarHelper().setRefreshActionItemState(refreshStatus);
 
         listView = (PullToRefresh) findViewById(R.id.listAuthirFragment);
-        listHelper = new AuthorListHelper(this, getLoaderManager());
+        listHelper = new AuthorListHelper(this, getLoaderManager(),listView);
 
 
-        listHelper.init(listView);
+        
         listView.setOnRefreshListener(new OnRefreshListener() {
             public void onRefresh() {
                 makeUpdate();

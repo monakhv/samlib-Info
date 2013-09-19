@@ -60,7 +60,7 @@ public class AuthorListHelper implements
     private ListView listView;
     private GestureDetector detector;
 
-    public AuthorListHelper(Context context, LoaderManager loaderManager) {
+    public AuthorListHelper(Context context, LoaderManager loaderManager,PullToRefresh pull) {
         this.context = context;
         this.loaderManager = loaderManager;
         String[] from = {SQLController.COL_NAME, SQLController.COL_mtime, SQLController.COL_isnew, SQLController.COL_TGNAMES};
@@ -74,9 +74,10 @@ public class AuthorListHelper implements
         
         adapter.setViewBinder(new AuthorViewBinder());
         detector = new GestureDetector(context, new ListSwipeListener(this));
+        init(pull);
     }
     
-    public void init(PullToRefresh pull) {
+    private void init(PullToRefresh pull) {
         loaderManager.initLoader(AUTHOR_LIST_LOADER, null, this);
         pull.setAdapter(adapter);
         listView = pull.getListView();
