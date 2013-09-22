@@ -22,6 +22,9 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -38,6 +41,37 @@ public class SamLibConfig {
     private static final String     SAMLIB_PROTO = "http://";
     private static final String     REQUEST_AUTHOR_TEXTS = "/cgi-bin/areader?q=razdel&order=date&object=";
     private static final String     REQUEST_BOOK_TEXT = "/cgi-bin/areader?q=book&object=";
+        
+    private static SamLibConfig instance = null;
+    private boolean order = true;//samlib is the first budclub is the second one
+    private LinkedList<SamIzdat> linkedSZ;
+    
+    
+    public static SamLibConfig getInstance(){
+        if (instance == null){
+            instance = new SamLibConfig();
+        }
+        instance.order=true;
+        return instance;
+    }
+    
+    
+    private SamLibConfig(){
+        linkedSZ = new LinkedList<SamIzdat>();
+        linkedSZ.addAll(Arrays.asList(URLs));
+        order = true;
+    }
+    public void flipOrder(){
+        order = !order;
+    }
+    private Iterator<SamIzdat> getIterator(){
+        if (order){
+            return linkedSZ.listIterator();
+        }
+        else {
+            return linkedSZ.descendingIterator();
+        }
+    }
     /**
      * Small Internal class to store Samizdat mirrors data
      */
@@ -155,20 +189,25 @@ public class SamLibConfig {
 
     }
 
-    static List<String> getAuthorRequestURL(String url) {
+    public List<String> getAuthorRequestURL(Author a) {
         List<String> res = new ArrayList<String>();
-        for (SamIzdat sz : URLs) {
-            
-            res.add(sz.getAuthorRequestURL(url));
+        Iterator<SamIzdat> itr = getIterator();
+        while(itr.hasNext()){
+            res.add(itr.next().getAuthorRequestURL(a.getUrl()));
         }
         return res;
     }
 
-    static List<String> getBookUrl(String uri) {
+    /**
+     * Get book url to download html content
+     * @param b
+     * @return 
+     */
+    public List<String> getBookUrl(Book b) {
         List<String> res = new ArrayList<String>();
-        for(SamIzdat sz : URLs){
-            
-            res.add(sz.getBookURL(uri));
+        Iterator<SamIzdat> itr = getIterator();
+        while(itr.hasNext()){
+            res.add(itr.next().getBookURL(b.getUri()));
         }
         return res;
     }

@@ -142,11 +142,6 @@ public class Author  implements Serializable{
     
     
 
-    public List<String> getRequestURL() throws MalformedURLException {
-        
-        return SamLibConfig.getAuthorRequestURL(url);
-    }
-
     /**
      * Get book url to open it using web browser
      * @return 

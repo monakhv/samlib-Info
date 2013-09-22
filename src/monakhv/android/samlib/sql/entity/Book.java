@@ -234,16 +234,6 @@ public class Book implements Serializable {
     }
 
     /**
-     * Get book url to download html content
-     *
-     * @return
-     */
-    public List<String> getURL() {
-        return SamLibConfig.getBookUrl( this.getUri()) ;
-
-    }
-
-    /**
      * Get book url to open it using web browser
      * @return 
      */

@@ -154,7 +154,7 @@ public class BookListFragment extends ListFragment implements
             launchBrowser(selected);
         }
         if (item.getItemId() == menu_mark_read) {
-            settings.log("MARK_READ", "BookListFragment:  onContextItemSelected call markRead for book: "+selected.getId()+"  -  "+selected.getURL());
+            settings.log("MARK_READ", "BookListFragment:  onContextItemSelected call markRead for book: "+selected.getId()+"  -  "+selected.getUri());
             bookSQL.markRead(selected);
             sql.testMarkRead(sql.getByBook(selected));
         }
@@ -284,7 +284,7 @@ public class BookListFragment extends ListFragment implements
         long book_id = c.getLong(c.getColumnIndex(SQLController.COL_ID));
 
         Book book = sql.getBookController().getById(book_id);
-        settings.log("MARK_READ", "BookListFragment: call markRead for book: "+book_id+"  -  "+book.getURL());
+        settings.log("MARK_READ", "BookListFragment: call markRead for book: "+book_id+"  -  "+book.getUri());
         sql.getBookController().markRead(book);
         Author a = sql.getByBook(book);
         sql.testMarkRead(a);
