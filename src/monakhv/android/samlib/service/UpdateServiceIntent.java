@@ -49,6 +49,7 @@ public class UpdateServiceIntent extends IntentService {
     private Context context;
     private SettingsHelper settings;
     private List<Author> updatedAuthors;
+    private int skipedAuthors = 0;
 
     public UpdateServiceIntent() {
         super("UpdateServiceIntent");
@@ -58,6 +59,7 @@ public class UpdateServiceIntent extends IntentService {
 
     @Override
     protected void onHandleIntent(Intent intent) {
+        skipedAuthors = 0;
         Log.d(DEBUG_TAG, "Got intent");
         context = this.getApplicationContext();
         updatedAuthors.clear();
@@ -98,8 +100,8 @@ public class UpdateServiceIntent extends IntentService {
         wl.acquire();
         List<Author> authors = ctl.getAll(selection);
         int total = authors.size();
-        int icurrent = 0;
-        for (Author a : authors) {
+        int icurrent = 0;//to send update information to pull-to-refresh
+        for (Author a : authors) {//main author cycle
             if (currentCaller == CALLER_IS_ACTIVITY) {
                 sendUpdate(total, ++icurrent, a.getName());
             }
@@ -107,27 +109,28 @@ public class UpdateServiceIntent extends IntentService {
             Author newA;
             try {
                 newA = http.getAuthorByURL(url);
-            } catch (IOException ex) {
+            } catch (IOException ex) {//here we abort cycle author and total update
                 Log.i(DEBUG_TAG, "Connection Error", ex);
-
                 settings.log(DEBUG_TAG, "Connection Error", ex);
 
                 finish(false);
                 wl.release();
                 return;
 
-            } catch (AuthorParseException ex) {
+            } catch (AuthorParseException ex) {//skip update for given author
                 Log.e(DEBUG_TAG, "Error parsing url: " + url + " skip update author ", ex);
-                newA = a;//skip update
+                settings.log(DEBUG_TAG, "Error parsing url: " + url + " skip update author ", ex);
+                ++skipedAuthors;
+                newA = a;
             }
-            if (a.update(newA)) {
+            if (a.update(newA)) {//we have update for the author
                 updatedAuthors.add(a);
                 Log.i(DEBUG_TAG, "We need update author: " + a.getName());
                 ctl.update(a);
 
-                if (settings.getAutoLoadFlag()) {
+                if (settings.getAutoLoadFlag()) {//download the book
 
-                    for (Book book : ctl.getBookController().getBooksByAuthor(a)) {
+                    for (Book book : ctl.getBookController().getBooksByAuthor(a)) {//book cycle for the author to update
                         if (book.isIsNew() && settings.testAutoLoadLimit(book) && book.needUpdateFile()) {
                             Log.i(DEBUG_TAG, "Auto Load book: " + book.getId());
                             DownloadBookServiceIntent.start(this, book);
@@ -136,8 +139,14 @@ public class UpdateServiceIntent extends IntentService {
                 }
             }
 
+        }//main author cycle END
+        if (authors.size() == skipedAuthors){
+            finish(false);//all authors skiped - this is the error
         }
-        finish(true);
+        else {
+            finish(true);
+        }
+        
         wl.release();
     }
 

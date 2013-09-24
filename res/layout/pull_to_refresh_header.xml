@@ -71,7 +71,8 @@ limitations under the License.
         android:singleLine="true"
         android:visibility="gone"
         android:layout_width="fill_parent"
-        android:layout_height="wrap_content"      
+        android:layout_height="wrap_content"  
+        android:text="@string/pull_to_refresh_refreshing_label"    
        
         />
         

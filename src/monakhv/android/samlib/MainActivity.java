@@ -77,12 +77,12 @@ public class MainActivity extends ActionBarActivity {
             CleanNotificationData.start(this);
 
         }
-        //addAuthorDilog = new AddAuthorDialog();
+        
         SettingsHelper.addAuthenticator(this.getApplicationContext());
         getActionBarHelper().setRefreshActionItemState(refreshStatus);
 
         listView = (PullToRefresh) findViewById(R.id.listAuthirFragment);
-        listHelper = new AuthorListHelper(this, getLoaderManager(),listView);
+        listHelper = new AuthorListHelper(this, listView);
 
 
         

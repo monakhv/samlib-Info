@@ -25,6 +25,7 @@ import android.graphics.Typeface;
 import android.graphics.drawable.GradientDrawable;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
@@ -59,10 +60,12 @@ public class AuthorListHelper implements
     private SimpleCursorAdapter adapter;
     private ListView listView;
     private GestureDetector detector;
+    private FragmentActivity activity;
 
-    public AuthorListHelper(Context context, LoaderManager loaderManager,PullToRefresh pull) {
-        this.context = context;
-        this.loaderManager = loaderManager;
+    public AuthorListHelper(FragmentActivity activity,PullToRefresh pull) {
+        this.activity = activity;
+        this.context = activity;
+        this.loaderManager = activity.getLoaderManager();
         String[] from = {SQLController.COL_NAME, SQLController.COL_mtime, SQLController.COL_isnew, SQLController.COL_TGNAMES};
         int[] to = {R.id.authorName, R.id.updated, R.id.icon, R.id.tgnames};
         
@@ -87,7 +90,13 @@ public class AuthorListHelper implements
                 return false;
             }
         });
-        pull.setEmptyText(context.getString(R.string.no_authors));
+        
+        TextView tv = (TextView) activity.findViewById(R.id.id_empty_text);
+//        if (adapter.getCursor().getCount() != 0){
+//            tv.setText(R.string.pull_to_refresh_refreshing_label);
+//        }
+        pull.getListView().setEmptyView(tv);
+        
         listView.setDivider(new GradientDrawable(GradientDrawable.Orientation.LEFT_RIGHT, new int[]{0x3300FF00, 0xFF00FF00, 0xffffffff}));
         listView.setDividerHeight(1);
         

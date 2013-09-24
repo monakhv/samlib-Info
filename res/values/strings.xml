@@ -151,7 +151,7 @@ limitations under the License.
     
     
     
-    <string name="arc_title2_db">Текст URL Export/Import</string>
+    <string name="arc_title2_db">Текст/HTML URL Export/Import</string>
     
     <string name="arc_export_text_text">Выгрузить список авторов</string>
     <string name="arc_import_text_text">Загрузить список авторов</string>

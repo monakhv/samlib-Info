@@ -56,7 +56,7 @@ public class PullToRefresh extends LinearLayout {
     // ===========================================================
     private int state = PULL_TO_REFRESH;
     private ListView listView;
-    private TextView emptyText;
+    
     private RelativeLayout header;
     private TextView headerText;
     private ImageView headerImage;
@@ -268,15 +268,7 @@ public class PullToRefresh extends LinearLayout {
                 LinearLayout.LayoutParams.FILL_PARENT);
         
         addView(listView, lp);
-        emptyText = new TextView(context, attrs);
-        lp = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
-        lp.weight = 1.0f;
-        lp.gravity=Gravity.CENTER;
-        emptyText.setLayoutParams(lp);
-        
        
-        addView(emptyText, lp);
-        listView.setEmptyView(emptyText);
         
         flipAnimation = new RotateAnimation(0, -180,
                 RotateAnimation.RELATIVE_TO_SELF, 0.5f,
@@ -294,9 +286,7 @@ public class PullToRefresh extends LinearLayout {
         setPadding(getPaddingLeft(), -headerHeight, getPaddingRight(),
                 getPaddingBottom());
     }
-    public void setEmptyText(String str){
-        emptyText.setText(str);
-    }
+    
     private void measureView(View child) {
         ViewGroup.LayoutParams p = child.getLayoutParams();
         if (p == null) {

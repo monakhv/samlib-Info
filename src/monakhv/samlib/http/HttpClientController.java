@@ -70,9 +70,10 @@ public class HttpClientController {
     private SamLibConfig slc;
 
     public static HttpClientController getInstance() {
-
-        instance = new HttpClientController();
-
+        if (instance == null){
+            instance = new HttpClientController();
+        }
+        
         return instance;
     }
 

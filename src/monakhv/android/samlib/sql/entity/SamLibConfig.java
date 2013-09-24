@@ -50,8 +50,8 @@ public class SamLibConfig {
     public static SamLibConfig getInstance(){
         if (instance == null){
             instance = new SamLibConfig();
-        }
-        instance.order=true;
+            instance.order=true;
+        }        
         return instance;
     }
     
