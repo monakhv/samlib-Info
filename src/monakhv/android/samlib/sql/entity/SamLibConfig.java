@@ -35,7 +35,7 @@ import java.util.regex.Pattern;
  */
 public class SamLibConfig {
     private static final SamIzdat[]   URLs = {SamIzdat.SamLib, SamIzdat.BudClub};//Samizdat mirrors. Order is important this is the order mirror is selected by
-    private static final SamIzdat     samizdDefault = SamIzdat.SamLib;//Default Mirror to open in browser and to store bookmark list
+    
     private static final String     SLASH = "/";
     private static final String     URLPTR = "/\\w/\\w+/";
     private static final String     SAMLIB_PROTO = "http://";
@@ -123,7 +123,8 @@ public class SamLibConfig {
          * @return 
          */
         public static String getBookUrlForBrowser(Book book){
-            return samizdDefault.url + SLASH + book.getUri() + ".shtml";
+            SamLibConfig slc=SamLibConfig.getInstance();
+            return slc.getDefaultURL() + SLASH + book.getUri() + ".shtml";
         }
         /**
          * Construct URL to open the book in WEB browser and to store bookmark list
@@ -132,7 +133,8 @@ public class SamLibConfig {
          * @return 
          */
         public static String getAuthorUrlForBrowser(Author author){
-            return samizdDefault.url +  author.getUrl() ;
+            SamLibConfig slc=SamLibConfig.getInstance();
+            return slc.getDefaultURL() +  author.getUrl() ;
         }
 
     /**
@@ -196,6 +198,11 @@ public class SamLibConfig {
             res.add(itr.next().getAuthorRequestURL(a.getUrl()));
         }
         return res;
+    }
+    
+    public String getDefaultURL(){
+        Iterator<SamIzdat> itr = getIterator();
+        return itr.next().url;
     }
 
     /**
