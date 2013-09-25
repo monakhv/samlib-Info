@@ -63,7 +63,17 @@ public class AuthorController implements AbstractController<Author> {
         cursor.close();
         return res;
     }
-    
+    /**
+     * Test whether the selection is empty or not
+     * @param selection
+     * @return 
+     */
+    public boolean isEmpty(String selection){        
+        Cursor cursor = context.getContentResolver().query(AuthorProvider.AUTHOR_URI, null, selection, null, null);
+        boolean res = cursor.moveToNext();
+        cursor.close();
+        return !res;
+    }
     public List<Author> getAll() {
         return getAll(null);
     }

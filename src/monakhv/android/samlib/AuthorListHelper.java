@@ -92,9 +92,10 @@ public class AuthorListHelper implements
         });
         
         TextView tv = (TextView) activity.findViewById(R.id.id_empty_text);
-//        if (adapter.getCursor().getCount() != 0){
-//            tv.setText(R.string.pull_to_refresh_refreshing_label);
-//        }
+        AuthorController sql = new AuthorController(context);
+        if (!sql.isEmpty(selection)){
+            tv.setText(R.string.pull_to_refresh_refreshing_label);
+        }
         pull.getListView().setEmptyView(tv);
         
         listView.setDivider(new GradientDrawable(GradientDrawable.Orientation.LEFT_RIGHT, new int[]{0x3300FF00, 0xFF00FF00, 0xffffffff}));
