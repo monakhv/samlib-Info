@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 import monakhv.android.samlib.exception.AuthorParseException;
 import monakhv.android.samlib.exception.BookParseException;
@@ -44,7 +45,15 @@ import org.apache.http.params.HttpParams;
 
 /**
  *
- * @author monakhv
+ * @author Dmitry Monakhov
+ *
+ * The Class make all internet connection for SmLib Info project. Must be call
+ * from Async tasks or Services only! Have 3 main method
+ *
+ * - addAuthor to add new Author to data base. The method is used by AddAuthor
+ * task - getAuthorByURL get Author object using http connection.The method is
+ * used by Update service - downloadBook to download book content to file in
+ * HTML from. It is used by DownloadBook service
  */
 public class HttpClientController {
 
@@ -58,81 +67,133 @@ public class HttpClientController {
     private static AuthScope scope = null;
     private static UsernamePasswordCredentials pwd = null;
     private static HttpClientController instance = null;
+    private SamLibConfig slc;
 
     public static HttpClientController getInstance() {
-        if (instance == null) {
+        if (instance == null){
             instance = new HttpClientController();
         }
+        
         return instance;
     }
 
+    private HttpClientController() {
+        slc = SamLibConfig.getInstance();
+    }
+
     /**
-     * Construct Author object using samlib URL
+     * Construct Author object using reduced URL Internet connection is made
+     * using set of mirrors
      *
-     * @param link
+     * This is the method for update service
+     *
+     * @param link reduced URL
      * @return
      */
-    public Author getAuthorByURL(URL link) throws IOException, AuthorParseException {
+    public Author getAuthorByURL(String link) throws IOException, AuthorParseException {
         Author a = new Author();
         a.setUrl(link);
-        String str = null;
-        boolean retry = true;
-        int loopCount = 0;
-        while (retry) {
-            try {
-                str = getAuthorPage(a);
-                retry = false;
-            } catch (SamLibIsBusyException ex) {
-                loopCount++;
-                Log.w(DEBUG_TAG, "Retry number: " + loopCount + "  sleep 1 second");
-                try {
-                    TimeUnit.SECONDS.sleep(loopCount);
-                } catch (InterruptedException ex1) {
-                    Log.e(DEBUG_TAG, "Sleep interapted: ", ex);
-                }
-                if (loopCount >= RETRY_LIMIT) {
-                    retry = false;
-                    throw new IOException("Retry Limit exeeded");
-                }
-            }
-        }
+        String str = getURL(slc.getAuthorRequestURL(a), null);
 
         parseData(a, str);
         return a;
     }
 
     /**
-     * The same as getAuthorByURL but calculate author name for use in addAuthor task
-     * 
-     * @param link
+     * Create Author object using internet data and reduced url string The same
+     * as getAuthorByURL but calculate author name for use in addAuthor task
+     * Internet connection is made using set of mirrors This is the method for
+     * AddAuthor task
+     *
+     * @param link reduced url
      * @return
      * @throws IOException
-     * @throws AuthorParseException 
+     * @throws AuthorParseException
      */
-    public Author addAuthor(URL link)  throws IOException, AuthorParseException{
+    public Author addAuthor(String link) throws IOException, AuthorParseException {
         Author a = getAuthorByURL(link);
         a.extractName();
         return a;
     }
+
     /**
-     * Save book to apropriate file and make file transformation to make it
-     * readable by android web Client
+     * Save book to appropriate file and make file transformation to make it
+     * readable by android applications like ALRead and CoolReader Internet
+     * connection is made using set of mirrors
      *
-     * @param book
-     * @throws IOException
-     * @throws AuthorParseException
+     * This is the method for DownloadBook service
+     *
+     * @param book the book to download
+     * @throws IOException connection problem occurred
+     * @throws AuthorParseException remote host return status other then 200
      */
     public void downloadBook(Book book) throws IOException, AuthorParseException {
         File f = book.getFile();
         BufferedWriter bw = new BufferedWriter(new FileWriter(f));
-        URL url = new URL(book.getURL());
 
+        getURL(slc.getBookUrl(book), f);
+        SamLibConfig.transformBook(f);
+    }
 
+    /**
+     * Make http connection and begin download data using list of mirrors URL
+     *
+     * @param urls list of mirrors URL
+     * @param f file to download data to can be null
+     * @return downloaded data in case file is null
+     * @throws IOException connection problem
+     * @throws AuthorParseException remote host return status other then 200
+     */
+    private String getURL(List<String> urls, File f) throws IOException, AuthorParseException {
+        String res = null;
+        IOException exio = null;
+        AuthorParseException exparse = null;
+        for (String surl : urls) {
+            exio = null;
+            exparse = null;
+            try {
+                URL url = new URL(surl);
+                res = _getURL(url, f);
+            } catch (IOException e) {
+                slc.flipOrder();
+                exio = e;
+                Log.e(DEBUG_TAG, "IOException: " + surl, e);
+            } catch (AuthorParseException e) {
+                slc.flipOrder();
+                exparse = e;
+                Log.e(DEBUG_TAG, "AuthorParseException: " + surl, e);
+            }
+
+            if (exio == null && exparse == null) {
+                return res;
+            }
+        }
+        if (exio != null) {
+            throw exio;
+        } else {
+            throw exparse;
+        }
+    }
+
+    /**
+     * Row method to make http connection and begin download data Take into
+     * account 503 return status make retry after one (1) second of sleep. Call
+     * only by _getURL. Make internal call of __getURL
+     *
+     * @param url URL to download from
+     * @param f File to download to, can be null
+     * @return Download data if "f" is null
+     * @throws IOException connection problem
+     * @throws AuthorParseException remote host return status other then 200 ad
+     * 503
+     */
+    private String _getURL(URL url, File f) throws IOException, AuthorParseException {
+        String res = null;
         boolean retry = true;
         int loopCount = 0;
         while (retry) {
             try {
-                getURL(url, bw);
+                res = __getURL(url, f);
                 retry = false;
             } catch (SamLibIsBusyException ex) {
                 loopCount++;
@@ -148,11 +209,21 @@ public class HttpClientController {
                 }
             }
         }
-
-        SamLibConfig.transformBook(f);
+        return res;
     }
 
-    private String getURL(URL url, BufferedWriter bw) throws IOException, SamLibIsBusyException, AuthorParseException {
+    /**
+     * Very row method to make http connection and begin download data Call only
+     * by _getURL
+     *
+     * @param url URL to download
+     * @param f File to download to can be null
+     * @return Download data if "f" is null
+     * @throws IOException connection problem
+     * @throws SamLibIsBusyException host return 503 status
+     * @throws AuthorParseException host return status other then 200 and 503
+     */
+    private String __getURL(URL url, File f) throws IOException, SamLibIsBusyException, AuthorParseException {
 
         HttpGet method = new HttpGet(url.toString());
 
@@ -189,15 +260,9 @@ public class HttpClientController {
         InputStream content = response.getEntity().getContent();
         BufferedReader in = new BufferedReader(new InputStreamReader(content, ENCODING));
 
-        String result = doReadPage(in, bw);
+        String result = doReadPage(in, f);
         httpclient.getConnectionManager().shutdown();
         return result;
-
-    }
-
-    protected String getAuthorPage(Author a) throws IOException, SamLibIsBusyException, AuthorParseException {
-        URL requestUrl = a.getRequestURL();
-        return getURL(requestUrl, null);
 
     }
 
@@ -217,12 +282,20 @@ public class HttpClientController {
 
     /**
      * Read buffer to string and return it or to BufferWriter for book download
-     * @param in
-     * @param bw
-     * @return
-     * @throws IOException 
+     *
+     * @param in the reader to read data from
+     * @param f the file to write data to, can be null
+     * @return the string data if the file is null or null in the other case
+     * @throws IOException
      */
-    protected static String doReadPage(BufferedReader in, BufferedWriter bw) throws IOException {
+    protected static String doReadPage(BufferedReader in, File f) throws IOException {
+        BufferedWriter bw;
+        if (f != null) {
+            bw = new BufferedWriter(new FileWriter(f));
+        } else {
+            bw = null;
+        }
+
         StringBuilder sb = new StringBuilder();
         String inputLine = in.readLine();
         while (inputLine != null) {
@@ -263,6 +336,6 @@ public class HttpClientController {
                 Log.e(DEBUG_TAG, "Error parsing book: " + line + "  skip it.", ex);
             }
         }
-        
+
     }
 }

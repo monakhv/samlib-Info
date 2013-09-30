@@ -20,9 +20,8 @@ import android.os.AsyncTask;
 import android.util.Log;
 import android.widget.Toast;
 import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
 import monakhv.android.samlib.R;
+import monakhv.android.samlib.data.SettingsHelper;
 import monakhv.android.samlib.exception.AuthorParseException;
 import monakhv.android.samlib.sql.AuthorController;
 import monakhv.samlib.http.HttpClientController;
@@ -30,7 +29,9 @@ import monakhv.android.samlib.sql.entity.Author;
 import monakhv.android.samlib.sql.entity.SamLibConfig;
 
 /**
- *
+ * The task to load Author into data base.
+ * Take the array of full Authors URL
+ * 
  * @author monakhv
  */
 public class AddAuthor extends AsyncTask<String, Void, Boolean> {
@@ -40,10 +41,12 @@ public class AddAuthor extends AsyncTask<String, Void, Boolean> {
     private Context context = null;
     private int numberOfAdded;
     private int doubleAdd = 0;
+    private SettingsHelper settings;
 
     public AddAuthor(Context c) {
         context = c;
         numberOfAdded = 0;
+        settings = new SettingsHelper(context);
     }
 
     @Override
@@ -93,20 +96,23 @@ public class AddAuthor extends AsyncTask<String, Void, Boolean> {
         Author a;
         String text;
 
-        try {
-            text = testURL(url);
-        } catch (MalformedURLException ex) {
+        
+        text = testURL(url);
+        if (text == null){
+            Log.e(DEBUG_TAG, "URL syntax error: "+url);
+            settings.log(DEBUG_TAG, "URL syntax error: "+url);
             return null;
         }
-
+        
         Author ta = sql.getByUrl(text);
         if (ta != null) {
             Log.i(DEBUG_TAG, "Ignore Double entries: "+text);
+            settings.log(DEBUG_TAG, "Ignore Double entries: "+text);
             ++doubleAdd;
             return null;
         }
         try {
-            a = http.addAuthor(new URL(text));
+            a = http.addAuthor(text);
         } catch (IOException ex) {
             Log.e(DEBUG_TAG, "DownLoad Error for URL: " + text, ex);
             return null;
@@ -122,25 +128,24 @@ public class AddAuthor extends AsyncTask<String, Void, Boolean> {
         return a;
     }
 
-    private String testURL(String url) throws MalformedURLException {
+    /**
+     * URL syntax checkout
+     * 
+     * @param url original URL
+     * @return reduced URL without host prefix
+     * 
+     */
+    private String testURL(String url)   {
         Log.d(DEBUG_TAG, "Got text: " + url);
         String text = url;
 
-        //Add samlib URL
-        if (!text.startsWith(SamLibConfig.SAMLIB_URL)) {
-            if (text.startsWith(SLASH)) {
-                text = SamLibConfig.SAMLIB_URL + text;
-            } else {
-                text = SamLibConfig.SAMLIB_URL + SLASH + text;
-            }
-
-        }
         //All URL must be closed by /
         if (!text.endsWith(SLASH)) {
             text = text + SLASH;
         }
-        URL uu = new URL(text);
-        return text;
+        
+        
+        return SamLibConfig.reduceUrl(text);
 
     }
 }

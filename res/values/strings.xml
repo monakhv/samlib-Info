@@ -20,6 +20,7 @@ limitations under the License.
     <string name="author_url">http://samlib.ru/...</string>    
     <string name="author_tag">Новый тэг</string>    
     
+    <string name="update_update">Обновление</string>    
     
     <string name="dialog_title_filtr">Категория авторов</string>    
     <string name="dialog_title_file">Выбор файла</string>
@@ -150,7 +151,7 @@ limitations under the License.
     
     
     
-    <string name="arc_title2_db">Текст URL Export/Import</string>
+    <string name="arc_title2_db">Текст/HTML URL Export/Import</string>
     
     <string name="arc_export_text_text">Выгрузить список авторов</string>
     <string name="arc_import_text_text">Загрузить список авторов</string>
@@ -169,5 +170,9 @@ limitations under the License.
     <string name="download_book_success">Книга успешно загружена</string>
     <string name="download_book_error">Ошибка загрузки книги</string>
     <string name="download_Loading">Загрузка...</string>
+    
+    <string name="pull_to_refresh_pull_label">Потяните, чтобы обновить...</string>
+    <string name="pull_to_refresh_release_label">Отпустите для обновления...</string>
+    <string name="pull_to_refresh_refreshing_label">Загрузка...</string>
     
 </resources>

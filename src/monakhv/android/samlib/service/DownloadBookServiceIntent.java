@@ -60,7 +60,7 @@ public class DownloadBookServiceIntent extends IntentService {
         } catch (Exception ex) {
             book.cleanFile();//clean file on error
             finish(false);
-            Log.e(DEBUG_TAG, "Download book error: " + book.getURL(), ex);
+            Log.e(DEBUG_TAG, "Download book error: " + book.getUri(), ex);
 
         }
 

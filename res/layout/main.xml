@@ -20,13 +20,25 @@ limitations under the License.
               android:layout_height="match_parent">
     
     
-    <fragment
+    <monakhv.android.samlib.PullToRefresh
         android:id="@+id/listAuthirFragment"
-        android:name="monakhv.android.samlib.AuthorListFragment"
+        
         android:layout_weight="1"
         android:layout_width="match_parent"
         android:layout_height="0dp">
-    </fragment>
+    </monakhv.android.samlib.PullToRefresh>
+    
+    <TextView
+        android:id="@+id/id_empty_text"
+       android:layout_weight="10"
+        android:layout_gravity ="center"
+        android:gravity="center"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:text="@string/no_authors"
+        android:textAppearance="?android:attr/textAppearanceMedium"    
+    >        
+    </TextView>
     
     
     <LinearLayout 

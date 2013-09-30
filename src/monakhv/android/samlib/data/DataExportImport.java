@@ -38,6 +38,7 @@ import monakhv.android.samlib.sql.AuthorController;
 import monakhv.android.samlib.sql.SQLController;
 import monakhv.android.samlib.sql.entity.Author;
 import monakhv.android.samlib.sql.entity.Book;
+import monakhv.android.samlib.sql.entity.SamLibConfig;
 import monakhv.android.samlib.tasks.AddAuthor;
 
 /**
@@ -57,7 +58,9 @@ public class DataExportImport {
     private static final File SD = Environment.getExternalStorageDirectory();
     private static final File backupDIR = new File(SD, BACKUP_DIR);
     private static final String TXT_PREFIX = "Authors";
-    private static final String TXT_EXT = ".txt";
+    private static final String TXT_EXT      = ".txt";
+    private static final String HTM_EXT     = ".htm";
+    private static final String HTML_EXT   = ".html";
     
     /**
      * Setting file to store book content 
@@ -149,7 +152,7 @@ public class DataExportImport {
 
                 List<Author> authors = sql.getAll();
                 for (Author a : authors) {
-                    bw.write(a.getUrl().toString());
+                    bw.write(a.getUrlForBrowser());
                     bw.newLine();
                 }
                 bw.flush();
@@ -190,7 +193,7 @@ public class DataExportImport {
         List<String> files = new ArrayList<String>();
         backupDIR.mkdir();
         for (String file : backupDIR.list()) {
-            if (file.startsWith(TXT_PREFIX) && file.endsWith(TXT_EXT)) {
+            if  (file.endsWith(TXT_EXT)   ||     file.endsWith(HTM_EXT)|| file.endsWith(HTML_EXT)   ) {
                 files.add(file);
             }
         }
@@ -256,7 +259,10 @@ public class DataExportImport {
 
             String inputLine = in.readLine();
             while (inputLine != null) {
-                urls.add(inputLine);
+                String resstr =  SamLibConfig.getParsedUrl(inputLine);
+                if (resstr != null){
+                    urls.add(resstr);
+                }                
                 inputLine = in.readLine();
             }
 

@@ -15,8 +15,11 @@
  */
 package monakhv.android.samlib;
 
+import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.database.Cursor;
@@ -24,6 +27,7 @@ import android.database.MatrixCursor;
 import android.database.MergeCursor;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.ContextMenu;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -32,14 +36,19 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.Toast;
+import monakhv.android.samlib.PullToRefresh.OnRefreshListener;
 import monakhv.android.samlib.actionbar.ActionBarActivity;
 import monakhv.android.samlib.data.SettingsHelper;
 import monakhv.android.samlib.service.CleanNotificationData;
 import monakhv.android.samlib.service.UpdateServiceIntent;
+import monakhv.android.samlib.sql.AuthorController;
 import monakhv.android.samlib.sql.AuthorProvider;
 import monakhv.android.samlib.sql.SQLController;
+import monakhv.android.samlib.sql.entity.Author;
 import monakhv.android.samlib.sql.entity.SamLibConfig;
 import monakhv.android.samlib.tasks.AddAuthor;
+import monakhv.android.samlib.tasks.DeleteAuthor;
+import monakhv.android.samlib.tasks.MarkRead;
 
 public class MainActivity extends ActionBarActivity {
 
@@ -50,7 +59,8 @@ public class MainActivity extends ActionBarActivity {
     private UpdateActivityReceiver receiver;
     private boolean refreshStatus = false;
     private FilterSelectDialog dialog;
-    private String selection = null;
+    private PullToRefresh listView;
+    private AuthorListHelper listHelper;
 
     @Override
     public void onCreate(Bundle icicle) {
@@ -67,10 +77,21 @@ public class MainActivity extends ActionBarActivity {
             CleanNotificationData.start(this);
 
         }
-        //addAuthorDilog = new AddAuthorDialog();
+        
         SettingsHelper.addAuthenticator(this.getApplicationContext());
         getActionBarHelper().setRefreshActionItemState(refreshStatus);
 
+        listView = (PullToRefresh) findViewById(R.id.listAuthirFragment);
+        listHelper = new AuthorListHelper(this, listView);
+
+
+        
+        listView.setOnRefreshListener(new OnRefreshListener() {
+            public void onRefresh() {
+                makeUpdate();
+            }
+        });
+        registerForContextMenu(listView.getListView());
     }
 
     @Override
@@ -81,14 +102,14 @@ public class MainActivity extends ActionBarActivity {
         receiver = new UpdateActivityReceiver();
         getActionBarHelper().setRefreshActionItemState(refreshStatus);
         registerReceiver(receiver, filter);
-
+        
 
     }
 
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if ((keyCode == KeyEvent.KEYCODE_BACK)) { //Back key pressed
-            if (selection != null) {
+            if (listHelper.getSelection() != null) {
                 refreshList(null);
             } else {
                 finish();
@@ -100,9 +121,9 @@ public class MainActivity extends ActionBarActivity {
     }
 
     private void refreshList(String sel) {
-        this.selection = sel;
-        AuthorListFragment listFragment = (AuthorListFragment) getSupportFragmentManager().findFragmentById(R.id.listAuthirFragment);
-        listFragment.refresh(sel);
+
+        listHelper.refresh(sel);
+
 
     }
 
@@ -110,6 +131,10 @@ public class MainActivity extends ActionBarActivity {
     protected void onPause() {
         super.onPause();
         unregisterReceiver(receiver);
+        //Stop refresh status
+        listView.onRefreshComplete();
+        refreshStatus = false;
+        getActionBarHelper().setRefreshActionItemState(refreshStatus);
     }
 
     @Override
@@ -123,6 +148,18 @@ public class MainActivity extends ActionBarActivity {
     }
 
     /**
+     * Start service to check out update
+     */
+    private void makeUpdate() {
+        refreshStatus = true;
+        getActionBarHelper().setRefreshActionItemState(refreshStatus);
+        Intent service = new Intent(this, UpdateServiceIntent.class);
+        service.putExtra(UpdateServiceIntent.CALLER_TYPE, UpdateServiceIntent.CALLER_IS_ACTIVITY);
+        service.putExtra(UpdateServiceIntent.SELECT_STRING, listHelper.getSelection());
+        startService(service);
+    }
+
+    /**
      * Option menu select items
      *
      * @param item
@@ -133,12 +170,7 @@ public class MainActivity extends ActionBarActivity {
         int sel = item.getItemId();
 
         if (sel == R.id.menu_refresh) {
-            refreshStatus = true;
-            getActionBarHelper().setRefreshActionItemState(refreshStatus);
-            Intent service = new Intent(this, UpdateServiceIntent.class);
-            service.putExtra(UpdateServiceIntent.CALLER_TYPE, UpdateServiceIntent.CALLER_IS_ACTIVITY);
-            service.putExtra(UpdateServiceIntent.SELECT_STRING, selection);
-            startService(service);
+            makeUpdate();
 
         }
         if (sel == R.id.add_option_item) {
@@ -168,7 +200,7 @@ public class MainActivity extends ActionBarActivity {
 
             if (txt != null) {
 
-                if (txt.startsWith(SamLibConfig.SAMLIB_URL)) {
+                if (SamLibConfig.testFullUrl(txt)) {
                     EditText editText = (EditText) findViewById(R.id.addUrlText);
                     editText.setText(txt);
                 }
@@ -287,6 +319,120 @@ public class MainActivity extends ActionBarActivity {
         v.setVisibility(View.GONE);
 
     }
+    private Author author=null;
+    private int read_option_item           = 21;
+    private int tags_option_item           = 22;
+    private int browser_option_item     = 23;
+    private int edit_author_option_item = 24;
+    private int delete_option_item = 25;
+
+    @Override
+    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
+        if (v.getId() == listView.getListView().getId()) {
+            AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) menuInfo;
+
+            Cursor cursor = (Cursor) listView.getAdapter().getItem(info.position);
+
+            author = AuthorController.Cursor2Author(getApplicationContext(), cursor);
+
+            if (author == null) {
+                Log.d(DEBUG_TAG, "Context menu Created - author is NULL!!");
+            } else {
+                Log.d(DEBUG_TAG, "Context menu Created - author is " + author.getName());
+            }
+            if (author.isIsNew()){
+                menu.add(1, read_option_item, 10, getText(R.string.menu_read));
+            }
+            menu.add(1, tags_option_item, 20, getText(R.string.menu_tags));
+            menu.add(1, browser_option_item, 30, getText(R.string.menu_open_web));
+            menu.add(1, edit_author_option_item, 40, getText(R.string.menu_edit));
+            menu.add(1, delete_option_item, 50, getText(R.string.menu_delete));
+        }
+
+
+    }
+
+    @Override
+    public boolean onContextItemSelected(MenuItem item) {
+
+        boolean super_answer = super.onContextItemSelected(item);
+        Log.d(DEBUG_TAG, "context menu item selected: " + item.getItemId() + "  super: " + super_answer);
+
+        if (author != null) {
+            if (item.getItemId() == delete_option_item) {
+                Dialog alert = createDeleteAuthorAlert(author.getName());
+                alert.show();
+            }
+
+            if (item.getItemId() == read_option_item) {
+                MarkRead marker = new MarkRead(getApplicationContext());
+                marker.execute(author.getId());
+            }
+            if (item.getItemId() == tags_option_item) {
+                Intent intent = new Intent(this, AuthorTagsActivity.class);
+                intent.putExtra(AuthorTagsActivity.AUTHOR_ID, author.getId());
+                intent.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
+                startActivity(intent);
+
+            }
+            if (item.getItemId() == browser_option_item) {
+                listHelper.launchBrowser(author);
+            }
+            if (item.getItemId() == edit_author_option_item) {
+                final AuthorController sql = new AuthorController(this);
+                EnterStringDialog ddialog = new EnterStringDialog(this, new EnterStringDialog.ClickListener() {
+                    public void okClick(String txt) {
+                        author.setName(txt);
+                        sql.update(author);
+                    }
+                }, getText(R.string.dialog_title_edit_author).toString(), author.getName());
+
+                ddialog.show();
+            }
+
+        } else {
+            Log.e(DEBUG_TAG, "Author Object is NULL!!");
+        }
+
+        return super.onContextItemSelected(item);
+
+    }
+    private DialogInterface.OnClickListener deleteAuthoristener = new DialogInterface.OnClickListener() {
+        public void onClick(DialogInterface dialog, int which) {
+            switch (which) {
+                case Dialog.BUTTON_POSITIVE:
+                    if (author != null) {
+                        DeleteAuthor deleter = new DeleteAuthor(getApplicationContext());
+                        deleter.execute(author.getId());
+                    }
+                    break;
+                case Dialog.BUTTON_NEGATIVE:
+                    break;
+            }
+
+        }
+    };
+
+    /**
+     * Create Alert Dialog to wrn about Author delete
+     *
+     * @param filename
+     * @return
+     */
+    private Dialog createDeleteAuthorAlert(String authorName) {
+        AlertDialog.Builder adb = new AlertDialog.Builder(this);
+        adb.setTitle(R.string.Attention);
+
+        String msg = getString(R.string.alert_delete_author);
+        msg = msg.replaceAll("__", authorName);
+
+        adb.setMessage(msg);
+        adb.setIcon(android.R.drawable.ic_dialog_alert);
+        adb.setPositiveButton(R.string.Yes, deleteAuthoristener);
+        adb.setNegativeButton(R.string.No, deleteAuthoristener);
+        return adb.create();
+
+    }
 
     /**
      * Receive updates from Update Service
@@ -295,14 +441,27 @@ public class MainActivity extends ActionBarActivity {
 
         public static final String ACTION_RESP = "monakhv.android.samlib.action.UPDATED";
         public static final String TOAST_STRING = "TOAST_STRING";
+        public static final String ACTION = "ACTION";
+        public static final String ACTION_TOAST = "TOAST";
+        public static final String ACTION_PROGRESS = "PROGRESS";
 
         @Override
         public void onReceive(Context context, Intent intent) {
-            int duration = Toast.LENGTH_SHORT;
-            Toast toast = Toast.makeText(context, intent.getCharSequenceExtra(TOAST_STRING), duration);
-            toast.show();
-            refreshStatus = false;
-            getActionBarHelper().setRefreshActionItemState(refreshStatus);
+
+            String action = intent.getStringExtra(ACTION);
+            if (action.equalsIgnoreCase(ACTION_TOAST)) {
+                int duration = Toast.LENGTH_SHORT;
+                Toast toast = Toast.makeText(context, intent.getCharSequenceExtra(TOAST_STRING), duration);
+                toast.show();
+                refreshStatus = false;
+                getActionBarHelper().setRefreshActionItemState(refreshStatus);
+                listView.onRefreshComplete();
+            }//
+            if (action.equalsIgnoreCase(ACTION_PROGRESS)) {
+                listView.updateProgress(intent.getStringExtra(TOAST_STRING));
+            }
+
+
         }
     }
 }
