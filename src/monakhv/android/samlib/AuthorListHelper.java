@@ -15,23 +15,22 @@
  */
 package monakhv.android.samlib;
 
-import android.app.LoaderManager;
 import android.content.Context;
-import android.content.CursorLoader;
 import android.content.Intent;
-import android.content.Loader;
 import android.database.Cursor;
 import android.graphics.Typeface;
 import android.graphics.drawable.GradientDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.CursorLoader;
+import android.support.v4.content.Loader;
+import android.support.v4.widget.CursorAdapter;
+import android.support.v4.widget.SimpleCursorAdapter;
 import android.util.Log;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
-import android.widget.CursorAdapter;
-import android.widget.SimpleCursorAdapter;
-
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.ListView;
@@ -43,6 +42,7 @@ import monakhv.android.samlib.sql.AuthorProvider;
 import monakhv.android.samlib.sql.SQLController;
 import monakhv.android.samlib.sql.entity.Author;
 import monakhv.android.samlib.tasks.MarkRead;
+
 
 /**
  *
@@ -65,7 +65,7 @@ public class AuthorListHelper implements
     public AuthorListHelper(FragmentActivity activity,PullToRefresh pull) {
         this.activity = activity;
         this.context = activity;
-        this.loaderManager = activity.getLoaderManager();
+        this.loaderManager = activity.getSupportLoaderManager();
         String[] from = {SQLController.COL_NAME, SQLController.COL_mtime, SQLController.COL_isnew, SQLController.COL_TGNAMES};
         int[] to = {R.id.authorName, R.id.updated, R.id.icon, R.id.tgnames};
         
