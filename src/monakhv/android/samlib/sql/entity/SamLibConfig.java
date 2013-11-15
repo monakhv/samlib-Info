@@ -44,7 +44,7 @@ public class SamLibConfig {
         
     private static SamLibConfig instance = null;
     private boolean order = true;//samlib is the first budclub is the second one
-    private LinkedList<SamIzdat> linkedSZ;
+    private final LinkedList<SamIzdat> linkedSZ;
     
     
     public static SamLibConfig getInstance(){
@@ -78,9 +78,9 @@ public class SamLibConfig {
         private static enum SamIzdat {
         SamLib("SamLib","http://samlib.ru"),
         BudClub("BudClub","http://budclub.ru");
-        private String url;
-        private String name;
-        private Pattern pattern;//search url pattern
+        private final String url;
+        private final String name;
+        private final Pattern pattern;//search url pattern
         private SamIzdat(String name,String url) {
             this.url = url;
             this.name = name;

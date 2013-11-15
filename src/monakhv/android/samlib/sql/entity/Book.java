@@ -19,7 +19,6 @@ import java.io.File;
 import java.io.Serializable;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.List;
 import java.util.TimeZone;
 import monakhv.android.samlib.data.DataExportImport;
 import monakhv.android.samlib.exception.BookParseException;
@@ -67,6 +66,7 @@ public class Book implements Serializable {
      * Parsing HTTP get string and construct Book object
      *
      * @param string2parse input single string to parse
+     * @throws monakhv.android.samlib.exception.BookParseException
      */
     public Book(String string2parse) throws BookParseException {
         this();
@@ -216,10 +216,7 @@ public class Book implements Serializable {
         if (this.size != other.size) {
             return false;
         }
-        if (this.updateDate != other.updateDate) {
-            return false;
-        }
-        return true;
+        return this.updateDate == other.updateDate;
     }
 
     @Override
@@ -278,10 +275,7 @@ public class Book implements Serializable {
         if (!ff.exists()) {
             return true;
         }
-        if (ff.lastModified() < getModifyTime()) {
-            return true;
-        }
-        return false;
+        return ff.lastModified() < getModifyTime();
     }
 
     public static Calendar string2Cal(String str) throws BookParseException {

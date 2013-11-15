@@ -47,7 +47,7 @@ import org.apache.http.params.HttpParams;
  *
  * @author Dmitry Monakhov
  *
- * The Class make all internet connection for SmLib Info project. Must be call
+ * The Class make all internet connection for SamLib Info project. Must be call
  * from Async tasks or Services only! Have 3 main method
  *
  * - addAuthor to add new Author to data base. The method is used by AddAuthor
@@ -62,12 +62,12 @@ public class HttpClientController {
     public static final int READ_TIMEOUT = 10000;
     protected static final String ENCODING = "windows-1251";
     protected static final String USER_AGENT = "Android reader";
-    private static String DEBUG_TAG = "HttpClientController";
+    private static final String DEBUG_TAG = "HttpClientController";
     private static HttpHost proxy = null;
     private static AuthScope scope = null;
     private static UsernamePasswordCredentials pwd = null;
     private static HttpClientController instance = null;
-    private SamLibConfig slc;
+    private final SamLibConfig slc;
 
     public static HttpClientController getInstance() {
         if (instance == null){
@@ -82,27 +82,29 @@ public class HttpClientController {
     }
 
     /**
-     * Construct Author object using reduced URL Internet connection is made
-     * using set of mirrors
+     * Construct Author object using reduced.
+     * URL Internet connection is made using set of mirrors
      *
      * This is the method for update service
      *
      * @param link reduced URL
      * @return
+     * @throws java.io.IOException
+     * @throws monakhv.android.samlib.exception.AuthorParseException
      */
     public Author getAuthorByURL(String link) throws IOException, AuthorParseException {
         Author a = new Author();
         a.setUrl(link);
         String str = getURL(slc.getAuthorRequestURL(a), null);
 
-        parseData(a, str);
+        parseAuthorData(a, str);
         return a;
     }
 
     /**
-     * Create Author object using internet data and reduced url string The same
-     * as getAuthorByURL but calculate author name for use in addAuthor task
-     * Internet connection is made using set of mirrors This is the method for
+     * Create Author object using internet data and reduced url string. 
+     * The same as getAuthorByURL but calculate author name for use in addAuthor task
+     * Internet connection is made using set of mirrors. This is the method for
      * AddAuthor task
      *
      * @param link reduced url
@@ -118,8 +120,8 @@ public class HttpClientController {
 
     /**
      * Save book to appropriate file and make file transformation to make it
-     * readable by android applications like ALRead and CoolReader Internet
-     * connection is made using set of mirrors
+     * readable by android applications like ALRead and CoolReader.
+     * Internet connection is made using set of mirrors.
      *
      * This is the method for DownloadBook service
      *
@@ -129,7 +131,7 @@ public class HttpClientController {
      */
     public void downloadBook(Book book) throws IOException, AuthorParseException {
         File f = book.getFile();
-        BufferedWriter bw = new BufferedWriter(new FileWriter(f));
+        
 
         getURL(slc.getBookUrl(book), f);
         SamLibConfig.transformBook(f);
@@ -318,7 +320,14 @@ public class HttpClientController {
 
     }
 
-    private static void parseData(Author a, String text) throws AuthorParseException {
+    /**
+     * Parse String data to load Author object 
+     * @param a Author object to load data to
+     * @param text String data to parse
+     * 
+     * @throws AuthorParseException Error parsing
+     */
+    private static void parseAuthorData(Author a, String text) throws AuthorParseException {
         String[] lines = text.split("\n");
 
         for (String line : lines) {
