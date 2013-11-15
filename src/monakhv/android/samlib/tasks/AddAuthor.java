@@ -36,12 +36,12 @@ import monakhv.android.samlib.sql.entity.SamLibConfig;
  */
 public class AddAuthor extends AsyncTask<String, Void, Boolean> {
 
-    private static String DEBUG_TAG = "AddAuthor";    
+    private static final String DEBUG_TAG = "AddAuthor";    
     public static final String SLASH = "/";
     private Context context = null;
     private int numberOfAdded;
     private int doubleAdd = 0;
-    private SettingsHelper settings;
+    private final SettingsHelper settings;
 
     public AddAuthor(Context c) {
         context = c;
