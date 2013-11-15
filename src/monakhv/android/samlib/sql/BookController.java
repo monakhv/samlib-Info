@@ -33,8 +33,8 @@ import monakhv.android.samlib.sql.entity.Book;
 public class BookController implements AbstractController<Book> {
 
     private static final String DEBUG_TAG = "BookController";
-    private Context context;
-    private SettingsHelper settings;
+    private final Context context;
+    private final SettingsHelper settings;
 
     BookController(Context context) {
         this.context = context;
