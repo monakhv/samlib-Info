@@ -115,10 +115,10 @@ public class BookListFragment extends ListFragment implements
 
     }
     private Book selected = null;
-    private int menu_mark_read = 1;
-    private int menu_browser = 2;
-    private int menu_selected = 3;
-    private int menu_deselected = 4;
+    private final int menu_mark_read = 1;
+    private final int menu_browser = 2;
+    private final int menu_selected = 3;
+    private final int menu_deselected = 4;
 
     @Override
     public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
