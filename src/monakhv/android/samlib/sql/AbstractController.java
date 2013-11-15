@@ -20,6 +20,7 @@ import java.util.List;
 /**
  *
  * @author monakhv
+ * @param <T>
  */
 public interface AbstractController <T>{
     abstract public int    update(T t);
