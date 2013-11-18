@@ -27,12 +27,15 @@ limitations under the License.
     <string name="dialog_title_edit_author">Имя автора</string>    
     
     <string name="button_add">Добавить</string>
+    <string name="button_search">Искать</string>
+    
     
     <string name="menu_read">Отметить как прочитаное</string>
     <string name="menu_open_web">Открыть в браузере</string>
     <string name="menu_delete">Удалить</string>
     <string name="menu_refresh">Обновить</string>
     <string name="menu_add">Добавить</string>
+    <string name="menu_search">Поиск</string>
     <string name="menu_settings">Настройки</string>
     <string name="menu_archive">Данные</string>
     <string name="menu_tags">Группы авторов</string>
@@ -53,6 +56,10 @@ limitations under the License.
     <string name="add_error">Ошибка добавления автора</string>
     <string name="add_error_double">Этот автор уже есть в базе!</string>
     <string name="add_author_title">Добавить URL автора</string>
+    
+    <string name="author_search_error">Ошибка поиска</string>
+    <string name="author_search_empty">Ничего не найдено</string>
+    <string name="author_search_limit">Превышен лимит результата поиска</string>
     
     <string name="Cancel">Отмена</string>
     <string name="Yes">Да</string>

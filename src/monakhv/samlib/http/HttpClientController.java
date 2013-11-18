@@ -24,12 +24,15 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
-import monakhv.android.samlib.exception.AuthorParseException;
+import monakhv.android.samlib.exception.SamlibParseException;
 import monakhv.android.samlib.exception.BookParseException;
 import monakhv.android.samlib.exception.SamLibIsBusyException;
 import monakhv.android.samlib.sql.entity.Author;
+import monakhv.android.samlib.sql.entity.AuthorCard;
 import monakhv.android.samlib.sql.entity.Book;
 import monakhv.android.samlib.sql.entity.SamLibConfig;
 import org.apache.http.HttpHost;
@@ -90,9 +93,9 @@ public class HttpClientController {
      * @param link reduced URL
      * @return
      * @throws java.io.IOException
-     * @throws monakhv.android.samlib.exception.AuthorParseException
+     * @throws monakhv.android.samlib.exception.SamlibParseException
      */
-    public Author getAuthorByURL(String link) throws IOException, AuthorParseException {
+    public Author getAuthorByURL(String link) throws IOException, SamlibParseException {
         Author a = new Author();
         a.setUrl(link);
         String str = getURL(slc.getAuthorRequestURL(a), null);
@@ -110,9 +113,9 @@ public class HttpClientController {
      * @param link reduced url
      * @return
      * @throws IOException
-     * @throws AuthorParseException
+     * @throws SamlibParseException
      */
-    public Author addAuthor(String link) throws IOException, AuthorParseException {
+    public Author addAuthor(String link) throws IOException, SamlibParseException {
         Author a = getAuthorByURL(link);
         a.extractName();
         return a;
@@ -127,14 +130,29 @@ public class HttpClientController {
      *
      * @param book the book to download
      * @throws IOException connection problem occurred
-     * @throws AuthorParseException remote host return status other then 200
+     * @throws SamlibParseException remote host return status other then 200
      */
-    public void downloadBook(Book book) throws IOException, AuthorParseException {
+    public void downloadBook(Book book) throws IOException, SamlibParseException {
         File f = book.getFile();
         
 
         getURL(slc.getBookUrl(book), f);
         SamLibConfig.transformBook(f);
+    }
+    /**
+     * Making author search
+     * @param pattern author name pattern to search
+     * @param page number of page
+     * @return
+     * @throws IOException 
+     * @throws monakhv.android.samlib.exception.SamlibParseException 
+     */
+    public HashMap<String, ArrayList<AuthorCard>> searchAuhors(String pattern, int page) throws IOException, SamlibParseException{
+        for (String url: slc.getSearchAuthorURL(pattern, page)){
+            Log.i(DEBUG_TAG, "url - "+url);
+        }
+        String str = getURL(slc.getSearchAuthorURL(pattern, page), null);
+        return parseSearchAuthorData(str);
     }
 
     /**
@@ -144,12 +162,12 @@ public class HttpClientController {
      * @param f file to download data to can be null
      * @return downloaded data in case file is null
      * @throws IOException connection problem
-     * @throws AuthorParseException remote host return status other then 200
+     * @throws SamlibParseException remote host return status other then 200
      */
-    private String getURL(List<String> urls, File f) throws IOException, AuthorParseException {
+    private String getURL(List<String> urls, File f) throws IOException, SamlibParseException {
         String res = null;
         IOException exio = null;
-        AuthorParseException exparse = null;
+        SamlibParseException exparse = null;
         for (String surl : urls) {
             exio = null;
             exparse = null;
@@ -160,7 +178,7 @@ public class HttpClientController {
                 slc.flipOrder();
                 exio = e;
                 Log.e(DEBUG_TAG, "IOException: " + surl, e);
-            } catch (AuthorParseException e) {
+            } catch (SamlibParseException e) {
                 slc.flipOrder();
                 exparse = e;
                 Log.e(DEBUG_TAG, "AuthorParseException: " + surl, e);
@@ -186,10 +204,10 @@ public class HttpClientController {
      * @param f File to download to, can be null
      * @return Download data if "f" is null
      * @throws IOException connection problem
-     * @throws AuthorParseException remote host return status other then 200 ad
+     * @throws SamlibParseException remote host return status other then 200 ad
      * 503
      */
-    private String _getURL(URL url, File f) throws IOException, AuthorParseException {
+    private String _getURL(URL url, File f) throws IOException, SamlibParseException {
         String res = null;
         boolean retry = true;
         int loopCount = 0;
@@ -223,9 +241,9 @@ public class HttpClientController {
      * @return Download data if "f" is null
      * @throws IOException connection problem
      * @throws SamLibIsBusyException host return 503 status
-     * @throws AuthorParseException host return status other then 200 and 503
+     * @throws SamlibParseException host return status other then 200 and 503
      */
-    private String __getURL(URL url, File f) throws IOException, SamLibIsBusyException, AuthorParseException {
+    private String __getURL(URL url, File f) throws IOException, SamLibIsBusyException, SamlibParseException {
 
         HttpGet method = new HttpGet(url.toString());
 
@@ -256,7 +274,7 @@ public class HttpClientController {
         }
         if (status != 200) {
             httpclient.getConnectionManager().shutdown();
-            throw new AuthorParseException("Status code: " + status);
+            throw new SamlibParseException("Status code: " + status);
         }
 
         InputStream content = response.getEntity().getContent();
@@ -325,16 +343,16 @@ public class HttpClientController {
      * @param a Author object to load data to
      * @param text String data to parse
      * 
-     * @throws AuthorParseException Error parsing
+     * @throws SamlibParseException Error parsing
      */
-    private static void parseAuthorData(Author a, String text) throws AuthorParseException {
+    private static void parseAuthorData(Author a, String text) throws SamlibParseException {
         String[] lines = text.split("\n");
 
         for (String line : lines) {
 
-            if (Book.testSplit(line) < 9) {
-                Log.e(DEBUG_TAG, "Line Book parse Error:  length=" + Book.testSplit(line) + "   line: " + line + " lines: " + lines.length);
-                throw new AuthorParseException("Line Book parse Error:  length=" + Book.testSplit(line) + "   line: " + line + " lines: " + lines.length);
+            if (SamLibConfig.testSplit(line) < 9) {
+                Log.e(DEBUG_TAG, "Line Book parse Error:  length=" + SamLibConfig.testSplit(line) + "   line: " + line + " lines: " + lines.length);
+                throw new SamlibParseException("Line Book parse Error:  length=" + SamLibConfig.testSplit(line) + "   line: " + line + " lines: " + lines.length);
             }
             try {
                 Book b = new Book(line);
@@ -346,5 +364,34 @@ public class HttpClientController {
             }
         }
 
+    }
+
+    private HashMap<String, ArrayList<AuthorCard>> parseSearchAuthorData(String text) throws  SamlibParseException {
+        String[] lines = text.split("\n");
+        HashMap<String, ArrayList<AuthorCard>> res = new HashMap<String, ArrayList<AuthorCard>>();
+         for (String line : lines) {
+             if (SamLibConfig.testSplit(line) < 7){
+                 Log.e(DEBUG_TAG, "Line Search parse Error:  length=" + SamLibConfig.testSplit(line) + "\nline: " + line + "\nlines: " + lines.length);
+                 throw new SamlibParseException("Parse Search Author error\nline: "+line);
+             }
+             AuthorCard card = new AuthorCard(line);
+                String name = card.getName();
+               
+                if (res.containsKey(name)){
+                    res.get(name).add(card);
+                    
+                }
+                else {
+                    ArrayList<AuthorCard> aa = new ArrayList<AuthorCard>();
+                    aa.add(card);
+                    res.put(name, aa);
+                    
+                }                
+         }
+         if (res.isEmpty()) {
+            return null;
+        }
+        return res;
+        
     }
 }

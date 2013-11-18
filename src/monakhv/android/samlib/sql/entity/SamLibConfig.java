@@ -23,6 +23,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -34,13 +35,50 @@ import java.util.regex.Pattern;
  * @author monakhv
  */
 public class SamLibConfig {
+    public static final   String SPLIT = "\\|";//Use  To parse Book and author Card object data
+    public static final String SLASH = "/";
+    public static final   int       SEARCH_LIMIT=100;
+    
+    private static final  int       AUTHOR_PAGE_SIZE = 100;//page size for author search
+    
     private static final SamIzdat[]   URLs = {SamIzdat.SamLib, SamIzdat.BudClub};//Samizdat mirrors. Order is important this is the order mirror is selected by
     
-    private static final String     SLASH = "/";
+    
     private static final String     URLPTR = "/\\w/\\w+/";
     private static final String     SAMLIB_PROTO = "http://";
-    private static final String     REQUEST_AUTHOR_TEXTS = "/cgi-bin/areader?q=razdel&order=date&object=";
-    private static final String     REQUEST_BOOK_TEXT = "/cgi-bin/areader?q=book&object=";
+    private static final String     TMPL_ANUM="_ANUM_";
+    private static final String     TMPL_PAGE="_PAGE_";
+    private static final String     TMPL_PAGELEN ="_PAGELEN_";
+    private static final String     REQUEST_AUTHOR_DATA           = "/cgi-bin/areader?q=razdel&order=date&object=";
+    private static final String     REQUEST_BOOK_TEXT                = "/cgi-bin/areader?q=book&object=";
+    private static final String     REQUEST_AUTHOR_SEARCH      = "/cgi-bin/areader?q=alpha&anum=_ANUM_&page=_PAGE_&pagelen=_PAGELEN_";
+    
+    private static final String[]   ABC_LETTER = new String[]{
+        "А", "Б", "В", "Г", "Д", "Е", "Ё", "Ж", "З", "И", "Й", "К", "Л",
+        "М", "Н", "О", "П", "Р", "С", "Т", "У", "Ф", "Х", "Ц", "Ч",
+        "Ш", "Щ", "Ъ", "Ы", "Ь", "Э", "Ю", "Я", "0", "1", "2", "3",
+        "4", "5", "6", "7", "8", "9", "A", "B", "C", "D", "E", "F",
+        "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R",
+        "S", "T", "U", "V", "W", "X", "Y", "Z"};
+
+    private static final String[] ABC_CODE = new String[]{
+        "225", "226", "247", "231", "228", "229", "179", "246",
+        "250", "233", "234", "235", "236", "237", "238", "239",
+        "240", "242", "243", "244", "245", "230", "232", "227",
+        "254", "251", "253", "255", "249", "248", "252", "224",
+        "241", "048", "049", "050", "051", "052", "053", "054",
+        "055", "056", "057", "065", "066", "067", "068", "069",
+        "070", "071", "072", "073", "074", "075", "076", "077",
+        "078", "079", "080", "081", "082", "083", "084", "085",
+        "086", "087", "088", "089", "090"};
+    private static final HashMap<String, String> ABC;
+
+    static {
+        ABC = new HashMap<String, String>();
+        for (int i = 0; i < ABC_CODE.length; i++) {
+            ABC.put(ABC_LETTER[i], ABC_CODE[i]);
+        }
+    }
         
     private static SamLibConfig instance = null;
     private boolean order = true;//samlib is the first budclub is the second one
@@ -106,12 +144,39 @@ public class SamLibConfig {
             return txt.matches(ptr);
         }
 
+        /**
+         * Construct URL to get Author data
+         * @param uu
+         * @return 
+         */
         private String getAuthorRequestURL(String uu) {
-            return url + REQUEST_AUTHOR_TEXTS +uu;
+            return url + REQUEST_AUTHOR_DATA +uu;
 
         }
+        /**
+         * Construct URL to download the book
+         * @param uu
+         * @return 
+         */
         private String getBookURL(String uu){
             return url+REQUEST_BOOK_TEXT+uu;
+        }
+        /**
+         * Construct URL to search Author
+         * 
+         * @param pattern
+         * @param page
+         * @return 
+         */
+        private String getSearchAuthorURL(String pattern,int page){
+            String res = url+REQUEST_AUTHOR_SEARCH;
+            String first = pattern.substring(0, 1);
+            first = first.toUpperCase();
+            res = res.
+                    replaceFirst(TMPL_ANUM, ABC.get(first)).
+                    replaceFirst(TMPL_PAGE, String.valueOf(page)).
+                    replaceFirst(TMPL_PAGELEN, String.valueOf(AUTHOR_PAGE_SIZE));
+            return res;
         }
     }
         //End SamIzdat class
@@ -191,6 +256,12 @@ public class SamLibConfig {
 
     }
 
+    /**
+     * Return the list of request URLs to get Author data
+     * 
+     * @param a the author object to get data for
+     * @return the list of url
+     */
     public List<String> getAuthorRequestURL(Author a) {
         List<String> res = new ArrayList<String>();
         Iterator<SamIzdat> itr = getIterator();
@@ -203,6 +274,20 @@ public class SamLibConfig {
     public String getDefaultURL(){
         Iterator<SamIzdat> itr = getIterator();
         return itr.next().url;
+    }
+    /**
+     * Return the list of request URLs to search authors
+     * @param pattern
+     * @param page number of page
+     * @return 
+     */
+    public List<String> getSearchAuthorURL(String pattern,int page){
+        List<String> res = new ArrayList<String>();
+        Iterator<SamIzdat> itr = getIterator();
+        while(itr.hasNext()){
+            res.add(itr.next().getSearchAuthorURL(pattern, page));
+        }
+        return res;
     }
 
     /**
@@ -251,5 +336,9 @@ public class SamLibConfig {
         br.close();
 
         tmp.delete();
+    }
+    public static int testSplit(String str) {
+        String[] arr = str.split(SamLibConfig.SPLIT);
+        return arr.length;
     }
 }

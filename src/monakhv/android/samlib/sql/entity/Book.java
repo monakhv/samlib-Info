@@ -30,7 +30,7 @@ import monakhv.android.samlib.exception.BookParseException;
 public class Book implements Serializable {
 
     public static final int SELECTED_GROUP_ID=1;
-    private static final String SPLIT = "\\|";
+    
     private static final int BOOK_LINK = 0;
     private static final int BOOK_AUTHOR = 1;
     private static final int BOOK_TITLE = 2;
@@ -70,7 +70,7 @@ public class Book implements Serializable {
      */
     public Book(String string2parse) throws BookParseException {
         this();
-        String[] strs = string2parse.split(SPLIT);
+        String[] strs = string2parse.split(SamLibConfig.SPLIT);
         title = strs[BOOK_TITLE];
         authorName = strs[BOOK_AUTHOR];
         uri = strs[BOOK_LINK];
@@ -225,10 +225,7 @@ public class Book implements Serializable {
         return "Book{" + "uri=" + uri + ", size=" + size + ", updateDate=" + d + '}';
     }
 
-    public static int testSplit(String str) {
-        String[] arr = str.split(SPLIT);
-        return arr.length;
-    }
+    
 
     /**
      * Get book url to open it using web browser

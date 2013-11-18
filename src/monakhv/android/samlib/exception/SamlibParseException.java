@@ -23,13 +23,13 @@ package monakhv.android.samlib.exception;
  *
  * @author monakhv
  */
-public class AuthorParseException extends SamLibException {
+public class SamlibParseException extends SamLibException {
 
     /**
      * Creates a new instance of
      * <code>BookParseException</code> without detail message.
      */
-    public AuthorParseException() {
+    public SamlibParseException() {
     }
 
     /**
@@ -38,7 +38,7 @@ public class AuthorParseException extends SamLibException {
      *
      * @param msg the detail message.
      */
-    public AuthorParseException(String msg) {
+    public SamlibParseException(String msg) {
         super(msg);
     }
 }

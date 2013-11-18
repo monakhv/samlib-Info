@@ -47,12 +47,13 @@ import monakhv.android.samlib.sql.SQLController;
 import monakhv.android.samlib.sql.entity.Author;
 import monakhv.android.samlib.sql.entity.SamLibConfig;
 import monakhv.android.samlib.tasks.AddAuthor;
+import monakhv.android.samlib.tasks.CleanSearch;
 import monakhv.android.samlib.tasks.DeleteAuthor;
 import monakhv.android.samlib.tasks.MarkRead;
 
 public class MainActivity extends ActionBarActivity {
 
-    private static String DEBUG_TAG = "MainActivity";
+    private static final String DEBUG_TAG = "MainActivity";
     public static String CLEAN_NOTIFICATION = "CLEAN_NOTIFICATION";
     final int ARCHIVE_ACTIVITY = 1;
     //AddAuthorDialog addAuthorDilog;
@@ -172,6 +173,17 @@ public class MainActivity extends ActionBarActivity {
         if (sel == R.id.menu_refresh) {
             makeUpdate();
 
+        }
+        if (sel == R.id.search_option_item){
+            View v = findViewById(R.id.search_author_panel);
+            if (v.getVisibility() == View.GONE){
+                CleanSearch task = new CleanSearch(this);
+                task.execute();
+                v.setVisibility(View.VISIBLE);
+            }
+            else {
+                v.setVisibility(View.GONE);
+            }
         }
         if (sel == R.id.add_option_item) {
             View v = findViewById(R.id.add_author_panel);
@@ -319,12 +331,23 @@ public class MainActivity extends ActionBarActivity {
         v.setVisibility(View.GONE);
 
     }
+    public void searchAuthor(View view) {
+        EditText editText = (EditText) findViewById(R.id.searchAuthorText);
+        String text = editText.getText().toString();
+
+        Intent prefsIntent = new Intent(getApplicationContext(),
+                SearchAuthorActivity.class);
+        prefsIntent.putExtra(SearchAuthorActivity.EXTRA_PATTERN, text);
+        prefsIntent.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
+        
+        startActivity(prefsIntent);
+    }
     private Author author=null;
-    private int read_option_item           = 21;
-    private int tags_option_item           = 22;
-    private int browser_option_item     = 23;
-    private int edit_author_option_item = 24;
-    private int delete_option_item = 25;
+    private final int read_option_item           = 21;
+    private final int tags_option_item           = 22;
+    private final int browser_option_item     = 23;
+    private final int edit_author_option_item = 24;
+    private final int delete_option_item = 25;
 
     @Override
     public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
@@ -397,7 +420,7 @@ public class MainActivity extends ActionBarActivity {
         return super.onContextItemSelected(item);
 
     }
-    private DialogInterface.OnClickListener deleteAuthoristener = new DialogInterface.OnClickListener() {
+    private final DialogInterface.OnClickListener deleteAuthoristener = new DialogInterface.OnClickListener() {
         public void onClick(DialogInterface dialog, int which) {
             switch (which) {
                 case Dialog.BUTTON_POSITIVE:

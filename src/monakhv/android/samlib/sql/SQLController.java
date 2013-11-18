@@ -32,7 +32,7 @@ import monakhv.android.samlib.sql.entity.Author;
  * Version - 3: COL_BOOK_DATE into GMT
  * Version - 4: Tags for the authors
  * Version - 5: Remove samlib URL from the  Author url to use several mirrors
- * 
+ * Version - 6:Search Author Result
  */
 public class SQLController {
     public enum ORDER_BY {
@@ -48,7 +48,7 @@ public class SQLController {
     }
 
     public static final String DB_NAME   = "AUTHOR_DATA";
-    public static final int    DB_VERSION = 5;
+    public static final int    DB_VERSION = 6;
     
     public static final String COL_ID = "_id";
     public static final String COL_NAME = "NAME";
@@ -80,11 +80,19 @@ public class SQLController {
     public static final String COL_STATE_VAR_NAME ="VAR_NAME";
     public static final String COL_STATE_VAR_VALUE="VAR_VALUE";
     
+    public static final String COL_AC_URL       ="URL";
+    public static final String COL_AC_NAME    ="NAME";
+    public static final String COL_AC_TITLE    ="TITLE";
+    public static final String COL_AC_DESC     ="DESC";
+    public static final String COL_AC_SIZE      ="SIZE";
+    public static final String COL_AC_COUNT ="COUNT";
+    
     public static final String TABLE_AUTHOR = "Author";
     public static final String TABLE_BOOKS   = "Book";
     public static final String TABLE_TAGS      ="Tags";
     public static final String TABLE_T2A         ="Tag2Author" ;
     public static final String TABLE_STATE    ="StateData";
+    public static final String TABLE_SEARCH_AUTHOR    ="AuthorCard";
     
     private static final String CLASS_NAME = "org.sqlite.JDBC";
     private static final String CONNECT_STRING = "jdbc:sqlite:"+DB_NAME+".db";
@@ -131,6 +139,16 @@ public class SQLController {
             COL_ID+"  integer primary key autoincrement, "+
             COL_TAG_NAME                    +" text,"+
             COL_TAG_UCNAME               +" text"+           
+            ");";
+    
+    public static final String DB_CREATE_AC ="create table if not exists "+TABLE_SEARCH_AUTHOR+"( "+
+            COL_ID+"  integer primary key autoincrement, "+
+            COL_AC_URL                   +" text,"+
+            COL_AC_NAME                +" text,"+
+            COL_AC_TITLE                +" text,"+
+            COL_AC_DESC                 +" text,"+
+            COL_AC_SIZE                   +" INTEGER,"+
+            COL_AC_COUNT              +" INTEGER"+
             ");";
     
     public static final String DB_CREATE_TAG_TO_AUTHOR ="create table if not exists "+TABLE_T2A+"( "+

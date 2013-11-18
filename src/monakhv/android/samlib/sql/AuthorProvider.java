@@ -41,6 +41,8 @@ public class AuthorProvider extends ContentProvider {
     
     private static final String T2A_BASE_PATH = SQLController.TABLE_T2A;
     
+    private static final String AC_BASE_PATH = SQLController.TABLE_SEARCH_AUTHOR;
+    
     public static final int AUTHORS = 100;//marker to get all authors
     public static final int AUTHOR_ID = 110;//marker to get author by ID
     public static final int AUTHORS_TAG = 120;//marker to get all authors for given tag 
@@ -51,6 +53,9 @@ public class AuthorProvider extends ContentProvider {
     
     public static final int T2AS    = 400;//marker to get all tags
     public static final int T2A_ID = 410;//marker to get tag by ID
+    
+    public static final int ACS    = 500;//marker to get all tags
+    public static final int AC_ID = 510;//marker to get tag by ID
     
     public static final String CONTENT_TYPE = ContentResolver.CURSOR_DIR_BASE_TYPE
             + "/samlib-monk";//Type for all table
@@ -68,6 +73,10 @@ public class AuthorProvider extends ContentProvider {
             + "/samlib-monk-t2a";//Type for all tags
     public static final String T2A_CONTENT_ITEM_TYPE = ContentResolver.CURSOR_ITEM_BASE_TYPE
             + "/samlib-monk-t2a";//Type for single tag
+    public static final String AC_CONTENT_TYPE = ContentResolver.CURSOR_DIR_BASE_TYPE
+            + "/samlib-monk-authorcard";//Type for all tags
+    public static final String AC_CONTENT_ITEM_TYPE = ContentResolver.CURSOR_ITEM_BASE_TYPE
+            + "/samlib-monk-authorcard";//Type for single tag
     
     private static final UriMatcher sURIMatcher = new UriMatcher(
             UriMatcher.NO_MATCH);
@@ -84,6 +93,9 @@ public class AuthorProvider extends ContentProvider {
         
         sURIMatcher.addURI(AUTHORITY, T2A_BASE_PATH, T2AS);
         sURIMatcher.addURI(AUTHORITY, T2A_BASE_PATH + "/#", T2A_ID);
+        
+        sURIMatcher.addURI(AUTHORITY, AC_BASE_PATH, ACS);
+        sURIMatcher.addURI(AUTHORITY, AC_BASE_PATH + "/#", AC_ID);
     }
     public static final Uri AUTHOR_URI = Uri.parse("content://" + AUTHORITY
             + "/" + AUTHORS_BASE_PATH);//Content URI for AUTHORS
@@ -97,6 +109,9 @@ public class AuthorProvider extends ContentProvider {
     
     public static final Uri T2A_URI = Uri.parse("content://" + AUTHORITY
             + "/" + T2A_BASE_PATH);//Content URI for AUTHORS
+    
+    public static final Uri SEARCH_AUTHOR_URI = Uri.parse("content://" + AUTHORITY
+            + "/" + AC_BASE_PATH);//Content URI for AUTHORS
 
     @Override
     public boolean onCreate() {
@@ -112,6 +127,14 @@ public class AuthorProvider extends ContentProvider {
         String select_authors  = SQLController.SELECT_AUTHOR_WITH_TAGS;
         int uriType = sURIMatcher.match(uri);
         switch (uriType) {
+            case ACS:
+                queryBuilder.setTables(SQLController.TABLE_SEARCH_AUTHOR);
+                break;
+            case AC_ID:
+                queryBuilder.setTables(SQLController.TABLE_SEARCH_AUTHOR);
+                queryBuilder.appendWhere(AuthorDB.ID + "="
+                        + uri.getLastPathSegment());
+                break;
             case T2AS:
                 queryBuilder.setTables(SQLController.TABLE_T2A);
                 break;
@@ -215,6 +238,10 @@ public class AuthorProvider extends ContentProvider {
                 return T2A_CONTENT_TYPE;
             case T2A_ID:
                 return T2A_CONTENT_ITEM_TYPE;
+            case ACS:
+                return AC_CONTENT_TYPE;
+            case AC_ID:
+                return AC_CONTENT_ITEM_TYPE;
             default:
                 return null;
         }
@@ -238,6 +265,9 @@ public class AuthorProvider extends ContentProvider {
                 break;
             case T2AS:
                 newID = sqlDB.insert(SQLController.TABLE_T2A, null, values);
+                break;
+            case ACS:
+                newID = sqlDB.insert(SQLController.TABLE_SEARCH_AUTHOR, null, values);
                 break;
             default:
                 throw new IllegalArgumentException("Unknown or Invalid URI " + uri);
@@ -269,6 +299,21 @@ public class AuthorProvider extends ContentProvider {
         int rowsAffected = 0;
         String id;
         switch (uriType) {
+            case ACS:
+                rowsAffected = sqlDB.delete(SQLController.TABLE_SEARCH_AUTHOR,
+                        selection, selectionArgs);
+                break;
+            case AC_ID:
+                id = uri.getLastPathSegment();
+                if (TextUtils.isEmpty(selection)) {
+                    rowsAffected = sqlDB.delete(SQLController.TABLE_SEARCH_AUTHOR,
+                            AuthorDB.ID + "=" + id, null);
+                } else {
+                    rowsAffected = sqlDB.delete(SQLController.TABLE_SEARCH_AUTHOR,
+                            selection + " and " + AuthorDB.ID + "=" + id,
+                            selectionArgs);
+                }
+                break;
             case T2AS:
                 rowsAffected = sqlDB.delete(SQLController.TABLE_T2A,
                         selection, selectionArgs);

@@ -22,7 +22,7 @@ import android.widget.Toast;
 import java.io.IOException;
 import monakhv.android.samlib.R;
 import monakhv.android.samlib.data.SettingsHelper;
-import monakhv.android.samlib.exception.AuthorParseException;
+import monakhv.android.samlib.exception.SamlibParseException;
 import monakhv.android.samlib.sql.AuthorController;
 import monakhv.samlib.http.HttpClientController;
 import monakhv.android.samlib.sql.entity.Author;
@@ -37,7 +37,7 @@ import monakhv.android.samlib.sql.entity.SamLibConfig;
 public class AddAuthor extends AsyncTask<String, Void, Boolean> {
 
     private static final String DEBUG_TAG = "AddAuthor";    
-    public static final String SLASH = "/";
+   
     private Context context = null;
     private int numberOfAdded;
     private int doubleAdd = 0;
@@ -117,7 +117,7 @@ public class AddAuthor extends AsyncTask<String, Void, Boolean> {
             Log.e(DEBUG_TAG, "DownLoad Error for URL: " + text, ex);
             return null;
 
-        } catch (AuthorParseException ex) {
+        } catch (SamlibParseException ex) {
             Log.e(DEBUG_TAG, "Author parsing Error: " + text, ex);
             return null;
         } catch (IllegalArgumentException ex) {
@@ -140,8 +140,8 @@ public class AddAuthor extends AsyncTask<String, Void, Boolean> {
         String text = url;
 
         //All URL must be closed by /
-        if (!text.endsWith(SLASH)) {
-            text = text + SLASH;
+        if (!text.endsWith(SamLibConfig.SLASH)) {
+            text = text + SamLibConfig.SLASH;
         }
         
         
