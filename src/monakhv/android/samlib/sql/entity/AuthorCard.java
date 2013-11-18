@@ -41,7 +41,7 @@ public class AuthorCard implements Serializable{
         
     }
     public AuthorCard(String string2parse){
-        String str = string2parse+SamLibConfig.SPLIT;
+        String str = string2parse+" |";
      
         String[] strs = str.split(SamLibConfig.SPLIT);
         

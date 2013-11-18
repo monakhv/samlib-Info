@@ -15,6 +15,7 @@
  */
 package monakhv.android.samlib.sql.entity;
 
+import android.util.Log;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -43,6 +44,7 @@ public class SamLibConfig {
     
     private static final SamIzdat[]   URLs = {SamIzdat.SamLib, SamIzdat.BudClub};//Samizdat mirrors. Order is important this is the order mirror is selected by
     
+    private static final String DEBUG_TAG = "SamLibConfig";
     
     private static final String     URLPTR = "/\\w/\\w+/";
     private static final String     SAMLIB_PROTO = "http://";
@@ -169,9 +171,13 @@ public class SamLibConfig {
          * @return 
          */
         private String getSearchAuthorURL(String pattern,int page){
+            Log.i(DEBUG_TAG, "Got pattern: "+pattern);
             String res = url+REQUEST_AUTHOR_SEARCH;
+            Log.i(DEBUG_TAG, "Template string: "+res);
             String first = pattern.substring(0, 1);
             first = first.toUpperCase();
+            Log.i(DEBUG_TAG, "The first letter "+first);
+            Log.i(DEBUG_TAG, "The code "+ABC.get(first));
             res = res.
                     replaceFirst(TMPL_ANUM, ABC.get(first)).
                     replaceFirst(TMPL_PAGE, String.valueOf(page)).

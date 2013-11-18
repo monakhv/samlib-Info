@@ -90,6 +90,12 @@ public class SearchAuthor extends AsyncTask<String, Void, Boolean>{
 
     @Override
     protected Boolean doInBackground(String... params) {
+        
+        for (AuthorCard ac : sql.getAll()){
+            sql.delete(ac);
+        }
+        
+        
         for (String pattern: params){
             try {
                 if (! makeSearch(pattern)){
@@ -120,23 +126,23 @@ public class SearchAuthor extends AsyncTask<String, Void, Boolean>{
             Toast toast = Toast.makeText(context, status.getMessage(context), duration);
             toast.show();
         }
-        
+       
     }
 
     private boolean makeSearch(String pattern) throws IOException,    SamlibParseException {
-        
+        Log.i(DEBUG_TAG,"Search author with pattern: "+pattern);
         int page = 1;
         HashMap<String, ArrayList<AuthorCard>> colAthors = http.searchAuhors(pattern, page);
-        if (colAthors != null){
-            Log.i(DEBUG_TAG, "Load "+colAthors.size()+ " items");
-          
-        }
+//        if (colAthors != null){
+//            Log.i(DEBUG_TAG, "Load "+colAthors.size()+ " items");
+//          
+//        }
         
         
         while (colAthors != null) {//page cycle while we find anything
 
             String[] keys = colAthors.keySet().toArray(new String[0]);
-            Log.i(DEBUG_TAG, "The first value "+keys[0]+"  ->   "+colAthors.get(keys[0]).get(0).getName());
+            //Log.i(DEBUG_TAG, "The first value "+keys[0]+"  ->   "+colAthors.get(keys[0]).get(0).getName());
             Arrays.sort(keys, russianCollator);
             int ires = Arrays.binarySearch(keys, pattern, russianCollator);
             Log.d(DEBUG_TAG,"Search result " + ires + "   length is " + keys.length);

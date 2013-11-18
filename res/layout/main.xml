@@ -76,7 +76,7 @@ limitations under the License.
             android:width="0dp"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            
+            android:hint="@string/author_name"
         />
         <Button
             android:id="@+id/searchAuthorBt"

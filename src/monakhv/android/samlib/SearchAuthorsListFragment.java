@@ -53,8 +53,8 @@ public class SearchAuthorsListFragment extends ListFragment  implements
         
         getLoaderManager().initLoader(AC_LIST_LOADER, null, this);
         
-        String[] from = {SQLController.COL_AC_NAME};
-        int[] to = {R.id.acName};
+        String[] from = {SQLController.COL_AC_NAME,SQLController.COL_AC_DESC,SQLController.COL_AC_TITLE,SQLController.COL_AC_SIZE};
+        int[] to = {R.id.acName, R.id.acDesc,R.id.acTitle,R.id.acSize};
         adapter = new SimpleCursorAdapter(
                 getActivity().getApplicationContext(), R.layout.author_search_row,
                 null, from, to,

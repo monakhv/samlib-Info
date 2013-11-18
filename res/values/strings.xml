@@ -17,7 +17,8 @@ limitations under the License.
 <resources>
     <string name="app_name">SamLib Инфо</string>
     <string name="app_nm">SamLib: </string>
-    <string name="author_url">http://samlib.ru/...</string>    
+    <string name="author_url">http://samlib.ru/...</string>
+    <string name="author_name">Фамилия автора</string>
     <string name="author_tag">Новый тэг</string>    
     
     <string name="update_update">Обновление</string>    

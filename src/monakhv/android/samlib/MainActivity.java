@@ -47,7 +47,6 @@ import monakhv.android.samlib.sql.SQLController;
 import monakhv.android.samlib.sql.entity.Author;
 import monakhv.android.samlib.sql.entity.SamLibConfig;
 import monakhv.android.samlib.tasks.AddAuthor;
-import monakhv.android.samlib.tasks.CleanSearch;
 import monakhv.android.samlib.tasks.DeleteAuthor;
 import monakhv.android.samlib.tasks.MarkRead;
 
@@ -177,8 +176,7 @@ public class MainActivity extends ActionBarActivity {
         if (sel == R.id.search_option_item){
             View v = findViewById(R.id.search_author_panel);
             if (v.getVisibility() == View.GONE){
-                CleanSearch task = new CleanSearch(this);
-                task.execute();
+               
                 v.setVisibility(View.VISIBLE);
             }
             else {

@@ -20,6 +20,28 @@ limitations under the License.
               android:orientation="vertical"
               android:layout_width="match_parent"
               android:layout_height="match_parent">
+     <LinearLayout 
+        android:id="@+id/search_author_panel_sa"
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="gone"> 
+        <EditText 
+            android:id="@+id/searchAuthorText_sa"
+            android:layout_weight="1"
+            android:width="0dp"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:hint="@string/author_name"
+        />
+        <Button
+            android:id="@+id/searchAuthorBt_sa"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/button_search" 
+            android:onClick="searchAuthor"/>
+    
+    </LinearLayout>
     <fragment
         android:id="@+id/listBooksFragment"
         android:name="monakhv.android.samlib.SearchAuthorsListFragment"
