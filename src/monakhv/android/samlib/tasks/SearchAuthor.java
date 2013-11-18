@@ -17,9 +17,9 @@
 package monakhv.android.samlib.tasks;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.util.Log;
-import android.widget.Toast;
 import java.io.IOException;
 import java.text.Collator;
 import java.text.RuleBasedCollator;
@@ -28,6 +28,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Locale;
 import monakhv.android.samlib.R;
+import monakhv.android.samlib.SearchAuthorActivity.SearchReceiver;
 import monakhv.android.samlib.exception.SamlibParseException;
 import monakhv.android.samlib.sql.SearchAuthorController;
 import monakhv.android.samlib.sql.entity.AuthorCard;
@@ -120,12 +121,15 @@ public class SearchAuthor extends AsyncTask<String, Void, Boolean>{
     }
      @Override
     protected void onPostExecute(Boolean result) {
-        int duration = Toast.LENGTH_SHORT;
-       
+        
+       Intent broadcastIntent = new Intent();
+        broadcastIntent.addCategory(Intent.CATEGORY_DEFAULT);
+        broadcastIntent.setAction(SearchReceiver.ACTION_RESP);
         if (status != ResultStatus.Good){
-            Toast toast = Toast.makeText(context, status.getMessage(context), duration);
-            toast.show();
+            broadcastIntent.putExtra(SearchReceiver.MESSAGE, status.getMessage(context));           
         }
+        
+        context.sendBroadcast(broadcastIntent);
        
     }
 
@@ -166,13 +170,14 @@ public class SearchAuthor extends AsyncTask<String, Void, Boolean>{
                     
                 } else {
                     Log.d(DEBUG_TAG,"Stop By Substring: " + pattern + "   -   " + skey + "   " + keys.length + "         " + istart + "  -  " + ires);
-                    return true;
+                    return inum != 0;
                 }
             }
 
             ++page;
             colAthors = http.searchAuhors(pattern, page);
         }
+        Log.d(DEBUG_TAG,"Results: "+inum);
         return inum != 0;
         
     }

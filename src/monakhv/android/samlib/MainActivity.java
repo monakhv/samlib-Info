@@ -238,7 +238,7 @@ public class MainActivity extends ActionBarActivity {
         if (sel == R.id.selected_option_item) {
             Log.d(DEBUG_TAG, "go to Selected");
             Intent prefsIntent = new Intent(getApplicationContext(),
-                    NewBooksActivity.class);
+                    BooksActivity.class);
             prefsIntent.putExtra(BookListFragment.AUTHOR_ID, -1);
             startActivity(prefsIntent);
         }

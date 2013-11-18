@@ -50,7 +50,7 @@ limitations under the License.
                 android:value="monakhv.android.samlib.MainActivity"/>
         </activity>
         <activity
-            android:name=".NewBooksActivity" 
+            android:name=".BooksActivity" 
             android:parentActivityName="monakhv.android.samlib.MainActivity" >
             <meta-data 
                 android:name="android.support.PARENT_ACTIVITY"

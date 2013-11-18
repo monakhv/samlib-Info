@@ -16,6 +16,7 @@
 
 package monakhv.android.samlib;
 
+import android.app.ProgressDialog;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
@@ -40,6 +41,7 @@ public class SearchAuthorsListFragment extends ListFragment  implements
     
     
     private String pattern;
+    ProgressDialog progress;
     
     
     @Override
@@ -47,9 +49,8 @@ public class SearchAuthorsListFragment extends ListFragment  implements
         super.onCreate(savedInstanceState);
         pattern = getActivity().getIntent().getExtras().getString(SearchAuthorActivity.EXTRA_PATTERN);
         
-        SearchAuthor task = new SearchAuthor(getActivity());
-        task.execute(pattern);
         
+        search(pattern);
         
         getLoaderManager().initLoader(AC_LIST_LOADER, null, this);
         
@@ -63,6 +64,17 @@ public class SearchAuthorsListFragment extends ListFragment  implements
         setListAdapter(adapter);
         
         
+    }
+
+    public void search(String ptr){
+        pattern = ptr;
+        SearchAuthor task = new SearchAuthor(getActivity());
+         progress = new ProgressDialog(getActivity());
+            progress.setMessage(getActivity().getText(R.string.search_Loading));
+            progress.setCancelable(true);
+            progress.setIndeterminate(true);
+            progress.show();
+        task.execute(pattern);
     }
 
     public Loader<Cursor> onCreateLoader(int i, Bundle bundle) {

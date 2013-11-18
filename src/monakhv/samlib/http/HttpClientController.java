@@ -148,9 +148,7 @@ public class HttpClientController {
      * @throws monakhv.android.samlib.exception.SamlibParseException 
      */
     public HashMap<String, ArrayList<AuthorCard>> searchAuhors(String pattern, int page) throws IOException, SamlibParseException{
-        for (String url: slc.getSearchAuthorURL(pattern, page)){
-            Log.i(DEBUG_TAG, "url - "+url);
-        }
+        
         String str = getURL(slc.getSearchAuthorURL(pattern, page), null);
         return parseSearchAuthorData(str);
     }

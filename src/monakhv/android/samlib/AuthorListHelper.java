@@ -187,7 +187,7 @@ public class AuthorListHelper implements
     }
     
     private void showBooks(Author a) {
-        Intent intent = new Intent(context, NewBooksActivity.class);
+        Intent intent = new Intent(context, BooksActivity.class);
         intent.putExtra(BookListFragment.AUTHOR_ID, a.getId());
         //intent.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
         context.startActivity(intent);

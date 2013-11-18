@@ -38,7 +38,7 @@ import java.util.regex.Pattern;
 public class SamLibConfig {
     public static final   String SPLIT = "\\|";//Use  To parse Book and author Card object data
     public static final String SLASH = "/";
-    public static final   int       SEARCH_LIMIT=100;
+    public static final   int       SEARCH_LIMIT=500;
     
     private static final  int       AUTHOR_PAGE_SIZE = 100;//page size for author search
     
