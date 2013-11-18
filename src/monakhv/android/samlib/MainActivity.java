@@ -239,7 +239,7 @@ public class MainActivity extends ActionBarActivity {
             Log.d(DEBUG_TAG, "go to Selected");
             Intent prefsIntent = new Intent(getApplicationContext(),
                     BooksActivity.class);
-            prefsIntent.putExtra(BookListFragment.AUTHOR_ID, -1);
+            prefsIntent.putExtra(BookListFragment.AUTHOR_ID, SamLibConfig.SELECTED_ID);
             startActivity(prefsIntent);
         }
         if (sel == R.id.menu_filter) {
@@ -248,8 +248,8 @@ public class MainActivity extends ActionBarActivity {
 
             MatrixCursor extras = new MatrixCursor(new String[]{SQLController.COL_ID, SQLController.COL_TAG_NAME});
 
-            extras.addRow(new String[]{"-1", getText(R.string.filter_all).toString()});
-            extras.addRow(new String[]{"-2", getText(R.string.filter_new).toString()});
+            extras.addRow(new String[]{Integer.toString(SamLibConfig.TAG_AUTHOR_ALL), getText(R.string.filter_all).toString()});
+            extras.addRow(new String[]{Integer.toString(SamLibConfig.TAG_AUTHOR_NEW), getText(R.string.filter_new).toString()});
             Cursor[] cursors = {extras, tags};
             final Cursor extendedCursor = new MergeCursor(cursors);
 
@@ -265,7 +265,7 @@ public class MainActivity extends ActionBarActivity {
 
                     String select = SQLController.TABLE_TAGS + "." + SQLController.COL_ID + "=" + tag_id;
 
-                    if (tag_id == -1) {
+                    if (tag_id == SamLibConfig.TAG_AUTHOR_ALL) {
                         setTitle(R.string.app_name);
                         select = null;
                     } else {
@@ -273,7 +273,7 @@ public class MainActivity extends ActionBarActivity {
                         setTitle(tt);
                     }
 
-                    if (tag_id == -2) {
+                    if (tag_id == SamLibConfig.TAG_AUTHOR_NEW) {
                         select = SQLController.TABLE_AUTHOR + "." + SQLController.COL_isnew + "=1";
                     }
                     Log.i(DEBUG_TAG, "WHERE " + select);

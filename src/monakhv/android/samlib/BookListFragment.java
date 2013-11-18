@@ -47,6 +47,7 @@ import monakhv.android.samlib.sql.BookController;
 import monakhv.android.samlib.sql.SQLController;
 import monakhv.android.samlib.sql.entity.Author;
 import monakhv.android.samlib.sql.entity.Book;
+import monakhv.android.samlib.sql.entity.SamLibConfig;
 
 /**
  *
@@ -174,16 +175,13 @@ public class BookListFragment extends ListFragment implements
         author_id = getActivity().getIntent().getExtras().getInt(AUTHOR_ID);
         
         String selection;
-        if (author_id == -1){
+        if (author_id ==  SamLibConfig.SELECTED_ID){
             selection = SQLController.COL_BOOK_GROUP_ID+"="+Book.SELECTED_GROUP_ID;
         }
         else {
             selection = SQLController.COL_BOOK_AUTHOR_ID + "=" + author_id;
         }
         
-
-
-
         CursorLoader cursorLoader = new CursorLoader(getActivity(),
                 AuthorProvider.BOOKS_URI, null, selection, null, SQLController.COL_BOOK_MTIME + " DESC");
 

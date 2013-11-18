@@ -37,10 +37,14 @@ import java.util.regex.Pattern;
  */
 public class SamLibConfig {
     public static final   String SPLIT = "\\|";//Use  To parse Book and author Card object data
-    public static final String SLASH = "/";
-    public static final   int       SEARCH_LIMIT=500;
+    public static final   String SLASH = "/";
+    public static final   int      SEARCH_LIMIT=100;//maximum number of results can be returned by the search procedure
+    public static final   int      SELECTED_ID=-1;//Special id for selected book 
+    public static final   int       TAG_AUTHOR_ALL     =-1;
+    public static final   int       TAG_AUTHOR_NEW  =-2;
     
-    private static final  int       AUTHOR_PAGE_SIZE = 100;//page size for author search
+    
+    private static final  int      AUTHOR_PAGE_SIZE = 500;//page size for author search
     
     private static final SamIzdat[]   URLs = {SamIzdat.SamLib, SamIzdat.BudClub};//Samizdat mirrors. Order is important this is the order mirror is selected by
     

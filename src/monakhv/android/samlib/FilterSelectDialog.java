@@ -34,9 +34,9 @@ import monakhv.android.samlib.sql.SQLController;
  */
 public class FilterSelectDialog extends DialogFragment{
     private static final String DEBUG_TAG ="FilterSelectDialog";
-    private Cursor cursor;
-    private AdapterView.OnItemClickListener listener;
-    private String title;
+    private final Cursor cursor;
+    private final AdapterView.OnItemClickListener listener;
+    private final String title;
     private ListView fileList = null;
     
     public FilterSelectDialog(Cursor cursor,AdapterView.OnItemClickListener listener,String title){
