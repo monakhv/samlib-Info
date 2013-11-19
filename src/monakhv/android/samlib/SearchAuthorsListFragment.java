@@ -114,6 +114,10 @@ public class SearchAuthorsListFragment extends ListFragment implements ListSwipe
 
     public boolean singleClick(MotionEvent e) {
         int position = getListView().pointToPosition((int) e.getX(), (int) e.getY());
+        if (position < 0){
+            Log.w(DEBUG_TAG, "Wrong List selection");
+            return false;
+        }
         AuthorCard ac = adapter.getItem(position);
         Toast toast = Toast.makeText(getActivity(), ac.getName(), Toast.LENGTH_SHORT);
          toast.show();
