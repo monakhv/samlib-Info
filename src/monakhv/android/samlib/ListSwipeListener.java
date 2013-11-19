@@ -28,13 +28,13 @@ public class ListSwipeListener implements GestureDetector.OnGestureListener{
         public boolean swipeRight(MotionEvent e);
         public boolean swipeLeft(MotionEvent e);
     }
-    private SwipeCallBack calBack;
+    private final SwipeCallBack calBack;
     public ListSwipeListener(SwipeCallBack calBack){
         this.calBack = calBack;
                 
     }
-    private float SWIPE_THRESHOLD = 150;
-    private float SWIPE_VELOCITY_THRESHOLD = 200;
+    private final float SWIPE_THRESHOLD = 150;
+    private final float SWIPE_VELOCITY_THRESHOLD = 200;
 
     public boolean onDown(MotionEvent e) {
         return false;
