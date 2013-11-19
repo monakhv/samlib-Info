@@ -21,12 +21,16 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
-import monakhv.android.samlib.tasks.SearchAuthor;
+import java.io.Serializable;
+import java.util.List;
+import monakhv.android.samlib.sql.entity.AuthorCard;
 
 /**
  *
@@ -34,8 +38,11 @@ import monakhv.android.samlib.tasks.SearchAuthor;
  */
 public class SearchAuthorActivity extends FragmentActivity {
 
+    static private final String DEBUG_TAG = "SearchAuthorActivity";
     public static final String EXTRA_PATTERN = "EXTRA_PATTERN";
     private SearchReceiver receiver;
+    private SearchAuthorsListFragment listFragment;
+    private View searchPannel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,7 +50,7 @@ public class SearchAuthorActivity extends FragmentActivity {
 
         setContentView(R.layout.search_authors);
     }
-    
+
     @Override
     protected void onResume() {
         super.onResume();
@@ -51,13 +58,16 @@ public class SearchAuthorActivity extends FragmentActivity {
         IntentFilter filter = new IntentFilter(SearchReceiver.ACTION_RESP);
         filter.addCategory(Intent.CATEGORY_DEFAULT);
         registerReceiver(receiver, filter);
+        listFragment = (SearchAuthorsListFragment) getSupportFragmentManager().findFragmentById(R.id.listAuthorSearchFragment);
+         searchPannel = findViewById(R.id.search_author_panel_sa);
     }
+
     @Override
     protected void onPause() {
         super.onPause();
         unregisterReceiver(receiver);
     }
-    
+
     private final int id_menu_search = 21;
 
     @Override
@@ -71,45 +81,55 @@ public class SearchAuthorActivity extends FragmentActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int sel = item.getItemId();
-        if (sel == id_menu_search){
-             View v = findViewById(R.id.search_author_panel_sa);
-             if (v.getVisibility() == View.GONE){
-                 v.setVisibility(View.VISIBLE);
-             }
-             else {
-                 v.setVisibility(View.GONE);
-             }
+        if (sel == id_menu_search) {
+           flipPannel();
+            
         }
         return super.onOptionsItemSelected(item);
     }
+    
+    private void flipPannel(){
+        if (searchPannel.getVisibility() == View.GONE) {
+                searchPannel.setVisibility(View.VISIBLE);
+            } else {
+                searchPannel.setVisibility(View.GONE);
+            }
+    }
+
     public void searchAuthor(View view) {
         EditText editText = (EditText) findViewById(R.id.searchAuthorText_sa);
         String text = editText.getText().toString();
-        SearchAuthorsListFragment listFragment = (SearchAuthorsListFragment) getSupportFragmentManager().findFragmentById(R.id.listAuthorSearchFragment);
-       
+
+        editText.setText("");
+        flipPannel();
         listFragment.search(text);
     }
-    
-     public class SearchReceiver extends BroadcastReceiver {
-        public static final String ACTION_RESP="monakhv.android.samlib.SearchReceiver";
-        public static final String MESSAGE="MESSAGE";
+
+    public class SearchReceiver extends BroadcastReceiver {
+
+        public static final String ACTION_RESP = "monakhv.android.samlib.SearchReceiver";
+        public static final String EXTRA_MESSAGE = "MESSAGE";
+        public static final String EXTRA_RESULT = "EXTRA_RESULT";
 
         @Override
         public void onReceive(Context context, Intent intent) {
-            SearchAuthorsListFragment listFragment = (SearchAuthorsListFragment) getSupportFragmentManager().findFragmentById(R.id.listAuthorSearchFragment);
+
             if (listFragment != null) {
-                if (listFragment.progress != null) {
-                    listFragment.progress.dismiss();
-                }
+                Serializable ss = intent.getSerializableExtra(EXTRA_RESULT);
+                Log.d(DEBUG_TAG, "Send result to list");
+                listFragment.setResult((List<AuthorCard>) ss);
+            } else {
+                Log.e(DEBUG_TAG, "ListView is NULL");
             }
-            String msg = intent.getStringExtra(MESSAGE);
-            if (msg != null){
+            String msg = intent.getStringExtra(EXTRA_MESSAGE);
+
+            if (msg != null) {
                 Toast toast = Toast.makeText(context, msg, Toast.LENGTH_SHORT);
                 toast.show();
             }
-            
+
         }
-         
-     }
+
+    }
 
 }

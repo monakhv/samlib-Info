@@ -21,11 +21,13 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.util.Log;
 import java.io.IOException;
+import java.io.Serializable;
 import java.text.Collator;
 import java.text.RuleBasedCollator;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 import monakhv.android.samlib.R;
 import monakhv.android.samlib.SearchAuthorActivity.SearchReceiver;
@@ -61,6 +63,7 @@ public class SearchAuthor extends AsyncTask<String, Void, Boolean>{
     private final HttpClientController http = HttpClientController.getInstance();
     private final SearchAuthorController sql;
     private int inum =0;//Result number
+    private final List<AuthorCard> result;
     
     public SearchAuthor(Context ctx){
         status = ResultStatus.Good;
@@ -87,6 +90,7 @@ public class SearchAuthor extends AsyncTask<String, Void, Boolean>{
 //        }
 
         russianCollator.setStrength(Collator.IDENTICAL);
+        result = new ArrayList<AuthorCard>();
     }
 
     @Override
@@ -120,15 +124,15 @@ public class SearchAuthor extends AsyncTask<String, Void, Boolean>{
         return true;
     }
      @Override
-    protected void onPostExecute(Boolean result) {
+    protected void onPostExecute(Boolean res) {
         
        Intent broadcastIntent = new Intent();
         broadcastIntent.addCategory(Intent.CATEGORY_DEFAULT);
         broadcastIntent.setAction(SearchReceiver.ACTION_RESP);
         if (status != ResultStatus.Good){
-            broadcastIntent.putExtra(SearchReceiver.MESSAGE, status.getMessage(context));           
+            broadcastIntent.putExtra(SearchReceiver.EXTRA_MESSAGE, status.getMessage(context));           
         }
-        
+        broadcastIntent.putExtra(SearchReceiver.EXTRA_RESULT,  (Serializable) result);
         context.sendBroadcast(broadcastIntent);
        
     }
@@ -162,6 +166,7 @@ public class SearchAuthor extends AsyncTask<String, Void, Boolean>{
                 if (skey.toLowerCase().startsWith(pattern.toLowerCase())) {
                     for(AuthorCard ac : colAthors.get(skey)){
                         sql.insert(ac);
+                        result.add(ac);
                         ++inum;
                         if (inum > SamLibConfig.SEARCH_LIMIT){
                             return false;

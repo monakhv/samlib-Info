@@ -13,82 +13,177 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package monakhv.android.samlib;
 
 import android.app.ProgressDialog;
-import android.database.Cursor;
+import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
-import android.support.v4.app.LoaderManager;
-import android.support.v4.content.CursorLoader;
-import android.support.v4.content.Loader;
-import android.support.v4.widget.CursorAdapter;
-import android.support.v4.widget.SimpleCursorAdapter;
-import monakhv.android.samlib.sql.AuthorProvider;
-import monakhv.android.samlib.sql.SQLController;
+import android.util.Log;
+import android.view.GestureDetector;
+import android.view.LayoutInflater;
+import android.view.MotionEvent;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
+import android.widget.TextView;
+import android.widget.Toast;
+import java.util.ArrayList;
+import java.util.List;
+import monakhv.android.samlib.sql.entity.AuthorCard;
 import monakhv.android.samlib.tasks.SearchAuthor;
 
 /**
  *
  * @author Dmitry Monakhov
  */
-public class SearchAuthorsListFragment extends ListFragment  implements
-        LoaderManager.LoaderCallbacks<Cursor>{
-   
-    public static final int AC_LIST_LOADER = 0x13;
-    private SimpleCursorAdapter adapter;
-    
-    
+public class SearchAuthorsListFragment extends ListFragment implements ListSwipeListener.SwipeCallBack{
+
+    private SearchAuthorAdapter adapter;
+    static private final String DEBUG_TAG = "SearchAuthorsListFragment";
     private String pattern;
     ProgressDialog progress;
-    
-    
+    private List<AuthorCard> result;
+    private GestureDetector detector;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         pattern = getActivity().getIntent().getExtras().getString(SearchAuthorActivity.EXTRA_PATTERN);
-        
-        
-        search(pattern);
-        
-        getLoaderManager().initLoader(AC_LIST_LOADER, null, this);
-        
-        String[] from = {SQLController.COL_AC_NAME,SQLController.COL_AC_DESC,SQLController.COL_AC_TITLE,SQLController.COL_AC_SIZE};
-        int[] to = {R.id.acName, R.id.acDesc,R.id.acTitle,R.id.acSize};
-        adapter = new SimpleCursorAdapter(
-                getActivity().getApplicationContext(), R.layout.author_search_row,
-                null, from, to,
-                CursorAdapter.FLAG_REGISTER_CONTENT_OBSERVER);
+
+        if (result == null) {
+            result = new ArrayList<AuthorCard>();
+            search(pattern);
+        }
+        adapter = new SearchAuthorAdapter(getActivity());
 
         setListAdapter(adapter);
+        detector = new GestureDetector(getActivity(), new ListSwipeListener(this));
+    }
+     @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
         
-        
+        getListView().setOnTouchListener(new View.OnTouchListener() {
+            public boolean onTouch(View v, MotionEvent event) {
+                detector.onTouchEvent(event);
+                return false;
+            }
+        });
     }
 
-    public void search(String ptr){
+    public void search(String ptr) {
+        if (adapter != null){
+            result.clear();
+            adapter.load();
+        }
+        
         pattern = ptr;
         SearchAuthor task = new SearchAuthor(getActivity());
-         progress = new ProgressDialog(getActivity());
-            progress.setMessage(getActivity().getText(R.string.search_Loading));
-            progress.setCancelable(true);
-            progress.setIndeterminate(true);
-            progress.show();
+        progress = new ProgressDialog(getActivity());
+        progress.setMessage(getActivity().getText(R.string.search_Loading));
+        progress.setCancelable(true);
+        progress.setIndeterminate(true);
+        progress.show();
         task.execute(pattern);
     }
 
-    public Loader<Cursor> onCreateLoader(int i, Bundle bundle) {
-         CursorLoader cursorLoader = new CursorLoader(getActivity(), AuthorProvider.SEARCH_AUTHOR_URI, null, null, null, null);
-         
-         return cursorLoader;
-    }
-
-    public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
-        adapter.swapCursor(cursor);
-    }
-
-    public void onLoaderReset(Loader<Cursor> loader) {
-        adapter.swapCursor(null);
+    public void setResult(List<AuthorCard> res) {
+        if (res == null) {
+            Log.e(DEBUG_TAG, "Result is NULL");
+            return;
+        }
+        result.clear();
+        result.addAll(res);
+        adapter.load();
+        
+        Log.d(DEBUG_TAG, "Got new result: " + res.size());
+        if (progress != null) {
+            progress.dismiss();
+            Log.d(DEBUG_TAG, "Stop Progress Dialog");
+        } else {
+            Log.e(DEBUG_TAG, "Progress dialog is NULL");
+        }
     }
     
+    @Override
+    public void onResume(){
+        super.onResume();
+        adapter.notifyDataSetChanged();
+    }
+
+    public boolean singleClick(MotionEvent e) {
+        int position = getListView().pointToPosition((int) e.getX(), (int) e.getY());
+        AuthorCard ac = adapter.getItem(position);
+        Toast toast = Toast.makeText(getActivity(), ac.getName(), Toast.LENGTH_SHORT);
+         toast.show();
+        
+        
+        return true;
+    }
+
+    public boolean swipeRight(MotionEvent e) {
+        return true;
+        
+    }
+
+    public boolean swipeLeft(MotionEvent e) {
+        return true;
+    }
+
+    public class SearchAuthorAdapter extends ArrayAdapter<AuthorCard> {
+
+        private final Context context;
+        private AuthorCard[] data;
+
+       
+
+        public SearchAuthorAdapter(Context context) {
+            super(context, R.layout.author_search_row, result);
+            this.context = context;
+            data = result.toArray(new AuthorCard[1]);
+        }
+
+        public class ViewHolder {
+
+            public TextView name;
+            public TextView title;
+            public TextView desc;
+            public TextView size;
+
+        }
+
+        public void load() {
+            data = result.toArray(new AuthorCard[1]);
+            notifyDataSetChanged();
+        }
+
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) {
+            View rowView = convertView;
+            ViewHolder holder;
+            if (rowView == null) {//there is no reusable view construct new one
+                LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                
+                rowView = inflater.inflate(R.layout.author_search_row, parent, false);
+                holder = new ViewHolder();
+                holder.name = (TextView) rowView.findViewById(R.id.acName);
+                holder.title = (TextView) rowView.findViewById(R.id.acTitle);
+                holder.desc = (TextView) rowView.findViewById(R.id.acDesc);
+                holder.size = (TextView) rowView.findViewById(R.id.acSize);
+                rowView.setTag(holder);//store holder into rowView tag
+            } else {
+                holder = (ViewHolder) rowView.getTag();//existing View can find holder in Tag
+            }
+            holder.name.setText(data[position].getName());
+            holder.title.setText(data[position].getTitle());
+            holder.desc.setText(data[position].getDescription());
+            String ss = Integer.toString(data[position].getSize()) + "K/" + Integer.toString(data[position].getCount());
+            holder.size.setText(ss);
+
+            return rowView;
+
+        }
+        
+    }
 }
