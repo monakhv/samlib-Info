@@ -30,7 +30,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import monakhv.android.samlib.R;
-import monakhv.android.samlib.SearchAuthorActivity.SearchReceiver;
+import monakhv.android.samlib.search.SearchAuthorActivity.SearchReceiver;
 import monakhv.android.samlib.exception.SamlibParseException;
 import monakhv.android.samlib.sql.SearchAuthorController;
 import monakhv.android.samlib.sql.entity.AuthorCard;
