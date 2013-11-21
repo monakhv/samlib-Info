@@ -15,8 +15,13 @@
  */
 package monakhv.android.samlib.search;
 
+import static android.app.Activity.RESULT_OK;
+import android.app.AlertDialog;
+import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
 import android.util.Log;
@@ -27,7 +32,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
-import android.widget.Toast;
 import java.util.ArrayList;
 import java.util.List;
 import monakhv.android.samlib.ListSwipeListener;
@@ -41,6 +45,7 @@ import monakhv.android.samlib.tasks.SearchAuthor;
  */
 public class SearchAuthorsListFragment extends ListFragment implements ListSwipeListener.SwipeCallBack{
 
+    static public final String AUTHOR_URL="AUTHOR_URL";
     private SearchAuthorAdapter adapter;
     static private final String DEBUG_TAG = "SearchAuthorsListFragment";
     private String pattern;
@@ -113,18 +118,17 @@ public class SearchAuthorsListFragment extends ListFragment implements ListSwipe
         super.onResume();
         adapter.notifyDataSetChanged();
     }
-
+    private AuthorCard selectedAuthor; 
     public boolean singleClick(MotionEvent e) {
         int position = getListView().pointToPosition((int) e.getX(), (int) e.getY());
         if (position < 0){
             Log.w(DEBUG_TAG, "Wrong List selection");
             return false;
         }
-        AuthorCard ac = adapter.getItem(position);
-        Toast toast = Toast.makeText(getActivity(), ac.getName(), Toast.LENGTH_SHORT);
-         toast.show();
-        
-        
+        selectedAuthor = adapter.getItem(position);
+        Dialog alert = createAddAuthorAlert(selectedAuthor.getName());
+        alert.show();
+                
         return true;
     }
 
@@ -136,7 +140,46 @@ public class SearchAuthorsListFragment extends ListFragment implements ListSwipe
     public boolean swipeLeft(MotionEvent e) {
         return true;
     }
+    
+    private Dialog createAddAuthorAlert(String authorname) {
+        AlertDialog.Builder adb = new AlertDialog.Builder(getActivity());
+        adb.setTitle(R.string.Attention);
 
+        String msg = getString(R.string.alert_add_author);
+        msg = msg.replaceAll("__", authorname);
+
+        adb.setMessage(msg);
+        adb.setIcon(android.R.drawable.ic_dialog_alert);
+        adb.setPositiveButton(R.string.Yes, importDBListener);
+        adb.setNegativeButton(R.string.No, importDBListener);
+        return adb.create();
+
+    }
+    
+    
+    private final DialogInterface.OnClickListener importDBListener = new DialogInterface.OnClickListener() {
+        public void onClick(DialogInterface dialog, int which) {
+            switch (which) {
+                case Dialog.BUTTON_POSITIVE:
+                    Intent intent = new Intent();
+                    
+                    intent.putExtra(AUTHOR_URL, selectedAuthor.getUrl());
+                    
+                    getActivity().setResult(RESULT_OK,intent);
+                    getActivity().finish();
+                    //AddAuthor aa = new AddAuthor(getActivity().getApplicationContext());
+                    //aa.execute(selectedAuthor.getUrl());
+                    //
+                    break;
+                case Dialog.BUTTON_NEGATIVE:
+                    break;
+
+            }
+
+        }
+    };
+
+  
     public class SearchAuthorAdapter extends ArrayAdapter<AuthorCard> {
 
         private final Context context;

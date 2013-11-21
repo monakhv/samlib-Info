@@ -42,6 +42,7 @@ import android.widget.Toast;
 import monakhv.android.samlib.PullToRefresh.OnRefreshListener;
 import monakhv.android.samlib.actionbar.ActionBarActivity;
 import monakhv.android.samlib.data.SettingsHelper;
+import monakhv.android.samlib.search.SearchAuthorsListFragment;
 import monakhv.android.samlib.service.CleanNotificationData;
 import monakhv.android.samlib.service.UpdateServiceIntent;
 import monakhv.android.samlib.sql.AuthorController;
@@ -58,6 +59,7 @@ public class MainActivity extends ActionBarActivity {
     private static final String DEBUG_TAG = "MainActivity";
     public static String CLEAN_NOTIFICATION = "CLEAN_NOTIFICATION";
     final int ARCHIVE_ACTIVITY = 1;
+    final int SEARCH_ACTIVITY = 2;
     //AddAuthorDialog addAuthorDilog;
     private UpdateActivityReceiver receiver;
     private boolean refreshStatus = false;
@@ -315,6 +317,10 @@ public class MainActivity extends ActionBarActivity {
 
             }
         }
+        if (requestCode == SEARCH_ACTIVITY){
+            AddAuthor aa = new AddAuthor(getApplicationContext());
+            aa.execute(data.getStringExtra(SearchAuthorsListFragment.AUTHOR_URL));
+        }
     }
 
     /**
@@ -341,7 +347,7 @@ public class MainActivity extends ActionBarActivity {
         prefsIntent.putExtra(SearchAuthorActivity.EXTRA_PATTERN, text);
         prefsIntent.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
         
-        startActivity(prefsIntent);
+        startActivityForResult(prefsIntent,SEARCH_ACTIVITY);
     }
     private Author author=null;
     private final int read_option_item           = 21;

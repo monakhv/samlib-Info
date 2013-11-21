@@ -17,6 +17,7 @@
 package monakhv.android.samlib.sql.entity;
 
 import java.io.Serializable;
+import monakhv.android.samlib.exception.SamLibNullAuthorException;
 
 
 /**
@@ -40,7 +41,7 @@ public class AuthorCard implements Serializable{
     public AuthorCard() {
         
     }
-    public AuthorCard(String string2parse){
+    public AuthorCard(String string2parse) throws SamLibNullAuthorException{
         String str = string2parse+" |";
      
         String[] strs = str.split(SamLibConfig.SPLIT);
@@ -54,7 +55,9 @@ public class AuthorCard implements Serializable{
         
         size    = toInt(strs[ACARD_SIZE]);
         count = toInt(strs[ACARD_COUNT]);
-        
+        if (count ==0 ){
+            throw new SamLibNullAuthorException("Author: "+name+" has no books");
+        }
        
     }
 

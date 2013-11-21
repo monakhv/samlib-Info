@@ -31,6 +31,7 @@ import java.util.concurrent.TimeUnit;
 import monakhv.android.samlib.exception.SamlibParseException;
 import monakhv.android.samlib.exception.BookParseException;
 import monakhv.android.samlib.exception.SamLibIsBusyException;
+import monakhv.android.samlib.exception.SamLibNullAuthorException;
 import monakhv.android.samlib.sql.entity.Author;
 import monakhv.android.samlib.sql.entity.AuthorCard;
 import monakhv.android.samlib.sql.entity.Book;
@@ -372,7 +373,8 @@ public class HttpClientController {
                  Log.e(DEBUG_TAG, "Line Search parse Error:  length=" + SamLibConfig.testSplit(line) + "\nline: " + line + "\nlines: " + lines.length);
                  throw new SamlibParseException("Parse Search Author error\nline: "+line);
              }
-             AuthorCard card = new AuthorCard(line);
+             try {
+                 AuthorCard card = new AuthorCard(line);
                 String name = card.getName();
                
                 if (res.containsKey(name)){
@@ -384,7 +386,12 @@ public class HttpClientController {
                     aa.add(card);
                     res.put(name, aa);
                     
-                }                
+                } 
+             }
+             catch(SamLibNullAuthorException ex){
+                 Log.i(DEBUG_TAG,"Skip author with no book");
+             }
+                            
          }
          if (res.isEmpty()) {
             return null;

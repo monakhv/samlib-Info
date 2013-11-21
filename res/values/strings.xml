@@ -70,7 +70,7 @@ limitations under the License.
     <string name="alert_import">Вы уверены? Все данные будут полностью заменены данными из файла __!</string>
     <string name="alert_delete_author">Вы уверены? Все данные об авторе \"__\" будут удалены!</string>
     <string name="alert_tag_delete">Вы уверены? Тэги \"__\" у все авторов будут удалены!</string>
-    
+    <string name="alert_add_author">Вы уверены, что хотите добавить автора  \"__\" в базу?</string>
     
     <string name="notification_updates">Обновления на самиздате</string>
     <string name="notification_error">Ошибка обновления SamLib</string>

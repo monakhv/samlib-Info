@@ -32,7 +32,6 @@ import java.util.Locale;
 import monakhv.android.samlib.R;
 import monakhv.android.samlib.search.SearchAuthorActivity.SearchReceiver;
 import monakhv.android.samlib.exception.SamlibParseException;
-import monakhv.android.samlib.sql.SearchAuthorController;
 import monakhv.android.samlib.sql.entity.AuthorCard;
 import monakhv.android.samlib.sql.entity.SamLibConfig;
 import monakhv.samlib.http.HttpClientController;
@@ -61,7 +60,7 @@ public class SearchAuthor extends AsyncTask<String, Void, Boolean>{
     private Context context = null;
     private final RuleBasedCollator russianCollator;
     private final HttpClientController http = HttpClientController.getInstance();
-    private final SearchAuthorController sql;
+   
     private int inum =0;//Result number
     private final List<AuthorCard> result;
     
@@ -69,7 +68,7 @@ public class SearchAuthor extends AsyncTask<String, Void, Boolean>{
         status = ResultStatus.Good;
         
         context = ctx;
-        sql = new SearchAuthorController(context);
+        
         russianCollator =  (RuleBasedCollator) Collator.getInstance(Locale.getDefault());
         //russianCollator =  (RuleBasedCollator) Collator.getInstance(new Locale("ru", "RU"));
 //        RuleBasedCollator defaultCollator = (RuleBasedCollator) Collator.getInstance(new Locale("ru", "RU"));
@@ -96,10 +95,7 @@ public class SearchAuthor extends AsyncTask<String, Void, Boolean>{
     @Override
     protected Boolean doInBackground(String... params) {
         
-        for (AuthorCard ac : sql.getAll()){
-            sql.delete(ac);
-        }
-        
+       
         
         for (String pattern: params){
             try {
@@ -165,7 +161,7 @@ public class SearchAuthor extends AsyncTask<String, Void, Boolean>{
                 String skey = keys[i];
                 if (skey.toLowerCase().startsWith(pattern.toLowerCase())) {
                     for(AuthorCard ac : colAthors.get(skey)){
-                        sql.insert(ac);
+                       
                         result.add(ac);
                         ++inum;
                         if (inum > SamLibConfig.SEARCH_LIMIT){
