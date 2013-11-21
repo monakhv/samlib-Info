@@ -86,7 +86,7 @@ public class AuthorDB extends SQLiteOpenHelper {
            
             upgradeSchema4To5(db);
         }
-    }    
+        }
     private void upgradeSchema3To4(SQLiteDatabase db) {
         db.execSQL(SQLController.DB_CREATE_TAGS);
         db.execSQL(SQLController.DB_CREATE_TAG_TO_AUTHOR);
@@ -95,8 +95,8 @@ public class AuthorDB extends SQLiteOpenHelper {
         db.execSQL(SQLController.DB_IDX3);
         db.execSQL(SQLController.DB_IDX4);
         db.execSQL(SQLController.DB_ALTER_BOOK1);
-    }
-   
+    }    
+    
     private void upgradeSchema1To2(SQLiteDatabase db) {
         db.execSQL(SQLController.DB_CREATE_BOOKS);
         db.execSQL(SQLController.DB_IDX1);
@@ -178,9 +178,9 @@ public class AuthorDB extends SQLiteOpenHelper {
             cal.setTimeInMillis(dd);
             dd += cal.getTimeZone().getOffset(dd);
             data.put(idx, dd);
-        }
+     }
         cursor.close();
-        
+      
         String where =SQLController.COL_ID +" = ?";
         
         for (Integer idx : data.keySet() ){

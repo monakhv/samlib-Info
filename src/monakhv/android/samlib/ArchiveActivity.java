@@ -15,6 +15,7 @@
  */
 package monakhv.android.samlib;
 
+import monakhv.android.samlib.dialogs.FileSelectDialog;
 import static android.app.Activity.RESULT_OK;
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -38,7 +39,7 @@ public class ArchiveActivity extends FragmentActivity {
 
     public static final String UPDATE_KEY = "UPDATE_LIST_PARAM";
     public static final int UPDATE_LIST = 22;
-    private static String DEBUG_TAG = "ArchiveActivity";
+    private static final String DEBUG_TAG = "ArchiveActivity";
     private FileSelectDialog dialog = null;
     private String selectedFile;
 
@@ -63,7 +64,7 @@ public class ArchiveActivity extends FragmentActivity {
         return adb.create();
 
     }
-    private DialogInterface.OnClickListener importDBListener = new OnClickListener() {
+    private final DialogInterface.OnClickListener importDBListener = new OnClickListener() {
         public void onClick(DialogInterface dialog, int which) {
             switch (which) {
                 case Dialog.BUTTON_POSITIVE:

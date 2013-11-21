@@ -17,7 +17,8 @@ limitations under the License.
 <resources>
     <string name="app_name">SamLib Инфо</string>
     <string name="app_nm">SamLib: </string>
-    <string name="author_url">http://samlib.ru/...</string>    
+    <string name="author_url">http://samlib.ru/...</string>
+    <string name="author_name">Фамилия автора</string>
     <string name="author_tag">Новый тэг</string>    
     
     <string name="update_update">Обновление</string>    
@@ -27,12 +28,15 @@ limitations under the License.
     <string name="dialog_title_edit_author">Имя автора</string>    
     
     <string name="button_add">Добавить</string>
+    <string name="button_search">Искать</string>
+    
     
     <string name="menu_read">Отметить как прочитаное</string>
     <string name="menu_open_web">Открыть в браузере</string>
     <string name="menu_delete">Удалить</string>
     <string name="menu_refresh">Обновить</string>
     <string name="menu_add">Добавить</string>
+    <string name="menu_search">Поиск</string>
     <string name="menu_settings">Настройки</string>
     <string name="menu_archive">Данные</string>
     <string name="menu_tags">Группы авторов</string>
@@ -54,6 +58,10 @@ limitations under the License.
     <string name="add_error_double">Этот автор уже есть в базе!</string>
     <string name="add_author_title">Добавить URL автора</string>
     
+    <string name="author_search_error">Ошибка поиска</string>
+    <string name="author_search_empty">Ничего не найдено</string>
+    <string name="author_search_limit">Превышен лимит результата поиска</string>
+    
     <string name="Cancel">Отмена</string>
     <string name="Yes">Да</string>
     <string name="No">Нет</string>
@@ -62,7 +70,7 @@ limitations under the License.
     <string name="alert_import">Вы уверены? Все данные будут полностью заменены данными из файла __!</string>
     <string name="alert_delete_author">Вы уверены? Все данные об авторе \"__\" будут удалены!</string>
     <string name="alert_tag_delete">Вы уверены? Тэги \"__\" у все авторов будут удалены!</string>
-    
+    <string name="alert_add_author">Вы уверены, что хотите добавить автора  \"__\" в базу?</string>
     
     <string name="notification_updates">Обновления на самиздате</string>
     <string name="notification_error">Ошибка обновления SamLib</string>
@@ -170,6 +178,7 @@ limitations under the License.
     <string name="download_book_success">Книга успешно загружена</string>
     <string name="download_book_error">Ошибка загрузки книги</string>
     <string name="download_Loading">Загрузка...</string>
+    <string name="search_Loading">Идет поиск...</string>
     
     <string name="pull_to_refresh_pull_label">Потяните, чтобы обновить...</string>
     <string name="pull_to_refresh_release_label">Отпустите для обновления...</string>

@@ -19,7 +19,6 @@ import java.io.File;
 import java.io.Serializable;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.List;
 import java.util.TimeZone;
 import monakhv.android.samlib.data.DataExportImport;
 import monakhv.android.samlib.exception.BookParseException;
@@ -31,7 +30,7 @@ import monakhv.android.samlib.exception.BookParseException;
 public class Book implements Serializable {
 
     public static final int SELECTED_GROUP_ID=1;
-    private static final String SPLIT = "\\|";
+    
     private static final int BOOK_LINK = 0;
     private static final int BOOK_AUTHOR = 1;
     private static final int BOOK_TITLE = 2;
@@ -67,10 +66,11 @@ public class Book implements Serializable {
      * Parsing HTTP get string and construct Book object
      *
      * @param string2parse input single string to parse
+     * @throws monakhv.android.samlib.exception.BookParseException
      */
     public Book(String string2parse) throws BookParseException {
         this();
-        String[] strs = string2parse.split(SPLIT);
+        String[] strs = string2parse.split(SamLibConfig.SPLIT);
         title = strs[BOOK_TITLE];
         authorName = strs[BOOK_AUTHOR];
         uri = strs[BOOK_LINK];
@@ -216,10 +216,7 @@ public class Book implements Serializable {
         if (this.size != other.size) {
             return false;
         }
-        if (this.updateDate != other.updateDate) {
-            return false;
-        }
-        return true;
+        return this.updateDate == other.updateDate;
     }
 
     @Override
@@ -228,10 +225,7 @@ public class Book implements Serializable {
         return "Book{" + "uri=" + uri + ", size=" + size + ", updateDate=" + d + '}';
     }
 
-    public static int testSplit(String str) {
-        String[] arr = str.split(SPLIT);
-        return arr.length;
-    }
+    
 
     /**
      * Get book url to open it using web browser
@@ -278,10 +272,7 @@ public class Book implements Serializable {
         if (!ff.exists()) {
             return true;
         }
-        if (ff.lastModified() < getModifyTime()) {
-            return true;
-        }
-        return false;
+        return ff.lastModified() < getModifyTime();
     }
 
     public static Calendar string2Cal(String str) throws BookParseException {

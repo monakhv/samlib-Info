@@ -13,32 +13,29 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package monakhv.android.samlib.exception;
 
 /**
- * Exception in error of Book parsing when we can not transform the next input line into 
- * Book Object potential wrong author URL or author is not  in samlib any more
- * 
- * Skiping Author update
  *
- * @author monakhv
+ * @author Dmitry Monakhov
  */
-public class AuthorParseException extends SamLibException {
+public class SamLibNullAuthorException extends SamLibException {
 
     /**
-     * Creates a new instance of
-     * <code>BookParseException</code> without detail message.
+     * Creates a new instance of <code>SamLibNullAuthorException</code> without
+     * detail message.
      */
-    public AuthorParseException() {
+    public SamLibNullAuthorException() {
     }
 
     /**
-     * Constructs an instance of
-     * <code>BookParseException</code> with the specified detail message.
+     * Constructs an instance of <code>SamLibNullAuthorException</code> with the
+     * specified detail message.
      *
      * @param msg the detail message.
      */
-    public AuthorParseException(String msg) {
+    public SamLibNullAuthorException(String msg) {
         super(msg);
     }
 }

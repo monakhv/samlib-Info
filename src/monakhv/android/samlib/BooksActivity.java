@@ -31,7 +31,7 @@ import monakhv.android.samlib.sql.entity.Book;
  *
  * @author monakhv
  */
-public class NewBooksActivity extends FragmentActivity {
+public class BooksActivity extends FragmentActivity {
     
     private int author_id;
     private DownloadReceiver receiver;

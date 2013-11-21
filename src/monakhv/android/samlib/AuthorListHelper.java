@@ -47,6 +47,7 @@ import monakhv.android.samlib.tasks.MarkRead;
 /**
  *
  * @author Dmitry Monakhov
+ * This is because of PullTorefresh class 
  */
 public class AuthorListHelper implements
         LoaderManager.LoaderCallbacks<Cursor>, ListSwipeListener.SwipeCallBack {
@@ -54,13 +55,13 @@ public class AuthorListHelper implements
     public static final int AUTHOR_LIST_LOADER = 0x01;
     private static final String DEBUG_TAG = "AuthorListHelper";
     private static final String DATE_FORMAT = "dd.MM.yyyy HH:mm:ss";
-    private Context context;
-    private LoaderManager loaderManager;
+    private final Context context;
+    private final LoaderManager loaderManager;
     private String selection = null;
-    private SimpleCursorAdapter adapter;
+    private final SimpleCursorAdapter adapter;
     private ListView listView;
-    private GestureDetector detector;
-    private FragmentActivity activity;
+    private final GestureDetector detector;
+    private final FragmentActivity activity;
 
     public AuthorListHelper(FragmentActivity activity,PullToRefresh pull) {
         this.activity = activity;
@@ -186,7 +187,7 @@ public class AuthorListHelper implements
     }
     
     private void showBooks(Author a) {
-        Intent intent = new Intent(context, NewBooksActivity.class);
+        Intent intent = new Intent(context, BooksActivity.class);
         intent.putExtra(BookListFragment.AUTHOR_ID, a.getId());
         //intent.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
         context.startActivity(intent);

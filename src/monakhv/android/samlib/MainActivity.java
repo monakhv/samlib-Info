@@ -15,6 +15,9 @@
  */
 package monakhv.android.samlib;
 
+import monakhv.android.samlib.search.SearchAuthorActivity;
+import monakhv.android.samlib.dialogs.FilterSelectDialog;
+import monakhv.android.samlib.dialogs.EnterStringDialog;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.BroadcastReceiver;
@@ -39,6 +42,7 @@ import android.widget.Toast;
 import monakhv.android.samlib.PullToRefresh.OnRefreshListener;
 import monakhv.android.samlib.actionbar.ActionBarActivity;
 import monakhv.android.samlib.data.SettingsHelper;
+import monakhv.android.samlib.search.SearchAuthorsListFragment;
 import monakhv.android.samlib.service.CleanNotificationData;
 import monakhv.android.samlib.service.UpdateServiceIntent;
 import monakhv.android.samlib.sql.AuthorController;
@@ -52,9 +56,10 @@ import monakhv.android.samlib.tasks.MarkRead;
 
 public class MainActivity extends ActionBarActivity {
 
-    private static String DEBUG_TAG = "MainActivity";
+    private static final String DEBUG_TAG = "MainActivity";
     public static String CLEAN_NOTIFICATION = "CLEAN_NOTIFICATION";
     final int ARCHIVE_ACTIVITY = 1;
+    final int SEARCH_ACTIVITY = 2;
     //AddAuthorDialog addAuthorDilog;
     private UpdateActivityReceiver receiver;
     private boolean refreshStatus = false;
@@ -173,6 +178,16 @@ public class MainActivity extends ActionBarActivity {
             makeUpdate();
 
         }
+        if (sel == R.id.search_option_item){
+            View v = findViewById(R.id.search_author_panel);
+            if (v.getVisibility() == View.GONE){
+               
+                v.setVisibility(View.VISIBLE);
+            }
+            else {
+                v.setVisibility(View.GONE);
+            }
+        }
         if (sel == R.id.add_option_item) {
             View v = findViewById(R.id.add_author_panel);
             v.setVisibility(View.VISIBLE);
@@ -228,8 +243,8 @@ public class MainActivity extends ActionBarActivity {
         if (sel == R.id.selected_option_item) {
             Log.d(DEBUG_TAG, "go to Selected");
             Intent prefsIntent = new Intent(getApplicationContext(),
-                    NewBooksActivity.class);
-            prefsIntent.putExtra(BookListFragment.AUTHOR_ID, -1);
+                    BooksActivity.class);
+            prefsIntent.putExtra(BookListFragment.AUTHOR_ID, SamLibConfig.SELECTED_ID);
             startActivity(prefsIntent);
         }
         if (sel == R.id.menu_filter) {
@@ -238,8 +253,8 @@ public class MainActivity extends ActionBarActivity {
 
             MatrixCursor extras = new MatrixCursor(new String[]{SQLController.COL_ID, SQLController.COL_TAG_NAME});
 
-            extras.addRow(new String[]{"-1", getText(R.string.filter_all).toString()});
-            extras.addRow(new String[]{"-2", getText(R.string.filter_new).toString()});
+            extras.addRow(new String[]{Integer.toString(SamLibConfig.TAG_AUTHOR_ALL), getText(R.string.filter_all).toString()});
+            extras.addRow(new String[]{Integer.toString(SamLibConfig.TAG_AUTHOR_NEW), getText(R.string.filter_new).toString()});
             Cursor[] cursors = {extras, tags};
             final Cursor extendedCursor = new MergeCursor(cursors);
 
@@ -255,7 +270,7 @@ public class MainActivity extends ActionBarActivity {
 
                     String select = SQLController.TABLE_TAGS + "." + SQLController.COL_ID + "=" + tag_id;
 
-                    if (tag_id == -1) {
+                    if (tag_id == SamLibConfig.TAG_AUTHOR_ALL) {
                         setTitle(R.string.app_name);
                         select = null;
                     } else {
@@ -263,7 +278,7 @@ public class MainActivity extends ActionBarActivity {
                         setTitle(tt);
                     }
 
-                    if (tag_id == -2) {
+                    if (tag_id == SamLibConfig.TAG_AUTHOR_NEW) {
                         select = SQLController.TABLE_AUTHOR + "." + SQLController.COL_isnew + "=1";
                     }
                     Log.i(DEBUG_TAG, "WHERE " + select);
@@ -302,6 +317,10 @@ public class MainActivity extends ActionBarActivity {
 
             }
         }
+        if (requestCode == SEARCH_ACTIVITY){
+            AddAuthor aa = new AddAuthor(getApplicationContext());
+            aa.execute(data.getStringExtra(SearchAuthorsListFragment.AUTHOR_URL));
+        }
     }
 
     /**
@@ -319,12 +338,23 @@ public class MainActivity extends ActionBarActivity {
         v.setVisibility(View.GONE);
 
     }
+    public void searchAuthor(View view) {
+        EditText editText = (EditText) findViewById(R.id.searchAuthorText);
+        String text = editText.getText().toString();
+
+        Intent prefsIntent = new Intent(getApplicationContext(),
+                SearchAuthorActivity.class);
+        prefsIntent.putExtra(SearchAuthorActivity.EXTRA_PATTERN, text);
+        prefsIntent.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
+        
+        startActivityForResult(prefsIntent,SEARCH_ACTIVITY);
+    }
     private Author author=null;
-    private int read_option_item           = 21;
-    private int tags_option_item           = 22;
-    private int browser_option_item     = 23;
-    private int edit_author_option_item = 24;
-    private int delete_option_item = 25;
+    private final int read_option_item           = 21;
+    private final int tags_option_item           = 22;
+    private final int browser_option_item     = 23;
+    private final int edit_author_option_item = 24;
+    private final int delete_option_item = 25;
 
     @Override
     public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
@@ -397,7 +427,7 @@ public class MainActivity extends ActionBarActivity {
         return super.onContextItemSelected(item);
 
     }
-    private DialogInterface.OnClickListener deleteAuthoristener = new DialogInterface.OnClickListener() {
+    private final DialogInterface.OnClickListener deleteAuthoristener = new DialogInterface.OnClickListener() {
         public void onClick(DialogInterface dialog, int which) {
             switch (which) {
                 case Dialog.BUTTON_POSITIVE:

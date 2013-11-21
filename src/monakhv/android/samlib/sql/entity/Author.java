@@ -16,7 +16,6 @@
 package monakhv.android.samlib.sql.entity;
 
 import java.io.Serializable;
-import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -134,10 +133,7 @@ public class Author  implements Serializable{
         if (this.url != other.url && (this.url == null || !this.url.equals(other.url))) {
             return false;
         }
-        if (this.id != other.id) {
-            return false;
-        }
-        return true;
+        return this.id == other.id;
     }
     
     

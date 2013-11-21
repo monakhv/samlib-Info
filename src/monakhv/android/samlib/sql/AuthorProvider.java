@@ -97,7 +97,7 @@ public class AuthorProvider extends ContentProvider {
     
     public static final Uri T2A_URI = Uri.parse("content://" + AUTHORITY
             + "/" + T2A_BASE_PATH);//Content URI for AUTHORS
-
+    
     @Override
     public boolean onCreate() {
         mDB = new AuthorDB(getContext());

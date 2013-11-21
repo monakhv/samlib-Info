@@ -26,7 +26,7 @@ import java.util.List;
 import monakhv.android.samlib.MainActivity.UpdateActivityReceiver;
 import monakhv.android.samlib.R;
 import monakhv.android.samlib.data.SettingsHelper;
-import monakhv.android.samlib.exception.AuthorParseException;
+import monakhv.android.samlib.exception.SamlibParseException;
 import monakhv.android.samlib.sql.AuthorController;
 import monakhv.samlib.http.HttpClientController;
 import monakhv.android.samlib.sql.entity.Author;
@@ -117,7 +117,7 @@ public class UpdateServiceIntent extends IntentService {
                 wl.release();
                 return;
 
-            } catch (AuthorParseException ex) {//skip update for given author
+            } catch (SamlibParseException ex) {//skip update for given author
                 Log.e(DEBUG_TAG, "Error parsing url: " + url + " skip update author ", ex);
                 settings.log(DEBUG_TAG, "Error parsing url: " + url + " skip update author ", ex);
                 ++skipedAuthors;

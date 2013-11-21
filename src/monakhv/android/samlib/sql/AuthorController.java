@@ -35,9 +35,9 @@ import monakhv.android.samlib.sql.entity.BookCollection;
  */
 public class AuthorController implements AbstractController<Author> {
 
-    private static String DEBUG_TAG = "AuthorController";
-    private BookController bkCtr;
-    private Context context;
+    private static final String DEBUG_TAG = "AuthorController";
+    private final BookController bkCtr;
+    private final Context context;
 
     public AuthorController(Context context) {
         this.context = context;
@@ -51,6 +51,7 @@ public class AuthorController implements AbstractController<Author> {
     /**
      * Return all authors from Data Base
      *
+     * @param selection
      * @return
      */
     public List<Author> getAll(String selection) {
@@ -122,6 +123,7 @@ public class AuthorController implements AbstractController<Author> {
      * Add new entry to Author table
      *
      * @param a object to add
+     * @return 
      */
     public long insert(Author a) {
 
