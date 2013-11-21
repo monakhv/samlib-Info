@@ -389,7 +389,7 @@ public class HttpClientController {
                 } 
              }
              catch(SamLibNullAuthorException ex){
-                 Log.i(DEBUG_TAG,"Skip author with no book");
+                 //Log.i(DEBUG_TAG,"Skip author with no book");
              }
                             
          }
