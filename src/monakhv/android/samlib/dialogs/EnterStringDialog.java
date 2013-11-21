@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package monakhv.android.samlib;
+package monakhv.android.samlib.dialogs;
 
 
 import android.app.AlertDialog;
@@ -22,6 +22,7 @@ import android.content.DialogInterface;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.TextView;
+import monakhv.android.samlib.R;
 
 /**
  *
