@@ -13,9 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package monakhv.android.samlib.search;
+package monakhv.android.samlib;
 
-import monakhv.android.samlib.search.SearchAuthorsListFragment;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -31,7 +30,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 import java.io.Serializable;
 import java.util.List;
-import monakhv.android.samlib.R;
 import monakhv.android.samlib.sql.entity.AuthorCard;
 
 /**

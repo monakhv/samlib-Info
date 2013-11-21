@@ -13,55 +13,59 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package monakhv.android.samlib.dialogs;
+package monakhv.android.samlib;
 
+import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
+import android.support.v4.widget.SimpleCursorAdapter;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.view.ViewGroup;
-import android.widget.AdapterView.OnItemClickListener;
-import android.widget.ArrayAdapter;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ListView;
-import monakhv.android.samlib.R;
+import monakhv.android.samlib.sql.SQLController;
 
 /**
  *
  * @author monakhv
  */
-public class FileSelectDialog extends DialogFragment {
-    private static final String DEBUG_TAG = "FileSelectDialog";
-    private String[] files;
-    private OnItemClickListener listener;
-    private String tite;
+public class FilterSelectDialog extends DialogFragment{
+    private static final String DEBUG_TAG ="FilterSelectDialog";
+    private final Cursor cursor;
+    private final AdapterView.OnItemClickListener listener;
+    private final String title;
     private ListView fileList = null;
-
-    public FileSelectDialog(String[] files,OnItemClickListener listener,String title) {
-        this.files = files;
-        this.listener = listener;
-        this.tite=title;
-    }
     
+    public FilterSelectDialog(Cursor cursor,AdapterView.OnItemClickListener listener,String title){
+        this.cursor   = cursor;
+        this.listener = listener;
+        this.title=title;
+    }
     
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
       Bundle savedInstanceState) {
         
         View v = inflater.inflate(R.layout.file_select, null);
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(getActivity(),
-        android.R.layout.simple_list_item_single_choice, files);
+//        ArrayAdapter<String> adapter = new ArrayAdapter<String>(getActivity(),
+//        android.R.layout.simple_list_item_single_choice, files);
+        
+        getDialog().setTitle(title);
+        SimpleCursorAdapter adapter = new SimpleCursorAdapter(
+                getActivity(), android.R.layout.simple_list_item_single_choice,
+                cursor, new String [] {SQLController.COL_TAG_NAME}, new int [] {android.R.id.text1},
+               0);
+        
         fileList = (ListView) v.findViewById(R.id.listFile);
         fileList.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
         fileList.setAdapter(adapter);
         fileList.setOnItemClickListener(listener);
-       
-        getDialog().setTitle(tite);
-                
+        
         Button close = (Button) v.findViewById(R.id.listFile_close);
-        close.setOnClickListener(new OnClickListener() {
+        close.setOnClickListener(new View.OnClickListener() {
 
             public void onClick(View v) {
                 Log.d(DEBUG_TAG, "Close clicked");
@@ -72,8 +76,5 @@ public class FileSelectDialog extends DialogFragment {
         return v;
         
     }
-
-    
-
     
 }

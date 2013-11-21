@@ -44,7 +44,7 @@ limitations under the License.
     </LinearLayout>
     <fragment
         android:id="@+id/listAuthorSearchFragment"
-        android:name="monakhv.android.samlib.search.SearchAuthorsListFragment"
+        android:name="monakhv.android.samlib.SearchAuthorsListFragment"
         android:layout_weight="1"
         android:layout_width="match_parent"
         android:layout_height="0dp">

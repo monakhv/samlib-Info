@@ -15,9 +15,6 @@
  */
 package monakhv.android.samlib;
 
-import monakhv.android.samlib.dialogs.FilterSelectDialog;
-import monakhv.android.samlib.dialogs.EnterStringDialog;
-import monakhv.android.samlib.search.SearchAuthorActivity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.BroadcastReceiver;

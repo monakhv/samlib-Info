@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package monakhv.android.samlib.search;
+package monakhv.android.samlib;
 
 import android.app.ProgressDialog;
 import android.content.Context;
@@ -30,14 +30,11 @@ import android.widget.TextView;
 import android.widget.Toast;
 import java.util.ArrayList;
 import java.util.List;
-import monakhv.android.samlib.ListSwipeListener;
-import monakhv.android.samlib.R;
 import monakhv.android.samlib.sql.entity.AuthorCard;
 import monakhv.android.samlib.tasks.SearchAuthor;
 
 /**
- * Display Author search result
- * 
+ *
  * @author Dmitry Monakhov
  */
 public class SearchAuthorsListFragment extends ListFragment implements ListSwipeListener.SwipeCallBack{
@@ -46,7 +43,7 @@ public class SearchAuthorsListFragment extends ListFragment implements ListSwipe
     static private final String DEBUG_TAG = "SearchAuthorsListFragment";
     private String pattern;
     ProgressDialog progress;
-    private List<AuthorCard> data;
+    private List<AuthorCard> result;
     private GestureDetector detector;
 
     @Override
@@ -54,8 +51,8 @@ public class SearchAuthorsListFragment extends ListFragment implements ListSwipe
         super.onCreate(savedInstanceState);
         pattern = getActivity().getIntent().getExtras().getString(SearchAuthorActivity.EXTRA_PATTERN);
 
-        if (data == null) {
-            data = new ArrayList<AuthorCard>();
+        if (result == null) {
+            result = new ArrayList<AuthorCard>();
             search(pattern);
         }
         adapter = new SearchAuthorAdapter(getActivity());
@@ -74,15 +71,11 @@ public class SearchAuthorsListFragment extends ListFragment implements ListSwipe
             }
         });
     }
-    /**
-     * start search task 
-     * 
-     * @param ptr Author name pattern to search
-     */
+
     public void search(String ptr) {
         if (adapter != null){
-            
-            adapter.clear();
+            result.clear();
+            adapter.load();
         }
         
         pattern = ptr;
@@ -94,18 +87,15 @@ public class SearchAuthorsListFragment extends ListFragment implements ListSwipe
         progress.show();
         task.execute(pattern);
     }
-    /**
-     *  Show the result of the search
-     * 
-     * @param res - the results
-     */
+
     public void setResult(List<AuthorCard> res) {
         if (res == null) {
             Log.e(DEBUG_TAG, "Result is NULL");
             return;
         }
-        
-        adapter.load(res);
+        result.clear();
+        result.addAll(res);
+        adapter.load();
         
         Log.d(DEBUG_TAG, "Got new result: " + res.size());
         if (progress != null) {
@@ -148,22 +138,14 @@ public class SearchAuthorsListFragment extends ListFragment implements ListSwipe
     public class SearchAuthorAdapter extends ArrayAdapter<AuthorCard> {
 
         private final Context context;
-       
-        public SearchAuthorAdapter(Context context) {           
-            super(context, R.layout.author_search_row, data);
-            this.context = context;
-           
-        }
+        private AuthorCard[] data;
 
-        private void load(List<AuthorCard> res) {
-            data.addAll(res);
-            notifyDataSetChanged();
-        }
-        
-        @Override
-        public void clear(){
-            data.clear();
-            notifyDataSetChanged();
+       
+
+        public SearchAuthorAdapter(Context context) {
+            super(context, R.layout.author_search_row, result);
+            this.context = context;
+            data = result.toArray(new AuthorCard[1]);
         }
 
         public class ViewHolder {
@@ -173,6 +155,11 @@ public class SearchAuthorsListFragment extends ListFragment implements ListSwipe
             public TextView desc;
             public TextView size;
 
+        }
+
+        public void load() {
+            data = result.toArray(new AuthorCard[1]);
+            notifyDataSetChanged();
         }
 
         @Override
@@ -192,10 +179,10 @@ public class SearchAuthorsListFragment extends ListFragment implements ListSwipe
             } else {
                 holder = (ViewHolder) rowView.getTag();//existing View can find holder in Tag
             }
-            holder.name.setText(data.get(position).getName());
-            holder.title.setText(data.get(position).getTitle());
-            holder.desc.setText(data.get(position).getDescription());
-            String ss = Integer.toString(data.get(position).getSize()) + "K/" + Integer.toString(data.get(position).getCount());
+            holder.name.setText(data[position].getName());
+            holder.title.setText(data[position].getTitle());
+            holder.desc.setText(data[position].getDescription());
+            String ss = Integer.toString(data[position].getSize()) + "K/" + Integer.toString(data[position].getCount());
             holder.size.setText(ss);
 
             return rowView;

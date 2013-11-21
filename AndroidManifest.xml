@@ -65,7 +65,7 @@ limitations under the License.
                 android:value="monakhv.android.samlib.MainActivity"/>
         </activity>
         <activity
-            android:name=".search.SearchAuthorActivity" 
+            android:name=".SearchAuthorActivity" 
             android:parentActivityName="monakhv.android.samlib.MainActivity" >
             <meta-data 
                 android:name="android.support.PARENT_ACTIVITY"

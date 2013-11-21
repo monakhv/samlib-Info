@@ -15,7 +15,6 @@
  */
 package monakhv.android.samlib;
 
-import monakhv.android.samlib.dialogs.FileSelectDialog;
 import static android.app.Activity.RESULT_OK;
 import android.app.AlertDialog;
 import android.app.Dialog;

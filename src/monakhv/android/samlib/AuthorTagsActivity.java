@@ -15,7 +15,6 @@
  */
 package monakhv.android.samlib;
 
-import monakhv.android.samlib.dialogs.EnterStringDialog;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
