@@ -36,12 +36,14 @@ public abstract class ActionBarActivity extends FragmentActivity {
 
     /**
      * Returns the {@link ActionBarHelper} for this activity.
+     * @return 
      */
     protected ActionBarHelper getActionBarHelper() {
         return mActionBarHelper;
     }
 
-    /**{@inheritDoc}*/
+    /**{@inheritDoc
+     * @return }*/
     @Override
     public MenuInflater getMenuInflater() {
         return mActionBarHelper.getMenuInflater(super.getMenuInflater());
@@ -66,6 +68,7 @@ public abstract class ActionBarActivity extends FragmentActivity {
      * {@link Activity#onCreateOptionsMenu(android.view.Menu)}.
      *
      * Note: marking menu items as invisible/visible is not currently supported.
+     * @return 
      */
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -75,7 +78,9 @@ public abstract class ActionBarActivity extends FragmentActivity {
         return retValue;
     }
 
-    /**{@inheritDoc}*/
+    /**{@inheritDoc
+     * @param title}
+     * @param color*/
     @Override
     protected void onTitleChanged(CharSequence title, int color) {
         mActionBarHelper.onTitleChanged(title, color);
