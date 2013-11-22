@@ -32,17 +32,24 @@ import monakhv.android.samlib.R;
  *
  * @author monakhv
  */
-public class FileSelectDialog extends DialogFragment {
+public class SingleChoiceSelectDialog extends DialogFragment {
     private static final String DEBUG_TAG = "FileSelectDialog";
-    private String[] files;
-    private OnItemClickListener listener;
-    private String tite;
-    private ListView fileList = null;
+    private final String[] files;
+    private final OnItemClickListener listener;
+    private final String tite;
+    private ListView     fileList = null;
+    private int selected = -1;
 
-    public FileSelectDialog(String[] files,OnItemClickListener listener,String title) {
-        this.files = files;
+    public SingleChoiceSelectDialog(String[] data,OnItemClickListener listener,String title) {
+        this.files = data;
         this.listener = listener;
         this.tite=title;
+    }
+    
+    public SingleChoiceSelectDialog(String[] data,OnItemClickListener listener,String title, int selected) {
+        this(data, listener, title);
+        this.selected = selected;
+        
     }
     
     
@@ -51,13 +58,20 @@ public class FileSelectDialog extends DialogFragment {
       Bundle savedInstanceState) {
         
         View v = inflater.inflate(R.layout.file_select, null);
+       
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(getActivity(),
         android.R.layout.simple_list_item_single_choice, files);
+        
+       
+            
         fileList = (ListView) v.findViewById(R.id.listFile);
         fileList.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
         fileList.setAdapter(adapter);
         fileList.setOnItemClickListener(listener);
-       
+        if (selected >= 0){
+            fileList.setItemChecked(selected, true);
+        }
+        
         getDialog().setTitle(tite);
                 
         Button close = (Button) v.findViewById(R.id.listFile_close);

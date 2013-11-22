@@ -42,6 +42,7 @@ import android.widget.Toast;
 import monakhv.android.samlib.PullToRefresh.OnRefreshListener;
 import monakhv.android.samlib.actionbar.ActionBarActivity;
 import monakhv.android.samlib.data.SettingsHelper;
+import monakhv.android.samlib.dialogs.SingleChoiceSelectDialog;
 import monakhv.android.samlib.search.SearchAuthorsListFragment;
 import monakhv.android.samlib.service.CleanNotificationData;
 import monakhv.android.samlib.service.UpdateServiceIntent;
@@ -55,6 +56,28 @@ import monakhv.android.samlib.tasks.DeleteAuthor;
 import monakhv.android.samlib.tasks.MarkRead;
 
 public class MainActivity extends ActionBarActivity {
+    public enum SortOrder {
+        DateUpdate(R.string.sort_update_date,SQLController.COL_mtime + " DESC"),
+        AuthorName(R.string.sort_author_name,SQLController.COL_NAME);
+        private final int iname;
+        private final String order;
+        private SortOrder(int iname, String order){
+            this.iname = iname;
+            this.order = order;
+        }
+        public String getOrder(){
+            return  order;
+        }
+        public static String[] getTites(Context ctx){
+            String[] res = new String[values().length];
+            int i =0;
+            for (SortOrder so: values()){
+                res[i] = ctx.getString(so.iname);
+                ++i;
+            }            
+            return res;
+        }      
+    }
 
     private static final String DEBUG_TAG = "MainActivity";
     public static String CLEAN_NOTIFICATION = "CLEAN_NOTIFICATION";
@@ -63,10 +86,11 @@ public class MainActivity extends ActionBarActivity {
     //AddAuthorDialog addAuthorDilog;
     private UpdateActivityReceiver receiver;
     private boolean refreshStatus = false;
-    private FilterSelectDialog dialog;
+    private FilterSelectDialog filterDialog;
     private PullToRefresh listView;
     private AuthorListHelper listHelper;
-
+    private SingleChoiceSelectDialog sortDialog;
+    
     @Override
     public void onCreate(Bundle icicle) {
         super.onCreate(icicle);
@@ -188,6 +212,21 @@ public class MainActivity extends ActionBarActivity {
                 v.setVisibility(View.GONE);
             }
         }
+        if (sel == R.id.sort_option_item){
+            
+            AdapterView.OnItemClickListener listener = new AdapterView.OnItemClickListener() {
+
+                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                    SortOrder so = SortOrder.values()[position];
+                    listHelper.setSortOrder(so);
+                    sortDialog.dismiss();
+                }
+                
+            };
+            sortDialog = new SingleChoiceSelectDialog(SortOrder.getTites(this), listener, this.getString(R.string.dialog_title_sort),listHelper.getSortOrder().ordinal());
+            
+            sortDialog.show(getSupportFragmentManager(), "Dosrtdlg");
+        }
         if (sel == R.id.add_option_item) {
             View v = findViewById(R.id.add_author_panel);
             v.setVisibility(View.VISIBLE);
@@ -265,7 +304,7 @@ public class MainActivity extends ActionBarActivity {
 
                     int tag_id = extendedCursor.getInt(extendedCursor.getColumnIndex(SQLController.COL_ID));
                     String tg_name = extendedCursor.getString(extendedCursor.getColumnIndex(SQLController.COL_TAG_NAME));
-                    dialog.dismiss();
+                    filterDialog.dismiss();
 
 
                     String select = SQLController.TABLE_TAGS + "." + SQLController.COL_ID + "=" + tag_id;
@@ -285,8 +324,8 @@ public class MainActivity extends ActionBarActivity {
                     refreshList(select);
                 }
             };
-            dialog = new FilterSelectDialog(extendedCursor, listener, getText(R.string.dialog_title_filtr).toString());
-            dialog.show(getSupportFragmentManager(), "FilterDialogShow");
+            filterDialog = new FilterSelectDialog(extendedCursor, listener, getText(R.string.dialog_title_filtr).toString());
+            filterDialog.show(getSupportFragmentManager(), "FilterDialogShow");
 
 
         }

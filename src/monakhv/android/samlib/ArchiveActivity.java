@@ -15,7 +15,7 @@
  */
 package monakhv.android.samlib;
 
-import monakhv.android.samlib.dialogs.FileSelectDialog;
+import monakhv.android.samlib.dialogs.SingleChoiceSelectDialog;
 import static android.app.Activity.RESULT_OK;
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -40,7 +40,7 @@ public class ArchiveActivity extends FragmentActivity {
     public static final String UPDATE_KEY = "UPDATE_LIST_PARAM";
     public static final int UPDATE_LIST = 22;
     private static final String DEBUG_TAG = "ArchiveActivity";
-    private FileSelectDialog dialog = null;
+    private SingleChoiceSelectDialog dialog = null;
     private String selectedFile;
 
     @Override
@@ -104,7 +104,7 @@ public class ArchiveActivity extends FragmentActivity {
                 //_importDB(files[position]);
             }
         };
-        dialog = new FileSelectDialog(files, listener,getText(R.string.dialog_title_file).toString());
+        dialog = new SingleChoiceSelectDialog(files, listener,getText(R.string.dialog_title_file).toString());
 
 
         dialog.show(getSupportFragmentManager(), "imporDBDlg");
@@ -162,7 +162,7 @@ public class ArchiveActivity extends FragmentActivity {
                 _importTxt(files[position]);
             }
         };
-        dialog = new FileSelectDialog(files, listener,getText(R.string.dialog_title_file).toString());
+        dialog = new SingleChoiceSelectDialog(files, listener,getText(R.string.dialog_title_file).toString());
 
 
         dialog.show(getSupportFragmentManager(), "imporTxtDlg");

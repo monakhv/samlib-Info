@@ -62,6 +62,8 @@ public class AuthorListHelper implements
     private ListView listView;
     private final GestureDetector detector;
     private final FragmentActivity activity;
+    
+    private MainActivity.SortOrder order;
 
     public AuthorListHelper(FragmentActivity activity,PullToRefresh pull) {
         this.activity = activity;
@@ -75,7 +77,7 @@ public class AuthorListHelper implements
                 null, from, to,
                 CursorAdapter.FLAG_REGISTER_CONTENT_OBSERVER);
         
-        
+        order = MainActivity.SortOrder.DateUpdate;
         adapter.setViewBinder(new AuthorViewBinder());
         detector = new GestureDetector(context, new ListSwipeListener(this));
         init(pull);
@@ -111,6 +113,14 @@ public class AuthorListHelper implements
         
     }
 
+    public void setSortOrder(MainActivity.SortOrder so){
+        order =so;
+        loaderManager.restartLoader(AUTHOR_LIST_LOADER, null, this);
+    }
+    
+    public MainActivity.SortOrder getSortOrder(){
+        return order;
+    }
     public String getSelection() {
         return selection;
     }
@@ -118,7 +128,7 @@ public class AuthorListHelper implements
     public Loader<Cursor> onCreateLoader(int i, Bundle bundle) {
         
         CursorLoader cursorLoader = new CursorLoader(context,
-                AuthorProvider.AUTHOR_URI, null, selection, null, SQLController.COL_mtime + " DESC");
+                AuthorProvider.AUTHOR_URI, null, selection, null, order.getOrder());
         return cursorLoader;
     }
     

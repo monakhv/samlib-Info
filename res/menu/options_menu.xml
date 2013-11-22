@@ -55,6 +55,14 @@ limitations under the License.
         android:showAsAction="ifRoom"
         android:orderInCategory="20">
     </item>
+    
+    <item
+        android:id="@+id/sort_option_item"
+        android:icon="@drawable/collections_sort_by_size"
+        android:title="@string/menu_sort"
+        android:showAsAction="ifRoom"
+        android:orderInCategory="25">
+    </item>
        
     <item
         android:id="@+id/archive_option_item"
