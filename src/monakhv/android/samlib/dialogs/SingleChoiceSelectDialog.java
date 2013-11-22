@@ -69,7 +69,7 @@ public class SingleChoiceSelectDialog extends DialogFragment {
         fileList.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
         fileList.setAdapter(adapter);
         fileList.setOnItemClickListener(listener);
-        if (selected >= 0){
+        if (selected != -1){
             fileList.setItemChecked(selected, true);
         }
         
