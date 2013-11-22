@@ -29,11 +29,12 @@ import android.widget.ListView;
 import monakhv.android.samlib.R;
 
 /**
- *
- * @author monakhv
+ *General propose Class to select single item from the list of string variables
+ * 
+ * @author Dmitry Monakhov
  */
 public class SingleChoiceSelectDialog extends DialogFragment {
-    private static final String DEBUG_TAG = "FileSelectDialog";
+    private static final String DEBUG_TAG = "SingleChoiceSelectDialog";
     private final String[] files;
     private final OnItemClickListener listener;
     private final String tite;
