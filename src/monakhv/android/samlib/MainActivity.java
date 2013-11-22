@@ -341,7 +341,9 @@ public class MainActivity extends ActionBarActivity {
     public void searchAuthor(View view) {
         EditText editText = (EditText) findViewById(R.id.searchAuthorText);
         String text = editText.getText().toString();
-
+        editText.setText("");
+        View v = findViewById(R.id.search_author_panel);
+        v.setVisibility(View.GONE);
         Intent prefsIntent = new Intent(getApplicationContext(),
                 SearchAuthorActivity.class);
         prefsIntent.putExtra(SearchAuthorActivity.EXTRA_PATTERN, text);

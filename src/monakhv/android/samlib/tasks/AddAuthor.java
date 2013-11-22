@@ -132,19 +132,13 @@ public class AddAuthor extends AsyncTask<String, Void, Boolean> {
      * URL syntax checkout
      * 
      * @param url original URL
-     * @return reduced URL without host prefix
+     * @return reduced URL without host prefix or NULL if the syntax is wrong
      * 
      */
     private String testURL(String url)   {
         Log.d(DEBUG_TAG, "Got text: " + url);
         String text = url;
-
-        //All URL must be closed by /
-        if (!text.endsWith(SamLibConfig.SLASH)) {
-            text = text + SamLibConfig.SLASH;
-        }
-        
-        
+       
         return SamLibConfig.reduceUrl(text);
 
     }

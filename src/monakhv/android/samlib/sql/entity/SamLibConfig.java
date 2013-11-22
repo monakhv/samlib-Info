@@ -248,6 +248,12 @@ public class SamLibConfig {
      * @return
      */
     public static String reduceUrl(String str) {
+         //All URL must be closed by /
+        if (!str.endsWith(SamLibConfig.SLASH)) {
+            str = str + SamLibConfig.SLASH;
+        }
+        
+        
         if (str.startsWith(SAMLIB_PROTO)) {//full URL case
             for (SamIzdat sz : URLs) {
                
