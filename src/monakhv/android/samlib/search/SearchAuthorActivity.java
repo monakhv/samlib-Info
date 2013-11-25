@@ -26,7 +26,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
-import android.widget.TextView;
 import android.widget.Toast;
 import java.io.Serializable;
 import java.util.List;
@@ -38,20 +37,20 @@ import monakhv.android.samlib.sql.entity.AuthorCard;
  * @author Dmitry Monakhov
  */
 public class SearchAuthorActivity extends FragmentActivity {
-
+    
     static private final String DEBUG_TAG = "SearchAuthorActivity";
     public static final String EXTRA_PATTERN = "EXTRA_PATTERN";
     private SearchReceiver receiver;
     private SearchAuthorsListFragment listFragment;
     private View searchPannel;
-
+    
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
+        
         setContentView(R.layout.search_authors);
     }
-
+    
     @Override
     protected void onResume() {
         super.onResume();
@@ -60,61 +59,61 @@ public class SearchAuthorActivity extends FragmentActivity {
         filter.addCategory(Intent.CATEGORY_DEFAULT);
         registerReceiver(receiver, filter);
         listFragment = (SearchAuthorsListFragment) getSupportFragmentManager().findFragmentById(R.id.listAuthorSearchFragment);
-         searchPannel = findViewById(R.id.search_author_panel_sa);
+        searchPannel = findViewById(R.id.search_author_panel_sa);
     }
-
+    
     @Override
     protected void onPause() {
         super.onPause();
         unregisterReceiver(receiver);
     }
-
+    
     private final int id_menu_search = 21;
-
+    
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        menu.add(1, id_menu_search, 1, "Search");
+        menu.add(1, id_menu_search, 1, getString(R.string.menu_search));
         menu.findItem(id_menu_search).setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
         menu.findItem(id_menu_search).setIcon(R.drawable.action_search);
         return super.onCreateOptionsMenu(menu);
     }
-
+    
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int sel = item.getItemId();
         if (sel == id_menu_search) {
-           flipPannel();
+            flipPannel();
             
         }
         return super.onOptionsItemSelected(item);
     }
     
-    private void flipPannel(){
+    private void flipPannel() {
         if (searchPannel.getVisibility() == View.GONE) {
-                searchPannel.setVisibility(View.VISIBLE);
-            } else {
-                searchPannel.setVisibility(View.GONE);
-            }
+            searchPannel.setVisibility(View.VISIBLE);
+        } else {
+            searchPannel.setVisibility(View.GONE);
+        }
     }
-
+    
     public void searchAuthor(View view) {
         EditText editText = (EditText) findViewById(R.id.searchAuthorText_sa);
         String text = editText.getText().toString();
-
+        
         editText.setText("");
         flipPannel();
         listFragment.search(text);
     }
-
+    
     public class SearchReceiver extends BroadcastReceiver {
-
+        
         public static final String ACTION_RESP = "monakhv.android.samlib.SearchReceiver";
         public static final String EXTRA_MESSAGE = "MESSAGE";
         public static final String EXTRA_RESULT = "EXTRA_RESULT";
-
+        
         @Override
         public void onReceive(Context context, Intent intent) {
-
+            
             if (listFragment != null) {
                 Serializable ss = intent.getSerializableExtra(EXTRA_RESULT);
                 Log.d(DEBUG_TAG, "Send result to list");
@@ -123,14 +122,14 @@ public class SearchAuthorActivity extends FragmentActivity {
                 Log.e(DEBUG_TAG, "ListView is NULL");
             }
             String msg = intent.getStringExtra(EXTRA_MESSAGE);
-
+            
             if (msg != null) {
                 Toast toast = Toast.makeText(context, msg, Toast.LENGTH_SHORT);
                 toast.show();
             }
-
+            
         }
-
+        
     }
-
+    
 }

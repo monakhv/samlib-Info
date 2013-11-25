@@ -128,7 +128,10 @@ public class SamlibPreferencesActivity extends PreferenceActivity
     }
 
     public boolean onPreferenceChange(Preference preference, Object newValue) {
-        updateRingtoneSummary((RingtonePreference) preference, Uri.parse((String) newValue));
+        if (preference.getKey().equalsIgnoreCase(getString(R.string.pref_key_notification_ringtone))){
+            updateRingtoneSummary((RingtonePreference) preference, Uri.parse((String) newValue));
+        }
+        
         return true;
     }
 
