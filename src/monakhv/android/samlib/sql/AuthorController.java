@@ -48,15 +48,20 @@ public class AuthorController implements AbstractController<Author> {
         return bkCtr;
     }
 
+     public List<Author> getAll() {
+        return getAll(null,null);
+    }
+    
     /**
      * Return all authors from Data Base
      *
      * @param selection
+     * @param order
      * @return
      */
-    public List<Author> getAll(String selection) {
+    public List<Author> getAll(String selection, String order) {
         List<Author> res = new ArrayList<Author>();
-        Cursor cursor = context.getContentResolver().query(AuthorProvider.AUTHOR_URI, null, selection, null, null);
+        Cursor cursor = context.getContentResolver().query(AuthorProvider.AUTHOR_URI, null, selection, null, order);
         while (cursor.moveToNext()) {
             res.add(Cursor2Author(cursor));
         }
@@ -75,10 +80,7 @@ public class AuthorController implements AbstractController<Author> {
         cursor.close();
         return !res;
     }
-    public List<Author> getAll() {
-        return getAll(null);
-    }
-    
+   
 
     /**
      * Update Author in DB id is constant

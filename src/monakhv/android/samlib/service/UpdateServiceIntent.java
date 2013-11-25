@@ -23,6 +23,7 @@ import android.util.Log;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import monakhv.android.samlib.MainActivity;
 import monakhv.android.samlib.MainActivity.UpdateActivityReceiver;
 import monakhv.android.samlib.R;
 import monakhv.android.samlib.data.SettingsHelper;
@@ -48,7 +49,7 @@ public class UpdateServiceIntent extends IntentService {
     private int currentCaller = 0;
     private Context context;
     private SettingsHelper settings;
-    private List<Author> updatedAuthors;
+    private final List<Author> updatedAuthors;
     private int skipedAuthors = 0;
 
     public UpdateServiceIntent() {
@@ -98,7 +99,7 @@ public class UpdateServiceIntent extends IntentService {
         PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
         PowerManager.WakeLock wl = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, DEBUG_TAG);
         wl.acquire();
-        List<Author> authors = ctl.getAll(selection);
+        List<Author> authors = ctl.getAll(selection,MainActivity.SortOrder.DateUpdate.getOrder());
         int total = authors.size();
         int icurrent = 0;//to send update information to pull-to-refresh
         for (Author a : authors) {//main author cycle
