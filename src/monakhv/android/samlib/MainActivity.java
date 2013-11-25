@@ -58,7 +58,7 @@ import monakhv.android.samlib.tasks.MarkRead;
 public class MainActivity extends ActionBarActivity {
     public enum SortOrder {
         DateUpdate(R.string.sort_update_date,SQLController.COL_mtime + " DESC"),
-        AuthorName(R.string.sort_author_name,SQLController.COL_NAME);
+        AuthorName(R.string.sort_author_name,SQLController.COL_isnew+" DESC, "+SQLController.COL_NAME);
         private final int iname;
         private final String order;
         private SortOrder(int iname, String order){
