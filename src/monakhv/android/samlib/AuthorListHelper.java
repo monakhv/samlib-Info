@@ -37,6 +37,7 @@ import android.widget.TextView;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import static monakhv.android.samlib.ActivityUtils.setDivider;
+import monakhv.android.samlib.data.SettingsHelper;
 import monakhv.android.samlib.sql.AuthorController;
 import monakhv.android.samlib.sql.AuthorProvider;
 import monakhv.android.samlib.sql.SQLController;
@@ -76,8 +77,8 @@ public class AuthorListHelper implements
                 context.getApplicationContext(), R.layout.rowlayout,
                 null, from, to,
                 CursorAdapter.FLAG_REGISTER_CONTENT_OBSERVER);
-        
-        order = MainActivity.SortOrder.DateUpdate;
+        SettingsHelper settings = new SettingsHelper(context);
+        order = settings.getAuthorSortOrder();
         adapter.setViewBinder(new AuthorViewBinder());
         detector = new GestureDetector(context, new ListSwipeListener(this));
         init(pull);

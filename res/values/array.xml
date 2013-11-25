@@ -62,4 +62,14 @@ limitations under the License.
         <item>Год</item>        
     </string-array>
     
+    <string-array name="sortAuthorValues">
+        <item>DateUpdate</item>
+        <item>AuthorName</item>        
+    </string-array>
+ 
+    <string-array name="sortAuthorTitles">
+        <item>По времени обновления</item>
+        <item>По имени автора</item>        
+    </string-array>
+    
 </resources>

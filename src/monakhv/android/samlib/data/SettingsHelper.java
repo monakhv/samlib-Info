@@ -31,6 +31,7 @@ import java.io.File;
 import java.net.Authenticator;
 import java.net.PasswordAuthentication;
 import java.util.Calendar;
+import monakhv.android.samlib.MainActivity;
 import monakhv.android.samlib.R;
 import monakhv.android.samlib.receiver.UpdateReceiver;
 import monakhv.android.samlib.sql.entity.Book;
@@ -44,9 +45,9 @@ public class SettingsHelper implements SharedPreferences.OnSharedPreferenceChang
 
     public final static String PREFS_NAME = "samlib_prefs";
     private Context context = null;
-    private static String DEBUG_TAG = "SettingsHelper";
+    private static final String DEBUG_TAG = "SettingsHelper";
     private boolean updateService = false;
-    private SharedPreferences prefs;
+    private final SharedPreferences prefs;
 
     public SettingsHelper(Context context) {
         this.context = context;
@@ -237,6 +238,12 @@ public class SettingsHelper implements SharedPreferences.OnSharedPreferenceChang
         return str;
     }
 
+    public MainActivity.SortOrder getAuthorSortOrder(){
+        String str = prefs.getString(
+                context.getString(R.string.pref_key_author_order), 
+                context.getString(R.string.pref_default_author_order));
+        return MainActivity.SortOrder.valueOf(str);
+    }
     private long getUpdatePeriod() {
 
 
@@ -357,11 +364,7 @@ public class SettingsHelper implements SharedPreferences.OnSharedPreferenceChang
         if (helper.getWifiOnlyFlag()) {
             ConnectivityManager conMan = (ConnectivityManager) ctx.getSystemService(Context.CONNECTIVITY_SERVICE);
             State wifi = conMan.getNetworkInfo(1).getState();
-            if (wifi == NetworkInfo.State.CONNECTED || wifi == NetworkInfo.State.CONNECTING) {
-                return true;
-            } else {
-                return false;
-            }
+            return wifi == NetworkInfo.State.CONNECTED || wifi == NetworkInfo.State.CONNECTING;
         }
         return true;
     }
@@ -374,12 +377,7 @@ public class SettingsHelper implements SharedPreferences.OnSharedPreferenceChang
         if (info == null || !info.isConnected()) {
             return false;
         }
-        if (info.isRoaming()) {
-            // here is the roaming option you can change it if you want to
-            // disable internet while roaming, just return false
-            return false;
-        }
-        return true;
+        return !info.isRoaming();
     }
 
     /**

@@ -42,15 +42,17 @@ import monakhv.android.samlib.data.SettingsHelper;
 public class SamlibPreferencesActivity extends PreferenceActivity
         implements OnSharedPreferenceChangeListener, OnPreferenceChangeListener {
 
-    private static String DEBUG_TAG = "SamlibPreferencesActivity";
+    private static final String DEBUG_TAG = "SamlibPreferencesActivity";
     private SettingsHelper helper;
     private final String[] autoSummaryFields = {"pref_key_update_Period", "pref_key_proxy_host",
-        "pref_key_proxy_port", "pref_key_proxy_user", "pref_key_update_autoload_limit", "pref_key_book_lifetime"};
+        "pref_key_proxy_port", "pref_key_proxy_user", "pref_key_update_autoload_limit", "pref_key_book_lifetime",
+    "pref_key_author_order"};
     private List<String> autoSumKeys;
     private RingtonePreference ringtonPref;
 
     /**
      * Called when the activity is first created.
+     * @param icicle
      */
     @Override
     public void onCreate(Bundle icicle) {

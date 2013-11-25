@@ -23,6 +23,13 @@ limitations under the License.
             android:key="@string/pref_key_flag_automark" 
             android:summary="@string/pref_interface_autmark_desc"
             android:defaultValue="@bool/pref_key_flag_automark"/>
+        <ListPreference 
+            
+            android:key="@string/pref_key_author_order"
+            android:title="@string/pref_title_author_order"
+            android:entries="@array/sortAuthorTitles"
+            android:entryValues="@array/sortAuthorValues"
+            android:defaultValue="@string/pref_default_author_order"/>
         
     </PreferenceCategory>
     
