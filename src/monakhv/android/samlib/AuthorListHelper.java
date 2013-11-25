@@ -19,7 +19,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Typeface;
-import android.graphics.drawable.GradientDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
@@ -37,6 +36,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import static monakhv.android.samlib.ActivityUtils.setDivider;
 import monakhv.android.samlib.sql.AuthorController;
 import monakhv.android.samlib.sql.AuthorProvider;
 import monakhv.android.samlib.sql.SQLController;
@@ -101,8 +101,8 @@ public class AuthorListHelper implements
         }
         pull.getListView().setEmptyView(tv);
         
-        listView.setDivider(new GradientDrawable(GradientDrawable.Orientation.LEFT_RIGHT, new int[]{0x3300FF00, 0xFF00FF00, 0xffffffff}));
-        listView.setDividerHeight(1);
+        setDivider(listView);
+        
         
     }
     

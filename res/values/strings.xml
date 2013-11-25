@@ -48,6 +48,7 @@ limitations under the License.
     <string name="menu_selected">Добавить в избранное</string>
     <string name="menu_deselected">Исключить из избранного</string>
     <string name="menu_selected_go">Избранные книги</string>
+    <string name="menu_reload">Перезагрузить</string>
   
   
     <string name="sort_update_date">По времени обновления</string>

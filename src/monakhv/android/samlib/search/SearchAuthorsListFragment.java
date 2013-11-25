@@ -34,6 +34,7 @@ import android.widget.ArrayAdapter;
 import android.widget.TextView;
 import java.util.ArrayList;
 import java.util.List;
+import static monakhv.android.samlib.ActivityUtils.setDivider;
 import monakhv.android.samlib.ListSwipeListener;
 import monakhv.android.samlib.R;
 import monakhv.android.samlib.sql.entity.AuthorCard;
@@ -77,6 +78,7 @@ public class SearchAuthorsListFragment extends ListFragment implements ListSwipe
                 return false;
             }
         });
+         setDivider(getListView());
     }
 
     public void search(String ptr) {

@@ -18,7 +18,6 @@ package monakhv.android.samlib;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.database.Cursor;
-import android.graphics.drawable.GradientDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
@@ -39,6 +38,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import static monakhv.android.samlib.ActivityUtils.setDivider;
 import monakhv.android.samlib.data.SettingsHelper;
 import monakhv.android.samlib.service.DownloadBookServiceIntent;
 import monakhv.android.samlib.sql.AuthorController;
@@ -111,15 +111,15 @@ public class BookListFragment extends ListFragment implements
                 return false;
             }
         });
-        getListView().setDivider(new GradientDrawable(GradientDrawable.Orientation.LEFT_RIGHT, new int [] { 0x3300FF00,0xFF00FF00,0xffffffff }));
-        getListView().setDividerHeight(1);
-
+        setDivider(getListView());
+        
     }
     private Book selected = null;
     private final int menu_mark_read = 1;
     private final int menu_browser = 2;
     private final int menu_selected = 3;
     private final int menu_deselected = 4;
+    private final int menu_reload = 5;
 
     @Override
     public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
@@ -141,6 +141,8 @@ public class BookListFragment extends ListFragment implements
             } else {
                 menu.add(1, menu_selected, 30, getText(R.string.menu_selected));
             }
+            menu.add(1, menu_reload, 50, getText(R.string.menu_reload));
+            
 
 
         }
@@ -166,6 +168,10 @@ public class BookListFragment extends ListFragment implements
         if (item.getItemId() == menu_deselected) {
             selected.setGroup_id(0);
             bookSQL.update(selected);
+        }
+        if (item.getItemId() == menu_reload){
+            selected.getFile().delete();
+            loadBook(selected);
         }
         return super.onContextItemSelected(item);
     }
@@ -241,6 +247,28 @@ public class BookListFragment extends ListFragment implements
         }
         startActivity(launchBrowser);
     }
+    /**
+     * Open book or start Download process if need
+     * 
+     * @param book  the book to open
+     */
+            
+    private void loadBook(Book book){
+        if (book.needUpdateFile()) {
+            progress = new ProgressDialog(getActivity());
+            progress.setMessage(getActivity().getText(R.string.download_Loading));
+            progress.setCancelable(true);
+            progress.setIndeterminate(true);
+            progress.show();
+            DownloadBookServiceIntent.start(getActivity(), book.getId());
+
+
+        } else {
+
+            launchReader(book);
+        }
+        
+    }
 
     public boolean singleClick(MotionEvent e) {
         int position = getListView().pointToPosition((int) e.getX(), (int) e.getY());
@@ -253,21 +281,9 @@ public class BookListFragment extends ListFragment implements
 
         
         Book book = sql.getBookController().getById(book_id);
-        //launchBrowser(book);
+       
 
-        if (book.needUpdateFile()) {
-            progress = new ProgressDialog(getActivity());
-            progress.setMessage(getActivity().getText(R.string.download_Loading));
-            progress.setCancelable(true);
-            progress.setIndeterminate(true);
-            progress.show();
-            DownloadBookServiceIntent.start(getActivity(), book_id);
-
-
-        } else {
-
-            launchReader(book);
-        }
+        loadBook(book);
         return true;
     }
 
