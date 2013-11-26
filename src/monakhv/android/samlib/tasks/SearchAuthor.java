@@ -129,6 +129,7 @@ public class SearchAuthor extends AsyncTask<String, Void, Boolean>{
             broadcastIntent.putExtra(SearchReceiver.EXTRA_MESSAGE, status.getMessage(context));           
         }
         broadcastIntent.putExtra(SearchReceiver.EXTRA_RESULT,  (Serializable) result);
+        Log.i(DEBUG_TAG, "Results number is "+result.size());
         context.sendBroadcast(broadcastIntent);
        
     }
@@ -170,7 +171,7 @@ public class SearchAuthor extends AsyncTask<String, Void, Boolean>{
                     }
                     
                 } else {
-                    Log.d(DEBUG_TAG,"Stop By Substring: " + pattern + "   -   " + skey + "   " + keys.length + "         " + istart + "  -  " + ires);
+                    Log.d(DEBUG_TAG,"Search for " + pattern + " stop by substring  -   " + skey + "   " + keys.length + "         " + istart + "  -  " + ires);
                     return inum != 0;
                 }
             }
