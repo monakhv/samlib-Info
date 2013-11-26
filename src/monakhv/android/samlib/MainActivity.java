@@ -29,6 +29,7 @@ import android.database.Cursor;
 import android.database.MatrixCursor;
 import android.database.MergeCursor;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.KeyEvent;
@@ -388,6 +389,9 @@ public class MainActivity extends ActionBarActivity {
         editText.setText("");
         View v = findViewById(R.id.search_author_panel);
         v.setVisibility(View.GONE);
+        if (TextUtils.isEmpty(text)){
+            return;
+        }
         Intent prefsIntent = new Intent(getApplicationContext(),
                 SearchAuthorActivity.class);
         prefsIntent.putExtra(SearchAuthorActivity.EXTRA_PATTERN, text);
