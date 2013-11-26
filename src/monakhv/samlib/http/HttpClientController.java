@@ -263,8 +263,15 @@ public class HttpClientController {
 
         method.setHeader("User-Agent", USER_AGENT);
         method.setHeader("Accept-Charset", ENCODING);
-        HttpResponse response = httpclient.execute(method);
-        Log.d(DEBUG_TAG, "Status Response: " + response.getStatusLine().toString());
+        HttpResponse response;
+        try {
+            response = httpclient.execute(method);
+            Log.d(DEBUG_TAG, "Status Response: " + response.getStatusLine().toString());
+        }
+        catch(NullPointerException ex){
+            Log.e(DEBUG_TAG, "Connection Error", ex);
+            throw new IOException("Connection error: "+url.toString());
+        }
         int status = response.getStatusLine().getStatusCode();
 
         if (status == 503) {
