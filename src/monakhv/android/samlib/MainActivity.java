@@ -202,16 +202,7 @@ public class MainActivity extends ActionBarActivity {
             makeUpdate();
 
         }
-        if (sel == R.id.search_option_item){
-            View v = findViewById(R.id.search_author_panel);
-            if (v.getVisibility() == View.GONE){
-               
-                v.setVisibility(View.VISIBLE);
-            }
-            else {
-                v.setVisibility(View.GONE);
-            }
-        }
+        
         if (sel == R.id.sort_option_item){
             
             AdapterView.OnItemClickListener listener = new AdapterView.OnItemClickListener() {
@@ -227,9 +218,23 @@ public class MainActivity extends ActionBarActivity {
             
             sortDialog.show(getSupportFragmentManager(), "Dosrtdlg");
         }
+        if (sel == R.id.search_option_item){
+            View vs = findViewById(R.id.search_author_panel);
+            View va = findViewById(R.id.add_author_panel);
+            if (vs.getVisibility() == View.GONE){
+               
+                vs.setVisibility(View.VISIBLE);
+                va.setVisibility(View.GONE);
+            }
+            else {
+                vs.setVisibility(View.GONE);
+            }
+        }
         if (sel == R.id.add_option_item) {
             View v = findViewById(R.id.add_author_panel);
+            View vs = findViewById(R.id.search_author_panel);
             v.setVisibility(View.VISIBLE);
+            vs.setVisibility(View.GONE);
             int sdk = android.os.Build.VERSION.SDK_INT;
             String txt = null;
             try {
