@@ -107,18 +107,21 @@ public class AuthorListHelper implements
         
     }
     
-    public void refresh(String selection) {
-        Log.d(DEBUG_TAG, "set Selection: "+selection);
-        this.selection = selection;
-        loaderManager.restartLoader(AUTHOR_LIST_LOADER, null, this);
-        
-    }
-
+    
     public void setSortOrder(MainActivity.SortOrder so){
         order =so;
         loaderManager.restartLoader(AUTHOR_LIST_LOADER, null, this);
     }
     
+    public void refresh(String selection, MainActivity.SortOrder so) {
+        Log.d(DEBUG_TAG, "set Selection: "+selection);
+        this.selection = selection;
+        if (so != null){
+            order =so;
+        }
+        loaderManager.restartLoader(AUTHOR_LIST_LOADER, null, this);
+        
+    }
     public MainActivity.SortOrder getSortOrder(){
         return order;
     }

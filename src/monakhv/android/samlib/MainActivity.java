@@ -87,8 +87,8 @@ public class MainActivity extends ActionBarActivity {
 
     private static final String DEBUG_TAG = "MainActivity";
     public static String CLEAN_NOTIFICATION = "CLEAN_NOTIFICATION";
-    final int ARCHIVE_ACTIVITY = 1;
-    final int SEARCH_ACTIVITY = 2;
+    private final int ARCHIVE_ACTIVITY = 1;
+    private final int SEARCH_ACTIVITY  = 2;
     //AddAuthorDialog addAuthorDilog;
     private UpdateActivityReceiver receiver;
     private boolean refreshStatus = false;
@@ -96,10 +96,15 @@ public class MainActivity extends ActionBarActivity {
     private PullToRefresh listView;
     private AuthorListHelper listHelper;
     private SingleChoiceSelectDialog sortDialog;
+    private String select;
+    private SortOrder so;
+    private static final String KEY_DATA_SELECTION="selection";
+    private static final String KEY_DATA_ORDER="order";
 
     @Override
     public void onCreate(Bundle icicle) {
         super.onCreate(icicle);
+        
         setContentView(R.layout.main);
         setTitle(R.string.app_name);
         Bundle bundle = getIntent().getExtras();
@@ -125,7 +130,20 @@ public class MainActivity extends ActionBarActivity {
             }
         });
         registerForContextMenu(listView.getListView());
+        if (icicle != null){
+            select = icicle.getString(KEY_DATA_SELECTION);
+            so = SortOrder.valueOf(icicle.getString(KEY_DATA_ORDER));
+            refreshList(select,so);
+        }
     }
+     @Override
+    public void onSaveInstanceState(Bundle outState) {
+       outState.putString(KEY_DATA_SELECTION, select);
+       so = listHelper.getSortOrder();
+       outState.putString(KEY_DATA_ORDER, so.name());
+        super.onSaveInstanceState(outState);
+    }
+
 
     @Override
     protected void onResume() {
@@ -142,7 +160,7 @@ public class MainActivity extends ActionBarActivity {
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if ((keyCode == KeyEvent.KEYCODE_BACK)) { //Back key pressed
             if (listHelper.getSelection() != null) {
-                refreshList(null);
+                refreshList(null,null);
             } else {
                 finish();
             }
@@ -152,9 +170,9 @@ public class MainActivity extends ActionBarActivity {
         return super.onKeyDown(keyCode, event);
     }
 
-    private void refreshList(String sel) {
+    private void refreshList(String sel,SortOrder order) {
 
-        listHelper.refresh(sel);
+        listHelper.refresh(sel,order);
 
     }
 
@@ -209,7 +227,7 @@ public class MainActivity extends ActionBarActivity {
             AdapterView.OnItemClickListener listener = new AdapterView.OnItemClickListener() {
 
                 public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                    SortOrder so = SortOrder.values()[position];
+                    so = SortOrder.values()[position];
                     listHelper.setSortOrder(so);
                     sortDialog.dismiss();
                 }
@@ -299,7 +317,7 @@ public class MainActivity extends ActionBarActivity {
                     String tg_name = extendedCursor.getString(extendedCursor.getColumnIndex(SQLController.COL_TAG_NAME));
                     filterDialog.dismiss();
 
-                    String select = SQLController.TABLE_TAGS + "." + SQLController.COL_ID + "=" + tag_id;
+                    select = SQLController.TABLE_TAGS + "." + SQLController.COL_ID + "=" + tag_id;
 
                     if (tag_id == SamLibConfig.TAG_AUTHOR_ALL) {
                         setTitle(R.string.app_name);
@@ -313,7 +331,7 @@ public class MainActivity extends ActionBarActivity {
                         select = SQLController.TABLE_AUTHOR + "." + SQLController.COL_isnew + "=1";
                     }
                     Log.i(DEBUG_TAG, "WHERE " + select);
-                    refreshList(select);
+                    refreshList(select,null);
                 }
             };
             filterDialog = new FilterSelectDialog(extendedCursor, listener, getText(R.string.dialog_title_filtr).toString());
@@ -342,7 +360,7 @@ public class MainActivity extends ActionBarActivity {
             int res = data.getIntExtra(ArchiveActivity.UPDATE_KEY, -1);
             if (res == ArchiveActivity.UPDATE_LIST) {
                 Log.d(DEBUG_TAG, "Reconstruct List View");
-                refreshList(null);
+                refreshList(null,null);
 
             }
         }
