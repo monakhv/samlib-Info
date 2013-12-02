@@ -57,27 +57,32 @@ import monakhv.android.samlib.tasks.DeleteAuthor;
 import monakhv.android.samlib.tasks.MarkRead;
 
 public class MainActivity extends ActionBarActivity {
+
     public enum SortOrder {
-        DateUpdate(R.string.sort_update_date,SQLController.COL_mtime + " DESC"),
-        AuthorName(R.string.sort_author_name,SQLController.COL_isnew+" DESC, "+SQLController.COL_NAME);
+
+        DateUpdate(R.string.sort_update_date, SQLController.COL_mtime + " DESC"),
+        AuthorName(R.string.sort_author_name, SQLController.COL_isnew + " DESC, " + SQLController.COL_NAME);
         private final int iname;
         private final String order;
-        private SortOrder(int iname, String order){
+
+        private SortOrder(int iname, String order) {
             this.iname = iname;
             this.order = order;
         }
-        public String getOrder(){
-            return  order;
+
+        public String getOrder() {
+            return order;
         }
-        public static String[] getTites(Context ctx){
+
+        public static String[] getTites(Context ctx) {
             String[] res = new String[values().length];
-            int i =0;
-            for (SortOrder so: values()){
+            int i = 0;
+            for (SortOrder so : values()) {
                 res[i] = ctx.getString(so.iname);
                 ++i;
-            }            
+            }
             return res;
-        }      
+        }
     }
 
     private static final String DEBUG_TAG = "MainActivity";
@@ -91,7 +96,7 @@ public class MainActivity extends ActionBarActivity {
     private PullToRefresh listView;
     private AuthorListHelper listHelper;
     private SingleChoiceSelectDialog sortDialog;
-    
+
     @Override
     public void onCreate(Bundle icicle) {
         super.onCreate(icicle);
@@ -107,15 +112,13 @@ public class MainActivity extends ActionBarActivity {
             CleanNotificationData.start(this);
 
         }
-        
+
         SettingsHelper.addAuthenticator(this.getApplicationContext());
         getActionBarHelper().setRefreshActionItemState(refreshStatus);
 
         listView = (PullToRefresh) findViewById(R.id.listAuthirFragment);
         listHelper = new AuthorListHelper(this, listView);
 
-
-        
         listView.setOnRefreshListener(new OnRefreshListener() {
             public void onRefresh() {
                 makeUpdate();
@@ -132,7 +135,6 @@ public class MainActivity extends ActionBarActivity {
         receiver = new UpdateActivityReceiver();
         getActionBarHelper().setRefreshActionItemState(refreshStatus);
         registerReceiver(receiver, filter);
-        
 
     }
 
@@ -154,7 +156,6 @@ public class MainActivity extends ActionBarActivity {
 
         listHelper.refresh(sel);
 
-
     }
 
     @Override
@@ -173,7 +174,6 @@ public class MainActivity extends ActionBarActivity {
         menuInflater.inflate(R.menu.options_menu, menu);
 
         return super.onCreateOptionsMenu(menu);
-
 
     }
 
@@ -203,9 +203,9 @@ public class MainActivity extends ActionBarActivity {
             makeUpdate();
 
         }
-        
-        if (sel == R.id.sort_option_item){
-            
+
+        if (sel == R.id.sort_option_item) {
+
             AdapterView.OnItemClickListener listener = new AdapterView.OnItemClickListener() {
 
                 public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -213,29 +213,18 @@ public class MainActivity extends ActionBarActivity {
                     listHelper.setSortOrder(so);
                     sortDialog.dismiss();
                 }
-                
+
             };
-            sortDialog = new SingleChoiceSelectDialog(SortOrder.getTites(this), listener, this.getString(R.string.dialog_title_sort),listHelper.getSortOrder().ordinal());
-            
+            sortDialog = new SingleChoiceSelectDialog(SortOrder.getTites(this), listener, this.getString(R.string.dialog_title_sort), listHelper.getSortOrder().ordinal());
+
             sortDialog.show(getSupportFragmentManager(), "Dosrtdlg");
         }
-        if (sel == R.id.search_option_item){
-            View vs = findViewById(R.id.search_author_panel);
-            View va = findViewById(R.id.add_author_panel);
-            if (vs.getVisibility() == View.GONE){
-               
-                vs.setVisibility(View.VISIBLE);
-                va.setVisibility(View.GONE);
-            }
-            else {
-                vs.setVisibility(View.GONE);
-            }
-        }
+
         if (sel == R.id.add_option_item) {
             View v = findViewById(R.id.add_author_panel);
-            View vs = findViewById(R.id.search_author_panel);
+
             v.setVisibility(View.VISIBLE);
-            vs.setVisibility(View.GONE);
+
             int sdk = android.os.Build.VERSION.SDK_INT;
             String txt = null;
             try {
@@ -265,8 +254,6 @@ public class MainActivity extends ActionBarActivity {
                     editText.setText(txt);
                 }
             }
-
-
 
         }
         if (sel == R.id.settings_option_item) {
@@ -312,7 +299,6 @@ public class MainActivity extends ActionBarActivity {
                     String tg_name = extendedCursor.getString(extendedCursor.getColumnIndex(SQLController.COL_TAG_NAME));
                     filterDialog.dismiss();
 
-
                     String select = SQLController.TABLE_TAGS + "." + SQLController.COL_ID + "=" + tag_id;
 
                     if (tag_id == SamLibConfig.TAG_AUTHOR_ALL) {
@@ -332,7 +318,6 @@ public class MainActivity extends ActionBarActivity {
             };
             filterDialog = new FilterSelectDialog(extendedCursor, listener, getText(R.string.dialog_title_filtr).toString());
             filterDialog.show(getSupportFragmentManager(), "FilterDialogShow");
-
 
         }
         return super.onOptionsItemSelected(item);
@@ -359,10 +344,9 @@ public class MainActivity extends ActionBarActivity {
                 Log.d(DEBUG_TAG, "Reconstruct List View");
                 refreshList(null);
 
-
             }
         }
-        if (requestCode == SEARCH_ACTIVITY){
+        if (requestCode == SEARCH_ACTIVITY) {
             AddAuthor aa = new AddAuthor(getApplicationContext());
             aa.execute(data.getStringExtra(SearchAuthorsListFragment.AUTHOR_URL));
         }
@@ -376,33 +360,30 @@ public class MainActivity extends ActionBarActivity {
     public void addAuthor(View view) {
         EditText editText = (EditText) findViewById(R.id.addUrlText);
         String text = editText.getText().toString();
-        AddAuthor aa = new AddAuthor(this.getApplicationContext());
-        aa.execute(text);
-        editText.setText("");
         View v = findViewById(R.id.add_author_panel);
+        editText.setText("");
         v.setVisibility(View.GONE);
+        if (SamLibConfig.reduceUrl(text) != null) {
+            AddAuthor aa = new AddAuthor(this.getApplicationContext());
+            aa.execute(text);
+        } else {
+            if (TextUtils.isEmpty(text)) {
+                return;
+            }
+            Intent prefsIntent = new Intent(getApplicationContext(),
+                    SearchAuthorActivity.class);
+            prefsIntent.putExtra(SearchAuthorActivity.EXTRA_PATTERN, text);
+            prefsIntent.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
+
+            startActivityForResult(prefsIntent, SEARCH_ACTIVITY);
+        }
 
     }
-    public void searchAuthor(View view) {
-        EditText editText = (EditText) findViewById(R.id.searchAuthorText);
-        String text = editText.getText().toString();
-        editText.setText("");
-        View v = findViewById(R.id.search_author_panel);
-        v.setVisibility(View.GONE);
-        if (TextUtils.isEmpty(text)){
-            return;
-        }
-        Intent prefsIntent = new Intent(getApplicationContext(),
-                SearchAuthorActivity.class);
-        prefsIntent.putExtra(SearchAuthorActivity.EXTRA_PATTERN, text);
-        prefsIntent.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
-        
-        startActivityForResult(prefsIntent,SEARCH_ACTIVITY);
-    }
-    private Author author=null;
-    private final int read_option_item           = 21;
-    private final int tags_option_item           = 22;
-    private final int browser_option_item     = 23;
+
+    private Author author = null;
+    private final int read_option_item = 21;
+    private final int tags_option_item = 22;
+    private final int browser_option_item = 23;
     private final int edit_author_option_item = 24;
     private final int delete_option_item = 25;
 
@@ -420,7 +401,7 @@ public class MainActivity extends ActionBarActivity {
             } else {
                 Log.d(DEBUG_TAG, "Context menu Created - author is " + author.getName());
             }
-            if (author.isIsNew()){
+            if (author.isIsNew()) {
                 menu.add(1, read_option_item, 10, getText(R.string.menu_read));
             }
             menu.add(1, tags_option_item, 20, getText(R.string.menu_tags));
@@ -428,7 +409,6 @@ public class MainActivity extends ActionBarActivity {
             menu.add(1, edit_author_option_item, 40, getText(R.string.menu_edit));
             menu.add(1, delete_option_item, 50, getText(R.string.menu_delete));
         }
-
 
     }
 
@@ -540,7 +520,6 @@ public class MainActivity extends ActionBarActivity {
             if (action.equalsIgnoreCase(ACTION_PROGRESS)) {
                 listView.updateProgress(intent.getStringExtra(TOAST_STRING));
             }
-
 
         }
     }

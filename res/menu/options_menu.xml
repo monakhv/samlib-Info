@@ -40,17 +40,10 @@ limitations under the License.
         android:orderInCategory="10">
     </item>
     
-    <item
-        android:id="@+id/search_option_item"
-        android:icon="@drawable/action_search"
-        android:title="@string/menu_search"
-        android:showAsAction="ifRoom"
-        android:orderInCategory="15">
-    </item>
     
     <item
         android:id="@+id/add_option_item"
-        android:icon="@drawable/ic_action_user_add"
+        android:icon="@drawable/action_search"
         android:title="@string/menu_add"
         android:showAsAction="ifRoom"
         android:orderInCategory="20">

@@ -64,28 +64,7 @@ limitations under the License.
     
     </LinearLayout>
     
-    <LinearLayout 
-        android:id="@+id/search_author_panel"
-        android:orientation="horizontal"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:visibility="gone"> 
-        <EditText 
-            android:id="@+id/searchAuthorText"
-            android:layout_weight="1"
-            android:width="0dp"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:hint="@string/author_name"
-        />
-        <Button
-            android:id="@+id/searchAuthorBt"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/button_search" 
-            android:onClick="searchAuthor"/>
-    
-    </LinearLayout>
+   
         
     
 </LinearLayout>
