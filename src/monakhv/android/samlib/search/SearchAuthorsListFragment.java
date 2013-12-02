@@ -32,6 +32,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import static monakhv.android.samlib.ActivityUtils.setDivider;
@@ -47,8 +48,9 @@ import monakhv.android.samlib.tasks.SearchAuthor;
 public class SearchAuthorsListFragment extends ListFragment implements ListSwipeListener.SwipeCallBack{
 
     static public final String AUTHOR_URL="AUTHOR_URL";
-    private SearchAuthorAdapter adapter;
+    static private final String KEY_RESULT_DATA = "RESULT_DATA";
     static private final String DEBUG_TAG = "SearchAuthorsListFragment";
+    private SearchAuthorAdapter adapter;
     private String pattern;
     ProgressDialog progress;
     private List<AuthorCard> result;
@@ -57,6 +59,9 @@ public class SearchAuthorsListFragment extends ListFragment implements ListSwipe
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        if (savedInstanceState != null){
+            result = (List<AuthorCard>) savedInstanceState.getSerializable(KEY_RESULT_DATA);
+        }
         pattern = getActivity().getIntent().getExtras().getString(SearchAuthorActivity.EXTRA_PATTERN);
 
         if (result == null) {
@@ -79,6 +84,12 @@ public class SearchAuthorsListFragment extends ListFragment implements ListSwipe
             }
         });
          setDivider(getListView());
+    }
+    
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        outState.putSerializable(KEY_RESULT_DATA,  (Serializable) result);
+        super.onSaveInstanceState(outState);
     }
 
     public void search(String ptr) {
