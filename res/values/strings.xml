@@ -30,6 +30,7 @@ limitations under the License.
     <string name="dialog_title_sort">Сортировка</string>    
     
     <string name="button_add">Искать/Добавить</string>
+    <string name="button_addonly">Добавить</string>
     <string name="button_search">Искать</string>
     
     

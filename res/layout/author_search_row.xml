@@ -31,7 +31,7 @@ limitations under the License.
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@+id/acName"
-        android:textSize="20sp" >
+        android:textSize="@dimen/text_size_head" >
     </TextView>
     
     <LinearLayout
@@ -45,14 +45,14 @@ limitations under the License.
         android:id="@+id/acTitle"        
         android:layout_height="wrap_content"
         android:text="@+id/acTitle"
-        android:textSize="12sp" >
+        android:textSize="@dimen/text_size_small" >
     </TextView>
     <TextView
         android:layout_width="wrap_content"        
         android:id="@+id/acSize"       
         android:layout_height="wrap_content"
         android:text="@+id/acSize"
-        android:textSize="12sp" >
+        android:textSize="@dimen/text_size_small" >
     </TextView>
     
      </LinearLayout>
@@ -61,7 +61,7 @@ limitations under the License.
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@+id/acDesc"
-        android:textSize="12sp" >         
+        android:textSize="@dimen/text_size_small" >         
     </TextView>
     </LinearLayout>
 

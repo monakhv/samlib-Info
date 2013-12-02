@@ -56,7 +56,7 @@ limitations under the License.
             android:id="@+id/bookAuthorName"                     
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-        
+            android:textSize="@dimen/text_size_head"
         >
         </TextView>
 
@@ -74,7 +74,7 @@ limitations under the License.
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
         
-                android:textSize="20sp" >
+                android:textSize="@dimen/text_size_head" >
             </TextView>
     
         
@@ -83,7 +83,7 @@ limitations under the License.
                 android:id="@+id/bookUpdate"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"        
-                android:textSize="12sp" >
+                android:textSize="@dimen/text_size_small" >
             </TextView>
         </LinearLayout>  
     
@@ -91,7 +91,7 @@ limitations under the License.
             android:id="@+id/bookDesc"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"        
-            android:textSize="12sp" >
+            android:textSize="@dimen/text_size_small" >
         </TextView>
     </LinearLayout>  
     

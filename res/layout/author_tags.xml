@@ -23,14 +23,14 @@ limitations under the License.
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
         
-            android:textSize="30sp" >
+            android:textSize="@dimen/text_size_head" >
         </TextView>
         <TextView
         android:layout_width="wrap_content"        
         android:id="@+id/tagTagNAme"       
         android:layout_height="wrap_content"
         android:text="@+id/tgnames"
-        android:textSize="12sp" >
+        android:textSize="@dimen/text_size_small" >
     </TextView>
         
         <LinearLayout 
@@ -51,7 +51,7 @@ limitations under the License.
             android:id="@+id/addTagBt"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/button_add" 
+            android:text="@string/button_addonly" 
             android:onClick="addTag"/>
     
     </LinearLayout>
