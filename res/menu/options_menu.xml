@@ -44,7 +44,7 @@ limitations under the License.
     <item
         android:id="@+id/add_option_item"
         android:icon="@drawable/action_search"
-        android:title="@string/menu_add"
+        android:title="@string/menu_search"
         android:showAsAction="ifRoom"
         android:orderInCategory="20">
     </item>
