@@ -65,11 +65,21 @@ public class AuthorListHelper implements
     private final FragmentActivity activity;
     
     private MainActivity.SortOrder order;
+    public interface Callbacks {
+        public void onAuthorSelected(int id);
+    }
+    private static Callbacks mCallbacks;
 
     public AuthorListHelper(FragmentActivity activity,PullToRefresh pull) {
         this.activity = activity;
         this.context = activity;
         this.loaderManager = activity.getSupportLoaderManager();
+        
+        if (!(activity instanceof Callbacks)){
+            throw new IllegalStateException(
+                    "Activity must implement fragment's callbacks.");
+        }
+        mCallbacks =(Callbacks) activity;
         String[] from = {SQLController.COL_NAME, SQLController.COL_mtime, SQLController.COL_isnew, SQLController.COL_TGNAMES};
         int[] to = {R.id.authorName, R.id.updated, R.id.icon, R.id.tgnames};
         
@@ -195,17 +205,15 @@ public class AuthorListHelper implements
     }
     
     private void authorClick(Cursor c) {
-        Author a = AuthorController.Cursor2Author(context.getApplicationContext(), c);
-        Log.d(DEBUG_TAG, "Selected Author id: " + a.getId());
-        showBooks(a);
+        
+        Log.d(DEBUG_TAG, "Selected Author id: " + c.getInt(c.getColumnIndex(SQLController.COL_ID)));
+        mCallbacks.onAuthorSelected(c.getInt(c.getColumnIndex(SQLController.COL_ID)));
+//        Intent intent = new Intent(context, BooksActivity.class);
+//        intent.putExtra(BookListFragment.AUTHOR_ID, c.getInt(c.getColumnIndex(SQLController.COL_ID)));
+//        //intent.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
+//        context.startActivity(intent);
     }
     
-    private void showBooks(Author a) {
-        Intent intent = new Intent(context, BooksActivity.class);
-        intent.putExtra(BookListFragment.AUTHOR_ID, a.getId());
-        //intent.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
-        context.startActivity(intent);
-    }
     
     private static class AuthorViewBinder implements SimpleCursorAdapter.ViewBinder {
         

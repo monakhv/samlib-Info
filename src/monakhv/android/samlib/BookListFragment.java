@@ -62,7 +62,7 @@ public class BookListFragment extends ListFragment implements
     public static final int BOOK_LIST_LOADER = 0x12;
     private SimpleCursorAdapter adapter;
     private GestureDetector detector;
-    private long author_id;
+    private int author_id;
     private AuthorController sql ;
     private SettingsHelper settings;
 
@@ -70,8 +70,14 @@ public class BookListFragment extends ListFragment implements
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-
-        author_id = getActivity().getIntent().getExtras().getInt(AUTHOR_ID);
+        if (getActivity().getIntent().getExtras() == null){
+            author_id = 0;
+        }
+        else {
+            author_id = getActivity().getIntent().getExtras().getInt(AUTHOR_ID);
+        }
+        
+        
         getLoaderManager().initLoader(BOOK_LIST_LOADER, null, this);
         sql = new AuthorController(getActivity());
 
@@ -92,6 +98,10 @@ public class BookListFragment extends ListFragment implements
 
         
         settings = new SettingsHelper(getActivity());
+    }
+    public void setAuthorId(int id){
+        author_id = id;
+        getLoaderManager().restartLoader(BOOK_LIST_LOADER, null, this);
     }
 
     @Override
@@ -178,7 +188,7 @@ public class BookListFragment extends ListFragment implements
 
     public Loader<Cursor> onCreateLoader(int i, Bundle bundle) {
 
-        author_id = getActivity().getIntent().getExtras().getInt(AUTHOR_ID);
+        //author_id = getActivity().getIntent().getExtras().getInt(AUTHOR_ID);
         
         String selection;
         if (author_id ==  SamLibConfig.SELECTED_ID){

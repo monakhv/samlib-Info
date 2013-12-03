@@ -56,7 +56,19 @@ import monakhv.android.samlib.tasks.AddAuthor;
 import monakhv.android.samlib.tasks.DeleteAuthor;
 import monakhv.android.samlib.tasks.MarkRead;
 
-public class MainActivity extends ActionBarActivity {
+public class MainActivity extends ActionBarActivity implements AuthorListHelper.Callbacks {
+
+    public void onAuthorSelected(int id) {
+        if (books == null) {
+            Intent intent = new Intent(this, BooksActivity.class);
+            intent.putExtra(BookListFragment.AUTHOR_ID, id);
+            //intent.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
+            startActivity(intent);
+        } else {
+            books.setAuthorId(id);
+        }
+
+    }
 
     public enum SortOrder {
 
@@ -88,7 +100,7 @@ public class MainActivity extends ActionBarActivity {
     private static final String DEBUG_TAG = "MainActivity";
     public static String CLEAN_NOTIFICATION = "CLEAN_NOTIFICATION";
     private final int ARCHIVE_ACTIVITY = 1;
-    private final int SEARCH_ACTIVITY  = 2;
+    private final int SEARCH_ACTIVITY = 2;
     //AddAuthorDialog addAuthorDilog;
     private UpdateActivityReceiver receiver;
     private boolean refreshStatus = false;
@@ -98,13 +110,15 @@ public class MainActivity extends ActionBarActivity {
     private SingleChoiceSelectDialog sortDialog;
     private String select;
     private SortOrder so;
-    private static final String KEY_DATA_SELECTION="selection";
-    private static final String KEY_DATA_ORDER="order";
+    private static final String KEY_DATA_SELECTION = "selection";
+    private static final String KEY_DATA_ORDER = "order";
+
+    private BookListFragment books = null;
 
     @Override
     public void onCreate(Bundle icicle) {
         super.onCreate(icicle);
-        
+
         setContentView(R.layout.main);
         setTitle(R.string.app_name);
         Bundle bundle = getIntent().getExtras();
@@ -121,6 +135,10 @@ public class MainActivity extends ActionBarActivity {
         SettingsHelper.addAuthenticator(this.getApplicationContext());
         getActionBarHelper().setRefreshActionItemState(refreshStatus);
 
+        if (findViewById(R.id.listBooksFragment) != null) {
+            books = (BookListFragment) getSupportFragmentManager().findFragmentById(R.id.listBooksFragment);
+        }
+
         listView = (PullToRefresh) findViewById(R.id.listAuthirFragment);
         listHelper = new AuthorListHelper(this, listView);
 
@@ -130,20 +148,20 @@ public class MainActivity extends ActionBarActivity {
             }
         });
         registerForContextMenu(listView.getListView());
-        if (icicle != null){
+        if (icicle != null) {
             select = icicle.getString(KEY_DATA_SELECTION);
             so = SortOrder.valueOf(icicle.getString(KEY_DATA_ORDER));
-            refreshList(select,so);
+            refreshList(select, so);
         }
     }
-     @Override
+
+    @Override
     public void onSaveInstanceState(Bundle outState) {
-       outState.putString(KEY_DATA_SELECTION, select);
-       so = listHelper.getSortOrder();
-       outState.putString(KEY_DATA_ORDER, so.name());
+        outState.putString(KEY_DATA_SELECTION, select);
+        so = listHelper.getSortOrder();
+        outState.putString(KEY_DATA_ORDER, so.name());
         super.onSaveInstanceState(outState);
     }
-
 
     @Override
     protected void onResume() {
@@ -160,7 +178,7 @@ public class MainActivity extends ActionBarActivity {
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if ((keyCode == KeyEvent.KEYCODE_BACK)) { //Back key pressed
             if (listHelper.getSelection() != null) {
-                refreshList(null,null);
+                refreshList(null, null);
             } else {
                 finish();
             }
@@ -170,9 +188,9 @@ public class MainActivity extends ActionBarActivity {
         return super.onKeyDown(keyCode, event);
     }
 
-    private void refreshList(String sel,SortOrder order) {
+    private void refreshList(String sel, SortOrder order) {
 
-        listHelper.refresh(sel,order);
+        listHelper.refresh(sel, order);
 
     }
 
@@ -331,7 +349,7 @@ public class MainActivity extends ActionBarActivity {
                         select = SQLController.TABLE_AUTHOR + "." + SQLController.COL_isnew + "=1";
                     }
                     Log.i(DEBUG_TAG, "WHERE " + select);
-                    refreshList(select,null);
+                    refreshList(select, null);
                 }
             };
             filterDialog = new FilterSelectDialog(extendedCursor, listener, getText(R.string.dialog_title_filtr).toString());
@@ -343,7 +361,7 @@ public class MainActivity extends ActionBarActivity {
     }
 
     /**
-     * Return from ArchiveActivity
+     * Return from ArchiveActivity or SearchActivity
      *
      * @param requestCode
      * @param resultCode
@@ -360,7 +378,7 @@ public class MainActivity extends ActionBarActivity {
             int res = data.getIntExtra(ArchiveActivity.UPDATE_KEY, -1);
             if (res == ArchiveActivity.UPDATE_LIST) {
                 Log.d(DEBUG_TAG, "Reconstruct List View");
-                refreshList(null,null);
+                refreshList(null, null);
 
             }
         }
