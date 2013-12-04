@@ -103,7 +103,10 @@ public class BookListFragment extends ListFragment implements
         author_id = id;
         getLoaderManager().restartLoader(BOOK_LIST_LOADER, null, this);
     }
-
+    public int getAuthorId(){
+        return author_id; 
+    }
+    
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

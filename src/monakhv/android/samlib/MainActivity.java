@@ -28,7 +28,9 @@ import android.content.IntentFilter;
 import android.database.Cursor;
 import android.database.MatrixCursor;
 import android.database.MergeCursor;
+import android.graphics.Color;
 import android.os.Bundle;
+import android.support.v4.widget.SlidingPaneLayout;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.ContextMenu;
@@ -56,18 +58,40 @@ import monakhv.android.samlib.tasks.AddAuthor;
 import monakhv.android.samlib.tasks.DeleteAuthor;
 import monakhv.android.samlib.tasks.MarkRead;
 
-public class MainActivity extends ActionBarActivity implements AuthorListHelper.Callbacks {
+public class MainActivity extends ActionBarActivity implements AuthorListHelper.Callbacks,SlidingPaneLayout.PanelSlideListener {
 
     public void onAuthorSelected(int id) {
-        if (books == null) {
-            Intent intent = new Intent(this, BooksActivity.class);
-            intent.putExtra(BookListFragment.AUTHOR_ID, id);
-            //intent.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
-            startActivity(intent);
-        } else {
-            books.setAuthorId(id);
-        }
+        books.setAuthorId(id);
+       
+    }
 
+    public void onPanelSlide(View view, float f) {
+       
+    }
+
+    public void onPanelOpened(View view) {
+        Log.d(DEBUG_TAG, "panel is opened");
+        setTitle(R.string.app_name);
+        isOpen = true;
+        invalidateOptionsMenu();
+    }
+
+    public void onPanelClosed(View view) {
+        isOpen = false;
+        invalidateOptionsMenu();
+        int author_id = books.getAuthorId();
+         Log.d(DEBUG_TAG, "panel is closed, author_id = "+author_id);
+        if (author_id == 0){
+            return;
+        }
+        if (author_id != -1) {
+            AuthorController sql = new AuthorController(this);
+            Author a = sql.getById(author_id);
+            setTitle(a.getName());
+        } else {
+            setTitle(getText(R.string.menu_selected_go));
+        }
+        
     }
 
     public enum SortOrder {
@@ -114,13 +138,13 @@ public class MainActivity extends ActionBarActivity implements AuthorListHelper.
     private static final String KEY_DATA_ORDER = "order";
 
     private BookListFragment books = null;
-
+    private boolean isOpen = true;
     @Override
     public void onCreate(Bundle icicle) {
         super.onCreate(icicle);
 
-        setContentView(R.layout.main);
-        setTitle(R.string.app_name);
+        setContentView(R.layout.main_twopane);
+       
         Bundle bundle = getIntent().getExtras();
         //CleanNotificationData.start(this);
         String clean = null;
@@ -134,11 +158,12 @@ public class MainActivity extends ActionBarActivity implements AuthorListHelper.
 
         SettingsHelper.addAuthenticator(this.getApplicationContext());
         getActionBarHelper().setRefreshActionItemState(refreshStatus);
-
-        if (findViewById(R.id.listBooksFragment) != null) {
-            books = (BookListFragment) getSupportFragmentManager().findFragmentById(R.id.listBooksFragment);
-        }
-
+        books = (BookListFragment) getSupportFragmentManager().findFragmentById(R.id.listBooksFragment);
+        SlidingPaneLayout pane = (SlidingPaneLayout) findViewById(R.id.pane);
+        pane.openPane();
+        ActivityUtils.setShadow(pane);
+        pane.setPanelSlideListener(this);
+      
         listView = (PullToRefresh) findViewById(R.id.listAuthirFragment);
         listHelper = new AuthorListHelper(this, listView);
 
@@ -213,6 +238,19 @@ public class MainActivity extends ActionBarActivity implements AuthorListHelper.
 
     }
 
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        menu.clear();
+        if (isOpen){
+            
+            MenuInflater menuInflater = getMenuInflater();
+            menuInflater.inflate(R.menu.options_menu, menu);
+        }
+       
+        return super.onPrepareOptionsMenu(menu); //To change body of generated methods, choose Tools | Templates.
+    }
+
+   
     /**
      * Start service to check out update
      */

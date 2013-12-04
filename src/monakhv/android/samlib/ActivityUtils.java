@@ -16,7 +16,9 @@
 
 package monakhv.android.samlib;
 
+import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
+import android.support.v4.widget.SlidingPaneLayout;
 import android.widget.ListView;
 
 /**
@@ -24,10 +26,15 @@ import android.widget.ListView;
  * @author Dmitry Monakhov
  */
 public class ActivityUtils {
+    static Drawable gradient = new GradientDrawable(GradientDrawable.Orientation.LEFT_RIGHT, new int[]{0x3300FF00, 0xFF00FF00, 0xffffffff});
     public static void setDivider(ListView listView){
-        listView.setDivider(new GradientDrawable(GradientDrawable.Orientation.LEFT_RIGHT, new int[]{0x3300FF00, 0xFF00FF00, 0xffffffff}));
+        listView.setDivider(gradient);
         listView.setDividerHeight(1);
         
+    }
+    public static void setShadow(SlidingPaneLayout pane){
+        pane.setShadowResource(R.drawable.slidingpane_shadow);
+        pane.setSliderFadeColor(0x3300FF00);
     }
     
 }
