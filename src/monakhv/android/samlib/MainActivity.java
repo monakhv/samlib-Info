@@ -495,7 +495,6 @@ public class MainActivity extends ActionBarActivity implements AuthorListHelper.
             AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) menuInfo;
 
             Cursor cursor = (Cursor) listView.getAdapter().getItem(info.position);
-            listView.getListView().getChildAt(info.position).setSelected(true);
             author = AuthorController.Cursor2Author(getApplicationContext(), cursor);
 
             if (author == null) {

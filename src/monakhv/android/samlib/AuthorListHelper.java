@@ -119,12 +119,14 @@ public class AuthorListHelper implements
         listView.setSelector(R.drawable.author_item_bg);
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                view.setSelected(true);
-                selected = view;
+                selectView(view);
             }
         });
     }
-    
+    public void selectView(View view) {
+        view.setSelected(true);
+        selected = view;
+    }
     public void cleanSelection(){        
         if (selected != null){
             selected.setSelected(false);
