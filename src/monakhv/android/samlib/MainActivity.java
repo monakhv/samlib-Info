@@ -94,6 +94,10 @@ public class MainActivity extends ActionBarActivity implements AuthorListHelper.
         if (author_id != SamLibConfig.SELECTED_BOOK_ID) {
             AuthorController sql = new AuthorController(this);
             Author a = sql.getById(author_id);
+            if (a == null){
+                Log.e(DEBUG_TAG, "Can not find author for id: "+author_id);
+                return;
+            }
             setTitle(a.getName());
         } else {
             setTitle(getText(R.string.menu_selected_go));

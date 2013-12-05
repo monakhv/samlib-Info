@@ -14,40 +14,10 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 -->
-<android.support.v4.widget.SlidingPaneLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/pane"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              android:id="@+id/pane1"
               android:orientation="vertical"
-              android:layout_width="300dp"
-              android:layout_marginRight="16dp"
+              android:layout_width="match_parent"
               android:layout_height="match_parent">
-    
-    
-    <monakhv.android.samlib.PullToRefresh
-        android:id="@+id/listAuthirFragment"
-        
-        android:layout_weight="1"
-        android:layout_width="match_parent"
-        android:layout_height="0dp">
-    </monakhv.android.samlib.PullToRefresh>
-    
-    <TextView
-        android:id="@+id/id_empty_text"
-       android:layout_weight="10"
-        android:layout_gravity ="center"
-        android:gravity="center"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:text="@string/no_authors"
-        android:textAppearance="?android:attr/textAppearanceMedium"    
-    >        
-    </TextView>
-    
-    
     <LinearLayout 
         android:id="@+id/add_author_panel"
         android:orientation="horizontal"
@@ -70,23 +40,56 @@ limitations under the License.
             android:onClick="addAuthor"/>
     
     </LinearLayout>
-</LinearLayout>
-<FrameLayout
+    <android.support.v4.widget.SlidingPaneLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                                             android:id="@+id/pane"
+                                             android:layout_width="match_parent"
+                                             android:layout_height="match_parent"
+    >
+        <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:id="@+id/pane1"
+              android:orientation="vertical"
+              android:layout_width="300dp"
+              android:layout_marginRight="16dp"
+              android:layout_height="match_parent">
+    
+    
+            <monakhv.android.samlib.PullToRefresh
+                android:id="@+id/listAuthirFragment"
+        
+                android:layout_weight="1"
+                android:layout_width="match_parent"
+                android:layout_height="0dp">
+            </monakhv.android.samlib.PullToRefresh>
+    
+            <TextView
+                android:id="@+id/id_empty_text"
+                android:layout_weight="10"
+                android:layout_gravity ="center"
+                android:gravity="center"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:text="@string/no_authors"
+                android:textAppearance="?android:attr/textAppearanceMedium"    
+            />        
+          
+        </LinearLayout>
+        <FrameLayout
             android:id="@+id/pane2"
             android:layout_width="600dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:background="#FF000000">
     
-    <fragment
-        android:id="@+id/listBooksFragment"
-        android:name="monakhv.android.samlib.BookListFragment"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        >
-    </fragment>
+            <fragment
+                android:id="@+id/listBooksFragment"
+                android:name="monakhv.android.samlib.BookListFragment"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+            >
+            </fragment>
 
-</FrameLayout>
+        </FrameLayout>
 
 
-</android.support.v4.widget.SlidingPaneLayout>
+    </android.support.v4.widget.SlidingPaneLayout>
+</LinearLayout>
