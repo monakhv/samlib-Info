@@ -36,7 +36,7 @@ public class ActivityUtils {
         
     }
     public static void setShadow(SlidingPaneLayout pane){
-        //pane.setShadowResource(R.drawable.slidingpane_shadow);
+        pane.setShadowResource(R.drawable.slidingpane_shadow);
         
         pane.setHorizontalFadingEdgeEnabled(true);
         
