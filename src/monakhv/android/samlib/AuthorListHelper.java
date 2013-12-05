@@ -31,6 +31,7 @@ import android.util.Log;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -113,8 +114,13 @@ public class AuthorListHelper implements
         pull.getListView().setEmptyView(tv);
         
         setDivider(listView);
-        
-        
+        listView.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
+        listView.setSelector(context.getResources().getDrawable(R.drawable.author_item_bg));
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                view.setSelected(true);
+            }
+        });
     }
     
     
@@ -162,6 +168,8 @@ public class AuthorListHelper implements
         Cursor c = (Cursor) adapter.getItem(position);
         if (c.getPosition() != -1) {
             Log.d(DEBUG_TAG, "get cursor at position: " + c.getPosition());
+//            listView.setItemChecked(position, true);
+//            listView.getChildAt(position).setSelected(true);
             authorClick(c);
             return true;
         }
