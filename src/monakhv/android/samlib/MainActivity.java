@@ -91,7 +91,7 @@ public class MainActivity extends ActionBarActivity implements AuthorListHelper.
         if (author_id == 0){
             return;
         }
-        if (author_id != -1) {
+        if (author_id != SamLibConfig.SELECTED_BOOK_ID) {
             AuthorController sql = new AuthorController(this);
             Author a = sql.getById(author_id);
             setTitle(a.getName());
@@ -374,10 +374,12 @@ public class MainActivity extends ActionBarActivity implements AuthorListHelper.
         }
         if (sel == R.id.selected_option_item) {
             Log.d(DEBUG_TAG, "go to Selected");
-            Intent prefsIntent = new Intent(getApplicationContext(),
-                    BooksActivity.class);
-            prefsIntent.putExtra(BookListFragment.AUTHOR_ID, SamLibConfig.SELECTED_ID);
-            startActivity(prefsIntent);
+            listHelper.cleanSelection();
+            books.setAuthorId(SamLibConfig.SELECTED_BOOK_ID);
+//            Intent prefsIntent = new Intent(getApplicationContext(),
+//                    BooksActivity.class);
+//            prefsIntent.putExtra(BookListFragment.AUTHOR_ID, SamLibConfig.SELECTED_BOOK_ID);
+//            startActivity(prefsIntent);
         }
         if (sel == R.id.menu_filter) {
             Log.d(DEBUG_TAG, "go to Filter");

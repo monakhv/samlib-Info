@@ -64,6 +64,7 @@ public class AuthorListHelper implements
     private ListView listView;
     private final GestureDetector detector;
     private final FragmentActivity activity;
+    private View selected;
     
     private MainActivity.SortOrder order;
     public interface Callbacks {
@@ -115,14 +116,21 @@ public class AuthorListHelper implements
         
         setDivider(listView);
         listView.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
-        listView.setSelector(context.getResources().getDrawable(R.drawable.author_item_bg));
+        listView.setSelector(R.drawable.author_item_bg);
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 view.setSelected(true);
+                selected = view;
             }
         });
     }
     
+    public void cleanSelection(){        
+        if (selected != null){
+            selected.setSelected(false);
+            selected.setActivated(false);
+        }
+    }
     
     public void setSortOrder(MainActivity.SortOrder so){
         order =so;
@@ -167,10 +175,11 @@ public class AuthorListHelper implements
         int position = listView.pointToPosition((int) e.getX(), (int) e.getY());
         Cursor c = (Cursor) adapter.getItem(position);
         if (c.getPosition() != -1) {
-            Log.d(DEBUG_TAG, "get cursor at position: " + c.getPosition());
+ //           Log.d(DEBUG_TAG, "get cursor at position: " + c.getPosition());
 //            listView.setItemChecked(position, true);
 //            listView.getChildAt(position).setSelected(true);
-            authorClick(c);
+            //authorClick(c);
+            mCallbacks.onAuthorSelected(c.getInt(c.getColumnIndex(SQLController.COL_ID)));
             return true;
         }
         return false;
@@ -210,16 +219,6 @@ public class AuthorListHelper implements
         Intent launchBrowser = new Intent(Intent.ACTION_VIEW, uri);
         context.startActivity(launchBrowser);
         
-    }
-    
-    private void authorClick(Cursor c) {
-        
-        Log.d(DEBUG_TAG, "Selected Author id: " + c.getInt(c.getColumnIndex(SQLController.COL_ID)));
-        mCallbacks.onAuthorSelected(c.getInt(c.getColumnIndex(SQLController.COL_ID)));
-//        Intent intent = new Intent(context, BooksActivity.class);
-//        intent.putExtra(BookListFragment.AUTHOR_ID, c.getInt(c.getColumnIndex(SQLController.COL_ID)));
-//        //intent.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
-//        context.startActivity(intent);
     }
     
     

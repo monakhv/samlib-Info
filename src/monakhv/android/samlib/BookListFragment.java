@@ -102,6 +102,7 @@ public class BookListFragment extends ListFragment implements
     public void setAuthorId(int id){
         author_id = id;
         getLoaderManager().restartLoader(BOOK_LIST_LOADER, null, this);
+        getListView().setSelectionAfterHeaderView();
     }
     public int getAuthorId(){
         return author_id; 
@@ -110,7 +111,7 @@ public class BookListFragment extends ListFragment implements
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (author_id == -1){
+        if (author_id == SamLibConfig.SELECTED_BOOK_ID){
             setEmptyText(getActivity().getText(R.string.no_selected_books));
         }
         else {
@@ -197,7 +198,7 @@ public class BookListFragment extends ListFragment implements
         //author_id = getActivity().getIntent().getExtras().getInt(AUTHOR_ID);
         
         String selection;
-        if (author_id ==  SamLibConfig.SELECTED_ID){
+        if (author_id ==  SamLibConfig.SELECTED_BOOK_ID){
             selection = SQLController.COL_BOOK_GROUP_ID+"="+Book.SELECTED_GROUP_ID;
         }
         else {
