@@ -16,6 +16,7 @@
 
 package monakhv.android.samlib;
 
+import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
 import android.support.v4.widget.SlidingPaneLayout;
@@ -27,14 +28,19 @@ import android.widget.ListView;
  */
 public class ActivityUtils {
     static Drawable gradient = new GradientDrawable(GradientDrawable.Orientation.LEFT_RIGHT, new int[]{0x3300FF00, 0xFF00FF00, 0xffffffff});
+    public static final int FAIDING_COLOR=-858993460;//Color.GRAY;
+    public static final int ACTIVE_COLOR=Color.BLACK;
     public static void setDivider(ListView listView){
         listView.setDivider(gradient);
         listView.setDividerHeight(1);
         
     }
     public static void setShadow(SlidingPaneLayout pane){
-        pane.setShadowResource(R.drawable.slidingpane_shadow);
-        pane.setSliderFadeColor(0x3300FF00);
+        //pane.setShadowResource(R.drawable.slidingpane_shadow);
+        
+        pane.setHorizontalFadingEdgeEnabled(true);
+        
+        pane.setSliderFadeColor(FAIDING_COLOR);
     }
     
 }

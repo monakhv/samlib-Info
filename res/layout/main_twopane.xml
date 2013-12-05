@@ -70,12 +70,22 @@ limitations under the License.
     
     </LinearLayout>
 </LinearLayout>
-<fragment
+<FrameLayout
+            android:id="@+id/pane2"
+            android:layout_width="600dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="#FF000000">
+    
+    <fragment
         android:id="@+id/listBooksFragment"
         android:name="monakhv.android.samlib.BookListFragment"
-        android:layout_weight="1"
-        android:layout_width="600dp"
-        android:layout_height="match_parent">
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        >
     </fragment>
+
+</FrameLayout>
+
 
 </android.support.v4.widget.SlidingPaneLayout>

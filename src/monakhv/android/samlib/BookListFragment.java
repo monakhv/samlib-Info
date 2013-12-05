@@ -127,6 +127,9 @@ public class BookListFragment extends ListFragment implements
         setDivider(getListView());
         
     }
+    public void setColor(int color){
+        //getListView().setBackgroundColor(color);
+    }
     private Book selected = null;
     private final int menu_mark_read = 1;
     private final int menu_browser = 2;

@@ -15,6 +15,7 @@
  */
 package monakhv.android.samlib;
 
+import android.app.ActionBar;
 import monakhv.android.samlib.search.SearchAuthorActivity;
 import monakhv.android.samlib.dialogs.FilterSelectDialog;
 import monakhv.android.samlib.dialogs.EnterStringDialog;
@@ -28,7 +29,6 @@ import android.content.IntentFilter;
 import android.database.Cursor;
 import android.database.MatrixCursor;
 import android.database.MergeCursor;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v4.widget.SlidingPaneLayout;
 import android.text.TextUtils;
@@ -53,12 +53,14 @@ import monakhv.android.samlib.sql.AuthorController;
 import monakhv.android.samlib.sql.AuthorProvider;
 import monakhv.android.samlib.sql.SQLController;
 import monakhv.android.samlib.sql.entity.Author;
+import monakhv.android.samlib.sql.entity.Book;
 import monakhv.android.samlib.sql.entity.SamLibConfig;
 import monakhv.android.samlib.tasks.AddAuthor;
 import monakhv.android.samlib.tasks.DeleteAuthor;
 import monakhv.android.samlib.tasks.MarkRead;
 
 public class MainActivity extends ActionBarActivity implements AuthorListHelper.Callbacks,SlidingPaneLayout.PanelSlideListener {
+    private SlidingPaneLayout pane;
 
     public void onAuthorSelected(int id) {
         books.setAuthorId(id);
@@ -74,13 +76,18 @@ public class MainActivity extends ActionBarActivity implements AuthorListHelper.
         setTitle(R.string.app_name);
         isOpen = true;
         invalidateOptionsMenu();
+        books.setColor(ActivityUtils.FAIDING_COLOR);
+        getActionBar().setDisplayOptions(0,ActionBar.DISPLAY_HOME_AS_UP);
     }
 
     public void onPanelClosed(View view) {
         isOpen = false;
         invalidateOptionsMenu();
+       
+        getActionBar().setDisplayOptions(ActionBar.DISPLAY_HOME_AS_UP,ActionBar.DISPLAY_HOME_AS_UP);
         int author_id = books.getAuthorId();
-         Log.d(DEBUG_TAG, "panel is closed, author_id = "+author_id);
+        Log.d(DEBUG_TAG, "panel is closed, author_id = "+author_id);
+        books.setColor(ActivityUtils.ACTIVE_COLOR);
         if (author_id == 0){
             return;
         }
@@ -126,7 +133,8 @@ public class MainActivity extends ActionBarActivity implements AuthorListHelper.
     private final int ARCHIVE_ACTIVITY = 1;
     private final int SEARCH_ACTIVITY = 2;
     //AddAuthorDialog addAuthorDilog;
-    private UpdateActivityReceiver receiver;
+    private UpdateActivityReceiver updateReceiver;
+    private DownloadReceiver        downloadReceiver;
     private boolean refreshStatus = false;
     private FilterSelectDialog filterDialog;
     private PullToRefresh listView;
@@ -159,10 +167,14 @@ public class MainActivity extends ActionBarActivity implements AuthorListHelper.
         SettingsHelper.addAuthenticator(this.getApplicationContext());
         getActionBarHelper().setRefreshActionItemState(refreshStatus);
         books = (BookListFragment) getSupportFragmentManager().findFragmentById(R.id.listBooksFragment);
-        SlidingPaneLayout pane = (SlidingPaneLayout) findViewById(R.id.pane);
-        pane.openPane();
-        ActivityUtils.setShadow(pane);
+        pane = (SlidingPaneLayout) findViewById(R.id.pane);
         pane.setPanelSlideListener(this);
+        pane.openPane();
+        
+        ActivityUtils.setShadow(pane);
+        
+        Log.d(DEBUG_TAG, "Faiding color: "+pane.getSliderFadeColor());
+        isOpen = true;
       
         listView = (PullToRefresh) findViewById(R.id.listAuthirFragment);
         listHelper = new AuthorListHelper(this, listView);
@@ -191,17 +203,27 @@ public class MainActivity extends ActionBarActivity implements AuthorListHelper.
     @Override
     protected void onResume() {
         super.onResume();
-        IntentFilter filter = new IntentFilter(UpdateActivityReceiver.ACTION_RESP);
-        filter.addCategory(Intent.CATEGORY_DEFAULT);
-        receiver = new UpdateActivityReceiver();
+        IntentFilter updateFilter = new IntentFilter(UpdateActivityReceiver.ACTION_RESP);
+        IntentFilter downloadFilter = new IntentFilter(DownloadReceiver.ACTION_RESP);
+        
+        updateFilter.addCategory(Intent.CATEGORY_DEFAULT);
+        downloadFilter.addCategory(Intent.CATEGORY_DEFAULT);
+        
+        updateReceiver = new UpdateActivityReceiver();
+        downloadReceiver = new DownloadReceiver();
         getActionBarHelper().setRefreshActionItemState(refreshStatus);
-        registerReceiver(receiver, filter);
+        registerReceiver(updateReceiver, updateFilter);
+        registerReceiver(downloadReceiver, downloadFilter);
 
     }
 
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if ((keyCode == KeyEvent.KEYCODE_BACK)) { //Back key pressed
+            if (! isOpen) {
+                pane.openPane();
+                return true;
+            }
             if (listHelper.getSelection() != null) {
                 refreshList(null, null);
             } else {
@@ -222,7 +244,8 @@ public class MainActivity extends ActionBarActivity implements AuthorListHelper.
     @Override
     protected void onPause() {
         super.onPause();
-        unregisterReceiver(receiver);
+        unregisterReceiver(updateReceiver);
+        unregisterReceiver(downloadReceiver);
         //Stop refresh status
         listView.onRefreshComplete();
         refreshStatus = false;
@@ -272,6 +295,9 @@ public class MainActivity extends ActionBarActivity implements AuthorListHelper.
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int sel = item.getItemId();
+        if (sel == android.R.id.home && ! isOpen){
+            pane.openPane();
+        }
 
         if (sel == R.id.menu_refresh) {
             makeUpdate();
@@ -595,6 +621,44 @@ public class MainActivity extends ActionBarActivity implements AuthorListHelper.
                 listView.updateProgress(intent.getStringExtra(TOAST_STRING));
             }
 
+        }
+    }
+    public class DownloadReceiver extends BroadcastReceiver {
+        
+        public static final String ACTION_RESP = "monakhv.android.samlib.action.BookDownload";
+        public static final String MESG = "MESG";
+        public static final String RESULT = "RESULT";
+        public static final String BOOK_ID = "BOOK_ID";
+        private static final String DEBUG_TAG = "DownloadReceiver";
+        
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            Log.d(DEBUG_TAG, "Starting onReceive");
+            String mesg = intent.getStringExtra(MESG);
+            long book_id = intent.getLongExtra(BOOK_ID, 0);
+            
+            boolean res = intent.getBooleanExtra(RESULT, false);
+            
+            AuthorController sql = new AuthorController(context);
+            Book book = sql.getBookController().getById(book_id);
+            
+            if (books != null) {
+                if (books.progress != null) {
+                    books.progress.dismiss();
+                }
+            }
+            
+            if (res) {
+                Log.d(DEBUG_TAG, "Starting web for url: " + book.getFileURL());
+//               
+                if (books != null) {
+                    books.launchReader(book);
+                }
+            } else {
+                Toast toast = Toast.makeText(context, mesg, Toast.LENGTH_SHORT);
+                
+                toast.show();
+            }
         }
     }
 }
