@@ -18,6 +18,8 @@ package monakhv.android.samlib;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
@@ -29,15 +31,16 @@ import android.support.v4.widget.SimpleCursorAdapter;
 import android.text.Html;
 import android.util.Log;
 import android.view.ContextMenu;
-import android.view.GestureDetector;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import static monakhv.android.samlib.ActivityUtils.ImageViewAnimatedChange;
 import static monakhv.android.samlib.ActivityUtils.setDivider;
 import monakhv.android.samlib.data.SettingsHelper;
 import monakhv.android.samlib.service.DownloadBookServiceIntent;
@@ -61,7 +64,7 @@ public class BookListFragment extends ListFragment implements
     public static final String AUTHOR_ID = "AUTHOR_ID";
     public static final int BOOK_LIST_LOADER = 0x12;
     private SimpleCursorAdapter adapter;
-    private GestureDetector detector;
+    //private GestureDetector detector;
     private int author_id;
     private AuthorController sql ;
     private SettingsHelper settings;
@@ -94,7 +97,7 @@ public class BookListFragment extends ListFragment implements
 
         adapter.setViewBinder(new BookViewBinder());
         setListAdapter(adapter);
-        detector = new GestureDetector(getActivity(), new ListSwipeListener(this));
+        //detector = new GestureDetector(getActivity(), new ListSwipeListener(this));
 
         
         settings = new SettingsHelper(getActivity());
@@ -119,18 +122,21 @@ public class BookListFragment extends ListFragment implements
         }
         
         registerForContextMenu(getListView());
-        getListView().setOnTouchListener(new View.OnTouchListener() {
-            public boolean onTouch(View v, MotionEvent event) {
-                detector.onTouchEvent(event);
-                return false;
+
+        getListView().setOnItemClickListener(new AdapterView.OnItemClickListener() {
+
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Cursor c = (Cursor) adapter.getItem(position);
+                long book_id = c.getLong(c.getColumnIndex(SQLController.COL_ID));
+                Book book = sql.getBookController().getById(book_id);
+                loadBook(book);
             }
         });
+        
         setDivider(getListView());
         
     }
-    public void setColor(int color){
-        //getListView().setBackgroundColor(color);
-    }
+    
     private Book selected = null;
     private final int menu_mark_read = 1;
     private final int menu_browser = 2;
@@ -195,8 +201,6 @@ public class BookListFragment extends ListFragment implements
 
     public Loader<Cursor> onCreateLoader(int i, Bundle bundle) {
 
-        //author_id = getActivity().getIntent().getExtras().getInt(AUTHOR_ID);
-        
         String selection;
         if (author_id ==  SamLibConfig.SELECTED_BOOK_ID){
             selection = SQLController.COL_BOOK_GROUP_ID+"="+Book.SELECTED_GROUP_ID;
@@ -352,6 +356,8 @@ public class BookListFragment extends ListFragment implements
             int idx_isNew = cursor.getColumnIndex(SQLController.COL_BOOK_ISNEW);
             int idx_group_id = cursor.getColumnIndex(SQLController.COL_BOOK_GROUP_ID);
             int idx_author = cursor.getColumnIndex(SQLController.COL_BOOK_AUTHOR);
+            long book_id = cursor.getLong(cursor.getColumnIndex(SQLController.COL_ID));
+            final Book book = sql.getBookController().getById(book_id);
 
             if (i == idx_title || i == idx_desc) {
                 TextView tv = ((TextView) view);
@@ -395,14 +401,25 @@ public class BookListFragment extends ListFragment implements
             }
 
             if (i == idx_isNew) {
-
+                final ImageView iv = (ImageView) view;
+               
                 if (cursor.getInt(i) == 1) {
+                    iv.setImageResource(R.drawable.open);
                     
-                    ((ImageView) view).setImageResource(R.drawable.open);
                 } else {
+                    iv.setImageResource(R.drawable.closed);
                     
-                    ((ImageView) view).setImageResource(R.drawable.closed);
                 }
+                view.setOnClickListener(new View.OnClickListener() {
+
+                    public void onClick(View v) {
+                        if (book.isIsNew()){
+                            sql.getBookController().markRead(book);
+                            Author a = sql.getByBook(book);
+                            sql.testMarkRead(a);
+                        }
+                    }
+                });
                 return true;
             }
             if (i == idx_group_id){

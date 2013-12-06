@@ -76,7 +76,7 @@ public class MainActivity extends ActionBarActivity implements AuthorListHelper.
         setTitle(R.string.app_name);
         isOpen = true;
         invalidateOptionsMenu();
-        books.setColor(ActivityUtils.FAIDING_COLOR);
+        
         getActionBar().setDisplayOptions(0,ActionBar.DISPLAY_HOME_AS_UP);
     }
 
@@ -87,7 +87,7 @@ public class MainActivity extends ActionBarActivity implements AuthorListHelper.
         getActionBar().setDisplayOptions(ActionBar.DISPLAY_HOME_AS_UP,ActionBar.DISPLAY_HOME_AS_UP);
         int author_id = books.getAuthorId();
         Log.d(DEBUG_TAG, "panel is closed, author_id = "+author_id);
-        books.setColor(ActivityUtils.ACTIVE_COLOR);
+        
         if (author_id == 0){
             return;
         }
