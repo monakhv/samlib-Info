@@ -19,7 +19,8 @@ import android.app.IntentService;
 import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
-import monakhv.android.samlib.BooksActivity.DownloadReceiver;
+import monakhv.android.samlib.MainActivity.DownloadReceiver;
+
 
 import monakhv.android.samlib.R;
 import monakhv.android.samlib.sql.AuthorController;

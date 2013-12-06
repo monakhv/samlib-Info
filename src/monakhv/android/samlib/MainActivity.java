@@ -110,7 +110,7 @@ public class MainActivity extends ActionBarActivity implements AuthorListHelper.
 
     public void cleanAuthorSelection() {
         listHelper.cleanSelection();
-        books.setAuthorId(0);
+        //books.setAuthorId(0);
     }
 
     public enum SortOrder {
