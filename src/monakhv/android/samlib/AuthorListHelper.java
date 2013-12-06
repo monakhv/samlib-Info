@@ -28,7 +28,6 @@ import android.support.v4.content.Loader;
 import android.support.v4.widget.CursorAdapter;
 import android.support.v4.widget.SimpleCursorAdapter;
 import android.util.Log;
-import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.AdapterView;
@@ -62,7 +61,8 @@ public class AuthorListHelper implements
     private String selection = null;
     private final SimpleCursorAdapter adapter;
     private ListView listView;
-    private final GestureDetector detector;
+    private TextView emptyText;
+    private AuthorController sql;
     private final FragmentActivity activity;
     private View selected;
     
@@ -92,7 +92,7 @@ public class AuthorListHelper implements
         SettingsHelper settings = new SettingsHelper(context);
         order = settings.getAuthorSortOrder();
         adapter.setViewBinder(new AuthorViewBinder());
-        detector = new GestureDetector(context, new ListSwipeListener(this));
+       
         init(pull);
     }
     
@@ -100,25 +100,19 @@ public class AuthorListHelper implements
         loaderManager.initLoader(AUTHOR_LIST_LOADER, null, this);
         pull.setAdapter(adapter);
         listView = pull.getListView();
-        pull.setOnTouchListener(new View.OnTouchListener() {
-            public boolean onTouch(View v, MotionEvent event) {
-                detector.onTouchEvent(event);
-                return false;
-            }
-        });
+
+        emptyText = (TextView) activity.findViewById(R.id.id_empty_text);
+        sql = new AuthorController(context);
         
-        TextView tv = (TextView) activity.findViewById(R.id.id_empty_text);
-        AuthorController sql = new AuthorController(context);
-        if (!sql.isEmpty(selection)){
-            tv.setText(R.string.pull_to_refresh_refreshing_label);
-        }
-        pull.getListView().setEmptyView(tv);
+        pull.getListView().setEmptyView(emptyText);
         
         setDivider(listView);
         listView.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
         listView.setSelector(R.drawable.author_item_bg);
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Cursor c = (Cursor) adapter.getItem(position);
+                mCallbacks.onAuthorSelected(c.getInt(c.getColumnIndex(SQLController.COL_ID)));
                 selectView(view);
             }
         });
@@ -131,19 +125,30 @@ public class AuthorListHelper implements
         if (selected != null){
             selected.setSelected(false);
             selected.setActivated(false);
+            selected.setFocusable(false);
         }
+        listView.clearChoices();
+        listView.clearFocus();
     }
     
     public void setSortOrder(MainActivity.SortOrder so){
+        cleanSelection();
         order =so;
         loaderManager.restartLoader(AUTHOR_LIST_LOADER, null, this);
     }
     
     public void refresh(String selection, MainActivity.SortOrder so) {
         Log.d(DEBUG_TAG, "set Selection: "+selection);
+        cleanSelection();
         this.selection = selection;
         if (so != null){
             order =so;
+        }
+        if (!sql.isEmpty(selection)){
+            emptyText.setText(R.string.pull_to_refresh_refreshing_label);
+        }
+        else {
+            emptyText.setText(R.string.no_authors);
         }
         loaderManager.restartLoader(AUTHOR_LIST_LOADER, null, this);
         

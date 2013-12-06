@@ -73,7 +73,7 @@ public class MainActivity extends ActionBarActivity implements AuthorListHelper.
 
     public void onPanelOpened(View view) {
         Log.d(DEBUG_TAG, "panel is opened");
-        setTitle(R.string.app_name);
+        setTitle(title);
         isOpen = true;
         invalidateOptionsMenu();
         
@@ -98,8 +98,10 @@ public class MainActivity extends ActionBarActivity implements AuthorListHelper.
                 Log.e(DEBUG_TAG, "Can not find author for id: "+author_id);
                 return;
             }
+            title = getTitle().toString();
             setTitle(a.getName());
         } else {
+            title = getTitle().toString();
             setTitle(getText(R.string.menu_selected_go));
         }
         
@@ -151,6 +153,8 @@ public class MainActivity extends ActionBarActivity implements AuthorListHelper.
 
     private BookListFragment books = null;
     private boolean isOpen = true;
+    
+    private String title;
     @Override
     public void onCreate(Bundle icicle) {
         super.onCreate(icicle);
@@ -167,7 +171,7 @@ public class MainActivity extends ActionBarActivity implements AuthorListHelper.
             CleanNotificationData.start(this);
 
         }
-
+        title = getString(R.string.app_name);
         SettingsHelper.addAuthenticator(this.getApplicationContext());
         getActionBarHelper().setRefreshActionItemState(refreshStatus);
         books = (BookListFragment) getSupportFragmentManager().findFragmentById(R.id.listBooksFragment);
@@ -309,11 +313,12 @@ public class MainActivity extends ActionBarActivity implements AuthorListHelper.
         }
 
         if (sel == R.id.sort_option_item) {
-
+           
             AdapterView.OnItemClickListener listener = new AdapterView.OnItemClickListener() {
 
                 public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                     so = SortOrder.values()[position];
+                    books.setAuthorId(0);
                     listHelper.setSortOrder(so);
                     sortDialog.dismiss();
                 }
@@ -380,10 +385,6 @@ public class MainActivity extends ActionBarActivity implements AuthorListHelper.
             Log.d(DEBUG_TAG, "go to Selected");
             listHelper.cleanSelection();
             books.setAuthorId(SamLibConfig.SELECTED_BOOK_ID);
-//            Intent prefsIntent = new Intent(getApplicationContext(),
-//                    BooksActivity.class);
-//            prefsIntent.putExtra(BookListFragment.AUTHOR_ID, SamLibConfig.SELECTED_BOOK_ID);
-//            startActivity(prefsIntent);
         }
         if (sel == R.id.menu_filter) {
             Log.d(DEBUG_TAG, "go to Filter");
@@ -420,6 +421,7 @@ public class MainActivity extends ActionBarActivity implements AuthorListHelper.
                     }
                     Log.i(DEBUG_TAG, "WHERE " + select);
                     refreshList(select, null);
+                    books.setAuthorId(0);
                 }
             };
             filterDialog = new FilterSelectDialog(extendedCursor, listener, getText(R.string.dialog_title_filtr).toString());

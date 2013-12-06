@@ -184,7 +184,7 @@ limitations under the License.
     <string name="res_import_txt_bad">Ошибка загрузки данных</string>
     
     
-    <string name="no_new_books">У автора нет книг</string>
+    <string name="no_new_books">Автор не выбран</string>
     <string name="no_selected_books">Нет избранных книг</string>
     
     <string name="no_authors">Список авторов отсутствует</string>
