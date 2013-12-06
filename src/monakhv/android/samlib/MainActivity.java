@@ -59,7 +59,8 @@ import monakhv.android.samlib.tasks.AddAuthor;
 import monakhv.android.samlib.tasks.DeleteAuthor;
 import monakhv.android.samlib.tasks.MarkRead;
 
-public class MainActivity extends ActionBarActivity implements AuthorListHelper.Callbacks,SlidingPaneLayout.PanelSlideListener {
+public class MainActivity extends ActionBarActivity implements AuthorListHelper.Callbacks,BookListFragment.Callbacks,
+        SlidingPaneLayout.PanelSlideListener {
     private SlidingPaneLayout pane;
 
     public void onAuthorSelected(int id) {
@@ -105,6 +106,10 @@ public class MainActivity extends ActionBarActivity implements AuthorListHelper.
             setTitle(getText(R.string.menu_selected_go));
         }
         
+    }
+
+    public void cleanAuthorSelection() {
+        listHelper.cleanSelection();
     }
 
     public enum SortOrder {
@@ -515,6 +520,7 @@ public class MainActivity extends ActionBarActivity implements AuthorListHelper.
             menu.add(1, browser_option_item, 30, getText(R.string.menu_open_web));
             menu.add(1, edit_author_option_item, 40, getText(R.string.menu_edit));
             menu.add(1, delete_option_item, 50, getText(R.string.menu_delete));
+            menu.setHeaderTitle(author.getName());
         }
 
     }

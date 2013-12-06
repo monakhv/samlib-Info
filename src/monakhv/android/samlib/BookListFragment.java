@@ -15,11 +15,10 @@
  */
 package monakhv.android.samlib;
 
+import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.database.Cursor;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
@@ -37,10 +36,8 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import static monakhv.android.samlib.ActivityUtils.ImageViewAnimatedChange;
 import static monakhv.android.samlib.ActivityUtils.setDivider;
 import monakhv.android.samlib.data.SettingsHelper;
 import monakhv.android.samlib.service.DownloadBookServiceIntent;
@@ -58,6 +55,10 @@ import monakhv.android.samlib.sql.entity.SamLibConfig;
  */
 public class BookListFragment extends ListFragment implements
         LoaderManager.LoaderCallbacks<Cursor>, ListSwipeListener.SwipeCallBack {
+    private Callbacks mCallbacks;
+    public interface Callbacks {
+        public void cleanAuthorSelection();
+    }
 
     private static final String DATE_FORMAT = "dd.MM.yyyy";
     private static final String DEBUG_TAG = "BookListFragment";
@@ -101,6 +102,16 @@ public class BookListFragment extends ListFragment implements
 
         
         settings = new SettingsHelper(getActivity());
+    }
+   
+    @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+        if (!(activity instanceof Callbacks)) {
+            throw new IllegalStateException(
+                    "Activity must implement fragment's callbacks.");                
+        }
+        mCallbacks = (Callbacks) activity;
     }
     public void setAuthorId(int id){
         author_id = id;
@@ -415,6 +426,7 @@ public class BookListFragment extends ListFragment implements
                     public void onClick(View v) {
                         if (book.isIsNew()){
                             sql.getBookController().markRead(book);
+                            mCallbacks.cleanAuthorSelection();
                             Author a = sql.getByBook(book);
                             sql.testMarkRead(a);
                         }
