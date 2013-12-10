@@ -134,7 +134,7 @@ public class UpdateServiceIntent extends IntentService {
                     for (Book book : ctl.getBookController().getBooksByAuthor(a)) {//book cycle for the author to update
                         if (book.isIsNew() && settings.testAutoLoadLimit(book) && book.needUpdateFile()) {
                             Log.i(DEBUG_TAG, "Auto Load book: " + book.getId());
-                            DownloadBookServiceIntent.start(this, book);
+                            DownloadBookServiceIntent.start(this, book,false);
                         }
                     }
                 }

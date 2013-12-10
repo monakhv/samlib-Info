@@ -35,8 +35,9 @@ import monakhv.samlib.http.HttpClientController;
 public class DownloadBookServiceIntent extends IntentService {
 
     private static final String DEBUG_TAG = "DownloadBookServiceIntent";
-    public static final String BOOK_ID = "BOOK_ID";
-    private String fileName;
+    public static final  String BOOK_ID = "BOOK_ID";
+    public static final  String SEND_UPDATE="SEND_UPDATE";
+    private boolean sendResult;
     private long book_id;
 
     public DownloadBookServiceIntent() {
@@ -47,11 +48,11 @@ public class DownloadBookServiceIntent extends IntentService {
     protected void onHandleIntent(Intent intent) {
         Log.d(DEBUG_TAG, "Got intent");
         book_id = intent.getLongExtra(BOOK_ID, 0);
+        sendResult = intent.getBooleanExtra(SEND_UPDATE, false);//do not send update by default
         AuthorController ctl = new AuthorController(this.getApplicationContext());
 
         Book book = ctl.getBookController().getById(book_id);
-        fileName = book.getFile().getAbsolutePath();
-
+       
 
         HttpClientController http = HttpClientController.getInstance();
         try {
@@ -69,7 +70,9 @@ public class DownloadBookServiceIntent extends IntentService {
 
     private void finish(boolean b) {
         Log.d(DEBUG_TAG, "finish result: " + b);
-
+        if (! sendResult){
+            return;
+        }
         CharSequence msg;
         if (b) {
             msg = getApplicationContext().getText(R.string.download_book_success);
@@ -92,21 +95,24 @@ public class DownloadBookServiceIntent extends IntentService {
      *
      * @param ctx
      * @param book
+     * @param sendupdate  whether  send update information into activity or not
      */
-    public static void start(Context ctx, Book book) {
+    public static void start(Context ctx, Book book,boolean  sendupdate) {
         long book_id = book.getId();
-        start(ctx, book_id);
+        start(ctx, book_id,sendupdate);
     }
 
     /**
      * Helper method to start this method
      *
-     * @param ctx
-     * @param book_id
+     * @param ctx context
+     * @param book_id book id
+     * @param sendupdate whether  send update information into activity or not
      */
-    public static void start(Context ctx, long book_id) {
+    public static void start(Context ctx, long book_id,boolean  sendupdate) {
         Intent service = new Intent(ctx, DownloadBookServiceIntent.class);
         service.putExtra(DownloadBookServiceIntent.BOOK_ID, book_id);
+        service.putExtra(DownloadBookServiceIntent.SEND_UPDATE, sendupdate);
         ctx.startService(service);
     }
 }

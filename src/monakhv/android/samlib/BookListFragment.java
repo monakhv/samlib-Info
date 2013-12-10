@@ -292,7 +292,7 @@ public class BookListFragment extends ListFragment implements
             progress.setCancelable(true);
             progress.setIndeterminate(true);
             progress.show();
-            DownloadBookServiceIntent.start(getActivity(), book.getId());
+            DownloadBookServiceIntent.start(getActivity(), book.getId(),true);
 
 
         } else {
