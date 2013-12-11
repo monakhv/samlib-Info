@@ -15,10 +15,8 @@
  */
 package monakhv.android.samlib;
 
-import android.app.ActionBar;
-import monakhv.android.samlib.search.SearchAuthorActivity;
-import monakhv.android.samlib.dialogs.FilterSelectDialog;
-import monakhv.android.samlib.dialogs.EnterStringDialog;
+
+
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.BroadcastReceiver;
@@ -35,15 +33,24 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.KeyEvent;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
+import android.view.LayoutInflater;
 import android.view.View;
+
 import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.Toast;
+
+import com.actionbarsherlock.app.ActionBar;
+import com.actionbarsherlock.app.SherlockFragmentActivity;
+import com.actionbarsherlock.view.Menu;
+import com.actionbarsherlock.view.MenuInflater;
+import com.actionbarsherlock.view.MenuItem;
+
+
+import monakhv.android.samlib.search.SearchAuthorActivity;
+import monakhv.android.samlib.dialogs.FilterSelectDialog;
+import monakhv.android.samlib.dialogs.EnterStringDialog;
 import monakhv.android.samlib.PullToRefresh.OnRefreshListener;
-import monakhv.android.samlib.actionbar.ActionBarActivity;
 import monakhv.android.samlib.data.SettingsHelper;
 import monakhv.android.samlib.dialogs.SingleChoiceSelectDialog;
 import monakhv.android.samlib.search.SearchAuthorsListFragment;
@@ -59,9 +66,10 @@ import monakhv.android.samlib.tasks.AddAuthor;
 import monakhv.android.samlib.tasks.DeleteAuthor;
 import monakhv.android.samlib.tasks.MarkRead;
 
-public class MainActivity extends ActionBarActivity implements AuthorListHelper.Callbacks,BookListFragment.Callbacks,
+public class MainActivity extends SherlockFragmentActivity implements AuthorListHelper.Callbacks,BookListFragment.Callbacks,
         SlidingPaneLayout.PanelSlideListener {
     private SlidingPaneLayout pane;
+    private MenuItem refreshItem = null;  
 
     public void onAuthorSelected(int id) {
         books.setAuthorId(id);
@@ -74,18 +82,18 @@ public class MainActivity extends ActionBarActivity implements AuthorListHelper.
 
     public void onPanelOpened(View view) {
         Log.d(DEBUG_TAG, "panel is opened");
-        setTitle(title);
+        getSupportActionBar().setTitle(title);
         isOpen = true;
         invalidateOptionsMenu();
         
-        getActionBar().setDisplayOptions(0,ActionBar.DISPLAY_HOME_AS_UP);
+        getSupportActionBar().setDisplayOptions(0,ActionBar.DISPLAY_HOME_AS_UP);
     }
 
     public void onPanelClosed(View view) {
         isOpen = false;
         invalidateOptionsMenu();
        
-        getActionBar().setDisplayOptions(ActionBar.DISPLAY_HOME_AS_UP,ActionBar.DISPLAY_HOME_AS_UP);
+        getSupportActionBar().setDisplayOptions(ActionBar.DISPLAY_HOME_AS_UP,ActionBar.DISPLAY_HOME_AS_UP);
         int author_id = books.getAuthorId();
         Log.d(DEBUG_TAG, "panel is closed, author_id = "+author_id);
         
@@ -99,11 +107,11 @@ public class MainActivity extends ActionBarActivity implements AuthorListHelper.
                 Log.e(DEBUG_TAG, "Can not find author for id: "+author_id);
                 return;
             }
-            title = getTitle().toString();
-            setTitle(a.getName());
+            title = getSupportActionBar().getTitle().toString();
+            getSupportActionBar().setTitle(a.getName());
         } else {
-            title = getTitle().toString();
-            setTitle(getText(R.string.menu_selected_go));
+            title = getSupportActionBar().getTitle().toString();
+            getSupportActionBar().setTitle(getText(R.string.menu_selected_go));
         }
         
     }
@@ -113,6 +121,7 @@ public class MainActivity extends ActionBarActivity implements AuthorListHelper.
         //books.setAuthorId(0);
     }
 
+    
     public enum SortOrder {
 
         DateUpdate(R.string.sort_update_date, SQLController.COL_mtime + " DESC"),
@@ -179,7 +188,7 @@ public class MainActivity extends ActionBarActivity implements AuthorListHelper.
         }
         title = getString(R.string.app_name);
         SettingsHelper.addAuthenticator(this.getApplicationContext());
-        getActionBarHelper().setRefreshActionItemState(refreshStatus);
+        //getActionBarHelper().setRefreshActionItemState(refreshStatus);
         books = (BookListFragment) getSupportFragmentManager().findFragmentById(R.id.listBooksFragment);
         pane = (SlidingPaneLayout) findViewById(R.id.pane);
         pane.setPanelSlideListener(this);
@@ -225,7 +234,7 @@ public class MainActivity extends ActionBarActivity implements AuthorListHelper.
         
         updateReceiver = new UpdateActivityReceiver();
         downloadReceiver = new DownloadReceiver();
-        getActionBarHelper().setRefreshActionItemState(refreshStatus);
+        //getActionBarHelper().setRefreshActionItemState(refreshStatus);
         registerReceiver(updateReceiver, updateFilter);
         registerReceiver(downloadReceiver, downloadFilter);
 
@@ -263,14 +272,15 @@ public class MainActivity extends ActionBarActivity implements AuthorListHelper.
         //Stop refresh status
         listView.onRefreshComplete();
         refreshStatus = false;
-        getActionBarHelper().setRefreshActionItemState(refreshStatus);
+        //getActionBarHelper().setRefreshActionItemState(refreshStatus);
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        MenuInflater menuInflater = getMenuInflater();
+        MenuInflater menuInflater = getSupportMenuInflater();
         menuInflater.inflate(R.menu.options_menu, menu);
-
+        refreshItem = menu.findItem(R.id.menu_refresh);
+        
         return super.onCreateOptionsMenu(menu);
 
     }
@@ -280,8 +290,9 @@ public class MainActivity extends ActionBarActivity implements AuthorListHelper.
         menu.clear();
         if (isOpen){
             
-            MenuInflater menuInflater = getMenuInflater();
+            MenuInflater menuInflater = getSupportMenuInflater();
             menuInflater.inflate(R.menu.options_menu, menu);
+            refreshItem = menu.findItem(R.id.menu_refresh);
         }
        
         return super.onPrepareOptionsMenu(menu); //To change body of generated methods, choose Tools | Templates.
@@ -293,7 +304,7 @@ public class MainActivity extends ActionBarActivity implements AuthorListHelper.
      */
     private void makeUpdate() {
         refreshStatus = true;
-        getActionBarHelper().setRefreshActionItemState(refreshStatus);
+        setRefreshActionItemState(refreshStatus);
         Intent service = new Intent(this, UpdateServiceIntent.class);
         service.putExtra(UpdateServiceIntent.CALLER_TYPE, UpdateServiceIntent.CALLER_IS_ACTIVITY);
         service.putExtra(UpdateServiceIntent.SELECT_STRING, listHelper.getSelection());
@@ -527,7 +538,7 @@ public class MainActivity extends ActionBarActivity implements AuthorListHelper.
     }
 
     @Override
-    public boolean onContextItemSelected(MenuItem item) {
+    public boolean onContextItemSelected(android.view.MenuItem item) {
 
         boolean super_answer = super.onContextItemSelected(item);
         Log.d(DEBUG_TAG, "context menu item selected: " + item.getItemId() + "  super: " + super_answer);
@@ -628,13 +639,35 @@ public class MainActivity extends ActionBarActivity implements AuthorListHelper.
                 Toast toast = Toast.makeText(context, intent.getCharSequenceExtra(TOAST_STRING), duration);
                 toast.show();
                 refreshStatus = false;
-                getActionBarHelper().setRefreshActionItemState(refreshStatus);
+                setRefreshActionItemState(refreshStatus);
                 listView.onRefreshComplete();
             }//
             if (action.equalsIgnoreCase(ACTION_PROGRESS)) {
                 listView.updateProgress(intent.getStringExtra(TOAST_STRING));
             }
 
+        }
+    }
+    private View mRefreshIndeterminateProgressView = null;
+    private void setRefreshActionItemState(boolean status){
+        if (refreshItem == null){
+            return ;
+        }
+        
+        if (status){
+            if (mRefreshIndeterminateProgressView == null){
+                LayoutInflater inflater = (LayoutInflater)
+                            getSupportActionBar().getThemedContext().getSystemService(
+                                    Context.LAYOUT_INFLATER_SERVICE);
+                
+                mRefreshIndeterminateProgressView = inflater.inflate(
+                            R.layout.actionbar_indeterminate_progress, null);
+                
+            }
+            refreshItem.setActionView(mRefreshIndeterminateProgressView);
+        }
+        else {
+            refreshItem.setActionView(null);
         }
     }
     public class DownloadReceiver extends BroadcastReceiver {
