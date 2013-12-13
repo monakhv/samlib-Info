@@ -21,7 +21,6 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.v4.app.ListFragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
@@ -36,6 +35,7 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ImageView;
 import android.widget.TextView;
+import com.actionbarsherlock.app.SherlockListFragment;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import static monakhv.android.samlib.ActivityUtils.setDivider;
@@ -53,11 +53,13 @@ import monakhv.android.samlib.sql.entity.SamLibConfig;
  *
  * @author monakhv
  */
-public class BookListFragment extends ListFragment implements
+public class BookListFragment extends SherlockListFragment implements
         LoaderManager.LoaderCallbacks<Cursor>, ListSwipeListener.SwipeCallBack {
     private Callbacks mCallbacks;
     public interface Callbacks {
         public void cleanAuthorSelection();
+        public void onOpenPanel();
+        public void onClosePanel();
     }
 
     private static final String DATE_FORMAT = "dd.MM.yyyy";
@@ -237,6 +239,14 @@ public class BookListFragment extends ListFragment implements
     public void onLoaderReset(Loader<Cursor> loader) {
         adapter.swapCursor(null);
 
+    }
+    @Override
+    public boolean onOptionsItemSelected(com.actionbarsherlock.view.MenuItem item) {
+        int sel = item.getItemId();
+        if (sel == android.R.id.home ){
+            mCallbacks.onOpenPanel();
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     /**

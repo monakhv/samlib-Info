@@ -31,7 +31,7 @@ import java.io.File;
 import java.net.Authenticator;
 import java.net.PasswordAuthentication;
 import java.util.Calendar;
-import monakhv.android.samlib.MainActivity;
+import monakhv.android.samlib.AuthorListFragment;
 import monakhv.android.samlib.R;
 import monakhv.android.samlib.receiver.UpdateReceiver;
 import monakhv.android.samlib.sql.entity.Book;
@@ -238,11 +238,11 @@ public class SettingsHelper implements SharedPreferences.OnSharedPreferenceChang
         return str;
     }
 
-    public MainActivity.SortOrder getAuthorSortOrder(){
+    public AuthorListFragment.SortOrder getAuthorSortOrder(){
         String str = prefs.getString(
                 context.getString(R.string.pref_key_author_order), 
                 context.getString(R.string.pref_default_author_order));
-        return MainActivity.SortOrder.valueOf(str);
+        return AuthorListFragment.SortOrder.valueOf(str);
     }
     private long getUpdatePeriod() {
 
