@@ -15,8 +15,6 @@
  */
 package monakhv.android.samlib;
 
-
-
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -34,7 +32,6 @@ import android.widget.Toast;
 import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.app.SherlockFragmentActivity;
 
-
 import monakhv.android.samlib.search.SearchAuthorActivity;
 import monakhv.android.samlib.data.SettingsHelper;
 import monakhv.android.samlib.search.SearchAuthorsListFragment;
@@ -45,17 +42,19 @@ import monakhv.android.samlib.sql.entity.Book;
 import monakhv.android.samlib.sql.entity.SamLibConfig;
 import monakhv.android.samlib.tasks.AddAuthor;
 
-public class MainActivity extends SherlockFragmentActivity implements AuthorListFragment.Callbacks,BookListFragment.Callbacks,
+public class MainActivity extends SherlockFragmentActivity implements AuthorListFragment.Callbacks, BookListFragment.Callbacks,
         SlidingPaneLayout.PanelSlideListener {
+
     private SlidingPaneLayout pane;
-   
+
     public void onAuthorSelected(int id) {
         books.setAuthorId(id);
-       
+        //pane.closePane();
+        
     }
 
     public void onPanelSlide(View view, float f) {
-       
+
     }
 
     public void onPanelOpened(View view) {
@@ -65,7 +64,7 @@ public class MainActivity extends SherlockFragmentActivity implements AuthorList
         invalidateOptionsMenu();
         listHelper.setHasOptionsMenu(true);
         books.setHasOptionsMenu(false);
-        getSupportActionBar().setDisplayOptions(0,ActionBar.DISPLAY_HOME_AS_UP);
+        getSupportActionBar().setDisplayOptions(0, ActionBar.DISPLAY_HOME_AS_UP);
     }
 
     public void onPanelClosed(View view) {
@@ -73,18 +72,18 @@ public class MainActivity extends SherlockFragmentActivity implements AuthorList
         invalidateOptionsMenu();
         listHelper.setHasOptionsMenu(false);
         books.setHasOptionsMenu(true);
-        getSupportActionBar().setDisplayOptions(ActionBar.DISPLAY_HOME_AS_UP,ActionBar.DISPLAY_HOME_AS_UP);
+        getSupportActionBar().setDisplayOptions(ActionBar.DISPLAY_HOME_AS_UP, ActionBar.DISPLAY_HOME_AS_UP);
         int author_id = books.getAuthorId();
-        Log.d(DEBUG_TAG, "panel is closed, author_id = "+author_id);
-        
-        if (author_id == 0){
+        Log.d(DEBUG_TAG, "panel is closed, author_id = " + author_id);
+
+        if (author_id == 0) {
             return;
         }
         if (author_id != SamLibConfig.SELECTED_BOOK_ID) {
             AuthorController sql = new AuthorController(this);
             Author a = sql.getById(author_id);
-            if (a == null){
-                Log.e(DEBUG_TAG, "Can not find author for id: "+author_id);
+            if (a == null) {
+                Log.e(DEBUG_TAG, "Can not find author for id: " + author_id);
                 return;
             }
             title = getSupportActionBar().getTitle().toString();
@@ -93,7 +92,7 @@ public class MainActivity extends SherlockFragmentActivity implements AuthorList
             title = getSupportActionBar().getTitle().toString();
             getSupportActionBar().setTitle(getText(R.string.menu_selected_go));
         }
-        
+
     }
 
     public void cleanAuthorSelection() {
@@ -101,26 +100,28 @@ public class MainActivity extends SherlockFragmentActivity implements AuthorList
         //books.setAuthorId(0);
     }
 
-   
     private static final String DEBUG_TAG = "MainActivity";
+    private static final String STATE_SELECTION  ="STATE_SELECTION";
+    private static final String STATE_AUTHOR_POS = "STATE_AUTHOR_ID";
     public static String CLEAN_NOTIFICATION = "CLEAN_NOTIFICATION";
     public static final int ARCHIVE_ACTIVITY = 1;
-    public static final int SEARCH_ACTIVITY  = 2;
+    public static final int SEARCH_ACTIVITY = 2;
     //AddAuthorDialog addAuthorDilog;
     private UpdateActivityReceiver updateReceiver;
-    private DownloadReceiver        downloadReceiver;
+    private DownloadReceiver downloadReceiver;
     private AuthorListFragment listHelper;
-    
+
     private BookListFragment books = null;
     private boolean isOpen = true;
-    
+
     private String title;
+
     @Override
     public void onCreate(Bundle icicle) {
         super.onCreate(icicle);
 
         setContentView(R.layout.main_twopane);
-       
+
         Bundle bundle = getIntent().getExtras();
         //CleanNotificationData.start(this);
         String clean = null;
@@ -135,31 +136,52 @@ public class MainActivity extends SherlockFragmentActivity implements AuthorList
         SettingsHelper.addAuthenticator(this.getApplicationContext());
         //getActionBarHelper().setRefreshActionItemState(refreshStatus);
         books = (BookListFragment) getSupportFragmentManager().findFragmentById(R.id.listBooksFragment);
-        listHelper =   (AuthorListFragment) getSupportFragmentManager().findFragmentById(R.id.listAuthirFragment);
+        listHelper = (AuthorListFragment) getSupportFragmentManager().findFragmentById(R.id.listAuthirFragment);
         listHelper.setHasOptionsMenu(true);
         pane = (SlidingPaneLayout) findViewById(R.id.pane);
         pane.setPanelSlideListener(this);
-        pane.openPane();
-        
+        pane.setParallaxDistance(10);
+
         ActivityUtils.setShadow(pane);
-        
-        Log.d(DEBUG_TAG, "Faiding color: "+pane.getSliderFadeColor());
+
+        Log.d(DEBUG_TAG, "Faiding color: " + pane.getSliderFadeColor());
         isOpen = true;
-      
         
+        if (bundle != null){
+            onRestoreInstanceState(bundle);
+        }
     }
 
-  
-
+    @Override
+    public void onSaveInstanceState(Bundle bundle){
+        super.onSaveInstanceState(bundle);
+        bundle.putString(STATE_SELECTION, listHelper.getSelection());
+        bundle.putInt(STATE_AUTHOR_POS, listHelper.getSelectedAuthorPosition());
+        
+    }
+    @Override
+    public void onRestoreInstanceState(Bundle bundle){
+        super.onRestoreInstanceState(bundle);
+        if (bundle == null){
+            return;
+        }
+        
+        
+        listHelper.refresh(bundle.getString(STATE_SELECTION), null);
+        listHelper.restoreSelection(bundle.getInt(STATE_AUTHOR_POS));
+        books.setAuthorId(listHelper.getSelectedAuthorId());
+    }
+    
     @Override
     protected void onResume() {
         super.onResume();
+        pane.openPane();
         IntentFilter updateFilter = new IntentFilter(UpdateActivityReceiver.ACTION_RESP);
         IntentFilter downloadFilter = new IntentFilter(DownloadReceiver.ACTION_RESP);
-        
+
         updateFilter.addCategory(Intent.CATEGORY_DEFAULT);
         downloadFilter.addCategory(Intent.CATEGORY_DEFAULT);
-        
+
         updateReceiver = new UpdateActivityReceiver();
         downloadReceiver = new DownloadReceiver();
         //getActionBarHelper().setRefreshActionItemState(refreshStatus);
@@ -171,7 +193,7 @@ public class MainActivity extends SherlockFragmentActivity implements AuthorList
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if ((keyCode == KeyEvent.KEYCODE_BACK)) { //Back key pressed
-            if (! isOpen) {
+            if (!isOpen) {
                 pane.openPane();
                 return true;
             }
@@ -186,8 +208,6 @@ public class MainActivity extends SherlockFragmentActivity implements AuthorList
         return super.onKeyDown(keyCode, event);
     }
 
-    
-
     @Override
     protected void onPause() {
         super.onPause();
@@ -197,7 +217,6 @@ public class MainActivity extends SherlockFragmentActivity implements AuthorList
         listHelper.onRefreshComplete();
         //getActionBarHelper().setRefreshActionItemState(refreshStatus);
     }
-
 
     /**
      * Return from ArchiveActivity or SearchActivity
@@ -256,16 +275,17 @@ public class MainActivity extends SherlockFragmentActivity implements AuthorList
     }
 
     public void onOpenPanel() {
-        if (!isOpen){
+        if (!isOpen) {
             pane.openPane();
         }
     }
 
     public void onClosePanel() {
-        if (isOpen){
+        if (isOpen) {
             pane.closePane();
         }
     }
+
     /**
      * Receive updates from Update Service
      */
@@ -285,7 +305,7 @@ public class MainActivity extends SherlockFragmentActivity implements AuthorList
                 int duration = Toast.LENGTH_SHORT;
                 Toast toast = Toast.makeText(context, intent.getCharSequenceExtra(TOAST_STRING), duration);
                 toast.show();
-               
+
                 listHelper.onRefreshComplete();
             }//
             if (action.equalsIgnoreCase(ACTION_PROGRESS)) {
@@ -294,32 +314,32 @@ public class MainActivity extends SherlockFragmentActivity implements AuthorList
 
         }
     }
-   
+
     public class DownloadReceiver extends BroadcastReceiver {
-        
+
         public static final String ACTION_RESP = "monakhv.android.samlib.action.BookDownload";
         public static final String MESG = "MESG";
         public static final String RESULT = "RESULT";
         public static final String BOOK_ID = "BOOK_ID";
         private static final String DEBUG_TAG = "DownloadReceiver";
-        
+
         @Override
         public void onReceive(Context context, Intent intent) {
             Log.d(DEBUG_TAG, "Starting onReceive");
             String mesg = intent.getStringExtra(MESG);
             long book_id = intent.getLongExtra(BOOK_ID, 0);
-            
+
             boolean res = intent.getBooleanExtra(RESULT, false);
-            
+
             AuthorController sql = new AuthorController(context);
             Book book = sql.getBookController().getById(book_id);
-            
+
             if (books != null) {
                 if (books.progress != null) {
                     books.progress.dismiss();
                 }
             }
-            
+
             if (res) {
                 Log.d(DEBUG_TAG, "Starting web for url: " + book.getFileURL());
 //               
@@ -328,7 +348,7 @@ public class MainActivity extends SherlockFragmentActivity implements AuthorList
                 }
             } else {
                 Toast toast = Toast.makeText(context, mesg, Toast.LENGTH_SHORT);
-                
+
                 toast.show();
             }
         }

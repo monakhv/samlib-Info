@@ -22,6 +22,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
+import android.database.CursorIndexOutOfBoundsException;
 import android.database.MatrixCursor;
 import android.database.MergeCursor;
 import android.graphics.Typeface;
@@ -41,7 +42,6 @@ import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 import com.actionbarsherlock.app.SherlockListFragment;
 import com.actionbarsherlock.view.Menu;
@@ -169,8 +169,12 @@ public class AuthorListFragment  extends SherlockListFragment implements
             
             DefaultHeaderTransformer dht = (DefaultHeaderTransformer) mPullToRefreshLayout.getHeaderTransformer();
             updateTextView = (TextView) dht.getHeaderView().findViewById(R.id.ptr_text);
-            
+//            dht.setPullText(getActivity().getText(R.string.pull_to_refresh_pull_label));
+//            dht.setReleaseText(getActivity().getText(R.string.pull_to_refresh_release_label));
+//            dht.setRefreshingText(getActivity().getText(R.string.pull_to_refresh_refreshing_label));
+          
     }
+    private int selectedAuthorPisition=0;
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -185,12 +189,47 @@ public class AuthorListFragment  extends SherlockListFragment implements
         getListView().setSelector(R.drawable.author_item_bg);
         getListView().setOnItemClickListener(new AdapterView.OnItemClickListener() {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                selectedAuthorPisition = position;
                 Cursor c = (Cursor) adapter.getItem(position);
                 mCallbacks.onAuthorSelected(c.getInt(c.getColumnIndex(SQLController.COL_ID)));
+                Log.i(DEBUG_TAG, "position: "+position+"  view: "+view.getId()+" --- "+View.NO_ID);                
                 selectView(view);
             }
         });
         setDivider(getListView());
+    }
+    public int getSelectedAuthorPosition(){
+        return selectedAuthorPisition;
+    }
+    public int getSelectedAuthorId() {
+        Cursor c = (Cursor) adapter.getItem(selectedAuthorPisition);
+        try {
+            return c.getInt(c.getColumnIndex(SQLController.COL_ID));
+        } catch (CursorIndexOutOfBoundsException ex) {
+            Log.e(DEBUG_TAG, "Cusror is out of bounds");
+            return 0;
+        }
+    }
+    public void restoreSelection(int position) {
+        selectedAuthorPisition = position;
+        
+       View v ;
+       try {
+           v = adapter.getView(position, null, getListView());
+       }  
+       catch(IllegalStateException ex){
+           Log.e(DEBUG_TAG, "Can not move cursor");
+           return;
+       }
+        
+        if (v == null){
+            Log.e(DEBUG_TAG, "View to select is null");
+            return;
+        }
+        
+        selectView(v);
+        
+        getListView().setItemChecked(position, true);
     }
     @Override
     public void onAttach(Activity activity) {
