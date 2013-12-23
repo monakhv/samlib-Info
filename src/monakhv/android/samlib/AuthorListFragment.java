@@ -181,6 +181,12 @@ public class AuthorListFragment  extends SherlockListFragment implements
         
         emptyText = (TextView) getActivity().findViewById(R.id.id_empty_text);
         sql = new AuthorController(getActivity());
+        if (!sql.isEmpty(selection)){
+            emptyText.setText(R.string.pull_to_refresh_refreshing_label);
+        }
+        else {
+            emptyText.setText(R.string.no_authors);
+        }
         
         getListView().setEmptyView(emptyText);
         registerForContextMenu(getListView());
@@ -203,6 +209,9 @@ public class AuthorListFragment  extends SherlockListFragment implements
     }
     public int getSelectedAuthorId() {
         Cursor c = (Cursor) adapter.getItem(selectedAuthorPisition);
+        if (c == null){
+            return 0;
+        }
         try {
             return c.getInt(c.getColumnIndex(SQLController.COL_ID));
         } catch (CursorIndexOutOfBoundsException ex) {
@@ -417,12 +426,7 @@ public class AuthorListFragment  extends SherlockListFragment implements
         if (so != null){
             order =so;
         }
-        if (!sql.isEmpty(selection)){
-            emptyText.setText(R.string.pull_to_refresh_refreshing_label);
-        }
-        else {
-            emptyText.setText(R.string.no_authors);
-        }
+        
         getLoaderManager().restartLoader(AUTHOR_LIST_LOADER, null, this);
         
     }
