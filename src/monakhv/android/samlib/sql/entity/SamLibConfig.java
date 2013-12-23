@@ -15,7 +15,6 @@
  */
 package monakhv.android.samlib.sql.entity;
 
-import android.util.Log;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -44,7 +43,7 @@ public class SamLibConfig {
     public static final   int       TAG_AUTHOR_NEW  =-2;
     
     public static final String COLLATION_RULES = "<' '<'-'<'_'<'.'<0<1<2<3<4<5<6<7<8<9<a,A<b,B<c,C<d,D<ð,Ð<e,E<f,F<g,G<h,H<i,I<j,J<k,K<l,L<m,M<n,N<o,O"
-                 + "<p,P<q,Q<r,R<s,S<t,T<u,U<v,V<w,W<x,X<y,Y<z,Z <а,А< б,Б<в,В<г,Г< д , Д<  е , Е< ж , Ж< з , З< и , И< й , Й< к , К< л ,Л<  м , М"
+                 + "<p,P<q,Q<r,R<s,S<t,T<u,U<v,V<w,W<x,X<y,Y<z,Z <а,А< б,Б<в,В<г,Г< д , Д<  е , Е<  ё , Ё< ж , Ж< з , З< и , И< й , Й< к , К< л ,Л<  м , М"
                  + "< н , Н< о , О< п , П< р , Р< с , С< т , Т< у , У< ф , Ф< х , Х< ц , Ц< ч , Ч< ш , Ш< щ , Щ< ъ , Ъ< ы , Ы< ь , Ь< э , Э< ю , Ю< я , Я";
     
     
@@ -179,13 +178,13 @@ public class SamLibConfig {
          * @return 
          */
         private String getSearchAuthorURL(String pattern,int page){
-            Log.i(DEBUG_TAG, "Got pattern: "+pattern);
+            //Log.i(DEBUG_TAG, "Got pattern: "+pattern);
             String res = url+REQUEST_AUTHOR_SEARCH;
-            Log.i(DEBUG_TAG, "Template string: "+res);
+            //Log.i(DEBUG_TAG, "Template string: "+res);
             String first = pattern.substring(0, 1);
             first = first.toUpperCase();
-            Log.i(DEBUG_TAG, "The first letter "+first);
-            Log.i(DEBUG_TAG, "The code "+ABC.get(first));
+            //Log.i(DEBUG_TAG, "The first letter "+first);
+            //Log.i(DEBUG_TAG, "The code "+ABC.get(first));
             res = res.
                     replaceFirst(TMPL_ANUM, ABC.get(first)).
                     replaceFirst(TMPL_PAGE, String.valueOf(page)).

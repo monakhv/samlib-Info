@@ -168,6 +168,7 @@ public class HttpClientController {
         IOException exio = null;
         SamlibParseException exparse = null;
         for (String surl : urls) {
+            Log.i(DEBUG_TAG, "using urls: "+surl);
             exio = null;
             exparse = null;
             try {

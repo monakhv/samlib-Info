@@ -130,15 +130,11 @@ public class SearchAuthor extends AsyncTask<String, Void, Boolean> {
         Log.i(DEBUG_TAG, "Search author with pattern: " + pattern);
         int page = 1;
         HashMap<String, ArrayList<AuthorCard>> colAthors = http.searchAuhors(pattern, page);
-//        if (colAthors != null){
-//            Log.i(DEBUG_TAG, "Load "+colAthors.size()+ " items");
-//          
-//        }
 
         while (colAthors != null) {//page cycle while we find anything
 
             String[] keys = colAthors.keySet().toArray(new String[0]);
-            //Log.i(DEBUG_TAG, "The first value "+keys[0]+"  ->   "+colAthors.get(keys[0]).get(0).getName());
+           
             Arrays.sort(keys, russianCollator);
             int ires = Arrays.binarySearch(keys, pattern, russianCollator);
             Log.d(DEBUG_TAG, "Page number:" +page+   "    search result " + ires + "   length is " + keys.length);
@@ -163,11 +159,11 @@ public class SearchAuthor extends AsyncTask<String, Void, Boolean> {
 
                 } else {
                     Log.d(DEBUG_TAG, "Search for " + pattern + " stop by substring  -   " + skey + "   " + keys.length + "         " + istart + "  -  " + ires);
-                    if (result.isEmpty()) {
-                        for (String s : keys) {
-                            Log.d(DEBUG_TAG, ">> " + s);
-                        }
-                    }
+                   
+//                        for (String s : keys) {
+//                            Log.d(DEBUG_TAG, ">>- " + s);
+//                        }
+                   
                     return inum != 0;
                 }
             }
