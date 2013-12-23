@@ -50,7 +50,7 @@ public class MainActivity extends SherlockFragmentActivity implements AuthorList
     public void onAuthorSelected(int id) {
         books.setAuthorId(id);
         //pane.closePane();
-        
+
     }
 
     public void onPanelSlide(View view, float f) {
@@ -101,7 +101,7 @@ public class MainActivity extends SherlockFragmentActivity implements AuthorList
     }
 
     private static final String DEBUG_TAG = "MainActivity";
-    private static final String STATE_SELECTION  ="STATE_SELECTION";
+    private static final String STATE_SELECTION = "STATE_SELECTION";
     private static final String STATE_AUTHOR_POS = "STATE_AUTHOR_ID";
     public static String CLEAN_NOTIFICATION = "CLEAN_NOTIFICATION";
     public static final int ARCHIVE_ACTIVITY = 1;
@@ -146,32 +146,32 @@ public class MainActivity extends SherlockFragmentActivity implements AuthorList
 
         Log.d(DEBUG_TAG, "Faiding color: " + pane.getSliderFadeColor());
         isOpen = true;
-        
-        if (bundle != null){
+
+        if (bundle != null) {
             onRestoreInstanceState(bundle);
         }
     }
 
     @Override
-    public void onSaveInstanceState(Bundle bundle){
+    public void onSaveInstanceState(Bundle bundle) {
         super.onSaveInstanceState(bundle);
         bundle.putString(STATE_SELECTION, listHelper.getSelection());
         bundle.putInt(STATE_AUTHOR_POS, listHelper.getSelectedAuthorPosition());
-        
+
     }
+
     @Override
-    public void onRestoreInstanceState(Bundle bundle){
+    public void onRestoreInstanceState(Bundle bundle) {
         super.onRestoreInstanceState(bundle);
-        if (bundle == null){
+        if (bundle == null) {
             return;
         }
-        
-        
+
         listHelper.refresh(bundle.getString(STATE_SELECTION), null);
         listHelper.restoreSelection(bundle.getInt(STATE_AUTHOR_POS));
         books.setAuthorId(listHelper.getSelectedAuthorId());
     }
-    
+
     @Override
     protected void onResume() {
         super.onResume();
