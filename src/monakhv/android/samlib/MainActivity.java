@@ -47,10 +47,19 @@ public class MainActivity extends SherlockFragmentActivity implements AuthorList
 
     private SlidingPaneLayout pane;
 
+    /**
+     * Callback When select author in AuthorListFragment
+     * @param id  author-id
+     */
     public void onAuthorSelected(int id) {
         books.setAuthorId(id);
         //pane.closePane();
 
+    }
+    public void onTitleChange(String lTitle){
+        Log.d(DEBUG_TAG, "set title: "+lTitle);
+        title = lTitle;
+        getSupportActionBar().setTitle(title);
     }
 
     public void onPanelSlide(View view, float f) {
@@ -86,10 +95,10 @@ public class MainActivity extends SherlockFragmentActivity implements AuthorList
                 Log.e(DEBUG_TAG, "Can not find author for id: " + author_id);
                 return;
             }
-            title = getSupportActionBar().getTitle().toString();
+            
             getSupportActionBar().setTitle(a.getName());
         } else {
-            title = getSupportActionBar().getTitle().toString();
+            
             getSupportActionBar().setTitle(getText(R.string.menu_selected_go));
         }
 
@@ -103,6 +112,7 @@ public class MainActivity extends SherlockFragmentActivity implements AuthorList
     private static final String DEBUG_TAG = "MainActivity";
     private static final String STATE_SELECTION = "STATE_SELECTION";
     private static final String STATE_AUTHOR_POS = "STATE_AUTHOR_ID";
+    private static final String STATE_TITLE = "STATE_TITLE";
     public static String CLEAN_NOTIFICATION = "CLEAN_NOTIFICATION";
     public static final int ARCHIVE_ACTIVITY = 1;
     public static final int SEARCH_ACTIVITY = 2;
@@ -132,7 +142,7 @@ public class MainActivity extends SherlockFragmentActivity implements AuthorList
             CleanNotificationData.start(this);
 
         }
-        title = getString(R.string.app_name);
+        
         SettingsHelper.addAuthenticator(this.getApplicationContext());
         //getActionBarHelper().setRefreshActionItemState(refreshStatus);
         books = (BookListFragment) getSupportFragmentManager().findFragmentById(R.id.listBooksFragment);
@@ -150,12 +160,16 @@ public class MainActivity extends SherlockFragmentActivity implements AuthorList
         if (bundle != null) {
             onRestoreInstanceState(bundle);
         }
+        else {
+            onTitleChange(getString(R.string.app_name));          
+        }
     }
 
     @Override
     public void onSaveInstanceState(Bundle bundle) {
         super.onSaveInstanceState(bundle);
         bundle.putString(STATE_SELECTION, listHelper.getSelection());
+        bundle.putString(STATE_TITLE, title);
         bundle.putInt(STATE_AUTHOR_POS, listHelper.getSelectedAuthorPosition());
 
     }
@@ -167,6 +181,7 @@ public class MainActivity extends SherlockFragmentActivity implements AuthorList
             return;
         }
 
+        onTitleChange(bundle.getString(STATE_TITLE, getString(R.string.app_name)));
         listHelper.refresh(bundle.getString(STATE_SELECTION), null);
         listHelper.restoreSelection(bundle.getInt(STATE_AUTHOR_POS));
         books.setAuthorId(listHelper.getSelectedAuthorId());

@@ -119,6 +119,7 @@ public class AuthorListFragment  extends SherlockListFragment implements
         public void onAuthorSelected(int id);
         public void onOpenPanel();
         public void onClosePanel();
+        public void onTitleChange(String lTitle);
     }
     private static Callbacks mCallbacks;
 
@@ -375,11 +376,11 @@ public class AuthorListFragment  extends SherlockListFragment implements
                     String select = SQLController.TABLE_TAGS + "." + SQLController.COL_ID + "=" + tag_id;
 
                     if (tag_id == SamLibConfig.TAG_AUTHOR_ALL) {
-                        getActivity().setTitle(R.string.app_name);
+                        mCallbacks.onTitleChange(getActivity().getText(R.string.app_name).toString());                        
                         select = null;
                     } else {
                         String tt = tg_name;
-                        getActivity().setTitle(tt);
+                        mCallbacks.onTitleChange(tt);                        
                     }
 
                     if (tag_id == SamLibConfig.TAG_AUTHOR_NEW) {
