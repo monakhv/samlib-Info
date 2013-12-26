@@ -20,6 +20,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v4.widget.SlidingPaneLayout;
 import android.text.TextUtils;
 import android.util.Log;
@@ -31,6 +32,9 @@ import android.widget.Toast;
 
 import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.app.SherlockFragmentActivity;
+import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import monakhv.android.samlib.search.SearchAuthorActivity;
 import monakhv.android.samlib.data.SettingsHelper;
@@ -46,15 +50,24 @@ public class MainActivity extends SherlockFragmentActivity implements AuthorList
         SlidingPaneLayout.PanelSlideListener {
 
     private SlidingPaneLayout pane;
+    private Handler handler;
+    private static final int TIME_BEFORE_CLOSE_MILLI=100;
 
     /**
      * Callback When select author in AuthorListFragment
      * @param id  author-id
      */
     public void onAuthorSelected(int id) {
-        books.setAuthorId(id);
+            books.setAuthorId(id);
+            if (pane.isSlideable()){
+                handler.postDelayed(new Runnable() {
+                    public void run() {                        
+                        pane.closePane();
+                    }
+                },TIME_BEFORE_CLOSE_MILLI);
+            }            
         //pane.closePane();
-
+        
     }
     public void onTitleChange(String lTitle){
         Log.d(DEBUG_TAG, "set title: "+lTitle);
@@ -101,7 +114,7 @@ public class MainActivity extends SherlockFragmentActivity implements AuthorList
             
             getSupportActionBar().setTitle(getText(R.string.menu_selected_go));
         }
-
+        
     }
 
     public void cleanAuthorSelection() {
@@ -115,7 +128,7 @@ public class MainActivity extends SherlockFragmentActivity implements AuthorList
     private static final String STATE_TITLE = "STATE_TITLE";
     public static String CLEAN_NOTIFICATION = "CLEAN_NOTIFICATION";
     public static final int ARCHIVE_ACTIVITY = 1;
-    public static final int SEARCH_ACTIVITY = 2;
+    public static final int SEARCH_ACTIVITY  = 2;
     //AddAuthorDialog addAuthorDilog;
     private UpdateActivityReceiver updateReceiver;
     private DownloadReceiver downloadReceiver;
@@ -142,6 +155,7 @@ public class MainActivity extends SherlockFragmentActivity implements AuthorList
             CleanNotificationData.start(this);
 
         }
+        handler = new Handler();
         
         SettingsHelper.addAuthenticator(this.getApplicationContext());
         //getActionBarHelper().setRefreshActionItemState(refreshStatus);

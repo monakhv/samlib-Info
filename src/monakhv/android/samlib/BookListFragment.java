@@ -116,6 +116,9 @@ public class BookListFragment extends SherlockListFragment implements
         mCallbacks = (Callbacks) activity;
     }
     public void setAuthorId(int id){
+        if (id == author_id){
+            return;
+        }
         author_id = id;
         getLoaderManager().restartLoader(BOOK_LIST_LOADER, null, this);
         getListView().setSelectionAfterHeaderView();

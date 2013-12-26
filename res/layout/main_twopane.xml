@@ -40,12 +40,12 @@ limitations under the License.
             android:onClick="addAuthor"/>
     
     </LinearLayout>
-    <android.support.v4.widget.SlidingPaneLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    <android.support.v4.widget.SlidingPaneLayout 
                                              android:id="@+id/pane"
                                              android:layout_width="match_parent"
                                              android:layout_height="match_parent"
     >
-        <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        <LinearLayout 
               android:id="@+id/pane1"
               android:orientation="vertical"
               android:layout_width="300dp"
