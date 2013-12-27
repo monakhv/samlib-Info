@@ -130,11 +130,13 @@ public class BookListFragment extends SherlockListFragment implements
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        TextView emptyText = (TextView) getActivity().findViewById(R.id.id_empty_book_text);
+        getListView().setEmptyView(emptyText);
         if (author_id == SamLibConfig.SELECTED_BOOK_ID){
-            setEmptyText(getActivity().getText(R.string.no_selected_books));
+            emptyText.setText(R.string.no_selected_books);
         }
         else {
-            setEmptyText(getActivity().getText(R.string.no_new_books));
+            emptyText.setText(R.string.no_new_books);            
         }
         
         registerForContextMenu(getListView());
