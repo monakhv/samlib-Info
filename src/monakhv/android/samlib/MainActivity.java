@@ -32,9 +32,6 @@ import android.widget.Toast;
 
 import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.app.SherlockFragmentActivity;
-import java.util.concurrent.TimeUnit;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import monakhv.android.samlib.search.SearchAuthorActivity;
 import monakhv.android.samlib.data.SettingsHelper;
@@ -59,7 +56,7 @@ public class MainActivity extends SherlockFragmentActivity implements AuthorList
      */
     public void onAuthorSelected(int id) {
             books.setAuthorId(id);
-            if (pane.isSlideable()){
+            if (pane.isSlideable() && id != 0){
                 handler.postDelayed(new Runnable() {
                     public void run() {                        
                         pane.closePane();

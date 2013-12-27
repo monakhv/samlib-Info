@@ -72,7 +72,8 @@ import uk.co.senab.actionbarpulltorefresh.library.listeners.OnRefreshListener;
 /**
  *
  * @author Dmitry Monakhov
- * This is because of PullTorefresh class 
+ * 
+ * 
  */
 public class AuthorListFragment  extends SherlockListFragment implements
         LoaderManager.LoaderCallbacks<Cursor>, ListSwipeListener.SwipeCallBack,OnRefreshListener {
@@ -176,18 +177,21 @@ public class AuthorListFragment  extends SherlockListFragment implements
           
     }
     private int selectedAuthorPisition=0;
+    private void setEmptyText(int id){
+        if (!sql.isEmpty(selection)){
+            emptyText.setText(R.string.pull_to_refresh_refreshing_label);
+        }
+        else {
+            emptyText.setText(id);
+        }
+    }
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         
         emptyText = (TextView) getActivity().findViewById(R.id.id_empty_text);
         sql = new AuthorController(getActivity());
-        if (!sql.isEmpty(selection)){
-            emptyText.setText(R.string.pull_to_refresh_refreshing_label);
-        }
-        else {
-            emptyText.setText(R.string.no_authors);
-        }
+        setEmptyText(R.string.no_authors);
         
         getListView().setEmptyView(emptyText);
         registerForContextMenu(getListView());
@@ -426,6 +430,12 @@ public class AuthorListFragment  extends SherlockListFragment implements
         this.selection = selection;
         if (so != null){
             order =so;
+        }
+        if (selection == null){
+            setEmptyText(R.string.no_authors);
+        }
+        else {
+            setEmptyText(R.string.no_authors_tag);
         }
         
         getLoaderManager().restartLoader(AUTHOR_LIST_LOADER, null, this);

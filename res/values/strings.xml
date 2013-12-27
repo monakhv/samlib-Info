@@ -188,6 +188,7 @@ limitations under the License.
     <string name="no_selected_books">Нет избранных книг</string>
     
     <string name="no_authors">Список авторов отсутствует</string>
+    <string name="no_authors_tag">Нет авторов в указанной категории</string>
     
     <string name="download_book_success">Книга успешно загружена</string>
     <string name="download_book_error">Ошибка загрузки книги</string>
