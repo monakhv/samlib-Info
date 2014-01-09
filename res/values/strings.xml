@@ -17,7 +17,7 @@ limitations under the License.
 <resources>
     <string name="app_name">SamLib Инфо</string>
     <string name="app_nm">SamLib: </string>
-    <string name="author_url">фамилия или http://samlib.ru/...</string>
+    <string name="author_url">фамилия или http://samlib.ru/&#8230;</string>
     <string name="author_name">Фамилия автора</string>
     <string name="author_tag">Новый тэг</string>    
     
@@ -192,11 +192,11 @@ limitations under the License.
     
     <string name="download_book_success">Книга успешно загружена</string>
     <string name="download_book_error">Ошибка загрузки книги</string>
-    <string name="download_Loading">Загрузка...</string>
-    <string name="search_Loading">Идет поиск...</string>
+    <string name="download_Loading">Загрузка&#8230;</string>
+    <string name="search_Loading">Идет поиск&#8230;</string>
     
-    <string name="pull_to_refresh_pull_label">Потяните, чтобы обновить...</string>
-    <string name="pull_to_refresh_release_label">Отпустите для обновления...</string>
-    <string name="pull_to_refresh_refreshing_label">Загрузка...</string>
+    <string name="pull_to_refresh_pull_label">Потяните, чтобы обновить&#8230;</string>
+    <string name="pull_to_refresh_release_label">Отпустите для обновления&#8230;</string>
+    <string name="pull_to_refresh_refreshing_label">Загрузка&#8230;</string>
     
 </resources>
