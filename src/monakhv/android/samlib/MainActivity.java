@@ -224,6 +224,7 @@ public class MainActivity extends SherlockFragmentActivity implements AuthorList
                 return true;
             }
             if (listHelper.getSelection() != null) {
+                onTitleChange( getString(R.string.app_name) );
                 listHelper.refresh(null, null);
             } else {
                 finish();
