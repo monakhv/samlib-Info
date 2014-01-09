@@ -178,6 +178,9 @@ public class AuthorListFragment  extends SherlockListFragment implements
     }
     private int selectedAuthorPisition=0;
     private void setEmptyText(int id){
+        if (sql == null){
+            return;
+        }
         if (!sql.isEmpty(selection)){
             emptyText.setText(R.string.pull_to_refresh_refreshing_label);
         }
@@ -232,12 +235,12 @@ public class AuthorListFragment  extends SherlockListFragment implements
            v = adapter.getView(position, null, getListView());
        }  
        catch(IllegalStateException ex){
-           Log.e(DEBUG_TAG, "Can not move cursor");
+           Log.e(DEBUG_TAG, "restoreSelection: Can not move cursor to restore selection",ex);
            return;
        }
         
         if (v == null){
-            Log.e(DEBUG_TAG, "View to select is null");
+            Log.e(DEBUG_TAG, "restoreSelection: View to select is null");
             return;
         }
         

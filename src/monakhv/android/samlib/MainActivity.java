@@ -143,14 +143,14 @@ public class MainActivity extends SherlockFragmentActivity implements AuthorList
         setContentView(R.layout.main_twopane);
 
         Bundle bundle = getIntent().getExtras();
-        //CleanNotificationData.start(this);
+        
         String clean = null;
         if (bundle != null) {
             clean = bundle.getString(CLEAN_NOTIFICATION);
         }
         if (clean != null) {
             CleanNotificationData.start(this);
-
+            bundle = null;
         }
         handler = new Handler();
         
@@ -167,7 +167,7 @@ public class MainActivity extends SherlockFragmentActivity implements AuthorList
 
         Log.d(DEBUG_TAG, "Faiding color: " + pane.getSliderFadeColor());
         isOpen = true;
-
+        //use here bumdle but not icicle !!
         if (bundle != null) {
             onRestoreInstanceState(bundle);
         }
