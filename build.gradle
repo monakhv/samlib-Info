@@ -16,12 +16,7 @@ if(project.hasProperty("Monakhv.signing")
 android {
     compileSdkVersion 19
     buildToolsVersion '19.0.1'
-    defaultConfig {
-        minSdkVersion 7
-        targetSdkVersion 19
-        versionCode 1
-        versionName "1.0"
-    }
+
 
     sourceSets {
         main {
