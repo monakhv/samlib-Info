@@ -334,7 +334,8 @@ public class AuthorListFragment  extends SherlockListFragment implements
                     ArchiveActivity.class);
             prefsIntent.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
 
-            startActivityForResult(prefsIntent, MainActivity.ARCHIVE_ACTIVITY);
+            //startActivityForResult must be called via getActivity direct call produce wrong requestCode
+            getActivity().startActivityForResult(prefsIntent, MainActivity.ARCHIVE_ACTIVITY);
         }
         if (sel == R.id.selected_option_item) {
             Log.d(DEBUG_TAG, "go to Selected");

@@ -22,19 +22,21 @@ import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.Toast;
+
+import com.actionbarsherlock.app.SherlockFragmentActivity;
+
 import monakhv.android.samlib.data.DataExportImport;
 
 /**
  *
  * @author monakhv
  */
-public class ArchiveActivity extends FragmentActivity {
+public class ArchiveActivity extends SherlockFragmentActivity {
 
     public static final String UPDATE_KEY = "UPDATE_LIST_PARAM";
     public static final int UPDATE_LIST = 22;
