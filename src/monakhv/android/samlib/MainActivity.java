@@ -165,7 +165,7 @@ public class MainActivity extends SherlockFragmentActivity implements AuthorList
 
         ActivityUtils.setShadow(pane);
 
-        Log.d(DEBUG_TAG, "Faiding color: " + pane.getSliderFadeColor());
+        Log.d(DEBUG_TAG, "Fading color: " + pane.getSliderFadeColor());
         isOpen = true;
         //use here bumdle but not icicle !!
         if (bundle != null) {
@@ -278,8 +278,15 @@ public class MainActivity extends SherlockFragmentActivity implements AuthorList
      *
      * @param view View
      */
+    @SuppressWarnings("UnusedParameters")
     public void addAuthor(View view) {
         EditText editText = (EditText) findViewById(R.id.addUrlText);
+        if (editText == null){
+            return;
+        }
+        if (editText.getText() == null){
+            return;
+        }
         String text = editText.getText().toString();
         View v = findViewById(R.id.add_author_panel);
         editText.setText("");
@@ -307,11 +314,11 @@ public class MainActivity extends SherlockFragmentActivity implements AuthorList
         }
     }
 
-    public void onClosePanel() {
+    /*public void onClosePanel() {
         if (isOpen) {
             pane.closePane();
         }
-    }
+    }*/
 
     /**
      * Receive updates from Update Service
@@ -328,16 +335,19 @@ public class MainActivity extends SherlockFragmentActivity implements AuthorList
         public void onReceive(Context context, Intent intent) {
 
             String action = intent.getStringExtra(ACTION);
-            if (action.equalsIgnoreCase(ACTION_TOAST)) {
-                int duration = Toast.LENGTH_SHORT;
-                Toast toast = Toast.makeText(context, intent.getCharSequenceExtra(TOAST_STRING), duration);
-                toast.show();
+            if (action != null) {
+                if (action.equalsIgnoreCase(ACTION_TOAST)) {
+                    int duration = Toast.LENGTH_SHORT;
+                    Toast toast = Toast.makeText(context, intent.getCharSequenceExtra(TOAST_STRING), duration);
+                    toast.show();
 
-                listHelper.onRefreshComplete();
-            }//
-            if (action.equalsIgnoreCase(ACTION_PROGRESS)) {
-                listHelper.updateProgress(intent.getStringExtra(TOAST_STRING));
+                    listHelper.onRefreshComplete();
+                }//
+                if (action.equalsIgnoreCase(ACTION_PROGRESS)) {
+                    listHelper.updateProgress(intent.getStringExtra(TOAST_STRING));
+                }
             }
+
 
         }
     }

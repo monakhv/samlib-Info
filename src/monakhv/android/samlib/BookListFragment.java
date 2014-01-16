@@ -59,7 +59,7 @@ public class BookListFragment extends SherlockListFragment implements
     public interface Callbacks {
         public void cleanAuthorSelection();
         public void onOpenPanel();
-        public void onClosePanel();
+
     }
 
     private static final String DATE_FORMAT = "dd.MM.yyyy";
@@ -211,6 +211,7 @@ public class BookListFragment extends SherlockListFragment implements
             bookSQL.update(selected);
         }
         if (item.getItemId() == menu_reload){
+            //noinspection ResultOfMethodCallIgnored
             selected.getFile().delete();
             loadBook(selected);
         }
@@ -226,13 +227,10 @@ public class BookListFragment extends SherlockListFragment implements
         else {
             selection = SQLController.COL_BOOK_AUTHOR_ID + "=" + author_id;
         }
-        
-        CursorLoader cursorLoader = new CursorLoader(getActivity(),
+
+
+        return new CursorLoader(getActivity(),
                 AuthorProvider.BOOKS_URI, null, selection, null, SQLController.COL_BOOK_MTIME + " DESC");
-
-
-
-        return cursorLoader;
 
     }
 

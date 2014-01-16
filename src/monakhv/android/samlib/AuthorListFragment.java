@@ -121,7 +121,6 @@ public class AuthorListFragment  extends SherlockListFragment implements
     public interface Callbacks {
         public void onAuthorSelected(int id);
         public void onOpenPanel();
-        public void onClosePanel();
         public void onTitleChange(String lTitle);
     }
     private static Callbacks mCallbacks;

@@ -77,6 +77,7 @@ public class ArchiveActivity extends FragmentActivity {
         }
     };
 
+    @SuppressWarnings("UnusedParameters")
     public void exportDB(View v) {
         String file = DataExportImport.exportDB(this.getApplicationContext());
 
@@ -91,6 +92,7 @@ public class ArchiveActivity extends FragmentActivity {
         toast.show();
     }
 
+    @SuppressWarnings("UnusedParameters")
     public void importDB(View v) {
         final String[] files = DataExportImport.getFilesToImportDB(getApplicationContext());
         OnItemClickListener listener = new OnItemClickListener() {
@@ -106,7 +108,7 @@ public class ArchiveActivity extends FragmentActivity {
         dialog = new SingleChoiceSelectDialog(files, listener,getText(R.string.dialog_title_file).toString());
 
 
-        dialog.show(getSupportFragmentManager(), "imporDBDlg");
+        dialog.show(getSupportFragmentManager(), "importDBDlg");
 
     }
 
@@ -136,6 +138,7 @@ public class ArchiveActivity extends FragmentActivity {
 
     }
 
+    @SuppressWarnings("UnusedParameters")
     public void exportTxt(View v) {
         String file = DataExportImport.exportAuthorList(this.getApplicationContext());
         String text;
@@ -149,6 +152,7 @@ public class ArchiveActivity extends FragmentActivity {
         toast.show();
     }
 
+    @SuppressWarnings("UnusedParameters")
     public void importTxt(View v) {
         final String[] files = DataExportImport.getFilesToImportTxt(getApplicationContext());
         OnItemClickListener listener = new OnItemClickListener() {
@@ -164,7 +168,7 @@ public class ArchiveActivity extends FragmentActivity {
         dialog = new SingleChoiceSelectDialog(files, listener,getText(R.string.dialog_title_file).toString());
 
 
-        dialog.show(getSupportFragmentManager(), "imporTxtDlg");
+        dialog.show(getSupportFragmentManager(), "importTxtDlg");
        
     }
 
