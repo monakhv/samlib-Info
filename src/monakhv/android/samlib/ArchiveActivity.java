@@ -16,7 +16,6 @@
 package monakhv.android.samlib;
 
 import monakhv.android.samlib.dialogs.SingleChoiceSelectDialog;
-import static android.app.Activity.RESULT_OK;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;

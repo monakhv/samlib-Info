@@ -2,4 +2,7 @@ gen/
 bin/
 private/
 nbandroid/
-
+.gradle/
+build/
+/local.properties
+/.idea/workspace.xml

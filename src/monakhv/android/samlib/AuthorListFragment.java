@@ -57,6 +57,8 @@ import monakhv.android.samlib.sql.SQLController;
 import monakhv.android.samlib.sql.entity.Author;
 import monakhv.android.samlib.tasks.MarkRead;
 
+import static monakhv.android.samlib.ActivityUtils.cleanItemSelection;
+import static monakhv.android.samlib.ActivityUtils.getClipboardText;
 import static monakhv.android.samlib.ActivityUtils.setDivider;
 import monakhv.android.samlib.dialogs.EnterStringDialog;
 import monakhv.android.samlib.dialogs.FilterSelectDialog;
@@ -268,12 +270,7 @@ public class AuthorListFragment  extends SherlockListFragment implements
         
     }
     
-     /**
-     * Option menu select items
-     *
-     * @param item
-     * @return
-     */
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int sel = item.getItemId();
@@ -308,24 +305,9 @@ public class AuthorListFragment  extends SherlockListFragment implements
 
             v.setVisibility(View.VISIBLE);
 
-            int sdk = android.os.Build.VERSION.SDK_INT;
             String txt = null;
             try {
-
-                if (sdk < android.os.Build.VERSION_CODES.HONEYCOMB) {
-                    android.text.ClipboardManager clipboard = (android.text.ClipboardManager) getActivity().getSystemService(Context.CLIPBOARD_SERVICE);
-                    if (clipboard != null) {
-                        txt = clipboard.getText().toString();
-                    }
-                } else {
-                    android.content.ClipboardManager clipboard = (android.content.ClipboardManager) getActivity().getSystemService(Context.CLIPBOARD_SERVICE);
-                    if (clipboard != null) {
-                        if (clipboard.hasPrimaryClip()) {
-                            txt = clipboard.getPrimaryClip().getItemAt(0).getText().toString();
-                        }
-                    }
-                }
-
+                txt = getClipboardText(getActivity());
             } catch (Exception ex) {
                 Log.e(DEBUG_TAG, "Clipboard Error!", ex);
             }
@@ -386,8 +368,7 @@ public class AuthorListFragment  extends SherlockListFragment implements
                         mCallbacks.onTitleChange(getActivity().getText(R.string.app_name).toString());                        
                         select = null;
                     } else {
-                        String tt = tg_name;
-                        mCallbacks.onTitleChange(tt);                        
+                        mCallbacks.onTitleChange(tg_name);
                     }
 
                     if (tag_id == SamLibConfig.TAG_AUTHOR_NEW) {
@@ -411,12 +392,8 @@ public class AuthorListFragment  extends SherlockListFragment implements
         view.setSelected(true);
         selected = view;
     }
-    public void cleanSelection(){        
-        if (selected != null){
-            selected.setSelected(false);
-            selected.setActivated(false);
-            selected.setFocusable(false);
-        }
+    public void cleanSelection(){
+        cleanItemSelection(selected);
         getListView().clearChoices();
         getListView().clearFocus();
     }
@@ -453,9 +430,8 @@ public class AuthorListFragment  extends SherlockListFragment implements
     
     public Loader<Cursor> onCreateLoader(int i, Bundle bundle) {
         Log.d(DEBUG_TAG,"order: "+order);
-        CursorLoader cursorLoader = new CursorLoader(getActivity(),
+        return new CursorLoader(getActivity(),
                 AuthorProvider.AUTHOR_URI, null, selection, null, order.getOrder());
-        return cursorLoader;
     }
     
     public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
@@ -510,7 +486,7 @@ public class AuthorListFragment  extends SherlockListFragment implements
     /**
      * Launch Browser to load Author home page
      *
-     * @param a
+     * @param a Author object
      */
     public void launchBrowser(Author a) {
         Uri uri = Uri.parse(a.getUrlForBrowser());
@@ -660,8 +636,8 @@ public class AuthorListFragment  extends SherlockListFragment implements
      /**
      * Create Alert Dialog to wrn about Author delete
      *
-     * @param filename
-     * @return
+     * @param authorName Name of the author
+     * @return Warning Author delete dialog
      */
     private Dialog createDeleteAuthorAlert(String authorName) {
         AlertDialog.Builder adb = new AlertDialog.Builder(getActivity());

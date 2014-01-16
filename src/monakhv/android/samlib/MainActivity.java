@@ -192,7 +192,7 @@ public class MainActivity extends SherlockFragmentActivity implements AuthorList
             return;
         }
 
-        onTitleChange(bundle.getString(STATE_TITLE, getString(R.string.app_name)));
+        onTitleChange(bundle.getString(STATE_TITLE));
         listHelper.refresh(bundle.getString(STATE_SELECTION), null);
         listHelper.restoreSelection(bundle.getInt(STATE_AUTHOR_POS));
         books.setAuthorId(listHelper.getSelectedAuthorId());
@@ -248,9 +248,9 @@ public class MainActivity extends SherlockFragmentActivity implements AuthorList
     /**
      * Return from ArchiveActivity or SearchActivity
      *
-     * @param requestCode
-     * @param resultCode
-     * @param data
+     * @param requestCode request code
+     * @param resultCode result code
+     * @param data Intent data
      */
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -276,7 +276,7 @@ public class MainActivity extends SherlockFragmentActivity implements AuthorList
     /**
      * Add new Author to SQL Store
      *
-     * @param view
+     * @param view View
      */
     public void addAuthor(View view) {
         EditText editText = (EditText) findViewById(R.id.addUrlText);
