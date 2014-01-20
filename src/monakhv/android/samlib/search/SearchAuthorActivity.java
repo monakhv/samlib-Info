@@ -21,8 +21,11 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.View;
+import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.actionbarsherlock.app.SherlockFragmentActivity;
@@ -52,6 +55,18 @@ public class SearchAuthorActivity extends SherlockFragmentActivity {
         super.onCreate(savedInstanceState);
         
         setContentView(R.layout.search_authors);
+        EditText editText = (EditText) findViewById(R.id.searchAuthorText_sa);
+        editText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                if (actionId == EditorInfo.IME_ACTION_SEARCH){
+                    searchAuthor(v);
+                    return true;
+                }
+                return false;
+            }
+        });
+
     }
     
     @Override
@@ -104,6 +119,12 @@ public class SearchAuthorActivity extends SherlockFragmentActivity {
     
     public void searchAuthor(@SuppressWarnings("UnusedParameters") View view) {
         EditText editText = (EditText) findViewById(R.id.searchAuthorText_sa);
+        if (editText == null){
+            return;
+        }
+        if (editText.getText() == null){
+            return;
+        }
         String text = editText.getText().toString();
         
         editText.setText("");

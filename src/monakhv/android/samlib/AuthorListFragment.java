@@ -35,9 +35,11 @@ import android.support.v4.widget.CursorAdapter;
 import android.support.v4.widget.SimpleCursorAdapter;
 import android.util.Log;
 import android.view.ContextMenu;
+import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.EditorInfo;
 import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -122,6 +124,7 @@ public class AuthorListFragment  extends SherlockListFragment implements
         public void onAuthorSelected(int id);
         public void onOpenPanel();
         public void onTitleChange(String lTitle);
+        public void addAuthorFromText();
     }
     private static Callbacks mCallbacks;
 
@@ -212,6 +215,17 @@ public class AuthorListFragment  extends SherlockListFragment implements
             }
         });
         setDivider(getListView());
+        EditText editText = (EditText) getActivity().findViewById(R.id.addUrlText);
+        editText.setOnEditorActionListener( new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                if (actionId == EditorInfo.IME_ACTION_SEARCH){
+                    mCallbacks.addAuthorFromText();
+                    return true;
+                }
+                return false;
+            }
+        });
     }
     public int getSelectedAuthorPosition(){
         return selectedAuthorPisition;

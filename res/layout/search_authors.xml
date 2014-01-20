@@ -33,6 +33,8 @@ limitations under the License.
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:hint="@string/author_name"
+            android:inputType="text"
+            android:imeOptions="actionSearch"
         />
         <Button
             android:id="@+id/searchAuthorBt_sa"

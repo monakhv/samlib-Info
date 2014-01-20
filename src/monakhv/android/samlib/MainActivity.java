@@ -280,7 +280,15 @@ public class MainActivity extends SherlockFragmentActivity implements AuthorList
      */
     @SuppressWarnings("UnusedParameters")
     public void addAuthor(View view) {
+
+        addAuthorFromText();
+
+    }
+
+    @Override
+    public void addAuthorFromText(){
         EditText editText = (EditText) findViewById(R.id.addUrlText);
+
         if (editText == null){
             return;
         }
@@ -288,8 +296,11 @@ public class MainActivity extends SherlockFragmentActivity implements AuthorList
             return;
         }
         String text = editText.getText().toString();
-        View v = findViewById(R.id.add_author_panel);
         editText.setText("");
+
+
+        View v = findViewById(R.id.add_author_panel);
+
         v.setVisibility(View.GONE);
         if (SamLibConfig.reduceUrl(text) != null) {
             AddAuthor aa = new AddAuthor(this.getApplicationContext());
