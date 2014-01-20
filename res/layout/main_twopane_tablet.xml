@@ -48,7 +48,7 @@ limitations under the License.
         <LinearLayout 
               android:id="@+id/pane1"
               android:orientation="vertical"
-              android:layout_width="wrap_content"
+              android:layout_width="300dp"
               android:layout_marginRight="16dp"
               android:layout_height="match_parent">
     

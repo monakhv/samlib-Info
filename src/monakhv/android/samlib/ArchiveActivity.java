@@ -29,6 +29,7 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.Toast;
 
 import com.actionbarsherlock.app.SherlockFragmentActivity;
+import com.actionbarsherlock.view.MenuItem;
 
 import monakhv.android.samlib.data.DataExportImport;
 
@@ -190,5 +191,13 @@ public class ArchiveActivity extends SherlockFragmentActivity {
         toast.show();
 
         
+    }
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int sel = item.getItemId();
+        if (sel == android.R.id.home ){
+            finish();
+        }
+        return super.onOptionsItemSelected(item);
     }
 }

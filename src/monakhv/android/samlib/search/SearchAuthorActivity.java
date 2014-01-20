@@ -88,6 +88,9 @@ public class SearchAuthorActivity extends SherlockFragmentActivity {
             flipPannel();
             
         }
+        if (sel == android.R.id.home ){
+            finish();
+        }
         return super.onOptionsItemSelected(item);
     }
     
@@ -99,7 +102,7 @@ public class SearchAuthorActivity extends SherlockFragmentActivity {
         }
     }
     
-    public void searchAuthor(View view) {
+    public void searchAuthor(@SuppressWarnings("UnusedParameters") View view) {
         EditText editText = (EditText) findViewById(R.id.searchAuthorText_sa);
         String text = editText.getText().toString();
         

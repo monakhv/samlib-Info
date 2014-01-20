@@ -172,9 +172,9 @@ public class AuthorListFragment  extends SherlockListFragment implements
             
             DefaultHeaderTransformer dht = (DefaultHeaderTransformer) mPullToRefreshLayout.getHeaderTransformer();
             updateTextView = (TextView) dht.getHeaderView().findViewById(R.id.ptr_text);
-//            dht.setPullText(getActivity().getText(R.string.pull_to_refresh_pull_label));
-//            dht.setReleaseText(getActivity().getText(R.string.pull_to_refresh_release_label));
-//            dht.setRefreshingText(getActivity().getText(R.string.pull_to_refresh_refreshing_label));
+            dht.setPullText(getActivity().getText(R.string.pull_to_refresh_pull_label));
+            dht.setReleaseText(getActivity().getText(R.string.pull_to_refresh_release_label));
+            dht.setRefreshingText(getActivity().getText(R.string.pull_to_refresh_refreshing_label));
           
     }
     private int selectedAuthorPisition=0;
