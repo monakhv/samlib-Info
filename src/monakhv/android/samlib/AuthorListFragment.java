@@ -178,9 +178,9 @@ public class AuthorListFragment  extends SherlockListFragment implements
             dht.setPullText(getActivity().getText(R.string.pull_to_refresh_pull_label));
             dht.setReleaseText(getActivity().getText(R.string.pull_to_refresh_release_label));
             dht.setRefreshingText(getActivity().getText(R.string.pull_to_refresh_refreshing_label));
-          
+
     }
-    private int selectedAuthorPisition=0;
+    private int selectedAuthorPosition =0;
     private void setEmptyText(int id){
         if (sql == null){
             return;
@@ -207,7 +207,7 @@ public class AuthorListFragment  extends SherlockListFragment implements
         getListView().setSelector(R.drawable.author_item_bg);
         getListView().setOnItemClickListener(new AdapterView.OnItemClickListener() {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                selectedAuthorPisition = position;
+                selectedAuthorPosition = position;
                 Cursor c = (Cursor) adapter.getItem(position);
                 mCallbacks.onAuthorSelected(c.getInt(c.getColumnIndex(SQLController.COL_ID)));
                 Log.i(DEBUG_TAG, "position: "+position+"  view: "+view.getId()+" --- "+View.NO_ID);                
@@ -228,22 +228,22 @@ public class AuthorListFragment  extends SherlockListFragment implements
         });
     }
     public int getSelectedAuthorPosition(){
-        return selectedAuthorPisition;
+        return selectedAuthorPosition;
     }
     public int getSelectedAuthorId() {
-        Cursor c = (Cursor) adapter.getItem(selectedAuthorPisition);
+        Cursor c = (Cursor) adapter.getItem(selectedAuthorPosition);
         if (c == null){
             return 0;
         }
         try {
             return c.getInt(c.getColumnIndex(SQLController.COL_ID));
         } catch (CursorIndexOutOfBoundsException ex) {
-            Log.e(DEBUG_TAG, "Cusror is out of bounds");
+            Log.e(DEBUG_TAG, "Cursor is out of bounds");
             return 0;
         }
     }
     public void restoreSelection(int position) {
-        selectedAuthorPisition = position;
+        selectedAuthorPosition = position;
         
        View v ;
        try {
@@ -310,7 +310,7 @@ public class AuthorListFragment  extends SherlockListFragment implements
             };
             sortDialog = new SingleChoiceSelectDialog(SortOrder.getTites(getActivity()), listener, this.getString(R.string.dialog_title_sort), getSortOrder().ordinal());
 
-            sortDialog.show(getActivity().getSupportFragmentManager(), "Dosrtdlg");
+            sortDialog.show(getActivity().getSupportFragmentManager(), "DoSortDialog");
         }
 
         if (sel == R.id.add_option_item) {
@@ -662,12 +662,12 @@ public class AuthorListFragment  extends SherlockListFragment implements
 
         adb.setMessage(msg);
         adb.setIcon(android.R.drawable.ic_dialog_alert);
-        adb.setPositiveButton(R.string.Yes, deleteAuthoristener);
-        adb.setNegativeButton(R.string.No, deleteAuthoristener);
+        adb.setPositiveButton(R.string.Yes, deleteAuthorListener);
+        adb.setNegativeButton(R.string.No, deleteAuthorListener);
         return adb.create();
 
     }
-    private final DialogInterface.OnClickListener deleteAuthoristener = new DialogInterface.OnClickListener() {
+    private final DialogInterface.OnClickListener deleteAuthorListener = new DialogInterface.OnClickListener() {
         public void onClick(DialogInterface dialog, int which) {
             switch (which) {
                 case Dialog.BUTTON_POSITIVE:
@@ -686,11 +686,11 @@ public class AuthorListFragment  extends SherlockListFragment implements
 
         DateUpdate(R.string.sort_update_date, SQLController.COL_mtime + " DESC"),
         AuthorName(R.string.sort_author_name, SQLController.COL_isnew + " DESC, " + SQLController.COL_NAME);
-        private final int iname;
+        private final int name;
         private final String order;
 
-        private SortOrder(int iname, String order) {
-            this.iname = iname;
+        private SortOrder(int name, String order) {
+            this.name = name;
             this.order = order;
         }
 
@@ -702,7 +702,7 @@ public class AuthorListFragment  extends SherlockListFragment implements
             String[] res = new String[values().length];
             int i = 0;
             for (SortOrder so : values()) {
-                res[i] = ctx.getString(so.iname);
+                res[i] = ctx.getString(so.name);
                 ++i;
             }
             return res;
