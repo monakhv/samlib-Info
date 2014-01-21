@@ -181,6 +181,9 @@ public class MainActivity extends SherlockFragmentActivity implements AuthorList
         else {
             onTitleChange(getString(R.string.app_name));          
         }
+        if (! pane.isSlideable()){
+            books.setHasOptionsMenu(true);
+        }
     }
 
     @Override

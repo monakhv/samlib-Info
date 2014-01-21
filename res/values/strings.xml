@@ -27,8 +27,9 @@ limitations under the License.
     <string name="dialog_title_file">Выбор файла</string>
     <string name="dialog_title_edit_author">Имя автора</string>    
     
-    <string name="dialog_title_sort">Сортировка</string>    
-    
+    <string name="dialog_title_sort_author">Сортировка Авторов</string>
+    <string name="dialog_title_sort_book">Сортировка Книг</string>
+
     <string name="button_add">Искать/Добавить</string>
     <string name="button_addonly">Добавить</string>
     <string name="button_search">Искать</string>
@@ -51,11 +52,14 @@ limitations under the License.
     <string name="menu_deselected">Исключить из избранного</string>
     <string name="menu_selected_go">Избранные книги</string>
     <string name="menu_reload">Перезагрузить</string>
-  
-  
+
+
+
     <string name="sort_update_date">По времени обновления</string>
     <string name="sort_author_name">По имени автора</string>
-    
+    <string name="sort_book_mtime">По времени обновления</string>
+    <string name="sort_book_title">По названию книги</string>
+    <string name="sort_book_date">По дате</string>
     
     <string name="filter_new">Только новые</string>
     <string name="filter_all">Все</string>

@@ -17,6 +17,7 @@ package monakhv.android.samlib;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
@@ -29,17 +30,23 @@ import android.support.v4.widget.SimpleCursorAdapter;
 import android.text.Html;
 import android.util.Log;
 import android.view.ContextMenu;
-import android.view.MenuItem;
+
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ImageView;
 import android.widget.TextView;
 import com.actionbarsherlock.app.SherlockListFragment;
+import com.actionbarsherlock.view.Menu;
+import com.actionbarsherlock.view.MenuInflater;
+import com.actionbarsherlock.view.MenuItem;
+
+
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import static monakhv.android.samlib.ActivityUtils.setDivider;
 import monakhv.android.samlib.data.SettingsHelper;
+import monakhv.android.samlib.dialogs.SingleChoiceSelectDialog;
 import monakhv.android.samlib.service.DownloadBookServiceIntent;
 import monakhv.android.samlib.sql.AuthorController;
 import monakhv.android.samlib.sql.AuthorProvider;
@@ -82,7 +89,7 @@ public class BookListFragment extends SherlockListFragment implements
         else {
             author_id = getActivity().getIntent().getExtras().getInt(AUTHOR_ID);
         }
-        
+        order = SortOrder.DateUpdate;
         
         getLoaderManager().initLoader(BOOK_LIST_LOADER, null, this);
         sql = new AuthorController(getActivity());
@@ -190,7 +197,7 @@ public class BookListFragment extends SherlockListFragment implements
     }
 
     @Override
-    public boolean onContextItemSelected(MenuItem item) {
+    public boolean onContextItemSelected(   android.view.MenuItem item) {
         settings.log("MARK_READ", "BookListFragment:   onContextItemSelected  item id: " +item.getItemId());
         BookController bookSQL = sql.getBookController();
 
@@ -229,8 +236,9 @@ public class BookListFragment extends SherlockListFragment implements
         }
 
 
+        // SQLController.COL_BOOK_MTIME + " DESC")
         return new CursorLoader(getActivity(),
-                AuthorProvider.BOOKS_URI, null, selection, null, SQLController.COL_BOOK_MTIME + " DESC");
+                AuthorProvider.BOOKS_URI, null, selection, null, order.getOrder());
 
     }
 
@@ -243,13 +251,47 @@ public class BookListFragment extends SherlockListFragment implements
         adapter.swapCursor(null);
 
     }
+    private int id_menu_sort=31;
+    private SingleChoiceSelectDialog sortDialog;
+    private SortOrder order;
+
+    public void onCreateOptionsMenu(Menu menu,MenuInflater menuInflater) {
+
+        menu.add(100, id_menu_sort, 100, getString(R.string.menu_sort));
+        menu.findItem(id_menu_sort).setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
+        menu.findItem(id_menu_sort).setIcon(R.drawable.collections_sort_by_size);
+        super.onCreateOptionsMenu(menu,menuInflater );
+
+    }
     @Override
     public boolean onOptionsItemSelected(com.actionbarsherlock.view.MenuItem item) {
         int sel = item.getItemId();
         if (sel == android.R.id.home ){
             mCallbacks.onOpenPanel();
         }
+        if (sel == id_menu_sort){
+            AdapterView.OnItemClickListener listener = new AdapterView.OnItemClickListener() {
+                @Override
+                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                    SortOrder so = SortOrder.values()[position];
+                    setSortOrder(so);
+                    sortDialog.dismiss();
+
+                }
+            };
+            sortDialog = new SingleChoiceSelectDialog(SortOrder.getTitles(getActivity()),listener,this.getString(R.string.dialog_title_sort_book),getSortOrder().ordinal());
+            sortDialog.show(getActivity().getSupportFragmentManager(), "DoBookSortDialog");
+
+        }
         return super.onOptionsItemSelected(item);
+    }
+
+    private void setSortOrder(SortOrder so) {
+        order=so;
+        getLoaderManager().restartLoader(BOOK_LIST_LOADER,null,this);
+    }
+    public SortOrder getSortOrder(){
+        return order;
     }
 
     /**
@@ -459,6 +501,35 @@ public class BookListFragment extends SherlockListFragment implements
                 
             }
             return false;
+        }
+    }
+
+    private enum SortOrder {
+
+        DateUpdate(R.string.sort_book_mtime, SQLController.COL_BOOK_MTIME + " DESC"),
+        BookName(R.string.sort_book_title, SQLController.COL_BOOK_ISNEW + " DESC, " + SQLController.COL_BOOK_TITLE),
+        BookDate(R.string.sort_book_date, SQLController.COL_BOOK_ISNEW + " DESC, " + SQLController.COL_BOOK_DATE+" DESC");
+
+        private final int name;
+        private final String order;
+
+        private SortOrder(int name, String order) {
+            this.name = name;
+            this.order = order;
+        }
+
+        public String getOrder(){
+            return order;
+        }
+
+        public static String[] getTitles(Context ctx) {
+            String[] res = new String[values().length];
+            int i = 0;
+            for (SortOrder so : values()) {
+                res[i] = ctx.getString(so.name);
+                ++i;
+            }
+            return res;
         }
     }
 }

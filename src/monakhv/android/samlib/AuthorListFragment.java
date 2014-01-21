@@ -46,7 +46,6 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.app.SherlockListFragment;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
@@ -314,7 +313,7 @@ public class AuthorListFragment  extends SherlockListFragment implements
                 }
 
             };
-            sortDialog = new SingleChoiceSelectDialog(SortOrder.getTites(getActivity()), listener, this.getString(R.string.dialog_title_sort), getSortOrder().ordinal());
+            sortDialog = new SingleChoiceSelectDialog(SortOrder.getTitles(getActivity()), listener, this.getString(R.string.dialog_title_sort_author), getSortOrder().ordinal());
 
             sortDialog.show(getActivity().getSupportFragmentManager(), "DoSortDialog");
         }
@@ -704,7 +703,7 @@ public class AuthorListFragment  extends SherlockListFragment implements
             return order;
         }
 
-        public static String[] getTites(Context ctx) {
+        public static String[] getTitles(Context ctx) {
             String[] res = new String[values().length];
             int i = 0;
             for (SortOrder so : values()) {
