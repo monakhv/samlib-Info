@@ -130,7 +130,7 @@ public class MainActivity extends SherlockFragmentActivity implements AuthorList
     private static final String STATE_SELECTION = "STATE_SELECTION";
     private static final String STATE_AUTHOR_POS = "STATE_AUTHOR_ID";
     private static final String STATE_TITLE = "STATE_TITLE";
-    public static String CLEAN_NOTIFICATION = "CLEAN_NOTIFICATION";
+    public static final  String CLEAN_NOTIFICATION = "CLEAN_NOTIFICATION";
     public static final int ARCHIVE_ACTIVITY = 1;
     public static final int SEARCH_ACTIVITY  = 2;
     //AddAuthorDialog addAuthorDilog;
@@ -174,7 +174,7 @@ public class MainActivity extends SherlockFragmentActivity implements AuthorList
 
         Log.d(DEBUG_TAG, "Fading color: " + pane.getSliderFadeColor());
         isOpen = true;
-        //use here bumdle but not icicle !!
+        //use here bundle but not icicle !!
         if (bundle != null) {
             onRestoreInstanceState(bundle);
         }
