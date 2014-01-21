@@ -70,6 +70,12 @@ public class MainActivity extends SherlockFragmentActivity implements AuthorList
         Log.d(DEBUG_TAG, "set title: "+lTitle);
         title = lTitle;
         getSupportActionBar().setTitle(title);
+        if (listHelper.getSelection() == null){
+            getSupportActionBar().setDisplayOptions(0, ActionBar.DISPLAY_HOME_AS_UP);
+        }
+        else {
+            getSupportActionBar().setDisplayOptions(ActionBar.DISPLAY_HOME_AS_UP, ActionBar.DISPLAY_HOME_AS_UP);
+        }
     }
 
     public void onPanelSlide(View view, float f) {
@@ -78,12 +84,13 @@ public class MainActivity extends SherlockFragmentActivity implements AuthorList
 
     public void onPanelOpened(View view) {
         Log.d(DEBUG_TAG, "panel is opened");
-        getSupportActionBar().setTitle(title);
+        onTitleChange(title);
         isOpen = true;
         invalidateOptionsMenu();
         listHelper.setHasOptionsMenu(true);
         books.setHasOptionsMenu(false);
-        getSupportActionBar().setDisplayOptions(0, ActionBar.DISPLAY_HOME_AS_UP);
+
+
     }
 
     public void onPanelClosed(View view) {
@@ -224,8 +231,8 @@ public class MainActivity extends SherlockFragmentActivity implements AuthorList
                 return true;
             }
             if (listHelper.getSelection() != null) {
-                onTitleChange( getString(R.string.app_name) );
                 listHelper.refresh(null, null);
+                onTitleChange(getString(R.string.app_name));
             } else {
                 finish();
             }

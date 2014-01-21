@@ -45,6 +45,8 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
+
+import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.app.SherlockListFragment;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
@@ -288,7 +290,11 @@ public class AuthorListFragment  extends SherlockListFragment implements
     public boolean onOptionsItemSelected(MenuItem item) {
         int sel = item.getItemId();
         if (sel == android.R.id.home ){
-            mCallbacks.onOpenPanel();
+            //mCallbacks.onOpenPanel();
+            if (getSelection() != null) {
+                refresh(null, null);
+                mCallbacks.onTitleChange(getString(R.string.app_name));
+            }
         }
 
         if (sel == R.id.menu_refresh) {
@@ -376,20 +382,20 @@ public class AuthorListFragment  extends SherlockListFragment implements
                     String tg_name = extendedCursor.getString(extendedCursor.getColumnIndex(SQLController.COL_TAG_NAME));
                     filterDialog.dismiss();
 
-                    String select = SQLController.TABLE_TAGS + "." + SQLController.COL_ID + "=" + tag_id;
+                    selection = SQLController.TABLE_TAGS + "." + SQLController.COL_ID + "=" + tag_id;
 
                     if (tag_id == SamLibConfig.TAG_AUTHOR_ALL) {
-                        mCallbacks.onTitleChange(getActivity().getText(R.string.app_name).toString());                        
-                        select = null;
+                        selection = null;
+                        mCallbacks.onTitleChange(getActivity().getText(R.string.app_name).toString());
                     } else {
                         mCallbacks.onTitleChange(tg_name);
                     }
 
                     if (tag_id == SamLibConfig.TAG_AUTHOR_NEW) {
-                        select = SQLController.TABLE_AUTHOR + "." + SQLController.COL_isnew + "=1";
+                        selection = SQLController.TABLE_AUTHOR + "." + SQLController.COL_isnew + "=1";
                     }
-                    Log.i(DEBUG_TAG, "WHERE " + select);
-                    refresh(select, null);
+                    Log.i(DEBUG_TAG, "WHERE " + selection);
+                    refresh(selection, null);
                     mCallbacks.onAuthorSelected(0);
                 }
             };
