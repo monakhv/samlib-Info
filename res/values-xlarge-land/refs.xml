@@ -18,4 +18,5 @@ limitations under the License.
 
 <resources>
     <item name="main_twopane" type="layout">@layout/main_twopane_tablet</item>
+    <item name="options_menu" type="menu">@menu/options_menu_tablet</item>
 </resources>

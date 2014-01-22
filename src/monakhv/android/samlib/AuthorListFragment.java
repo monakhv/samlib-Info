@@ -123,7 +123,7 @@ public class AuthorListFragment  extends SherlockListFragment implements
     }
     public interface Callbacks {
         public void onAuthorSelected(int id);
-        public void onOpenPanel();
+        public void selectBookSortOrder();
         public void onTitleChange(String lTitle);
         public void addAuthorFromText();
     }
@@ -301,6 +301,9 @@ public class AuthorListFragment  extends SherlockListFragment implements
 
         }
 
+        if (sel == R.id.sort_option_item_books){
+            mCallbacks.selectBookSortOrder();
+        }
         if (sel == R.id.sort_option_item) {
            
             AdapterView.OnItemClickListener listener = new AdapterView.OnItemClickListener() {
@@ -406,23 +409,39 @@ public class AuthorListFragment  extends SherlockListFragment implements
 
     }
 
-
+    /**
+     * Make view <b>selected<b/> and store it in the field
+     * @param view the view to select
+     */
     public void selectView(View view) {
         view.setSelected(true);
         selected = view;
     }
+
+    /**
+     * Clean selection for selected view
+     */
     public void cleanSelection(){
         cleanItemSelection(selected);
         getListView().clearChoices();
         getListView().clearFocus();
     }
-    
+
+    /**
+     * set sort order and restart loader to make is  actual
+     * @param so new sort order
+     */
     public void setSortOrder(SortOrder so){
         cleanSelection();
         order =so;
         getLoaderManager().restartLoader(AUTHOR_LIST_LOADER, null, this);
     }
-    
+
+    /**
+     * update sort order and selection parameters and restart loader
+     * @param selection selection string
+     * @param so sort order string
+     */
     public void refresh(String selection, SortOrder so) {
         Log.d(DEBUG_TAG, "set Selection: "+selection);
         cleanSelection();

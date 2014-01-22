@@ -270,20 +270,28 @@ public class BookListFragment extends SherlockListFragment implements
             mCallbacks.onOpenPanel();
         }
         if (sel == id_menu_sort){
-            AdapterView.OnItemClickListener listener = new AdapterView.OnItemClickListener() {
-                @Override
-                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                    SortOrder so = SortOrder.values()[position];
-                    setSortOrder(so);
-                    sortDialog.dismiss();
-
-                }
-            };
-            sortDialog = new SingleChoiceSelectDialog(SortOrder.getTitles(getActivity()),listener,this.getString(R.string.dialog_title_sort_book),getSortOrder().ordinal());
-            sortDialog.show(getActivity().getSupportFragmentManager(), "DoBookSortDialog");
+            selectSortOrder();
 
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    /**
+     * Show Dialog to select sort order for Book list
+     *
+     */
+    public void selectSortOrder(){
+        AdapterView.OnItemClickListener listener = new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                SortOrder so = SortOrder.values()[position];
+                setSortOrder(so);
+                sortDialog.dismiss();
+
+            }
+        };
+        sortDialog = new SingleChoiceSelectDialog(SortOrder.getTitles(getActivity()),listener,this.getString(R.string.dialog_title_sort_book),getSortOrder().ordinal());
+        sortDialog.show(getActivity().getSupportFragmentManager(), "DoBookSortDialog");
     }
 
     private void setSortOrder(SortOrder so) {

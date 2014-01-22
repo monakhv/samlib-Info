@@ -25,6 +25,7 @@ import android.support.v4.widget.SlidingPaneLayout;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.KeyEvent;
+
 import android.view.View;
 
 import android.widget.EditText;
@@ -49,6 +50,23 @@ public class MainActivity extends SherlockFragmentActivity implements AuthorList
     private SlidingPaneLayout pane;
     private Handler handler;
     private static final int TIME_BEFORE_CLOSE_MILLI=100;
+    private static final int TIME_BEFORE_OPEN_MILLI=100;
+    private static final String DEBUG_TAG = "MainActivity";
+    private static final String STATE_SELECTION = "STATE_SELECTION";
+    private static final String STATE_AUTHOR_POS = "STATE_AUTHOR_ID";
+    private static final String STATE_TITLE = "STATE_TITLE";
+    public static final  String CLEAN_NOTIFICATION = "CLEAN_NOTIFICATION";
+    public static final int ARCHIVE_ACTIVITY = 1;
+    public static final int SEARCH_ACTIVITY  = 2;
+    //AddAuthorDialog addAuthorDialog;
+    private UpdateActivityReceiver updateReceiver;
+    private DownloadReceiver downloadReceiver;
+    private AuthorListFragment listHelper;
+
+    private BookListFragment books = null;
+    private boolean isOpen = true;
+
+    private String title;
 
     /**
      * Callback When select author in AuthorListFragment
@@ -58,7 +76,8 @@ public class MainActivity extends SherlockFragmentActivity implements AuthorList
             books.setAuthorId(id);
             if (pane.isSlideable() && id != 0){
                 handler.postDelayed(new Runnable() {
-                    public void run() {                        
+                    public void run() {
+                        Log.d(DEBUG_TAG, "delay close");
                         pane.closePane();
                     }
                 },TIME_BEFORE_CLOSE_MILLI);
@@ -66,6 +85,12 @@ public class MainActivity extends SherlockFragmentActivity implements AuthorList
         //pane.closePane();
         
     }
+
+    @Override
+    public void selectBookSortOrder() {
+        books.selectSortOrder();
+    }
+
     public void onTitleChange(String lTitle){
         Log.d(DEBUG_TAG, "set title: "+lTitle);
         title = lTitle;
@@ -79,10 +104,13 @@ public class MainActivity extends SherlockFragmentActivity implements AuthorList
     }
 
     public void onPanelSlide(View view, float f) {
-
+        //Log.d(DEBUG_TAG, "panel is sliding");
     }
 
     public void onPanelOpened(View view) {
+        if (view.getId() != R.id.pane2){
+            return;
+        }
         Log.d(DEBUG_TAG, "panel is opened");
         onTitleChange(title);
         isOpen = true;
@@ -94,6 +122,9 @@ public class MainActivity extends SherlockFragmentActivity implements AuthorList
     }
 
     public void onPanelClosed(View view) {
+        if (view.getId() != R.id.pane2){
+            return;
+        }
         isOpen = false;
         invalidateOptionsMenu();
         listHelper.setHasOptionsMenu(false);
@@ -123,25 +154,10 @@ public class MainActivity extends SherlockFragmentActivity implements AuthorList
 
     public void cleanAuthorSelection() {
         listHelper.cleanSelection();
-        //books.setAuthorId(0);
+
     }
 
-    private static final String DEBUG_TAG = "MainActivity";
-    private static final String STATE_SELECTION = "STATE_SELECTION";
-    private static final String STATE_AUTHOR_POS = "STATE_AUTHOR_ID";
-    private static final String STATE_TITLE = "STATE_TITLE";
-    public static final  String CLEAN_NOTIFICATION = "CLEAN_NOTIFICATION";
-    public static final int ARCHIVE_ACTIVITY = 1;
-    public static final int SEARCH_ACTIVITY  = 2;
-    //AddAuthorDialog addAuthorDilog;
-    private UpdateActivityReceiver updateReceiver;
-    private DownloadReceiver downloadReceiver;
-    private AuthorListFragment listHelper;
 
-    private BookListFragment books = null;
-    private boolean isOpen = true;
-
-    private String title;
 
     @Override
     public void onCreate(Bundle icicle) {
@@ -162,27 +178,59 @@ public class MainActivity extends SherlockFragmentActivity implements AuthorList
         handler = new Handler();
         
         SettingsHelper.addAuthenticator(this.getApplicationContext());
-        //getActionBarHelper().setRefreshActionItemState(refreshStatus);
+
         books = (BookListFragment) getSupportFragmentManager().findFragmentById(R.id.listBooksFragment);
         listHelper = (AuthorListFragment) getSupportFragmentManager().findFragmentById(R.id.listAuthirFragment);
-        listHelper.setHasOptionsMenu(true);
+
         pane = (SlidingPaneLayout) findViewById(R.id.pane);
         pane.setPanelSlideListener(this);
         pane.setParallaxDistance(10);
 
+        listHelper.setHasOptionsMenu(true);
         ActivityUtils.setShadow(pane);
 
-        Log.d(DEBUG_TAG, "Fading color: " + pane.getSliderFadeColor());
+
         isOpen = true;
         //use here bundle but not icicle !!
         if (bundle != null) {
+            Log.i(DEBUG_TAG, "Restore state");
             onRestoreInstanceState(bundle);
         }
         else {
-            onTitleChange(getString(R.string.app_name));          
+            Log.i(DEBUG_TAG, "Make initial state");
+            onTitleChange(getString(R.string.app_name));
         }
-        if (! pane.isSlideable()){
-            books.setHasOptionsMenu(true);
+        //Ugly hack to make sure open pan on application startup
+        handler.postDelayed(new Runnable() {
+            public void run() {
+                Log.d(DEBUG_TAG, "delay open");
+                logPaneDetails();
+                pane.openPane();
+            }
+        },TIME_BEFORE_OPEN_MILLI);
+
+    }
+
+    /**
+     * Log some information about pane properties
+     */
+    private void  logPaneDetails(){
+        if (pane == null){
+            Log.e(DEBUG_TAG,"pane is NULL");
+            return;
+        }
+        if (pane.isOpen()){
+            Log.i(DEBUG_TAG,"pane is open");
+        }
+        else{
+            Log.i(DEBUG_TAG,"pane is closed");
+        }
+
+        if (pane.isSlideable()){
+            Log.i(DEBUG_TAG,"pane can slide");
+        }
+        else {
+            Log.i(DEBUG_TAG,"pane can not slide");
         }
     }
 
@@ -201,6 +249,7 @@ public class MainActivity extends SherlockFragmentActivity implements AuthorList
         if (bundle == null) {
             return;
         }
+        Log.i(DEBUG_TAG,"onRestoreInstanceState");
 
         onTitleChange(bundle.getString(STATE_TITLE));
         listHelper.refresh(bundle.getString(STATE_SELECTION), null);

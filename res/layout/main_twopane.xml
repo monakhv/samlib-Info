@@ -46,6 +46,8 @@ limitations under the License.
                                              android:id="@+id/pane"
                                              android:layout_width="match_parent"
                                              android:layout_height="match_parent"
+                                             android:clipChildren="false"
+                                             android:clipToPadding="false"
     >
         <LinearLayout 
               android:id="@+id/pane1"
