@@ -359,12 +359,14 @@ public class MainActivity extends SherlockFragmentActivity implements AuthorList
 
 
         View v = findViewById(R.id.add_author_panel);
-
         v.setVisibility(View.GONE);
-        if (SamLibConfig.reduceUrl(text) != null) {
+
+        String url = SamLibConfig.getParsedUrl(text);
+        if (url != null){
             AddAuthor aa = new AddAuthor(this.getApplicationContext());
-            aa.execute(text);
-        } else {
+            aa.execute(url);
+        }
+       else {
             if (TextUtils.isEmpty(text)) {
                 return;
             }

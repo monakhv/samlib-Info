@@ -66,8 +66,8 @@ public class DataExportImport {
      * Setting file to store book content 
      * making parent directories if need
      * 
-     * @param book
-     * @return 
+     * @param book Book object to get File for
+     * @return  File object to sore book to
      */
     public static File _getBookFile(Book book){
                 
@@ -75,8 +75,8 @@ public class DataExportImport {
         
         File ss = new File(backupDIR, ff);
         File pp = ss.getParentFile();
-        pp.mkdirs();
-        //Log.d(DEBUG_TAG, "Path: "+ss.getAbsolutePath());
+        boolean res =pp.mkdirs();
+        Log.d(DEBUG_TAG, "Path: " + pp.getAbsolutePath() + " result is: " + res);
         return ss;
     }
     public static void findDeleteBookFile(SettingsHelper settings) {
@@ -135,13 +135,14 @@ public class DataExportImport {
     /**
      * Copy list of author's URLs to file and return the file name
      *
-     * @param applicationContext
-     * @return
+     * @param applicationContext Context
+     * @return File Name where the list of urls is stored
      */
     public static String exportAuthorList(Context applicationContext) {
         String backupTxtPath = null;
         try {
-            backupDIR.mkdir();
+            @SuppressWarnings("UnusedDeclaration")
+            boolean mkdir = backupDIR.mkdir();
             if (backupDIR.canWrite()) {
                 backupTxtPath = TXT_PREFIX + "_" + getTimesuffix() + TXT_EXT;
                 File backupTxt = new File(backupDIR, backupTxtPath);
@@ -173,12 +174,14 @@ public class DataExportImport {
     /**
      * Scan directory and return all files can be used to import DB from
      *
-     * @param context
+     * @param context Context
      * @return arrays of file names
      */
+    @SuppressWarnings("UnusedParameters")
     public static String[] getFilesToImportDB(Context context) {
         List<String> files = new ArrayList<String>();
-        backupDIR.mkdir();
+        @SuppressWarnings("UnusedDeclaration")
+        boolean re = backupDIR.mkdir();
         for (String file : backupDIR.list()) {
             if (file.startsWith(DB_PREFIX) && file.endsWith(DB_EXT)) {
                 files.add(file);
@@ -189,9 +192,11 @@ public class DataExportImport {
         return files.toArray(res);
     }
 
+    @SuppressWarnings("UnusedParameters")
     public static String[] getFilesToImportTxt(Context context) {
         List<String> files = new ArrayList<String>();
-        backupDIR.mkdir();
+        @SuppressWarnings("UnusedDeclaration")
+          boolean re = backupDIR.mkdir();
         for (String file : backupDIR.list()) {
             if  (file.endsWith(TXT_EXT)   ||     file.endsWith(HTM_EXT)|| file.endsWith(HTML_EXT)   ) {
                 files.add(file);
@@ -205,12 +210,12 @@ public class DataExportImport {
     /**
      * Just copy file <b>src</b> to file <b>dst</b>
      *
-     * @param srcFile
-     * @param dstFile
-     * @throws FileNotFoundException
+     * @param srcFile source file
+     * @param dstFile target file
+     *
      * @throws IOException
      */
-    private static void fileCopy(File srcFile, File dstFile) throws FileNotFoundException, IOException {
+    private static void fileCopy(File srcFile, File dstFile) throws  IOException {
         if (srcFile.exists()) {
             FileChannel src = new FileInputStream(srcFile).getChannel();
             FileChannel dst = new FileOutputStream(dstFile).getChannel();
@@ -224,9 +229,9 @@ public class DataExportImport {
     /**
      * Replace working DB by DM from backup
      *
-     * @param context
+     * @param context Context
      * @param fileToImport backup db used to import from
-     * @return
+     * @return true if success
      */
     public static boolean importDB(Context context, String fileToImport) {
         File currentDB = context.getDatabasePath(DB_PREFIX);

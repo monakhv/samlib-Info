@@ -335,7 +335,7 @@ public class AuthorListFragment  extends SherlockListFragment implements
 
             if (txt != null) {
 
-                if (SamLibConfig.testFullUrl(txt)) {
+                if (SamLibConfig.getParsedUrl(txt) != null) {
                     EditText editText = (EditText) getActivity().findViewById(R.id.addUrlText);
                     editText.setText(txt);
                 }

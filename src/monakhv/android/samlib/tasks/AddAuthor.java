@@ -137,9 +137,8 @@ public class AddAuthor extends AsyncTask<String, Void, Boolean> {
      */
     private String testURL(String url)   {
         Log.d(DEBUG_TAG, "Got text: " + url);
-        String text = url;
-       
-        return SamLibConfig.reduceUrl(text);
+
+        return SamLibConfig.reduceUrl(url);
 
     }
 }

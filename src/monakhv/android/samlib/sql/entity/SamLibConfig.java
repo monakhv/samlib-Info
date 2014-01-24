@@ -15,6 +15,8 @@
  */
 package monakhv.android.samlib.sql.entity;
 
+import android.util.Log;
+
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -90,14 +92,14 @@ public class SamLibConfig {
     }
         
     private static SamLibConfig instance = null;
-    private boolean order = true;//samlib is the first budclub is the second one
+
     private final LinkedList<SamIzdat> linkedSZ;
     
     
     public static SamLibConfig getInstance(){
         if (instance == null){
             instance = new SamLibConfig();
-            instance.order=true;
+
         }        
         return instance;
     }
@@ -106,18 +108,19 @@ public class SamLibConfig {
     private SamLibConfig(){
         linkedSZ = new LinkedList<SamIzdat>();
         linkedSZ.addAll(Arrays.asList(URLs));
-        order = true;
+
     }
+
+    /**
+     * Change order of the elements in the LinkedList the first element goes to the end of list
+     */
     public void flipOrder(){
-        order = !order;
+        SamIzdat  theFirst = linkedSZ.poll();
+        linkedSZ.add(theFirst);
     }
     private Iterator<SamIzdat> getIterator(){
-        if (order){
-            return linkedSZ.listIterator();
-        }
-        else {
-            return linkedSZ.descendingIterator();
-        }
+        return linkedSZ.listIterator();
+
     }
     /**
      * Small Internal class to store Samizdat mirrors data
@@ -133,6 +136,9 @@ public class SamLibConfig {
             this.name = name;
             pattern=Pattern.compile(".*("+url+"/\\w/\\w+)($|\\b)");
         }
+        public String getName(){
+            return name;
+        }
         public Pattern getSearchPattern(){
             return pattern;
         }
@@ -140,8 +146,8 @@ public class SamLibConfig {
         /**
          * Test whether URL has a form http://<url>/q/qqqq_qq_q/
          *
-         * @param txt
-         * @return
+         * @param txt url to test
+         * @return true id the success
          */
         private boolean testFullUrl(String txt) {
             //All URL must be closed by /
@@ -155,8 +161,8 @@ public class SamLibConfig {
 
         /**
          * Construct URL to get Author data
-         * @param uu
-         * @return 
+         * @param uu reduced author URL
+         * @return  URL used to get author data from the site
          */
         private String getAuthorRequestURL(String uu) {
             return url + REQUEST_AUTHOR_DATA +uu;
@@ -164,8 +170,8 @@ public class SamLibConfig {
         }
         /**
          * Construct URL to download the book
-         * @param uu
-         * @return 
+         * @param uu book url
+         * @return  URL to download the book
          */
         private String getBookURL(String uu){
             return url+REQUEST_BOOK_TEXT+uu;
@@ -173,9 +179,9 @@ public class SamLibConfig {
         /**
          * Construct URL to search Author
          * 
-         * @param pattern
-         * @param page
-         * @return 
+         * @param pattern string pattern to search
+         * @param page number of page
+         * @return  URL to make search
          */
         private String getSearchAuthorURL(String pattern,int page){
             //Log.i(DEBUG_TAG, "Got pattern: "+pattern);
@@ -198,7 +204,7 @@ public class SamLibConfig {
          * Construct URL to open the book in WEB browser
          * 
          * @param book the Book object to open
-         * @return 
+         * @return  URL to open the book in browser
          */
         public static String getBookUrlForBrowser(Book book){
             SamLibConfig slc=SamLibConfig.getInstance();
@@ -207,8 +213,8 @@ public class SamLibConfig {
         /**
          * Construct URL to open the book in WEB browser and to store bookmark list
          * 
-         * @param author
-         * @return 
+         * @param author Author object
+         * @return URL to open author page in browser
          */
         public static String getAuthorUrlForBrowser(Author author){
             SamLibConfig slc=SamLibConfig.getInstance();
@@ -219,9 +225,10 @@ public class SamLibConfig {
      * Test whether URL has a form http://<url>/w/www_w_w/ Must be ended by /
      * Must be begin with one of the valid URL
      *
-     * @param txt
-     * @return
+     * @param txt url to make test
+     * @return true if success
      */
+    /*
     public static boolean testFullUrl(String txt) {
         for (SamIzdat sz : URLs) {           
             if (sz.testFullUrl(txt)) {
@@ -231,9 +238,31 @@ public class SamLibConfig {
 
         return false;
     }
-
+*/
+    /**
+     * Make parsed URL use for import bookmarks data into Database
+     *
+     *  See examples
+     *  <PRE>
+     *      Found Good SSN: http://samlib.ru/a/ab  --  http://samlib.ru/a/ab
+     *      Found Good SSN: http://samlib.ru/a/ab/  --  http://samlib.ru/a/ab
+     *      Found Good SSN: http://samlib.ru/a/ab/qwqwqwqw.html  --  http://samlib.ru/a/ab
+     *      Found Good SSN: href = http://samlib.ru/a/ab  --  http://samlib.ru/a/ab
+     *      Found Bad SSN: aaaa href = sdsds
+     *      Found Bad SSN: /a/asasa_q
+     *      Found Bad SSN: /a/asasa_q/
+     *      Found Bad SSN: /a/asasa_q_e/
+     *      Found Bad SSN: /asasas
+     *      Found Bad SSN: /asasas/asasas/
+     *      Found Good SSN: ><A HREF="http://samlib.ru/a/abwow_a_s/"  --  http://samlib.ru/a/abwow_a_s
+     *  </PRE>
+     *
+     *
+     * @param str  String to parse
+     * @return parsed URL or null if Can not be parsed
+     */
     public static String getParsedUrl(String str){
-        String res = null;
+        String res ;
         for (SamIzdat sz : URLs) {       
             Matcher m = sz.getSearchPattern().matcher(str);
             if (m.find()){
@@ -242,13 +271,13 @@ public class SamLibConfig {
             }
         }
         
-        return res;
+        return null;
     }
     /**
      * Take URL check syntax
      *
-     * @param str reduced URL or NULL if the syntax is wrong
-     * @return
+     * @param str full URL String
+     * @return reduced URL or NULL if the syntax is wrong
      */
     public static String reduceUrl(String str) {
          //All URL must be closed by /
@@ -296,9 +325,9 @@ public class SamLibConfig {
     }
     /**
      * Return the list of request URLs to search authors
-     * @param pattern
+     * @param pattern search pattern
      * @param page number of page
-     * @return 
+     * @return List of URL to make search
      */
     public List<String> getSearchAuthorURL(String pattern,int page){
         List<String> res = new ArrayList<String>();
@@ -311,8 +340,8 @@ public class SamLibConfig {
 
     /**
      * Get book url to download html content
-     * @param b
-     * @return 
+     * @param b Book object
+     * @return  List of URLs
      */
     public List<String> getBookUrl(Book b) {
         List<String> res = new ArrayList<String>();
@@ -327,7 +356,9 @@ public class SamLibConfig {
     public static void transformBook(File orig) throws IOException {
         File tmp = new File(orig.getAbsoluteFile() + ".tmp");
 
-        orig.renameTo(tmp);
+        if (! orig.renameTo(tmp)){
+            Log.e(DEBUG_TAG,"Error to rename file to tmp");
+        }
 
         BufferedWriter bw = new BufferedWriter(new FileWriter(orig));
         BufferedReader br = new BufferedReader(new FileReader(tmp));
@@ -354,7 +385,11 @@ public class SamLibConfig {
         bw.close();
         br.close();
 
-        tmp.delete();
+       if (!  tmp.delete()){
+           Log.e(DEBUG_TAG,"Error to delete tmp file");
+       }
+
+
     }
     public static int testSplit(String str) {
         String[] arr = str.split(SamLibConfig.SPLIT);
