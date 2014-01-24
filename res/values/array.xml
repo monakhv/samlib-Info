@@ -71,5 +71,18 @@ limitations under the License.
         <item>По времени обновления</item>
         <item>По имени автора</item>        
     </string-array>
+
+    <string-array name="sortBookValues">
+        <item>DateUpdate</item>
+        <item>BookName</item>
+        <item>BookDate</item>
+    </string-array>
+
+    <string-array name="sortBookTitles">
+        <item>По времени обновления</item>
+        <item>По названию книги</item>
+        <item>По дате</item>
+    </string-array>
+
     
 </resources>

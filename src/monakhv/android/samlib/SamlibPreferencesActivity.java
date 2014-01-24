@@ -46,7 +46,7 @@ public class SamlibPreferencesActivity extends PreferenceActivity
     private SettingsHelper helper;
     private final String[] autoSummaryFields = {"pref_key_update_Period", "pref_key_proxy_host",
         "pref_key_proxy_port", "pref_key_proxy_user", "pref_key_update_autoload_limit", "pref_key_book_lifetime",
-    "pref_key_author_order"};
+    "pref_key_author_order", "pref_key_book_order"};
     private List<String> autoSumKeys;
     private RingtonePreference ringtonPref;
 

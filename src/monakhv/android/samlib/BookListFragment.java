@@ -15,6 +15,7 @@
  */
 package monakhv.android.samlib;
 
+
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
@@ -104,13 +105,12 @@ public class BookListFragment extends SherlockListFragment implements
                 null, from, to,
                 CursorAdapter.FLAG_REGISTER_CONTENT_OBSERVER);
 
-
+        settings = new SettingsHelper(getActivity());
+        order = settings.getBookSortOrder();
         adapter.setViewBinder(new BookViewBinder());
         setListAdapter(adapter);
         //detector = new GestureDetector(getActivity(), new ListSwipeListener(this));
 
-        
-        settings = new SettingsHelper(getActivity());
     }
    
     @Override
@@ -297,6 +297,7 @@ public class BookListFragment extends SherlockListFragment implements
     private void setSortOrder(SortOrder so) {
         order=so;
         getLoaderManager().restartLoader(BOOK_LIST_LOADER,null,this);
+        getListView().setSelectionAfterHeaderView();
     }
     public SortOrder getSortOrder(){
         return order;
@@ -512,7 +513,7 @@ public class BookListFragment extends SherlockListFragment implements
         }
     }
 
-    private enum SortOrder {
+    public enum SortOrder {
 
         DateUpdate(R.string.sort_book_mtime, SQLController.COL_BOOK_MTIME + " DESC"),
         BookName(R.string.sort_book_title, SQLController.COL_BOOK_ISNEW + " DESC, " + SQLController.COL_BOOK_TITLE),

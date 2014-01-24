@@ -30,8 +30,16 @@ limitations under the License.
             android:entries="@array/sortAuthorTitles"
             android:entryValues="@array/sortAuthorValues"
             android:defaultValue="@string/pref_default_author_order"/>
+        <ListPreference
+
+            android:key="@string/pref_key_book_order"
+            android:title="@string/pref_title_book_order"
+            android:entries="@array/sortBookTitles"
+            android:entryValues="@array/sortBookValues"
+            android:defaultValue="@string/pref_default_book_order"/>
         
     </PreferenceCategory>
+
     
     <PreferenceCategory
         android:title="@string/pref_title_background_update_flag">

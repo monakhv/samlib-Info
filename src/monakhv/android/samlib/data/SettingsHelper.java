@@ -20,8 +20,6 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.media.Ringtone;
-import android.media.RingtoneManager;
 import android.util.Log;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -32,6 +30,7 @@ import java.net.Authenticator;
 import java.net.PasswordAuthentication;
 import java.util.Calendar;
 import monakhv.android.samlib.AuthorListFragment;
+import monakhv.android.samlib.BookListFragment;
 import monakhv.android.samlib.R;
 import monakhv.android.samlib.receiver.UpdateReceiver;
 import monakhv.android.samlib.sql.entity.Book;
@@ -96,7 +95,7 @@ public class SettingsHelper implements SharedPreferences.OnSharedPreferenceChang
     /**
      * Cancel recurring Task
      *
-     * @param context
+     *
      */
     private void cancelRecurringAlarm() {
         Log.d(DEBUG_TAG, "Cancel Updater service call");
@@ -114,7 +113,7 @@ public class SettingsHelper implements SharedPreferences.OnSharedPreferenceChang
     /**
      * Set recurring Task
      *
-     * @param context
+     *
      */
     private void setRecurringAlarm() {
         Log.d(DEBUG_TAG, "Update Updater service call");
@@ -160,15 +159,7 @@ public class SettingsHelper implements SharedPreferences.OnSharedPreferenceChang
                 false);
     }
 
-    /**
-     * Get Ringtone used for notification construction
-     *
-     * @return
-     */
-    public Ringtone getNotificationRingTone() {
-        
-        return RingtoneManager.getRingtone(context, getNotificationRingToneURI());
-    }
+
 
     /**
      * Get Ringtone URI used for notification constructions
@@ -185,7 +176,7 @@ public class SettingsHelper implements SharedPreferences.OnSharedPreferenceChang
     /**
      * Get automark Flag - whether clean new Mark or not on open bookmark
      *
-     * @return
+     * @return automark Flag
      */
     public boolean getAutoMarkFlag() {
 
@@ -234,9 +225,9 @@ public class SettingsHelper implements SharedPreferences.OnSharedPreferenceChang
 
     public String getUpdatePeriodString() {
 
-        String str = prefs.getString(context.getString(R.string.pref_key_update_Period), context.getString(R.string.pref_default_update_Period));
-        return str;
+        return prefs.getString(context.getString(R.string.pref_key_update_Period), context.getString(R.string.pref_default_update_Period));
     }
+
 
     public AuthorListFragment.SortOrder getAuthorSortOrder(){
         String str = prefs.getString(
@@ -244,6 +235,14 @@ public class SettingsHelper implements SharedPreferences.OnSharedPreferenceChang
                 context.getString(R.string.pref_default_author_order));
         return AuthorListFragment.SortOrder.valueOf(str);
     }
+
+    public BookListFragment.SortOrder getBookSortOrder(){
+        String str = prefs.getString(
+                context.getString(R.string.pref_key_book_order),
+                context.getString(R.string.pref_default_book_order));
+        return BookListFragment.SortOrder.valueOf(str);
+    }
+
     private long getUpdatePeriod() {
 
 
@@ -299,7 +298,7 @@ public class SettingsHelper implements SharedPreferences.OnSharedPreferenceChang
     /**
      * Read preferences and add default Authenticator for proxy auth
      *
-     * @param context
+     * @param context Context
      */
     public static void addAuthenticator(Context context) {
         SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, 0);
@@ -342,14 +341,14 @@ public class SettingsHelper implements SharedPreferences.OnSharedPreferenceChang
     /**
      * Checks if we have a valid Internet Connection on the device.
      *
-     * @param ctx
+     * @param ctx Context
      * @return True if device has internet
      *
      * Code from: http://www.androidsnippets.org/snippets/131/
      */
     public static boolean haveInternetWIFI(Context ctx) {
 
-        NetworkInfo info = (NetworkInfo) ((ConnectivityManager) ctx
+        NetworkInfo info = ((ConnectivityManager) ctx
                 .getSystemService(Context.CONNECTIVITY_SERVICE)).getActiveNetworkInfo();
 
         if (info == null || !info.isConnected()) {
@@ -363,7 +362,15 @@ public class SettingsHelper implements SharedPreferences.OnSharedPreferenceChang
         SettingsHelper helper = new SettingsHelper(ctx);
         if (helper.getWifiOnlyFlag()) {
             ConnectivityManager conMan = (ConnectivityManager) ctx.getSystemService(Context.CONNECTIVITY_SERVICE);
-            State wifi = conMan.getNetworkInfo(1).getState();
+            NetworkInfo inf = conMan.getNetworkInfo(1);
+            State wifi;
+            if (inf != null){
+                wifi = inf.getState();
+            }
+            else {
+                return false;
+            }
+
             return wifi == NetworkInfo.State.CONNECTED || wifi == NetworkInfo.State.CONNECTING;
         }
         return true;
@@ -371,21 +378,18 @@ public class SettingsHelper implements SharedPreferences.OnSharedPreferenceChang
 
     public static boolean haveInternet(Context ctx) {
 
-        NetworkInfo info = (NetworkInfo) ((ConnectivityManager) ctx
+        NetworkInfo info = ((ConnectivityManager) ctx
                 .getSystemService(Context.CONNECTIVITY_SERVICE)).getActiveNetworkInfo();
 
-        if (info == null || !info.isConnected()) {
-            return false;
-        }
-        return !info.isRoaming();
+        return !(info == null || !info.isConnected()) && !info.isRoaming();
     }
 
     /**
      * Test whether we need download book during update procedure True if we are
      * inside size limit
      *
-     * @param book
-     * @return
+     * @param book Book object
+     * @return true if we need load the book
      */
     public boolean testAutoLoadLimit(Book book) {
 
@@ -428,7 +432,9 @@ public class SettingsHelper implements SharedPreferences.OnSharedPreferenceChang
         //Log.d("checkDeleteBook", file.getAbsolutePath());
         if ((curTime - file.lastModified()) > interval) {
             Log.i("checkDeleteBook", "delete book: " + file.getAbsolutePath());
-            file.delete();
+            if (! file.delete()){
+                Log.e(DEBUG_TAG, "Can not delete the book: "  + file.getAbsolutePath());
+            }
         }
 
     }
