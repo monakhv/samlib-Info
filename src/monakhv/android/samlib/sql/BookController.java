@@ -20,6 +20,8 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
+import android.util.Log;
+
 import java.util.ArrayList;
 import java.util.List;
 import monakhv.android.samlib.data.SettingsHelper;
@@ -50,6 +52,11 @@ public class BookController implements AbstractController<Book> {
 
     public long insert(Book book) {
         Uri uri = context.getContentResolver().insert(AuthorProvider.BOOKS_URI, book2Content(book));
+        if (uri == null){
+            settings.log(DEBUG_TAG, "insert: uri is NULL");
+            Log.e(DEBUG_TAG, "insert: uri is NULL");
+            return 0;
+        }
         long id = ContentUris.parseId(uri);
         settings.log(DEBUG_TAG, "insert: "+id);
         return id;
@@ -59,7 +66,7 @@ public class BookController implements AbstractController<Book> {
      * Get List of Books from DB for given Author
      *
      * @param a Author of books
-     * @return
+     * @return List of books for the given author
      */
     public List<Book> getBooksByAuthor(Author a) {
         List<Book> books = new ArrayList<Book>();
@@ -67,6 +74,10 @@ public class BookController implements AbstractController<Book> {
         String author_id = (Long.valueOf(a.getId())).toString();
         String[] selectionArgs = {author_id};
         Cursor bc = context.getContentResolver().query(AuthorProvider.BOOKS_URI, null, AuthorDB.WHERE_AUTHOR_ID, selectionArgs, null);
+        if (bc == null){
+            Log.e(DEBUG_TAG,"getBooksByAuthor: cursor is null - "+a.getName());
+            return books;
+        }
         while (bc.moveToNext()) {
             books.add(cursor2Book(bc));
         }
@@ -77,6 +88,10 @@ public class BookController implements AbstractController<Book> {
     public List<Book> getAll() {
         List<Book> res = new ArrayList<Book>();
         Cursor cursor = context.getContentResolver().query(AuthorProvider.BOOKS_URI, null, null, null, null);
+        if (cursor == null){
+            Log.e(DEBUG_TAG,"getAll: cursor is null");
+            return null;
+        }
         while (cursor.moveToNext()) {
             res.add(cursor2Book(cursor));
         }
@@ -88,7 +103,17 @@ public class BookController implements AbstractController<Book> {
     public Book getById(long id) {
         Book res = null;
         Uri singleUri = ContentUris.withAppendedId(AuthorProvider.BOOKS_URI, id);
+        if (singleUri == null){
+            settings.log(DEBUG_TAG, "getById: uri is NULL");
+            Log.e(DEBUG_TAG, "getById: uri is NULL");
+            return null;
+        }
         Cursor cursor = context.getContentResolver().query(singleUri, null, null, null, null);
+        if (cursor == null){
+            settings.log(DEBUG_TAG, "getById: cursor is NULL");
+            Log.e(DEBUG_TAG, "getById: cursor is NULL");
+            return null;
+        }
         if (cursor.moveToNext()) {
             res = cursor2Book(cursor);
         }
@@ -99,18 +124,27 @@ public class BookController implements AbstractController<Book> {
 
     public int delete(Book book) {
         Uri singleUri = ContentUris.withAppendedId(AuthorProvider.BOOKS_URI, book.getId());
+        if (singleUri == null){
+            settings.log(DEBUG_TAG, "delete: uri is NULL");
+            Log.e(DEBUG_TAG, "delete: uri is NULL");
+            return 0;
+        }
         int res = context.getContentResolver().delete(singleUri, null, null);
         settings.log(DEBUG_TAG, "delete: "+res);
         return res;
     }
 
-    public int markRead(Book book) {
-        book.setIsNew(false);
+    public void markRead(Book book) {
+        setNewStatus(book,false);
+    }
+    public void markUnRead(Book book) {
+        setNewStatus(book,true);
+    }
+
+    public void setNewStatus(Book book, boolean status){
+        book.setIsNew(status);
         int i = context.getContentResolver().update(AuthorProvider.BOOKS_URI, book2Content(book), SQLController.COL_ID + "=" + book.getId(), null);
-        settings.log(DEBUG_TAG, "markRead: "+i);
-        return i;
-
-
+        settings.log(DEBUG_TAG, "Book mark: "+i+"  status: "+status);
     }
 
     private static Book cursor2Book(Cursor cursor) {
@@ -133,9 +167,9 @@ public class BookController implements AbstractController<Book> {
     /**
      * Create content values to store new Book
      *
-     * @param book
-     * @param author_id
-     * @return
+     * @param book Book object
+
+     * @return ContentValues
      */
     private static ContentValues book2Content(Book book) {
         ContentValues cv = new ContentValues();

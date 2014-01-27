@@ -55,14 +55,18 @@ public class AuthorController implements AbstractController<Author> {
     /**
      * Return all authors from Data Base
      *
-     * @param selection
-     * @param order
-     * @return
+     * @param selection Select string
+     * @param order Order by string
+     * @return List of Author object - th eresult
      */
     public List<Author> getAll(String selection, String order) {
         List<Author> res = new ArrayList<Author>();
         Cursor cursor = context.getContentResolver().query(AuthorProvider.AUTHOR_URI, null, selection, null, order);
-        while (cursor.moveToNext()) {
+        if (cursor == null){
+            Log.e(DEBUG_TAG,"getAll: cursor is null");
+            return res;
+        }
+        while ( cursor.moveToNext()) {
             res.add(Cursor2Author(cursor));
         }
 
@@ -71,11 +75,15 @@ public class AuthorController implements AbstractController<Author> {
     }
     /**
      * Test whether the selection is empty or not
-     * @param selection
-     * @return 
+     *
+     * @param selection selection string
+     * @return true if no author is found
      */
     public boolean isEmpty(String selection){        
         Cursor cursor = context.getContentResolver().query(AuthorProvider.AUTHOR_URI, null, selection, null, null);
+        if (cursor == null){
+            return true;
+        }
         boolean res = cursor.moveToNext();
         cursor.close();
         return !res;
@@ -85,8 +93,8 @@ public class AuthorController implements AbstractController<Author> {
     /**
      * Update Author in DB id is constant
      *
-     * @param a
-     * @return
+     * @param a Author object
+     * @return Author id
      */
     public int update(Author a) {
 
@@ -125,11 +133,15 @@ public class AuthorController implements AbstractController<Author> {
      * Add new entry to Author table
      *
      * @param a object to add
-     * @return 
+     * @return  Author - id
      */
     public long insert(Author a) {
 
         Uri uri = context.getContentResolver().insert(AuthorProvider.AUTHOR_URI, author2Content(a));
+        if (uri == null){
+            Log.e(DEBUG_TAG, "insert: uri is NULL");
+            return 0;
+        }
         long id = ContentUris.parseId(uri);
         for (Book book : a.getBooks()) {
             book.setAuthorId(id);
@@ -142,10 +154,15 @@ public class AuthorController implements AbstractController<Author> {
      * Delete Single Author object
      *
      * @param a Author to delete
-     * @return
+     * @return  Author - id
      */
     public int delete(Author a) {
         Uri singleUri = ContentUris.withAppendedId(AuthorProvider.AUTHOR_URI, a.getId());
+        if (singleUri == null){
+
+            Log.e(DEBUG_TAG, "delete: uri is NULL");
+            return 0;
+        }
 
         List<Book> books = bkCtr.getBooksByAuthor(a);
 
@@ -154,16 +171,14 @@ public class AuthorController implements AbstractController<Author> {
         }
         
         context.getContentResolver().delete(AuthorProvider.T2A_URI, SQLController.COL_T2A_AUTHORID+"="+a.getId(), null);
-
-        int res = context.getContentResolver().delete(singleUri, null, null);
-        return res;
+        return  context.getContentResolver().delete(singleUri, null, null);
     }
 
     /**
      * Mark Author and all it's book as read
      *
      * @param a Author object
-     * @return
+     * @return id of the Author
      */
     public int markRead(Author a) {
         a.setIsNew(false);
@@ -183,34 +198,48 @@ public class AuthorController implements AbstractController<Author> {
     /**
      * Set author new status according to the its book status
      *
-     * @param a
+     * @param a   Author object
      * @return true if the author has unread books
      */
     public boolean testMarkRead(Author a) {
 
 
+        boolean rr = getReadStatus(a);
+        a.setIsNew(rr);
+        context.getContentResolver().update(AuthorProvider.AUTHOR_URI, author2Content(a), SQLController.COL_ID + "=" + a.getId(), null);
+        return false;
+
+    }
+
+    /**
+     * Whether th author has unread books or not
+     * @param a Author object
+     * @return true if the  author has at least one unread book
+     */
+    public boolean getReadStatus(Author a){
         List<Book> books = bkCtr.getBooksByAuthor(a);
         for (Book book : books) {
             if (book.isIsNew()) {
                 return true;
             }
         }
-        a.setIsNew(false);
-        int i = context.getContentResolver().update(AuthorProvider.AUTHOR_URI, author2Content(a), SQLController.COL_ID + "=" + a.getId(), null);
         return false;
-
     }
 
     /**
      * Find Author in DB using its URL string
      *
-     * @param url
+     * @param url URL String to find Author by
      * @return Author object or null if not found
      */
     public Author getByUrl(String url) {
         Author res = null;
         String[] selectionArgs = {url};
         Cursor cursor = context.getContentResolver().query(AuthorProvider.AUTHOR_URI, null, AuthorDB.WHERE_URL, selectionArgs, null);
+        if (cursor == null){
+            Log.e(DEBUG_TAG,"getByUrl: cuirsor is null - "+url);
+            return null;
+        }
         if (cursor.moveToNext()) {
             res = Cursor2Author(cursor);
         }
@@ -222,13 +251,21 @@ public class AuthorController implements AbstractController<Author> {
     /**
      * Find Author object into DB using id as parameter
      *
-     * @param id
-     * @return
+     * @param id Author id
+     * @return  Author object or null if not found
      */
     public Author getById(long id) {
         Author res = null;
         Uri singleUri = ContentUris.withAppendedId(AuthorProvider.AUTHOR_URI, id);
+        if (singleUri == null){
+
+            Log.e(DEBUG_TAG, "getById: uri is NULL");
+            return null;
+        }
         Cursor cursor = context.getContentResolver().query(singleUri, null, null, null, null);
+        if (cursor == null){
+            return null;
+        }
         if (cursor.moveToNext()) {
             res = Cursor2Author(cursor);
         }
@@ -252,7 +289,7 @@ public class AuthorController implements AbstractController<Author> {
                 ContentValues cv = new ContentValues();
                 cv.put(SQLController.COL_T2A_AUTHORID, a.getId());
                 cv.put(SQLController.COL_T2A_TAGID, tag_id);
-                Uri uri = context.getContentResolver().insert(AuthorProvider.T2A_URI, cv);
+                context.getContentResolver().insert(AuthorProvider.T2A_URI, cv);
             }
 
         }
@@ -278,7 +315,7 @@ public class AuthorController implements AbstractController<Author> {
         ContentValues cv = new ContentValues();
 
         cv.put(SQLController.COL_NAME, a.getName());
-        cv.put(SQLController.COL_URL, a.getUrl().toString());
+        cv.put(SQLController.COL_URL, a.getUrl());
         cv.put(SQLController.COL_mtime, a.getUpdateDate());
         cv.put(SQLController.COL_isnew, a.isIsNew());
 

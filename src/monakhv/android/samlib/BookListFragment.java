@@ -490,10 +490,15 @@ public class BookListFragment extends SherlockListFragment implements
                     public void onClick(View v) {
                         if (book.isIsNew()){
                             sql.getBookController().markRead(book);
-                            mCallbacks.cleanAuthorSelection();
-                            Author a = sql.getByBook(book);
-                            sql.testMarkRead(a);
+
                         }
+                        else {
+                            sql.getBookController().markUnRead(book);
+
+                        }
+                        mCallbacks.cleanAuthorSelection();
+                        Author a = sql.getByBook(book);
+                        sql.testMarkRead(a);
                     }
                 });
                 return true;
