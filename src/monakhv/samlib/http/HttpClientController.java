@@ -92,7 +92,7 @@ public class HttpClientController {
      * This is the method for update service
      *
      * @param link reduced URL
-     * @return
+     * @return Author object
      * @throws java.io.IOException
      * @throws monakhv.android.samlib.exception.SamlibParseException
      */
@@ -112,7 +112,7 @@ public class HttpClientController {
      * AddAuthor task
      *
      * @param link reduced url
-     * @return
+     * @return Author object
      * @throws IOException
      * @throws SamlibParseException
      */
@@ -144,13 +144,19 @@ public class HttpClientController {
      * Making author search
      * @param pattern author name pattern to search
      * @param page number of page
-     * @return
+     * @return Search Result
      * @throws IOException 
      * @throws monakhv.android.samlib.exception.SamlibParseException 
      */
     public HashMap<String, ArrayList<AuthorCard>> searchAuhors(String pattern, int page) throws IOException, SamlibParseException{
-        
-        String str = getURL(slc.getSearchAuthorURL(pattern, page), null);
+        String str;
+        try {
+            str = getURL(slc.getSearchAuthorURL(pattern, page), null);
+        }
+        catch (NullPointerException ex){
+            throw new SamlibParseException("Pattern: "+pattern);
+        }
+
         return parseSearchAuthorData(str);
     }
 
@@ -224,7 +230,7 @@ public class HttpClientController {
                     Log.e(DEBUG_TAG, "Sleep interapted: ", ex);
                 }
                 if (loopCount >= RETRY_LIMIT) {
-                    retry = false;
+                   // retry = false;
                     throw new IOException("Retry Limit exeeded");
                 }
             }

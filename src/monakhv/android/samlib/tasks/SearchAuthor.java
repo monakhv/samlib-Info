@@ -30,6 +30,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import monakhv.android.samlib.R;
+import monakhv.android.samlib.data.SettingsHelper;
 import monakhv.android.samlib.search.SearchAuthorActivity.SearchReceiver;
 import monakhv.android.samlib.exception.SamlibParseException;
 import monakhv.android.samlib.sql.entity.AuthorCard;
@@ -57,7 +58,7 @@ public class SearchAuthor extends AsyncTask<String, Void, Boolean> {
         public String getMessage(Context ctx) {
             return ctx.getString(imessage);
         }
-    };
+    }
 
     private ResultStatus status;
     private static final String DEBUG_TAG = "SearchAuthor";
@@ -67,18 +68,20 @@ public class SearchAuthor extends AsyncTask<String, Void, Boolean> {
 
     private int inum = 0;//Result number
     private final List<AuthorCard> result;
+    private final SettingsHelper settings;
 
     public SearchAuthor(Context ctx) {
         status = ResultStatus.Good;
 
         context = ctx;
-
+        settings = new SettingsHelper(context);
         russianCollator =  (RuleBasedCollator) Collator.getInstance(new Locale("ru", "RU"));
 
         try {
             russianCollator = new RuleBasedCollator(SamLibConfig.COLLATION_RULES);
         } catch (ParseException ex) {
             Log.e(DEBUG_TAG, "Collator error", ex);
+            settings.log(DEBUG_TAG, "Collator error!",ex);
         }
         
         russianCollator.setStrength(Collator.IDENTICAL);
@@ -100,10 +103,12 @@ public class SearchAuthor extends AsyncTask<String, Void, Boolean> {
                 }
             } catch (IOException ex) {
                 Log.e(DEBUG_TAG, null, ex);
+               settings.log(DEBUG_TAG, "IOException error", ex);
                 status = ResultStatus.Error;
                 return false;
             } catch (SamlibParseException ex) {
                 Log.e(DEBUG_TAG, null, ex);
+                settings.log (DEBUG_TAG,"SamlibParseException error", ex);
                 status = ResultStatus.Error;
                 return false;
             }
@@ -122,26 +127,28 @@ public class SearchAuthor extends AsyncTask<String, Void, Boolean> {
         }
         broadcastIntent.putExtra(SearchReceiver.EXTRA_RESULT, (Serializable) result);
         Log.i(DEBUG_TAG, "Results number is " + result.size());
+        settings.log(DEBUG_TAG, "Results number is " + result.size());
         context.sendBroadcast(broadcastIntent);
 
     }
 
     private boolean makeSearch(String pattern) throws IOException, SamlibParseException {
         Log.i(DEBUG_TAG, "Search author with pattern: " + pattern);
+        settings.log(DEBUG_TAG, "Search author with pattern: " + pattern);
         int page = 1;
         HashMap<String, ArrayList<AuthorCard>> colAthors = http.searchAuhors(pattern, page);
 
         while (colAthors != null) {//page cycle while we find anything
 
-            String[] keys = colAthors.keySet().toArray(new String[0]);
+            String[] keys = colAthors.keySet().toArray(new String[1]);
            
             Arrays.sort(keys, russianCollator);
             int ires = Arrays.binarySearch(keys, pattern, russianCollator);
             Log.d(DEBUG_TAG, "Page number:" +page+   "    search result " + ires + "   length is " + keys.length);
+            settings.log(DEBUG_TAG, "Page number:" + page + "    search result " + ires + "   length is " + keys.length);
             int istart;
             if (ires < 0) {
-                int ins = -ires - 1;
-                istart = ins;
+                istart = -ires - 1;
             } else {
                 istart = ires;
             }
@@ -159,6 +166,7 @@ public class SearchAuthor extends AsyncTask<String, Void, Boolean> {
 
                 } else {
                     Log.d(DEBUG_TAG, "Search for " + pattern + " stop by substring  -   " + skey + "   " + keys.length + "         " + istart + "  -  " + ires);
+                    settings.log(DEBUG_TAG, "Search for " + pattern + " stop by substring  -   " + skey + "   " + keys.length + "         " + istart + "  -  " + ires);
                    
 //                        for (String s : keys) {
 //                            Log.d(DEBUG_TAG, ">>- " + s);
@@ -175,6 +183,7 @@ public class SearchAuthor extends AsyncTask<String, Void, Boolean> {
             colAthors = http.searchAuhors(pattern, page);
         }
         Log.d(DEBUG_TAG, "Results: " + inum);
+        settings.log(DEBUG_TAG, "Results: " + inum);
         return inum != 0;
 
     }

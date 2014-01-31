@@ -115,13 +115,16 @@ public class AddAuthor extends AsyncTask<String, Void, Boolean> {
             a = http.addAuthor(text);
         } catch (IOException ex) {
             Log.e(DEBUG_TAG, "DownLoad Error for URL: " + text, ex);
+            settings.log(DEBUG_TAG, "DownLoad Error for URL: " + text, ex);
             return null;
 
         } catch (SamlibParseException ex) {
             Log.e(DEBUG_TAG, "Author parsing Error: " + text, ex);
+            settings.log(DEBUG_TAG, "Author parsing Error: " + text, ex);
             return null;
         } catch (IllegalArgumentException ex) {
             Log.e(DEBUG_TAG, "URL Parsing exception: " + text, ex);
+            settings.log(DEBUG_TAG, "URL Parsing exception: " + text, ex);
             return null;
         }
 
