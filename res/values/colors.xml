@@ -15,7 +15,10 @@
   -->
 
 <resources>
-    <color name="actionbar_title_color">#224894</color>
+
+    <color name="action_bar_start">#474f54</color>
+    <color name="action_bar_center">#3d4448</color>
+    <color name="action_bar_end">#34393d</color>
     
     <color name="pressed_color">#4d90fe</color>
     <color name="default_color">#000000</color>

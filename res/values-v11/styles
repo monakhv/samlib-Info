@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="MyTheme" parent="Theme.Sherlock">
+        <item name="android:actionBarStyle">@style/MyActionBar</item>
+    </style>
+    <style name="MyActionBar" parent="Widget.Sherlock.ActionBar">
+        <!--
+        action_bar
+        -->
+        <item name="android:background">@color/action_bar_center</item>
+        <item name="background">@color/action_bar_center</item>
+    </style>
+</resources>

@@ -205,7 +205,7 @@ public class AuthorListFragment  extends SherlockListFragment implements
         registerForContextMenu(getListView());
         
         getListView().setChoiceMode(ListView.CHOICE_MODE_SINGLE);
-        getListView().setSelector(R.drawable.author_item_bg);
+        //getListView().setSelector(R.drawable.author_item_bg);
         getListView().setOnItemClickListener(new AdapterView.OnItemClickListener() {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 selectedAuthorPosition = position;
