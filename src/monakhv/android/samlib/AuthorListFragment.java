@@ -35,6 +35,7 @@ import android.support.v4.widget.CursorAdapter;
 import android.support.v4.widget.SimpleCursorAdapter;
 import android.util.Log;
 import android.view.ContextMenu;
+import android.view.GestureDetector;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
@@ -97,6 +98,7 @@ public class AuthorListFragment  extends SherlockListFragment implements
     private SortOrder order;
     private SingleChoiceSelectDialog sortDialog;
     private FilterSelectDialog filterDialog;
+    private GestureDetector detector;
 
     void onRefreshComplete() {
         mPullToRefreshLayout.setRefreshComplete();
@@ -146,6 +148,7 @@ public class AuthorListFragment  extends SherlockListFragment implements
         order = settings.getAuthorSortOrder();
         setListAdapter(adapter);
         getLoaderManager().initLoader(AUTHOR_LIST_LOADER, null, this);
+        detector = new GestureDetector(getActivity(), new ListSwipeListener(this));
     }
     
     private PullToRefreshLayout mPullToRefreshLayout;
@@ -224,6 +227,13 @@ public class AuthorListFragment  extends SherlockListFragment implements
                     mCallbacks.addAuthorFromText();
                     return true;
                 }
+                return false;
+            }
+        });
+
+        getListView().setOnTouchListener(new View.OnTouchListener() {
+            public boolean onTouch(View v, MotionEvent event) {
+                detector.onTouchEvent(event);
                 return false;
             }
         });
