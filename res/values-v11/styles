@@ -4,10 +4,14 @@
         <item name="android:actionBarStyle">@style/MyActionBar</item>
     </style>
     <style name="MyActionBar" parent="Widget.Sherlock.ActionBar">
+        <item name="android:background">@drawable/action_bar_image</item>
+        <item name="background">@drawable/action_bar_image</item>
+
         <!--
-        action_bar
-        -->
+
         <item name="android:background">@color/action_bar_center</item>
         <item name="background">@color/action_bar_center</item>
+        action_bar
+        -->
     </style>
 </resources>
