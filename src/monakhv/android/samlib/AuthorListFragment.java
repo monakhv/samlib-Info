@@ -494,18 +494,7 @@ public class AuthorListFragment  extends SherlockListFragment implements
     }
     
     public boolean singleClick(MotionEvent e) {
-        int position = getListView().pointToPosition((int) e.getX(), (int) e.getY());
-        Cursor c = (Cursor) adapter.getItem(position);
-        if (c.getPosition() != -1) {
- //           Log.d(DEBUG_TAG, "get cursor at position: " + c.getPosition());
-//            listView.setItemChecked(position, true);
-//            listView.getChildAt(position).setSelected(true);
-            //authorClick(c);
-            mCallbacks.onAuthorSelected(c.getInt(c.getColumnIndex(SQLController.COL_ID)));
-            return true;
-        }
         return false;
-        
     }
     
     public boolean swipeRight(MotionEvent e) {
