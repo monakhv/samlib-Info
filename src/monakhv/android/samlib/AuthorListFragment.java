@@ -326,7 +326,7 @@ public class AuthorListFragment  extends SherlockListFragment implements
                 }
 
             };
-            sortDialog = new SingleChoiceSelectDialog(SortOrder.getTitles(getActivity()), listener, this.getString(R.string.dialog_title_sort_author), getSortOrder().ordinal());
+            sortDialog = SingleChoiceSelectDialog.getInstance(SortOrder.getTitles(getActivity()), listener, this.getString(R.string.dialog_title_sort_author), getSortOrder().ordinal());
 
             sortDialog.show(getActivity().getSupportFragmentManager(), "DoSortDialog");
         }
@@ -411,7 +411,7 @@ public class AuthorListFragment  extends SherlockListFragment implements
                     mCallbacks.onAuthorSelected(0);
                 }
             };
-            filterDialog = new FilterSelectDialog(extendedCursor, listener, getText(R.string.dialog_title_filtr).toString());
+            filterDialog = FilterSelectDialog.getInstance(extendedCursor, listener, getText(R.string.dialog_title_filtr).toString());
             filterDialog.show(getActivity().getSupportFragmentManager(), "FilterDialogShow");
 
         }

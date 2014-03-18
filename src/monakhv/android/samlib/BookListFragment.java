@@ -290,7 +290,7 @@ public class BookListFragment extends SherlockListFragment implements
 
             }
         };
-        sortDialog = new SingleChoiceSelectDialog(SortOrder.getTitles(getActivity()),listener,this.getString(R.string.dialog_title_sort_book),getSortOrder().ordinal());
+        sortDialog =  SingleChoiceSelectDialog.getInstance(SortOrder.getTitles(getActivity()),listener,this.getString(R.string.dialog_title_sort_book),getSortOrder().ordinal());
         sortDialog.show(getActivity().getSupportFragmentManager(), "DoBookSortDialog");
     }
 

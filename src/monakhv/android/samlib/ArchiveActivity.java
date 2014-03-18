@@ -108,7 +108,7 @@ public class ArchiveActivity extends SherlockFragmentActivity {
                 //_importDB(files[position]);
             }
         };
-        dialog = new SingleChoiceSelectDialog(files, listener,getText(R.string.dialog_title_file).toString());
+        dialog = SingleChoiceSelectDialog.getInstance(files, listener,getText(R.string.dialog_title_file).toString());
 
 
         dialog.show(getSupportFragmentManager(), "importDBDlg");
@@ -168,7 +168,7 @@ public class ArchiveActivity extends SherlockFragmentActivity {
                 _importTxt(files[position]);
             }
         };
-        dialog = new SingleChoiceSelectDialog(files, listener,getText(R.string.dialog_title_file).toString());
+        dialog =  SingleChoiceSelectDialog.getInstance(files, listener,getText(R.string.dialog_title_file).toString());
 
 
         dialog.show(getSupportFragmentManager(), "importTxtDlg");

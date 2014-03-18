@@ -35,25 +35,61 @@ import monakhv.android.samlib.R;
  */
 public class SingleChoiceSelectDialog extends DialogFragment {
     private static final String DEBUG_TAG = "SingleChoiceSelectDialog";
-    private final String[] files;
-    private final OnItemClickListener listener;
-    private final String tite;
-    private ListView     fileList = null;
+    private static final String EXTRA_DATA="EXTRA_DATA";
+    private static final String EXTRA_TITLE="EXTRA_TITLE";
+    private static final String EXTRA_SELECTED="EXTRA_SELECTED";
+    private  String[] files;
+    private  OnItemClickListener listener;
+    private  String tite;
     private int selected = -1;
 
-    public SingleChoiceSelectDialog(String[] data,OnItemClickListener listener,String title) {
-        this.files = data;
-        this.listener = listener;
-        this.tite=title;
+    public SingleChoiceSelectDialog(){
+        super();
+
     }
-    
-    public SingleChoiceSelectDialog(String[] data,OnItemClickListener listener,String title, int selected) {
-        this(data, listener, title);
-        this.selected = selected;
-        
+
+//    public SingleChoiceSelectDialog(String[] data,OnItemClickListener listener,String title) {
+//        this.files = data;
+//        this.listener = listener;
+//        this.tite=title;
+//    }
+//
+//    public SingleChoiceSelectDialog(String[] data,OnItemClickListener listener,String title, int selected) {
+//        this(data, listener, title);
+//        this.selected = selected;
+//
+//    }
+
+    public static SingleChoiceSelectDialog getInstance(String[] data,OnItemClickListener listener,String title, int selected) {
+        SingleChoiceSelectDialog res = new SingleChoiceSelectDialog();
+        Bundle args = new Bundle();
+        args.putStringArray(EXTRA_DATA,data);
+        args.putString(EXTRA_TITLE, title);
+        args.putInt(EXTRA_SELECTED,selected);
+        res.setArguments(args);
+        res.setListener(listener);
+        return res;
     }
-    
-    
+    public static SingleChoiceSelectDialog getInstance(String[] data,OnItemClickListener listener,String title) {
+        SingleChoiceSelectDialog res = new SingleChoiceSelectDialog();
+        Bundle args = new Bundle();
+        args.putStringArray(EXTRA_DATA,data);
+        args.putString(EXTRA_TITLE, title);
+
+        res.setArguments(args);
+        res.setListener(listener);
+        return res;
+    }
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        Bundle args = getArguments();
+        files = args.getStringArray(EXTRA_DATA);
+        tite = args.getString(EXTRA_TITLE);
+        selected = args.getInt(EXTRA_SELECTED);
+    }
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
       Bundle savedInstanceState) {
@@ -62,10 +98,9 @@ public class SingleChoiceSelectDialog extends DialogFragment {
        
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(getActivity(),
         android.R.layout.simple_list_item_single_choice, files);
-        
-       
-            
-        fileList = (ListView) v.findViewById(R.id.listFile);
+
+
+        ListView fileList = (ListView) v.findViewById(R.id.listFile);
         fileList.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
         fileList.setAdapter(adapter);
         fileList.setOnItemClickListener(listener);
@@ -88,7 +123,7 @@ public class SingleChoiceSelectDialog extends DialogFragment {
         
     }
 
-    
-
-    
+    public void setListener(OnItemClickListener listener) {
+        this.listener = listener;
+    }
 }
