@@ -38,9 +38,9 @@ public class SingleChoiceSelectDialog extends DialogFragment {
     private static final String EXTRA_DATA="EXTRA_DATA";
     private static final String EXTRA_TITLE="EXTRA_TITLE";
     private static final String EXTRA_SELECTED="EXTRA_SELECTED";
-    private  String[] files;
+    private  String[] data;
     private  OnItemClickListener listener;
-    private  String tite;
+    private  String title;
     private int selected = -1;
 
     public SingleChoiceSelectDialog(){
@@ -49,9 +49,9 @@ public class SingleChoiceSelectDialog extends DialogFragment {
     }
 
 //    public SingleChoiceSelectDialog(String[] data,OnItemClickListener listener,String title) {
-//        this.files = data;
+//        this.data = data;
 //        this.listener = listener;
-//        this.tite=title;
+//        this.title=title;
 //    }
 //
 //    public SingleChoiceSelectDialog(String[] data,OnItemClickListener listener,String title, int selected) {
@@ -85,8 +85,8 @@ public class SingleChoiceSelectDialog extends DialogFragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Bundle args = getArguments();
-        files = args.getStringArray(EXTRA_DATA);
-        tite = args.getString(EXTRA_TITLE);
+        data = args.getStringArray(EXTRA_DATA);
+        title = args.getString(EXTRA_TITLE);
         selected = args.getInt(EXTRA_SELECTED);
     }
 
@@ -95,9 +95,12 @@ public class SingleChoiceSelectDialog extends DialogFragment {
       Bundle savedInstanceState) {
         
         View v = inflater.inflate(R.layout.file_select, null);
-       
+        if (v== null){
+            Log.e(DEBUG_TAG,"Can not create View!!");
+            return null;
+        }
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(getActivity(),
-        android.R.layout.simple_list_item_single_choice, files);
+        android.R.layout.simple_list_item_single_choice, data);
 
 
         ListView fileList = (ListView) v.findViewById(R.id.listFile);
@@ -108,7 +111,7 @@ public class SingleChoiceSelectDialog extends DialogFragment {
             fileList.setItemChecked(selected, true);
         }
         
-        getDialog().setTitle(tite);
+        getDialog().setTitle(title);
                 
         Button close = (Button) v.findViewById(R.id.listFile_close);
         close.setOnClickListener(new OnClickListener() {
