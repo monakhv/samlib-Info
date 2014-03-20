@@ -24,11 +24,13 @@ import android.os.Handler;
 import android.support.v4.widget.SlidingPaneLayout;
 import android.text.TextUtils;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.KeyEvent;
 
 import android.view.View;
 
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import com.actionbarsherlock.app.ActionBar;
@@ -189,6 +191,8 @@ public class MainActivity extends SherlockFragmentActivity implements AuthorList
         listHelper.setHasOptionsMenu(true);
         ActivityUtils.setShadow(pane);
 
+        LinearLayout pane2 = (LinearLayout) findViewById(R.id.pane2);
+        pane2.setBackgroundColor(getResources().getColor(R.color.BLACK));
 
         isOpen = true;
         //use here bundle but not icicle !!
