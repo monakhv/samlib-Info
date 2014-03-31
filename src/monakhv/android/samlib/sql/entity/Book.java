@@ -198,12 +198,11 @@ public class Book implements Serializable {
         return hash;
     }
 
+    @SuppressWarnings("SimplifiableIfStatement")
     @Override
     public boolean equals(Object obj) {
-        if (obj == null) {
-            return false;
-        }
-        if (getClass() != obj.getClass()) {
+         if (this == obj) return true;
+        if (obj == null || ((Object) this).getClass() != obj.getClass()) {
             return false;
         }
         final Book other = (Book) obj;
@@ -229,7 +228,7 @@ public class Book implements Serializable {
 
     /**
      * Get book url to open it using web browser
-     * @return 
+     * @return  String url to open book for reading
      */
     public String getUrlForBrowser(){
         return SamLibConfig.getBookUrlForBrowser(this);
@@ -237,7 +236,7 @@ public class Book implements Serializable {
     
     /**
      * Get file object to store book for offline reading
-     * @return 
+     * @return  File to store book
      */
     public File getFile() {
         return DataExportImport._getBookFile(this);
@@ -245,12 +244,13 @@ public class Book implements Serializable {
 
     /**
      * Get URL to open book for offline reading
-     * @return 
+     * @return construct URL to start external program for offline reading
      */
     public String getFileURL() {
         return "file://" + getFile().getAbsolutePath();
     }
 
+    @SuppressWarnings("ResultOfMethodCallIgnored")
     public void cleanFile() {
         File ff = DataExportImport._getBookFile(this);
 
@@ -269,10 +269,7 @@ public class Book implements Serializable {
 
         File ff = getFile();
 
-        if (!ff.exists()) {
-            return true;
-        }
-        return ff.lastModified() < getModifyTime();
+        return !ff.exists() || ff.lastModified() < getModifyTime();
     }
 
     public static Calendar string2Cal(String str) throws BookParseException {

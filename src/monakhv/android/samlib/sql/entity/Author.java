@@ -18,7 +18,6 @@ package monakhv.android.samlib.sql.entity;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -121,12 +120,11 @@ public class Author  implements Serializable{
         return hash;
     }
 
+    @SuppressWarnings({"SimplifiableIfStatement", "StringEquality"})
     @Override
     public boolean equals(Object obj) {
-        if (obj == null) {
-            return false;
-        }
-        if (getClass() != obj.getClass()) {
+         if (this == obj) return true;
+        if (obj == null || ((Object) this).getClass() != obj.getClass()) {
             return false;
         }
         final Author other = (Author) obj;
@@ -140,7 +138,7 @@ public class Author  implements Serializable{
 
     /**
      * Get book url to open it using web browser
-     * @return 
+     * @return String of URL to open author home page
      */
     public String getUrlForBrowser(){
         return SamLibConfig.getAuthorUrlForBrowser(this);
@@ -162,8 +160,8 @@ public class Author  implements Serializable{
     /**
      * Test whether we need update Author information or not
      *
-     * @param newA
-     * @return
+     * @param newA new just downloaded author
+     * @return true id we need update Author info into data base
      */
     private boolean testUpdate(Author newA) {
         
@@ -184,7 +182,7 @@ public class Author  implements Serializable{
     /**
      * Update Author information by data of new Author object If need
      *
-     * @param newA
+     * @param newA new just downloaded author
      * @return true if data is updated false in other case
      */
     public boolean update(Author newA) {
@@ -196,16 +194,16 @@ public class Author  implements Serializable{
         }
         return false;
     }
-    public void dump(){
-        System.out.println(name);
-        System.out.println(   new Date(updateDate)      );
-        
-        System.out.println("----------Begin books---------------");
-        
-        for (Book b : books){
-            
-            System.out.println(" - "+b.toString());
-        }
-        System.out.println("----------End   books---------------");
-    }
+//    public void dump(){
+//        System.out.println(name);
+//        System.out.println(   new Date(updateDate)      );
+//
+//        System.out.println("----------Begin books---------------");
+//
+//        for (Book b : books){
+//
+//            System.out.println(" - "+b.toString());
+//        }
+//        System.out.println("----------End   books---------------");
+//    }
 }
