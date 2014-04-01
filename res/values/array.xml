@@ -84,5 +84,14 @@ limitations under the License.
         <item>По дате</item>
     </string-array>
 
+    <string-array name="fileFormatTitles">
+        <item>HTML</item>
+        <item>FB2 (эксперимент)</item>
+    </string-array>
+    <string-array name="fileFormatValues">
+        <item>HTML</item>
+        <item>FB2</item>
+    </string-array>
+
     
 </resources>

@@ -162,6 +162,11 @@ limitations under the License.
     <string name="pref_key_notification_ringtone">pref_key_notification_ringtone</string>
     <string name="pref_title_notification_ringtone">Звук оповещения</string>
     <string name="pref_default_notification_ringtone">content://settings/system/notification_sound</string>
+
+    <string name="pref_key_file_format">pref_key_file_format</string>
+    <string name="pref_title_file_format">Формат файла</string>
+    <string name="pref_default_file_format">HTML</string>
+
     <string name="pref_no_sound">Без звука</string>
     
     <string name="bt_close">Закрыть</string>

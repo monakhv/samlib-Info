@@ -37,6 +37,15 @@ limitations under the License.
             android:entries="@array/sortBookTitles"
             android:entryValues="@array/sortBookValues"
             android:defaultValue="@string/pref_default_book_order"/>
+
+        <ListPreference
+
+            android:key="@string/pref_key_file_format"
+            android:title="@string/pref_title_file_format"
+            android:entries="@array/fileFormatTitles"
+            android:entryValues="@array/fileFormatValues"
+            android:defaultValue="@string/pref_default_file_format"/>
+
         
     </PreferenceCategory>
 

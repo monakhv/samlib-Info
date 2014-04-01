@@ -16,13 +16,11 @@
 package monakhv.samlib.http;
 
 import android.util.Log;
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
+
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
+
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -60,11 +58,14 @@ import org.apache.http.params.HttpParams;
  * HTML from. It is used by DownloadBook service
  */
 public class HttpClientController {
+    public interface PageReader {
+        public  String doReadPage(InputStream in) throws IOException ;
+    }
 
     public static final int RETRY_LIMIT = 5;
     public static final int CONNECTION_TIMEOUT = 10000;
     public static final int READ_TIMEOUT = 10000;
-    protected static final String ENCODING = "windows-1251";
+    public static final String ENCODING = "windows-1251";
     protected static final String USER_AGENT = "Android reader";
     private static final String DEBUG_TAG = "HttpClientController";
     private static HttpHost proxy = null;
@@ -99,7 +100,7 @@ public class HttpClientController {
     public Author getAuthorByURL(String link) throws IOException, SamlibParseException {
         Author a = new Author();
         a.setUrl(link);
-        String str = getURL(slc.getAuthorRequestURL(a), null);
+        String str = getURL(slc.getAuthorRequestURL(a), new StringReader());
 
         parseAuthorData(a, str);
         return a;
@@ -135,10 +136,22 @@ public class HttpClientController {
      */
     public void downloadBook(Book book) throws IOException, SamlibParseException {
         File f = book.getFile();
-        
+        PageReader reader;
+        switch (book.getFileType()){
+            case HTML:
+                reader=new TextFileReader(book.getFile());
+                getURL(slc.getBookUrl(book), reader);
+                SamLibConfig.transformBook(f);
+                break;
+            case FB2:
+                reader=new Fb2ZipReader(book.getFile());
+                getURL(slc.getBookUrl(book), reader);
+                break;
+            default:
+                throw new IOException();
+        }
 
-        getURL(slc.getBookUrl(book), f);
-        SamLibConfig.transformBook(f);
+
     }
     /**
      * Making author search
@@ -164,12 +177,12 @@ public class HttpClientController {
      * Make http connection and begin download data using list of mirrors URL
      *
      * @param urls list of mirrors URL
-     * @param f file to download data to can be null
+     * @param reader  file to download data to can be null
      * @return downloaded data in case file is null
      * @throws IOException connection problem
      * @throws SamlibParseException remote host return status other then 200
      */
-    private String getURL(List<String> urls, File f) throws IOException, SamlibParseException {
+    private String getURL(List<String> urls,PageReader reader) throws IOException, SamlibParseException {
         String res = null;
         IOException exio = null;
         SamlibParseException exparse = null;
@@ -179,7 +192,7 @@ public class HttpClientController {
             exparse = null;
             try {
                 URL url = new URL(surl);
-                res = _getURL(url, f);
+                res = _getURL(url, reader);
             } catch (IOException e) {
                 slc.flipOrder();
                 exio = e;
@@ -207,19 +220,19 @@ public class HttpClientController {
      * only by _getURL. Make internal call of __getURL
      *
      * @param url URL to download from
-     * @param f File to download to, can be null
+     * @param reader File to download to, can be null
      * @return Download data if "f" is null
      * @throws IOException connection problem
      * @throws SamlibParseException remote host return status other then 200 ad
      * 503
      */
-    private String _getURL(URL url, File f) throws IOException, SamlibParseException {
+    private String _getURL(URL url, PageReader reader) throws IOException, SamlibParseException {
         String res = null;
         boolean retry = true;
         int loopCount = 0;
         while (retry) {
             try {
-                res = __getURL(url, f);
+                res = __getURL(url, reader);
                 retry = false;
             } catch (SamLibIsBusyException ex) {
                 loopCount++;
@@ -243,13 +256,13 @@ public class HttpClientController {
      * by _getURL
      *
      * @param url URL to download
-     * @param f File to download to can be null
+     * @param reader File to download to can be null
      * @return Download data if "f" is null
      * @throws IOException connection problem
      * @throws SamLibIsBusyException host return 503 status
      * @throws SamlibParseException host return status other then 200 and 503
      */
-    private String __getURL(URL url, File f) throws IOException, SamLibIsBusyException, SamlibParseException {
+    private String __getURL(URL url, PageReader reader) throws IOException, SamLibIsBusyException, SamlibParseException {
 
         HttpGet method = new HttpGet(url.toString());
 
@@ -290,10 +303,7 @@ public class HttpClientController {
             throw new SamlibParseException("Status code: " + status);
         }
 
-        InputStream content = response.getEntity().getContent();
-        BufferedReader in = new BufferedReader(new InputStreamReader(content, ENCODING));
-
-        String result = doReadPage(in, f);
+        String result = reader.doReadPage(response.getEntity().getContent());
         httpclient.getConnectionManager().shutdown();
         return result;
 
@@ -313,43 +323,7 @@ public class HttpClientController {
         scope = null;
     }
 
-    /**
-     * Read buffer to string and return it or to BufferWriter for book download
-     *
-     * @param in the reader to read data from
-     * @param f the file to write data to, can be null
-     * @return the string data if the file is null or null in the other case
-     * @throws IOException
-     */
-    protected static String doReadPage(BufferedReader in, File f) throws IOException {
-        BufferedWriter bw;
-        if (f != null) {
-            bw = new BufferedWriter(new FileWriter(f));
-        } else {
-            bw = null;
-        }
 
-        StringBuilder sb = new StringBuilder();
-        String inputLine = in.readLine();
-        while (inputLine != null) {
-            if (bw == null) {
-                sb.append(inputLine).append("\n");
-
-            } else {
-                bw.write(inputLine);
-                bw.newLine();
-            }
-            inputLine = in.readLine();
-        }
-        if (bw == null) {
-            return sb.toString();
-        } else {
-            bw.flush();
-            bw.close();
-            return null;
-        }
-
-    }
 
     /**
      * Parse String data to load Author object 
