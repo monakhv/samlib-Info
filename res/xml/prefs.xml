@@ -37,6 +37,11 @@ limitations under the License.
             android:entries="@array/sortBookTitles"
             android:entryValues="@array/sortBookValues"
             android:defaultValue="@string/pref_default_book_order"/>
+        <Preference
+            android:key="@string/pref_key_google_account"
+            android:title="@string/pref_title_google_account"
+
+            />
         
     </PreferenceCategory>
 

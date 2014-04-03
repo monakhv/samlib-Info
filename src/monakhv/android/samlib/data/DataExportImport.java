@@ -99,6 +99,9 @@ public class DataExportImport {
             
         }
     }
+    public static File getDataBase(Context context){
+        return context.getDatabasePath(DB_PREFIX);
+    }
     
     public static String exportDB(Context context) {
 
