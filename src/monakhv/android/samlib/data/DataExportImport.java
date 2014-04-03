@@ -48,7 +48,7 @@ import monakhv.android.samlib.tasks.AddAuthor;
 public class DataExportImport {
     public static enum FileType {
         HTML(".html","text/html"),
-        FB2(".fb2","application/octet-stream");
+        FB2(".fb2",null);
         public final String ext;
         public final String mime;
 
