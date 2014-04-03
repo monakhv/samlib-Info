@@ -159,6 +159,15 @@ public class SettingsHelper implements SharedPreferences.OnSharedPreferenceChang
                 false);
     }
 
+    public String getGoogleAccount(){
+        return  prefs.getString(context.getString(R.string.pref_key_google_account),null);
+    }
+
+    public void setGoogleAccount(String account){
+        SharedPreferences.Editor edit = prefs.edit();
+        edit.putString(context.getString(R.string.pref_key_google_account),account);
+        edit.commit();
+    }
 
 
     /**

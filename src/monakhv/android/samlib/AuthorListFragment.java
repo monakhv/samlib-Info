@@ -364,7 +364,7 @@ public class AuthorListFragment  extends SherlockListFragment implements
             Log.d(DEBUG_TAG, "go to Archive");
             Intent prefsIntent = new Intent(getActivity().getApplicationContext(),
                     ArchiveActivity.class);
-            prefsIntent.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
+            //prefsIntent.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
 
             //startActivityForResult must be called via getActivity direct call produce wrong requestCode
             getActivity().startActivityForResult(prefsIntent, MainActivity.ARCHIVE_ACTIVITY);

@@ -15,12 +15,19 @@
  */
 package monakhv.android.samlib;
 
+import monakhv.android.samlib.data.SettingsHelper;
 import monakhv.android.samlib.dialogs.SingleChoiceSelectDialog;
+
+import android.accounts.AccountManager;
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.app.ProgressDialog;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -44,12 +51,12 @@ public class ArchiveActivity extends SherlockFragmentActivity {
     private static final String DEBUG_TAG = "ArchiveActivity";
     private SingleChoiceSelectDialog dialog = null;
     private String selectedFile;
-
+    private SettingsHelper setting;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.archive);
-
+        setting = new SettingsHelper(this);
     }
 
     private Dialog createImportAlert(String filename) {
@@ -133,11 +140,14 @@ public class ArchiveActivity extends SherlockFragmentActivity {
             return;
         }
 
+        updateAndFinish();
+
+    }
+    private void updateAndFinish(){
         Intent intent = new Intent();
         intent.putExtra(UPDATE_KEY, UPDATE_LIST);
         setResult(RESULT_OK, intent);
         finish();
-
 
     }
 
@@ -199,5 +209,82 @@ public class ArchiveActivity extends SherlockFragmentActivity {
             finish();
         }
         return super.onOptionsItemSelected(item);
+    }
+    @SuppressWarnings("UnusedParameters")
+    public void exportGoogle(View v) {
+        makeGoogleOperation(GoogleDiskOperation.OperationType.EXPORT);
+    }
+    @SuppressWarnings("UnusedParameters")
+    public void importGoogle(View v) {
+        makeGoogleOperation(GoogleDiskOperation.OperationType.IMPORT);
+    }
+    private ProgressDialog progress;
+    private GoogleReceiver receiver;
+    private GoogleDiskOperation.OperationType operation;
+
+    private  void makeGoogleOperation(GoogleDiskOperation.OperationType ot){
+        operation = ot;
+        progress = new ProgressDialog(this);
+        progress.setMessage(getText(ot.getMessage()));
+        progress.setCancelable(true);
+        progress.setIndeterminate(true);
+        new GoogleDiskOperation(this,setting.getGoogleAccount(),operation).execute();
+
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        receiver = new GoogleReceiver();
+        IntentFilter filter = new IntentFilter(GoogleReceiver.ACTION);
+        filter.addCategory(Intent.CATEGORY_DEFAULT);
+        registerReceiver(receiver, filter);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        unregisterReceiver(receiver);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        switch (requestCode){
+            case GoogleDiskOperation.RESOLVE_CONNECTION_REQUEST_CODE:
+                setting.setGoogleAccount(
+                    data.getStringExtra(AccountManager.KEY_ACCOUNT_NAME));
+                new GoogleDiskOperation(this,setting.getGoogleAccount(),operation).execute();
+                break;
+        }
+    }
+
+    public class GoogleReceiver extends BroadcastReceiver {
+        public static final String ACTION="GoogleReceiver_ACTION";
+        public static final String EXTRA_RESULT="EXTRA_RESULT";
+        public static final String EXTRA_OPERATION="EXTRA_OPERATION";
+        public static final String EXTRA_START="EXTRA_START";
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+
+            boolean res = intent.getBooleanExtra(EXTRA_RESULT,false);
+            GoogleDiskOperation.OperationType ot=GoogleDiskOperation.OperationType.valueOf(
+            intent.getStringExtra(EXTRA_OPERATION));
+            boolean start = intent.getBooleanExtra(EXTRA_START,false);
+            if (start){
+
+                progress.show();
+                return;
+            }
+            else {
+                progress.dismiss();
+            }
+
+            if (res && ot == GoogleDiskOperation.OperationType.IMPORT){
+                updateAndFinish();
+            }
+
+
+        }
     }
 }

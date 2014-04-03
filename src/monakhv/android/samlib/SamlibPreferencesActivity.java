@@ -16,6 +16,9 @@
 
 package monakhv.android.samlib;
 
+import android.accounts.Account;
+import android.accounts.AccountManager;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.media.Ringtone;
@@ -31,27 +34,34 @@ import android.preference.RingtonePreference;
 import android.support.v4.app.NavUtils;
 import android.util.Log;
 import android.view.MenuItem;
+
+import com.google.android.gms.auth.GoogleAuthUtil;
+import com.google.android.gms.common.AccountPicker;
+
 import java.util.Arrays;
 import java.util.List;
+
 import monakhv.android.samlib.data.SettingsHelper;
 
 /**
- *
  * @author monakhv
  */
 public class SamlibPreferencesActivity extends PreferenceActivity
         implements OnSharedPreferenceChangeListener, OnPreferenceChangeListener {
 
     private static final String DEBUG_TAG = "SamlibPreferencesActivity";
+    private static final int REQ_AUTH = 11;
     private SettingsHelper helper;
     private final String[] autoSummaryFields = {"pref_key_update_Period", "pref_key_proxy_host",
-        "pref_key_proxy_port", "pref_key_proxy_user", "pref_key_update_autoload_limit", "pref_key_book_lifetime",
-    "pref_key_author_order", "pref_key_book_order","pref_key_file_format"};
+            "pref_key_proxy_port", "pref_key_proxy_user", "pref_key_update_autoload_limit", "pref_key_book_lifetime",
+            "pref_key_author_order", "pref_key_book_order"};
     private List<String> autoSumKeys;
     private RingtonePreference ringtonPref;
+    private Preference googlePrefs;
 
     /**
      * Called when the activity is first created.
+     *
      * @param icicle
      */
     @Override
@@ -65,6 +75,34 @@ public class SamlibPreferencesActivity extends PreferenceActivity
         helper = new SettingsHelper(this);
         autoSumKeys = Arrays.asList(autoSummaryFields);
         ringtonPref = (RingtonePreference) findPreference(getString(R.string.pref_key_notification_ringtone));
+        googlePrefs = findPreference(getString(R.string.pref_key_google_account));
+        googlePrefs.setSummary(helper.getGoogleAccount());
+        googlePrefs.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+            @Override
+            public boolean onPreferenceClick(Preference preference) {
+                String email = helper.getGoogleAccount();
+                Account curAccnt = (email == null) ? null : new Account(email, GoogleAuthUtil.GOOGLE_ACCOUNT_TYPE);
+                Intent intent = AccountPicker.newChooseAccountIntent(curAccnt, null,
+                        new String[]{GoogleAuthUtil.GOOGLE_ACCOUNT_TYPE}, false, null, null, null, null);
+                startActivityForResult(intent, REQ_AUTH);
+                return true;
+
+            }
+        });
+    }
+
+    @Override
+    protected void onActivityResult(final int rqst, final int rslt, final Intent it) {
+        if (it == null){
+            return;
+        }
+        switch (rqst) {
+            case REQ_AUTH:
+                helper.setGoogleAccount(it.getStringExtra(AccountManager.KEY_ACCOUNT_NAME));
+                googlePrefs.setSummary(helper.getGoogleAccount());
+                break;
+        }
+
     }
 
     @Override
@@ -128,10 +166,10 @@ public class SamlibPreferencesActivity extends PreferenceActivity
     }
 
     public boolean onPreferenceChange(Preference preference, Object newValue) {
-        if (preference.getKey().equalsIgnoreCase(getString(R.string.pref_key_notification_ringtone))){
+        if (preference.getKey().equalsIgnoreCase(getString(R.string.pref_key_notification_ringtone))) {
             updateRingtoneSummary((RingtonePreference) preference, Uri.parse((String) newValue));
         }
-        
+
         return true;
     }
 
