@@ -46,6 +46,17 @@ import monakhv.android.samlib.tasks.AddAuthor;
  * @author monakhv
  */
 public class DataExportImport {
+    public static enum FileType {
+        HTML(".html","text/html"),
+        FB2(".fb2","application/octet-stream");
+        public final String ext;
+        public final String mime;
+
+        private FileType(String ext,String mime) {
+            this.ext=ext;
+            this.mime = mime;
+        }
+    }
 
     private static final String DATE_FORMAT = "dd-MM-yyyy";
     private static final String DATE_FORMAT_DEBUG = "dd-MM-yyyy HH:mm:ss";
@@ -69,9 +80,9 @@ public class DataExportImport {
      * @param book Book object to get File for
      * @return  File object to sore book to
      */
-    public static File _getBookFile(Book book){
+    public static File _getBookFile(Book book,FileType fileType){
                 
-        String ff=  BOOKS_DIR +"/"+    book.getUri()    +      ".html";
+        String ff=  BOOKS_DIR +"/"+    book.getUri()    +      fileType.ext;
         
         File ss = new File(backupDIR, ff);
         File pp = ss.getParentFile();

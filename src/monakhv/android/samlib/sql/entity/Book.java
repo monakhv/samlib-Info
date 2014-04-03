@@ -52,6 +52,7 @@ public class Book implements Serializable {
     protected int id;
     protected int group_id;
     private long authorId;
+    private DataExportImport.FileType fileType;
 
     /**
      * Default constructor
@@ -60,6 +61,7 @@ public class Book implements Serializable {
         isNew = false;
         updateDate = Calendar.getInstance().getTime().getTime();
         modifyTime = Calendar.getInstance().getTime().getTime();
+        fileType= DataExportImport.FileType.HTML;
     }
 
     /**
@@ -186,8 +188,14 @@ public class Book implements Serializable {
     public void setGroup_id(int group_id) {
         this.group_id = group_id;
     }
-    
-    
+
+    public DataExportImport.FileType getFileType() {
+        return fileType;
+    }
+
+    public void setFileType(DataExportImport.FileType fileType) {
+        this.fileType = fileType;
+    }
 
     @Override
     public int hashCode() {
@@ -239,7 +247,7 @@ public class Book implements Serializable {
      * @return  File to store book
      */
     public File getFile() {
-        return DataExportImport._getBookFile(this);
+        return DataExportImport._getBookFile(this,fileType);
     }
 
     /**
@@ -250,17 +258,25 @@ public class Book implements Serializable {
         return "file://" + getFile().getAbsolutePath();
     }
 
+   public String getFileMime(){
+       return fileType.mime;
+   }
     @SuppressWarnings("ResultOfMethodCallIgnored")
+    /**
+     * Clean downloaded files of any types
+     */
     public void cleanFile() {
-        File ff = DataExportImport._getBookFile(this);
+        for (DataExportImport.FileType ft : DataExportImport.FileType.values()){
+            File ff = DataExportImport._getBookFile(this,ft);
 
-        if (ff.exists()) {
-            ff.delete();
+            if (ff.exists()) {
+                ff.delete();
+            }
         }
     }
 
     /**
-     * Test whether file for the book is fresh enafght
+     * Test whether file for the book is fresh enoght
      *
      *
      * @return true if we need update file
@@ -268,8 +284,24 @@ public class Book implements Serializable {
     public boolean needUpdateFile() {
 
         File ff = getFile();
+        switch (fileType){
+            case HTML:
+                return !ff.exists() || ff.lastModified() < getModifyTime();
+            case FB2:
+                if (ff.exists()){
+                    return  ff.lastModified() < getModifyTime();
+                }
+                else {
+                    fileType= DataExportImport.FileType.HTML;
+                    ff = getFile();
+                    return !ff.exists() || ff.lastModified() < getModifyTime();
+                }
+              default:
+                throw new UnsupportedOperationException();
+        }
 
-        return !ff.exists() || ff.lastModified() < getModifyTime();
+
+
     }
 
     public static Calendar string2Cal(String str) throws BookParseException {

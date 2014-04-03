@@ -334,7 +334,7 @@ public class BookListFragment extends SherlockListFragment implements
         
         Intent launchBrowser = new Intent();
         launchBrowser.setAction(android.content.Intent.ACTION_VIEW);
-        launchBrowser.setDataAndType(Uri.parse("file://" + book.getFile().getAbsolutePath()), "text/html");
+        launchBrowser.setDataAndType(Uri.parse(book.getFileURL()), book.getFileMime());
 
         SettingsHelper setting = new SettingsHelper(getActivity());
         if (setting.getAutoMarkFlag()) {
@@ -350,6 +350,7 @@ public class BookListFragment extends SherlockListFragment implements
      */
             
     private void loadBook(Book book){
+        book.setFileType(settings.getFileType());
         if (book.needUpdateFile()) {
             progress = new ProgressDialog(getActivity());
             progress.setMessage(getActivity().getText(R.string.download_Loading));

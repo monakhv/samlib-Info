@@ -32,6 +32,8 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import monakhv.android.samlib.data.DataExportImport;
+
 /**
  *
  * @author monakhv
@@ -128,6 +130,7 @@ public class SamLibConfig {
         private static enum SamIzdat {
         SamLib("SamLib","http://samlib.ru"),
         BudClub("BudClub","http://budclub.ru");
+        private static final String ZIP =".zip" ;
         private final String url;
         private final String name;
         private final Pattern pattern;//search url pattern
@@ -173,8 +176,16 @@ public class SamLibConfig {
          * @param uu book url
          * @return  URL to download the book
          */
-        private String getBookURL(String uu){
-            return url+REQUEST_BOOK_TEXT+uu;
+        private String getBookURL(String uu,DataExportImport.FileType fileType){
+            switch (fileType){
+                case HTML:
+                    return url+REQUEST_BOOK_TEXT+uu;
+                case FB2:
+                    return url+SLASH+uu+fileType.ext+ZIP;
+                default:
+                    return null;
+            }
+
         }
         /**
          * Construct URL to search Author
@@ -347,7 +358,7 @@ public class SamLibConfig {
         List<String> res = new ArrayList<String>();
         Iterator<SamIzdat> itr = getIterator();
         while(itr.hasNext()){
-            res.add(itr.next().getBookURL(b.getUri()));
+            res.add(itr.next().getBookURL(b.getUri(),b.getFileType()));
         }
         return res;
     }

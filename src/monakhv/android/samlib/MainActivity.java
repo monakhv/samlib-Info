@@ -24,7 +24,6 @@ import android.os.Handler;
 import android.support.v4.widget.SlidingPaneLayout;
 import android.text.TextUtils;
 import android.util.Log;
-import android.util.TypedValue;
 import android.view.KeyEvent;
 
 import android.view.View;
@@ -36,6 +35,7 @@ import android.widget.Toast;
 import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.app.SherlockFragmentActivity;
 
+import monakhv.android.samlib.data.DataExportImport;
 import monakhv.android.samlib.search.SearchAuthorActivity;
 import monakhv.android.samlib.data.SettingsHelper;
 import monakhv.android.samlib.search.SearchAuthorsListFragment;
@@ -434,6 +434,7 @@ public class MainActivity extends SherlockFragmentActivity implements AuthorList
         public static final String MESG = "MESG";
         public static final String RESULT = "RESULT";
         public static final String BOOK_ID = "BOOK_ID";
+        public static final String FILE_TYPE = "FILE_TYPE";
         private static final String DEBUG_TAG = "DownloadReceiver";
 
         @Override
@@ -446,6 +447,8 @@ public class MainActivity extends SherlockFragmentActivity implements AuthorList
 
             AuthorController sql = new AuthorController(context);
             Book book = sql.getBookController().getById(book_id);
+            String ft = intent.getStringExtra(FILE_TYPE);
+            book.setFileType(DataExportImport.FileType.valueOf(ft));
 
             if (books != null) {
                 if (books.progress != null) {

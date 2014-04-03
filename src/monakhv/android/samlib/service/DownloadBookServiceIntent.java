@@ -23,6 +23,8 @@ import monakhv.android.samlib.MainActivity.DownloadReceiver;
 
 
 import monakhv.android.samlib.R;
+import monakhv.android.samlib.data.DataExportImport;
+import monakhv.android.samlib.data.SettingsHelper;
 import monakhv.android.samlib.sql.AuthorController;
 import monakhv.android.samlib.sql.entity.Book;
 import monakhv.samlib.http.HttpClientController;
@@ -54,22 +56,46 @@ public class DownloadBookServiceIntent extends IntentService {
         Book book = ctl.getBookController().getById(book_id);
        
 
-        HttpClientController http = HttpClientController.getInstance();
-        try {
-            http.downloadBook(book);
-            finish(true);
 
-        } catch (Exception ex) {
-            book.cleanFile();//clean file on error
-            finish(false);
-            Log.e(DEBUG_TAG, "Download book error: " + book.getUri(), ex);
+        SettingsHelper helper = new SettingsHelper(this);
+        DataExportImport.FileType ft = helper.getFileType();
+        Log.d(DEBUG_TAG, "default type is  " + ft.toString());
 
+        switch (ft){
+            case HTML:
+                finish(getBook(book, DataExportImport.FileType.HTML),DataExportImport.FileType.HTML);
+                break;
+            case FB2:
+                boolean rr = getBook(book, DataExportImport.FileType.FB2);
+                if (rr){
+                    finish(true,DataExportImport.FileType.FB2);
+                }
+                else {
+                    finish(getBook(book, DataExportImport.FileType.HTML),DataExportImport.FileType.HTML);
+                }
+                break;
         }
 
     }
 
-    private void finish(boolean b) {
+    private boolean getBook(Book book, DataExportImport.FileType ft) {
+        book.setFileType(ft);
+        HttpClientController http = HttpClientController.getInstance();
+        try {
+            http.downloadBook(book);
+           return true;
+
+        } catch (Exception ex) {
+            book.cleanFile();//clean file on error
+
+            Log.e(DEBUG_TAG, "Download book error: " + book.getUri(), ex);
+            return false;
+        }
+    }
+
+    private void finish(boolean b, DataExportImport.FileType ft) {
         Log.d(DEBUG_TAG, "finish result: " + b);
+        Log.d(DEBUG_TAG, "file type:  " + ft.toString());
         if (! sendResult){
             return;
         }
@@ -84,6 +110,7 @@ public class DownloadBookServiceIntent extends IntentService {
         broadcastIntent.setAction(DownloadReceiver.ACTION_RESP);
         broadcastIntent.putExtra(DownloadReceiver.MESG, msg);
         broadcastIntent.putExtra(DownloadReceiver.RESULT, b);
+        broadcastIntent.putExtra(DownloadReceiver.FILE_TYPE, ft.toString());
         broadcastIntent.putExtra(DownloadReceiver.BOOK_ID, book_id);
 
         sendBroadcast(broadcastIntent);
@@ -93,8 +120,8 @@ public class DownloadBookServiceIntent extends IntentService {
     /**
      * Helper method to start this service
      *
-     * @param ctx
-     * @param book
+     * @param ctx Context
+     * @param book Book to download
      * @param sendupdate  whether  send update information into activity or not
      */
     public static void start(Context ctx, Book book,boolean  sendupdate) {

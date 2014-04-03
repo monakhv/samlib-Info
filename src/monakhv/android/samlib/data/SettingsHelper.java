@@ -243,6 +243,14 @@ public class SettingsHelper implements SharedPreferences.OnSharedPreferenceChang
         return BookListFragment.SortOrder.valueOf(str);
     }
 
+    public DataExportImport.FileType getFileType(){
+        String str= prefs.getString(
+                context.getString(R.string.pref_key_file_format),
+                context.getString(R.string.pref_default_file_format)
+        );
+        return   DataExportImport.FileType.valueOf(str);
+    }
+
     private long getUpdatePeriod() {
 
 
