@@ -15,6 +15,7 @@
  */
 package monakhv.android.samlib;
 
+import monakhv.android.samlib.data.GoogleDiskOperation;
 import monakhv.android.samlib.data.SettingsHelper;
 import monakhv.android.samlib.dialogs.SingleChoiceSelectDialog;
 
@@ -228,6 +229,7 @@ public class ArchiveActivity extends SherlockFragmentActivity {
         progress.setMessage(getText(ot.getMessage()));
         progress.setCancelable(true);
         progress.setIndeterminate(true);
+        progress.show();
         new GoogleDiskOperation(this,setting.getGoogleAccount(),operation).execute();
 
     }
@@ -253,6 +255,7 @@ public class ArchiveActivity extends SherlockFragmentActivity {
             case GoogleDiskOperation.RESOLVE_CONNECTION_REQUEST_CODE:
                 setting.setGoogleAccount(
                     data.getStringExtra(AccountManager.KEY_ACCOUNT_NAME));
+                progress.show();
                 new GoogleDiskOperation(this,setting.getGoogleAccount(),operation).execute();
                 break;
         }
@@ -262,7 +265,6 @@ public class ArchiveActivity extends SherlockFragmentActivity {
         public static final String ACTION="GoogleReceiver_ACTION";
         public static final String EXTRA_RESULT="EXTRA_RESULT";
         public static final String EXTRA_OPERATION="EXTRA_OPERATION";
-        public static final String EXTRA_START="EXTRA_START";
 
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -270,15 +272,8 @@ public class ArchiveActivity extends SherlockFragmentActivity {
             boolean res = intent.getBooleanExtra(EXTRA_RESULT,false);
             GoogleDiskOperation.OperationType ot=GoogleDiskOperation.OperationType.valueOf(
             intent.getStringExtra(EXTRA_OPERATION));
-            boolean start = intent.getBooleanExtra(EXTRA_START,false);
-            if (start){
 
-                progress.show();
-                return;
-            }
-            else {
-                progress.dismiss();
-            }
+            progress.dismiss();
 
             if (res && ot == GoogleDiskOperation.OperationType.IMPORT){
                 updateAndFinish();

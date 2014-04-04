@@ -1,4 +1,4 @@
-package monakhv.android.samlib;
+package monakhv.android.samlib.data;
 
 
 import android.app.Activity;
@@ -35,7 +35,8 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-import monakhv.android.samlib.data.DataExportImport;
+import monakhv.android.samlib.ArchiveActivity;
+import monakhv.android.samlib.R;
 
 /*
  * Copyright 2014  Dmitry Monakhov
@@ -122,12 +123,7 @@ public class GoogleDiskOperation extends AsyncTask<Void, Void, Boolean> implemen
     @Override
     public void onConnected(Bundle bundle) {
         Log.d(DEBUG_TAG, "Get Connected");
-        Intent broadcastIntent = new Intent();
-        broadcastIntent.addCategory(Intent.CATEGORY_DEFAULT);
-        broadcastIntent.setAction(ArchiveActivity.GoogleReceiver.ACTION);
-        broadcastIntent.putExtra(ArchiveActivity.GoogleReceiver.EXTRA_START,true);
-        broadcastIntent.putExtra(ArchiveActivity.GoogleReceiver.EXTRA_OPERATION, operation.toString());
-        context.sendBroadcast(broadcastIntent);
+
         getDriveFile();
 
     }
