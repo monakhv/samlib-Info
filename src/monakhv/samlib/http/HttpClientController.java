@@ -161,10 +161,10 @@ public class HttpClientController {
      * @throws IOException 
      * @throws monakhv.android.samlib.exception.SamlibParseException 
      */
-    public HashMap<String, ArrayList<AuthorCard>> searchAuhors(String pattern, int page) throws IOException, SamlibParseException{
+    public HashMap<String, ArrayList<AuthorCard>> searchAuthors(String pattern, int page) throws IOException, SamlibParseException{
         String str;
         try {
-            str = getURL(slc.getSearchAuthorURL(pattern, page), null);
+            str = getURL(slc.getSearchAuthorURL(pattern, page),  new StringReader());
         }
         catch (NullPointerException ex){
             throw new SamlibParseException("Pattern: "+pattern);

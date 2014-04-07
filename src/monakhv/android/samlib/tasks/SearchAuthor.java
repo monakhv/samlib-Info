@@ -136,7 +136,7 @@ public class SearchAuthor extends AsyncTask<String, Void, Boolean> {
         Log.i(DEBUG_TAG, "Search author with pattern: " + pattern);
         settings.log(DEBUG_TAG, "Search author with pattern: " + pattern);
         int page = 1;
-        HashMap<String, ArrayList<AuthorCard>> colAthors = http.searchAuhors(pattern, page);
+        HashMap<String, ArrayList<AuthorCard>> colAthors = http.searchAuthors(pattern, page);
 
         while (colAthors != null) {//page cycle while we find anything
 
@@ -180,7 +180,7 @@ public class SearchAuthor extends AsyncTask<String, Void, Boolean> {
 //            }
 
             ++page;
-            colAthors = http.searchAuhors(pattern, page);
+            colAthors = http.searchAuthors(pattern, page);
         }
         Log.d(DEBUG_TAG, "Results: " + inum);
         settings.log(DEBUG_TAG, "Results: " + inum);
