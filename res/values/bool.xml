@@ -19,6 +19,8 @@ limitations under the License.
     <bool name="pref_key_debug_options">false</bool>
     <bool name="pref_key_use_proxy_flag">false</bool>
     <bool name="pref_key_flag_wihi_only">false</bool>
+    <bool name="pref_key_flag_roaming_work">false</bool>
+
     <bool name="pref_key_ignore_connect_error">true</bool>
     <bool name="pref_key_flag_automark">true</bool>
     <bool name="pref_key_flag_background_update_autoload">false</bool>

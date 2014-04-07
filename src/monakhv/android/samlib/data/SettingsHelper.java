@@ -397,8 +397,16 @@ public class SettingsHelper implements SharedPreferences.OnSharedPreferenceChang
 
         NetworkInfo info = ((ConnectivityManager) ctx
                 .getSystemService(Context.CONNECTIVITY_SERVICE)).getActiveNetworkInfo();
+        SettingsHelper st = new SettingsHelper(ctx);
+        boolean workRoaming = st.prefs.getBoolean(ctx.getString(R.string.pref_key_flag_roaming_work),false);
 
-        return !(info == null || !info.isConnected()) && !info.isRoaming();
+        if (workRoaming){
+            return !(info == null || !info.isConnected());
+        }
+        else {
+            return !(info == null || !info.isConnected()) && !info.isRoaming();
+        }
+
     }
 
     /**

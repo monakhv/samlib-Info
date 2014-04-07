@@ -117,6 +117,10 @@ limitations under the License.
      
     <string name="pref_key_flag_wihi_only">pref_key_flag_wihi_only</string>
     <string name="pref_title_wihi_only">Только по Wifi</string>
+
+    <string name="pref_key_flag_roaming_work">pref_key_flag_roaming_work</string>
+    <string name="pref_title_roaming_work">Работать в роуменге</string>
+
     
     <string name="pref_key_ignore_connect_error">pref_key_ignore_connect_error</string>
     <string name="pref_title_ignore_con_err">Не информировать об ошибках</string>
