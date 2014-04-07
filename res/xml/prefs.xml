@@ -83,6 +83,7 @@ limitations under the License.
             android:key="@string/pref_key_flag_wihi_only" 
             android:defaultValue="@bool/pref_key_flag_wihi_only"/>
         <CheckBoxPreference
+            android:dependency="pref_key_flag_background_update"
             android:title="@string/pref_title_roaming_work"
             android:key="@string/pref_key_flag_roaming_work"
             android:defaultValue="@bool/pref_key_flag_roaming_work"/>

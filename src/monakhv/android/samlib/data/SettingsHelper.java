@@ -371,12 +371,15 @@ public class SettingsHelper implements SharedPreferences.OnSharedPreferenceChang
         if (info == null || !info.isConnected()) {
             return false;
         }
-        if (info.isRoaming()) {
+        SettingsHelper helper = new SettingsHelper(ctx);
+        boolean workRoaming = helper.prefs.getBoolean(ctx.getString(R.string.pref_key_flag_roaming_work),false);
+        if (info.isRoaming() && !workRoaming) {
             // here is the roaming option you can change it if you want to
-            // disable internet while roaming, just return false
+            // disable internet while roaming if user check do not work in Roaming
             return false;
         }
-        SettingsHelper helper = new SettingsHelper(ctx);
+
+
         if (helper.getWifiOnlyFlag()) {
             ConnectivityManager conMan = (ConnectivityManager) ctx.getSystemService(Context.CONNECTIVITY_SERVICE);
             NetworkInfo inf = conMan.getNetworkInfo(1);
@@ -393,20 +396,19 @@ public class SettingsHelper implements SharedPreferences.OnSharedPreferenceChang
         return true;
     }
 
+    /**
+     * Test whether we have internet or not
+     * Use of manual update from Activity. Here we do not care about roaming
+     *
+     * @param ctx Context
+     * @return true if we have internet connection
+     *
+     */
     public static boolean haveInternet(Context ctx) {
 
         NetworkInfo info = ((ConnectivityManager) ctx
                 .getSystemService(Context.CONNECTIVITY_SERVICE)).getActiveNetworkInfo();
-        SettingsHelper st = new SettingsHelper(ctx);
-        boolean workRoaming = st.prefs.getBoolean(ctx.getString(R.string.pref_key_flag_roaming_work),false);
-
-        if (workRoaming){
-            return !(info == null || !info.isConnected());
-        }
-        else {
-            return !(info == null || !info.isConnected()) && !info.isRoaming();
-        }
-
+        return !(info == null || !info.isConnected());
     }
 
     /**
