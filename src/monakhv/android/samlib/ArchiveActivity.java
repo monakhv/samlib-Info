@@ -277,7 +277,12 @@ public class ArchiveActivity extends SherlockFragmentActivity {
 
             if (res && ot == GoogleDiskOperation.OperationType.IMPORT){
                 updateAndFinish();
+                return;
             }
+            if (res && ot == GoogleDiskOperation.OperationType.EXPORT){
+                Toast.makeText(context, context.getString(R.string.res_export_google_good), Toast.LENGTH_LONG).show();
+            }
+
 
 
         }

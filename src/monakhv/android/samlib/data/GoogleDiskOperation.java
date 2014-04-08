@@ -184,7 +184,7 @@ public class GoogleDiskOperation extends AsyncTask<Void, Void, Boolean> implemen
             @Override
             public void onResult(DriveApi.ContentsResult contentsResult) {
                 if (!contentsResult.getStatus().isSuccess()) {
-                    showMessage("Error while trying to create new file contents");
+                    showMessage(R.string.res_export_google_bad);
                     sendResult(false);
                     return;
                 }
@@ -204,6 +204,10 @@ public class GoogleDiskOperation extends AsyncTask<Void, Void, Boolean> implemen
 
     public void showMessage(String message) {
         Toast.makeText(context, message, Toast.LENGTH_LONG).show();
+    }
+
+    public void showMessage(int res) {
+        Toast.makeText(context,context.getString(res), Toast.LENGTH_LONG).show();
     }
 
     @Override

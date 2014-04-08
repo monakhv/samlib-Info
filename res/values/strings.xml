@@ -191,7 +191,10 @@ limitations under the License.
     
     <string name="res_export_db_good">База данных записана в файл</string>
     <string name="res_export_db_bad">Ошибка архивации данных</string>
-    
+
+    <string name="res_export_google_good">База успешно экспортирована</string>
+    <string name="res_export_google_bad">Ошибка экспорта базы</string>
+    <string name="res_import_google_bad">Ошибка импорта базы</string>
     
     
     <string name="arc_title2_db">Текст/HTML URL Export/Import</string>
