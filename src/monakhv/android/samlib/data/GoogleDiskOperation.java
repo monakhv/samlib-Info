@@ -86,6 +86,7 @@ public class GoogleDiskOperation extends AsyncTask<Void, Void, Boolean> implemen
         this.account = account;
         this.operation=operationType;
         dataBase = DataExportImport.getDataBase(ctx);
+        Log.d(DEBUG_TAG,"Original file: "+dataBase.getAbsolutePath());
 
     }
 
@@ -179,6 +180,9 @@ public class GoogleDiskOperation extends AsyncTask<Void, Void, Boolean> implemen
 
     }
 
+    /**
+     * Add new file data to Google Drive
+     */
     private void addFile() {
         Drive.DriveApi.newContents(mGoogleApiClient).setResultCallback(new ResultCallback<DriveApi.ContentsResult>() {
             @Override
@@ -277,6 +281,10 @@ public class GoogleDiskOperation extends AsyncTask<Void, Void, Boolean> implemen
                 });
     }
 
+    /**
+     * Method to write data base to Google Drive
+     * @param file DriveFile
+     */
     private void writeToFile(final DriveFile file) {
         file.openContents(mGoogleApiClient, DriveFile.MODE_WRITE_ONLY, null).setResultCallback(new ResultCallback<DriveApi.ContentsResult>() {
             @Override
