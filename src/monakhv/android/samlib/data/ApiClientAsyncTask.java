@@ -26,6 +26,11 @@ import java.util.concurrent.CountDownLatch;
  * limitations under the License.
  *
  * 4/17/14.
+ *
+ *
+ * Based on
+ * https://github.com/googledrive/android-demos/blob/master/src/com/google/android/gms/drive/sample/demo/ApiClientAsyncTask.java
+ *
  */
 public abstract class ApiClientAsyncTask  <Params, Progress, Result> extends AsyncTask<Params, Progress, Result> {
     private GoogleApiClient mClient;

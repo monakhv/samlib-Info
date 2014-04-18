@@ -265,6 +265,7 @@ public class ArchiveActivity extends SherlockFragmentActivity {
         public static final String ACTION="GoogleReceiver_ACTION";
         public static final String EXTRA_RESULT="EXTRA_RESULT";
         public static final String EXTRA_OPERATION="EXTRA_OPERATION";
+        public static final String EXTRA_ERROR="EXTRA_ERROR";
 
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -282,8 +283,10 @@ public class ArchiveActivity extends SherlockFragmentActivity {
             if (res && ot == GoogleDiskOperation.OperationType.EXPORT){
                 Toast.makeText(context, context.getString(R.string.res_export_google_good), Toast.LENGTH_LONG).show();
             }
-
-
+            String error = intent.getStringExtra(EXTRA_ERROR);
+            if (!res && error!= null){
+                Toast.makeText(context,error,Toast.LENGTH_LONG).show();
+            }
 
         }
     }
