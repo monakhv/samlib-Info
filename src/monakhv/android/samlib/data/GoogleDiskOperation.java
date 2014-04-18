@@ -259,6 +259,7 @@ public class GoogleDiskOperation extends AsyncTask<Void, Void, Boolean> implemen
                     public void onResult(DriveApi.ContentsResult contentsResult) {
                         if (!contentsResult.getStatus().isSuccess()) {
                             showMessage("Error Reading  file");
+                            sendResult(false);
                             return;
                         }
 
@@ -291,6 +292,7 @@ public class GoogleDiskOperation extends AsyncTask<Void, Void, Boolean> implemen
             public void onResult(DriveApi.ContentsResult contentsResult) {
                 if (!contentsResult.getStatus().isSuccess()) {
                     showMessage("Error Writing to file");
+                    sendResult(false);
                     return;
                 }
                 Contents contents = contentsResult.getContents();
