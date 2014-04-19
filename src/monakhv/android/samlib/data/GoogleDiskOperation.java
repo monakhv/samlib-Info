@@ -91,6 +91,15 @@ public class GoogleDiskOperation extends ApiClientAsyncTask<Void, Void, Boolean>
 
     }
 
+    private void reSync(){
+        Drive.DriveApi.requestSync(getGoogleApiClient())
+                .await(TIMEOUT_SEC,TimeUnit.SECONDS);
+    }
+    private DriveFolder getFolder(){
+        //return Drive.DriveApi.getAppFolder(getGoogleApiClient());
+        return Drive.DriveApi.getRootFolder(getGoogleApiClient());
+    }
+
     @Override
     protected void onPostExecute(Boolean aBoolean) {
         super.onPostExecute(aBoolean);
@@ -113,7 +122,8 @@ public class GoogleDiskOperation extends ApiClientAsyncTask<Void, Void, Boolean>
      */
     @Override
     protected Boolean doInBackgroundConnected(Void... params) {
-        DriveFolder folder = Drive.DriveApi.getAppFolder(getGoogleApiClient());
+        reSync();
+        DriveFolder folder = getFolder();
         Query query = new Query.Builder().addFilter(Filters.eq(SearchableField.TITLE, FileName)).build();
         DriveApi.MetadataBufferResult res = folder.queryChildren(getGoogleApiClient(), query).await(TIMEOUT_SEC, TimeUnit.SECONDS);
 
@@ -199,7 +209,7 @@ public class GoogleDiskOperation extends ApiClientAsyncTask<Void, Void, Boolean>
             return false;
         }
         // create a file
-        DriveFolder.DriveFileResult fileResult =Drive.DriveApi.getAppFolder(getGoogleApiClient())
+        DriveFolder.DriveFileResult fileResult =getFolder()
                 .createFile(getGoogleApiClient(), changeSet, contentsResult.getContents())
                 .await(TIMEOUT_SEC,TimeUnit.SECONDS);
 
@@ -216,8 +226,7 @@ public class GoogleDiskOperation extends ApiClientAsyncTask<Void, Void, Boolean>
             setError("Error test writing");
             return false;
         }
-        Drive.DriveApi.requestSync(getGoogleApiClient())
-                .await(TIMEOUT_SEC,TimeUnit.SECONDS);
+        reSync();
         return true;
 
 
@@ -255,8 +264,7 @@ public class GoogleDiskOperation extends ApiClientAsyncTask<Void, Void, Boolean>
             setError("Error Commit file");
             return false;
         }
-        Drive.DriveApi.requestSync(getGoogleApiClient())
-                .await(TIMEOUT_SEC,TimeUnit.SECONDS);
+        reSync();
         return true;
     }
 
