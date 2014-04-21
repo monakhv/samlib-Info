@@ -54,7 +54,6 @@ import monakhv.android.samlib.R;
  */
 public class GoogleDiskOperation extends ApiClientAsyncTask<Void, Void, Boolean> {
     public static final int RESOLVE_CONNECTION_REQUEST_CODE = 21;
-    private static final long TIMEOUT_SEC = 20;
     private static final int BUF_SIZE = 4096;
 
 
@@ -91,14 +90,7 @@ public class GoogleDiskOperation extends ApiClientAsyncTask<Void, Void, Boolean>
 
     }
 
-    private void reSync(){
-        Drive.DriveApi.requestSync(getGoogleApiClient())
-                .await(TIMEOUT_SEC,TimeUnit.SECONDS);
-    }
-    private DriveFolder getFolder(){
-        //return Drive.DriveApi.getAppFolder(getGoogleApiClient());
-        return Drive.DriveApi.getRootFolder(getGoogleApiClient());
-    }
+
 
     @Override
     protected void onPostExecute(Boolean aBoolean) {

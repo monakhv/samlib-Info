@@ -7,8 +7,10 @@ import android.os.Bundle;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.drive.Drive;
+import com.google.android.gms.drive.DriveFolder;
 
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 /*
  * Copyright 2014  Dmitry Monakhov
@@ -33,6 +35,7 @@ import java.util.concurrent.CountDownLatch;
  *
  */
 public abstract class ApiClientAsyncTask  <Params, Progress, Result> extends AsyncTask<Params, Progress, Result> {
+    protected static final long TIMEOUT_SEC = 20;
     private GoogleApiClient mClient;
 
     public ApiClientAsyncTask(Context context,String account) {
@@ -91,5 +94,22 @@ public abstract class ApiClientAsyncTask  <Params, Progress, Result> extends Asy
     protected abstract Result doInBackgroundConnected(Params... params);
     public void onConnectionFailedTask(ConnectionResult connectionResult){
 
+    }
+
+    /**
+     * Making request to make full re sync
+      */
+    protected void reSync(){
+        Drive.DriveApi.requestSync(getGoogleApiClient())
+                .await(TIMEOUT_SEC, TimeUnit.SECONDS);
+    }
+
+    /**
+     * get default drive folder to store data
+     * @return Folder
+     */
+    protected DriveFolder getFolder(){
+        //return Drive.DriveApi.getAppFolder(getGoogleApiClient());
+        return Drive.DriveApi.getRootFolder(getGoogleApiClient());
     }
 }
