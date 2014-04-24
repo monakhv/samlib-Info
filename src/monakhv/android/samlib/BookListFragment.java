@@ -218,8 +218,8 @@ public class BookListFragment extends SherlockListFragment implements
             bookSQL.update(selected);
         }
         if (item.getItemId() == menu_reload){
-            //noinspection ResultOfMethodCallIgnored
-            selected.getFile().delete();
+
+            selected.cleanFile();
             loadBook(selected);
         }
         return super.onContextItemSelected(item);
