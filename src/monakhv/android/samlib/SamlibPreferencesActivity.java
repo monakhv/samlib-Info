@@ -21,6 +21,8 @@ import android.accounts.AccountManager;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.media.Ringtone;
 import android.media.RingtoneManager;
 import android.net.Uri;
@@ -35,6 +37,7 @@ import android.support.v4.app.NavUtils;
 import android.util.Log;
 import android.view.MenuItem;
 
+import com.actionbarsherlock.app.SherlockPreferenceActivity;
 import com.google.android.gms.auth.GoogleAuthUtil;
 import com.google.android.gms.common.AccountPicker;
 
@@ -46,7 +49,7 @@ import monakhv.android.samlib.data.SettingsHelper;
 /**
  * @author monakhv
  */
-public class SamlibPreferencesActivity extends PreferenceActivity
+public class SamlibPreferencesActivity extends SherlockPreferenceActivity
         implements OnSharedPreferenceChangeListener, OnPreferenceChangeListener {
 
     private static final String DEBUG_TAG = "SamlibPreferencesActivity";
@@ -89,6 +92,15 @@ public class SamlibPreferencesActivity extends PreferenceActivity
 
             }
         });
+        String title=getString(R.string.app_name);
+        try {
+            PackageInfo pInfo = getPackageManager().getPackageInfo(getPackageName(), 0);
+            title= title+" - "+pInfo.versionName;
+
+        } catch (PackageManager.NameNotFoundException e) {
+            e.printStackTrace();
+        }
+        getSupportActionBar().setTitle(title);
     }
 
     @Override
@@ -150,8 +162,9 @@ public class SamlibPreferencesActivity extends PreferenceActivity
         }
     }
 
+
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
+    public boolean onOptionsItemSelected(com.actionbarsherlock.view.MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:
                 NavUtils.navigateUpFromSameTask(this);
@@ -159,7 +172,10 @@ public class SamlibPreferencesActivity extends PreferenceActivity
 
         }
         return super.onOptionsItemSelected(item);
+
     }
+
+
 
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
         updateSummary(key);

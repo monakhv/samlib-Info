@@ -19,6 +19,7 @@ import com.google.android.gms.drive.DriveFolder;
 
 
 import com.google.android.gms.drive.DriveResource;
+import com.google.android.gms.drive.Metadata;
 import com.google.android.gms.drive.MetadataBuffer;
 import com.google.android.gms.drive.MetadataChangeSet;
 import com.google.android.gms.drive.query.Filters;
@@ -30,6 +31,10 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import monakhv.android.samlib.ArchiveActivity;
@@ -55,7 +60,7 @@ import monakhv.android.samlib.R;
 public class GoogleDiskOperation extends ApiClientAsyncTask<Void, Void, Boolean> {
     public static final int RESOLVE_CONNECTION_REQUEST_CODE = 21;
     private static final int BUF_SIZE = 4096;
-
+    private static final int RETRY_SYNC=10;
 
 
     public enum OperationType {
@@ -91,7 +96,6 @@ public class GoogleDiskOperation extends ApiClientAsyncTask<Void, Void, Boolean>
     }
 
 
-
     @Override
     protected void onPostExecute(Boolean aBoolean) {
         super.onPostExecute(aBoolean);
@@ -115,41 +119,70 @@ public class GoogleDiskOperation extends ApiClientAsyncTask<Void, Void, Boolean>
     @Override
     protected Boolean doInBackgroundConnected(Void... params) {
         reSync();
-        DriveFolder folder = getFolder();
-        Query query = new Query.Builder().addFilter(Filters.eq(SearchableField.TITLE, FileName)).build();
-        DriveApi.MetadataBufferResult res = folder.queryChildren(getGoogleApiClient(), query).await(TIMEOUT_SEC, TimeUnit.SECONDS);
-
-        if (!res.getStatus().isSuccess()) {
-            setError("Error Search File");
+        List<DriveFile> files = getFile();
+        if (files == null) {
             return false;
         }
-        MetadataBuffer mdSet = res.getMetadataBuffer();
-        int count = mdSet.getCount();
-        Log.d(DEBUG_TAG, "Found " + count + " files for " + account);
         switch (operation) {
             case EXPORT:
-                if (count > 0) {
+                if (files.size() > 0) {
                     Log.d(DEBUG_TAG, "write to existing file");
-                    return writeFile(Drive.DriveApi.getFile(getGoogleApiClient(), mdSet.get(0).getDriveId()));
+                    return writeFile(files.get(0));
                 } else {
                     Log.d(DEBUG_TAG, "add new  file");
                     return createFile();
                 }
 
             case IMPORT:
-                if (count > 0) {
+                if (files.size() > 0) {
                     Log.d(DEBUG_TAG, "start reading  file");
-                    return readFile(Drive.DriveApi.getFile(getGoogleApiClient(), mdSet.get(0).getDriveId()));
-                }
-                else {
+                    return readFile(files.get(0));
+                } else {
                     Log.d(DEBUG_TAG, "there is no file to read");
                     setError(R.string.res_import_google_bad);
                     return false;
                 }
-
-
+            default:
+                setError("Unknown operation");
+                return false;
         }
-        return false;
+
+    }
+
+    /**
+     * Search file by name
+     *
+     * @return file or null if not found or Error
+     */
+    private List<DriveFile> getFile() {
+        List<DriveFile> files = new ArrayList<DriveFile>();
+        DriveFolder folder = getFolder();
+        Query query = new Query.Builder().addFilter(Filters.eq(SearchableField.TITLE, FileName)).build();
+        DriveApi.MetadataBufferResult res = folder.queryChildren(getGoogleApiClient(), query).await(TIMEOUT_SEC, TimeUnit.SECONDS);
+
+        if (!res.getStatus().isSuccess()) {
+            setError("Error Search File");
+            return null;
+        }
+        MetadataBuffer mdSet = res.getMetadataBuffer();
+        int count = mdSet.getCount();
+        Log.d(DEBUG_TAG, "Found " + count + " files for " + account);
+        int i = 0;
+        while (i < count) {
+            Metadata data = mdSet.get(i);
+            DriveFile file = Drive.DriveApi.getFile(getGoogleApiClient(), data.getDriveId());
+
+            Log.d(DEBUG_TAG, i + " "+data.getModifiedDate());
+            Log.d(DEBUG_TAG, i + " "+data.getModifiedByMeDate());
+            Log.d(DEBUG_TAG, i + " "+data.getCreatedDate());
+
+            if ( data.getDriveId().getResourceId() != null && !data.isTrashed()) {
+                Log.d(DEBUG_TAG, "add  file  " + i);
+                files.add(file);
+            }
+            ++i;
+        }
+        return files;
     }
 
     @Override
@@ -173,7 +206,6 @@ public class GoogleDiskOperation extends ApiClientAsyncTask<Void, Void, Boolean>
 
     /**
      * Blocking method to Add new file data to Google Drive
-     *
      */
     private boolean createFile() {
         DriveApi.ContentsResult contentsResult = Drive.DriveApi.newContents(getGoogleApiClient()).await(TIMEOUT_SEC, TimeUnit.SECONDS);
@@ -201,38 +233,41 @@ public class GoogleDiskOperation extends ApiClientAsyncTask<Void, Void, Boolean>
             return false;
         }
         // create a file
-        DriveFolder.DriveFileResult fileResult =getFolder()
-                .createFile(getGoogleApiClient(), changeSet, contentsResult.getContents())
-                .await(TIMEOUT_SEC,TimeUnit.SECONDS);
+        DriveFolder.DriveFileResult fileResult = getFolder()
+                .createFile(getGoogleApiClient(), changeSet, originalContents)
+                .await(TIMEOUT_SEC, TimeUnit.SECONDS);
 
-        if (!fileResult.getStatus().isSuccess()){
+        if (!fileResult.getStatus().isSuccess()) {
             setError("Error saving to file");
             return false;
         }
         //reread file
         DriveResource.MetadataResult metadataResult = fileResult.getDriveFile()
                 .getMetadata(getGoogleApiClient())
-                .await(TIMEOUT_SEC,TimeUnit.SECONDS);
+                .await(TIMEOUT_SEC, TimeUnit.SECONDS);
 
         if (!metadataResult.getStatus().isSuccess()) {
             setError("Error test writing");
             return false;
         }
-        reSync();
-        return true;
+        DriveFile file = Drive.DriveApi.getFile(getGoogleApiClient(),     metadataResult.getMetadata().getDriveId());
 
-
+        return makeSync(file);
     }
 
+
     /**
-     *  Blocking method to write data to existing file
+     * Blocking method to write data to existing file
+     *
      * @param file file to write to
      * @return result status
      */
-    private boolean writeFile(final DriveFile file){
-        DriveApi.ContentsResult result = file.openContents(getGoogleApiClient(),DriveFile.MODE_WRITE_ONLY,null)
+    private boolean writeFile(final DriveFile file) {
+        Date date = Calendar.getInstance().getTime();
+        Log.d(DEBUG_TAG,"Current: "+date);
+        DriveApi.ContentsResult result = file.openContents(getGoogleApiClient(), DriveFile.MODE_WRITE_ONLY, null)
                 .await(TIMEOUT_SEC, TimeUnit.SECONDS);
-        if (!result.getStatus().isSuccess()){
+        if (!result.getStatus().isSuccess()) {
             setError("Error Writing to file");
             return false;
         }
@@ -252,16 +287,56 @@ public class GoogleDiskOperation extends ApiClientAsyncTask<Void, Void, Boolean>
         }
         com.google.android.gms.common.api.Status status = file.commitAndCloseContents(getGoogleApiClient(), contents)
                 .await(TIMEOUT_SEC, TimeUnit.SECONDS);
-        if (!status.isSuccess()){
+        if (!status.isSuccess()) {
             setError("Error Commit file");
             return false;
         }
-        reSync();
-        return true;
+
+        return makeSync(file);
+    }
+
+    /**
+     * Waiting for full synchronization of the file when  ModifiedDate=ModifiedByMeDate
+     *
+     * @param file file is required to synchronize
+     * @return true if the file is synchronized
+     */
+    private boolean makeSync(DriveFile file) {
+        DriveResource.MetadataResult metadataResult;
+        int i = 0;
+        while (i < RETRY_SYNC) {
+            reSync();
+            int is = i+1;
+            Log.d(DEBUG_TAG, "Retry number: " + i + "  sleep " +is+" second");
+            try {
+                TimeUnit.SECONDS.sleep(i+1);
+            } catch (InterruptedException ex1) {
+                Log.e(DEBUG_TAG, "Sleep interrupted: ", ex1);
+            }
+            metadataResult = file.getMetadata(getGoogleApiClient()).await(TIMEOUT_SEC, TimeUnit.SECONDS);
+
+            if (!metadataResult.getStatus().isSuccess()) {
+                setError("Error re-read file");
+                return false;
+            }
+            Date mDate = metadataResult.getMetadata().getModifiedDate();
+            Date mMeDate = metadataResult.getMetadata().getModifiedByMeDate();
+            Date cDate = metadataResult.getMetadata().getCreatedDate();
+            Log.d(DEBUG_TAG, i + " "+mDate);
+            Log.d(DEBUG_TAG, i + " "+mMeDate);
+            Log.d(DEBUG_TAG, i + " "+cDate);
+            if (mDate.equals(mMeDate)){
+                return true;
+            }
+            ++i;
+        }
+        setError(R.string.res_export_google_delayed);
+        return false;
     }
 
     /**
      * Read data base from the file
+     *
      * @param file the to read from
      * @return result status
      */
@@ -269,7 +344,7 @@ public class GoogleDiskOperation extends ApiClientAsyncTask<Void, Void, Boolean>
 
         DriveApi.ContentsResult result = file.openContents(getGoogleApiClient(), DriveFile.MODE_READ_ONLY, null)
                 .await(TIMEOUT_SEC, TimeUnit.SECONDS);
-        if (   ! result.getStatus().isSuccess()){
+        if (!result.getStatus().isSuccess()) {
             setError("Error Reading  file");
 
             return false;
@@ -284,8 +359,7 @@ public class GoogleDiskOperation extends ApiClientAsyncTask<Void, Void, Boolean>
             }
 
             return true;
-        }
-        catch (Exception ex){
+        } catch (Exception ex) {
             setError("Error Reading to file");
 
             return false;
@@ -299,7 +373,7 @@ public class GoogleDiskOperation extends ApiClientAsyncTask<Void, Void, Boolean>
     }
 
     public void setError(int res) {
-       setError(context.getString(res));
+        setError(context.getString(res));
     }
 
     private void sendResult(boolean res) {

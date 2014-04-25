@@ -16,8 +16,8 @@ limitations under the License.
 -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
           package="monakhv.android.samlib"
-          android:versionCode="10326"
-          android:versionName="3.2.6">
+          android:versionCode="10327"
+          android:versionName="3.2.7">
     <uses-sdk
         android:minSdkVersion="9"
         android:targetSdkVersion="19" />
