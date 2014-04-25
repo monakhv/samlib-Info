@@ -37,12 +37,7 @@ public class DeleteAuthor extends  AsyncTask<Integer, Void, Boolean>{
         
         int res = ctl.delete(ctl.getById(params[0]));
         Log.d(DEBUG_TAG, "Author id "+params[0]+" deleted, status "+res);
-        if (res == 1){
-            return true;
-        }
-        else {
-            return false;
-        }
+        return res == 1;
     }
     
 }

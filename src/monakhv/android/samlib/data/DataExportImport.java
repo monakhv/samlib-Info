@@ -163,16 +163,12 @@ public class DataExportImport {
 
                 BufferedWriter bw = new BufferedWriter(new FileWriter(backupTxt));
 
-                AuthorController sql = new AuthorController(applicationContext);
-
-                List<Author> authors = sql.getAll();
-                for (Author a : authors) {
-                    bw.write(a.getUrlForBrowser());
+                for (String u : getAuthorUrls(applicationContext)) {
+                    bw.write(u);
                     bw.newLine();
                 }
                 bw.flush();
                 bw.close();
-
 
             }
 
@@ -183,6 +179,15 @@ public class DataExportImport {
         }
         return backupTxtPath;
 
+    }
+    public static List<String> getAuthorUrls(Context applicationContext){
+        List<String> res = new ArrayList<String>();
+        AuthorController sql = new AuthorController(applicationContext);
+        List<Author> authors = sql.getAll();
+        for (Author a : authors) {
+            res.add(a.getUrlForBrowser());
+        }
+        return res;
     }
 
     /**

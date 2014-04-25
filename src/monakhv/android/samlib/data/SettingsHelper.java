@@ -17,6 +17,7 @@ package monakhv.android.samlib.data;
 
 import android.app.AlarmManager;
 import android.app.PendingIntent;
+import android.app.backup.BackupManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -63,6 +64,8 @@ public class SettingsHelper implements SharedPreferences.OnSharedPreferenceChang
     }
 
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+        BackupManager bmr = new BackupManager(context);
+        bmr.dataChanged();
 
         if (key.equals(context.getText(R.string.pref_key_flag_background_update).toString())
                 || key.equals(context.getText(R.string.pref_key_update_Period).toString())) {

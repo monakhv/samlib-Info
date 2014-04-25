@@ -15,6 +15,7 @@
  */
 package monakhv.android.samlib.sql;
 
+import android.app.backup.BackupManager;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
@@ -142,6 +143,8 @@ public class AuthorController implements AbstractController<Author> {
             Log.e(DEBUG_TAG, "insert: uri is NULL");
             return 0;
         }
+        BackupManager bmr = new BackupManager(context);
+        bmr.dataChanged();
         long id = ContentUris.parseId(uri);
         for (Book book : a.getBooks()) {
             book.setAuthorId(id);
@@ -169,6 +172,8 @@ public class AuthorController implements AbstractController<Author> {
         for (Book book : books) {
             bkCtr.delete(book);
         }
+        BackupManager bmr = new BackupManager(context);
+        bmr.dataChanged();
         
         context.getContentResolver().delete(AuthorProvider.T2A_URI, SQLController.COL_T2A_AUTHORID+"="+a.getId(), null);
         return  context.getContentResolver().delete(singleUri, null, null);
