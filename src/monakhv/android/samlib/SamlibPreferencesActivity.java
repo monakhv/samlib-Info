@@ -21,8 +21,6 @@ import android.accounts.AccountManager;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager;
 import android.media.Ringtone;
 import android.media.RingtoneManager;
 import android.net.Uri;
@@ -31,11 +29,9 @@ import android.preference.EditTextPreference;
 import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.Preference.OnPreferenceChangeListener;
-import android.preference.PreferenceActivity;
 import android.preference.RingtonePreference;
 import android.support.v4.app.NavUtils;
 import android.util.Log;
-import android.view.MenuItem;
 
 import com.actionbarsherlock.app.SherlockPreferenceActivity;
 import com.google.android.gms.auth.GoogleAuthUtil;
@@ -92,14 +88,8 @@ public class SamlibPreferencesActivity extends SherlockPreferenceActivity
 
             }
         });
-        String title=getString(R.string.app_name);
-        try {
-            PackageInfo pInfo = getPackageManager().getPackageInfo(getPackageName(), 0);
-            title= title+" - "+pInfo.versionName;
+        String title=getString(R.string.app_name) +" - "+helper.getVersionName();
 
-        } catch (PackageManager.NameNotFoundException e) {
-            e.printStackTrace();
-        }
         getSupportActionBar().setTitle(title);
     }
 

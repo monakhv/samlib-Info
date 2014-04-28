@@ -71,7 +71,7 @@ public class TagController  implements AbstractController<Tag>{
      * @param name
      * @return tag id or -1 if no tag found
      */
-    private int getByName(String name){
+    public int getByName(String name){
         int res =  -1;
         String ucs = name.toUpperCase();
         

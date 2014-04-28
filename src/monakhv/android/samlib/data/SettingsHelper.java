@@ -18,9 +18,12 @@ package monakhv.android.samlib.data;
 import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.app.backup.BackupManager;
+
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.util.Log;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -52,6 +55,35 @@ public class SettingsHelper implements SharedPreferences.OnSharedPreferenceChang
     public SettingsHelper(Context context) {
         this.context = context;
         this.prefs = context.getSharedPreferences(PREFS_NAME, 0);
+
+        //String str = prefs.getString(context.getString(R.string.pref_key_version_name),null);
+
+        //Nether put backup here because we can backup before restore
+
+//        if (str == null || !str.equals(getVersionName())){
+//
+////            SharedPreferences.Editor editor = prefs.edit();
+////            editor.putString(context.getString(R.string.pref_key_version_name),getVersionName());
+////            editor.commit();
+//            Log.d(DEBUG_TAG,"SettingsHelper: requestBackup");
+//            requestBackup();
+//        }
+    }
+    public void requestBackup(){
+        BackupManager bmr = new BackupManager(context);
+        bmr.dataChanged();
+    }
+
+    public String getVersionName() {
+        String res = "";
+        try {
+            PackageInfo pInfo = context.getPackageManager().getPackageInfo(context.getPackageName(), 0);
+            res = pInfo.versionName;
+
+        } catch (PackageManager.NameNotFoundException e) {
+            e.printStackTrace();
+        }
+        return res;
     }
 
     public void registerListener() {

@@ -35,6 +35,7 @@ public class Author  implements Serializable{
     
     private List<Integer> tags_id;
     private List<String>  tags_name;
+    private String all_tags_name;
 
     /**
      * Just empty constructor with empty book list and current updated time
@@ -94,7 +95,13 @@ public class Author  implements Serializable{
         this.isNew = isNew;
     }
 
-   
+    public String getAll_tags_name() {
+        return all_tags_name;
+    }
+
+    public void setAll_tags_name(String all_tags_name) {
+        this.all_tags_name = all_tags_name;
+    }
 
     public List<Integer> getTags_id() {
         return tags_id;

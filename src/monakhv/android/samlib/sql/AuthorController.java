@@ -15,7 +15,7 @@
  */
 package monakhv.android.samlib.sql;
 
-import android.app.backup.BackupManager;
+
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
@@ -25,6 +25,8 @@ import android.util.Log;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
+import monakhv.android.samlib.data.SettingsHelper;
 import monakhv.android.samlib.sql.entity.Author;
 import monakhv.android.samlib.sql.entity.Book;
 import monakhv.android.samlib.sql.entity.BookCollection;
@@ -39,10 +41,12 @@ public class AuthorController implements AbstractController<Author> {
     private static final String DEBUG_TAG = "AuthorController";
     private final BookController bkCtr;
     private final Context context;
+    private final SettingsHelper settingsHelper;
 
     public AuthorController(Context context) {
         this.context = context;
         bkCtr = new BookController(context);
+        settingsHelper = new SettingsHelper(context);
     }
 
     public BookController getBookController() {
@@ -143,8 +147,7 @@ public class AuthorController implements AbstractController<Author> {
             Log.e(DEBUG_TAG, "insert: uri is NULL");
             return 0;
         }
-        BackupManager bmr = new BackupManager(context);
-        bmr.dataChanged();
+        settingsHelper.requestBackup();
         long id = ContentUris.parseId(uri);
         for (Book book : a.getBooks()) {
             book.setAuthorId(id);
@@ -172,8 +175,7 @@ public class AuthorController implements AbstractController<Author> {
         for (Book book : books) {
             bkCtr.delete(book);
         }
-        BackupManager bmr = new BackupManager(context);
-        bmr.dataChanged();
+        settingsHelper.requestBackup();
         
         context.getContentResolver().delete(AuthorProvider.T2A_URI, SQLController.COL_T2A_AUTHORID+"="+a.getId(), null);
         return  context.getContentResolver().delete(singleUri, null, null);
@@ -343,6 +345,7 @@ public class AuthorController implements AbstractController<Author> {
 
 
         String all_tag_names = cursor.getString(cursor.getColumnIndex(SQLController.COL_TGNAMES));
+        a.setAll_tags_name(all_tag_names);
 
         if (all_tag_names != null) {
             String[] names = all_tag_names.split(",");

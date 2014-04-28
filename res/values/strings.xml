@@ -174,6 +174,8 @@ limitations under the License.
     <string name="pref_title_file_format">Формат файла</string>
     <string name="pref_default_file_format">HTML</string>
 
+    <string name="pref_key_version_name">pref_key_version_name</string>
+
     <string name="pref_no_sound">Без звука</string>
     
     <string name="bt_close">Закрыть</string>
