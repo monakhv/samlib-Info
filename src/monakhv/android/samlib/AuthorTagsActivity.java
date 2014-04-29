@@ -15,6 +15,7 @@
  */
 package monakhv.android.samlib;
 
+import monakhv.android.samlib.data.SettingsHelper;
 import monakhv.android.samlib.dialogs.EnterStringDialog;
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -57,11 +58,12 @@ public class AuthorTagsActivity extends FragmentActivity {
     private int author_id;
     private boolean addVisible = false;
     private SimpleCursorAdapter adapter;
+    private SettingsHelper helper;
 
     /**
-     * Find listview object using its id
+     * Find listView object using its id
      *
-     * @return
+     * @return ListView with tags
      */
     private ListView getListView() {
         return (ListView) findViewById(R.id.listTags);
@@ -95,6 +97,7 @@ public class AuthorTagsActivity extends FragmentActivity {
         listView.setItemsCanFocus(false);
         loadTagData();
         registerForContextMenu(listView);
+        helper = new SettingsHelper(this);
 
     }
     private int delete_menu_id = 1;
@@ -117,9 +120,9 @@ public class AuthorTagsActivity extends FragmentActivity {
         AlertDialog.Builder adb = new AlertDialog.Builder(this);
         adb.setTitle(R.string.Attention);
 
-        String tagname = cursor.getString(cursor.getColumnIndex(SQLController.COL_TAG_NAME));
+        String tagName = cursor.getString(cursor.getColumnIndex(SQLController.COL_TAG_NAME));
         String msg = getString(R.string.alert_tag_delete);
-        msg = msg.replaceAll("__", tagname);
+        msg = msg.replaceAll("__", tagName);
 
         adb.setMessage(msg);
         adb.setIcon(android.R.drawable.ic_dialog_alert);
@@ -175,7 +178,7 @@ public class AuthorTagsActivity extends FragmentActivity {
     /**
      * Get selected TAGs to display in the ListView
      *
-     * @return
+     * @return Cursor
      */
     private Cursor getCursor() {
         return getApplicationContext().getContentResolver().query(AuthorProvider.TAG_URI, null, null, null, SQLController.COL_TAG_NAME);
@@ -194,15 +197,15 @@ public class AuthorTagsActivity extends FragmentActivity {
 
     }
 
-    public static String join(Collection<?> col, String delim) {
+    public static String join(Collection<?> col, String deliminator) {
         StringBuilder sb = new StringBuilder();
-        Iterator<?> iter = col.iterator();
-        if (iter.hasNext()) {
-            sb.append(iter.next().toString());
+        Iterator<?> iterator = col.iterator();
+        if (iterator.hasNext()) {
+            sb.append(iterator.next().toString());
         }
-        while (iter.hasNext()) {
-            sb.append(delim);
-            sb.append(iter.next().toString());
+        while (iterator.hasNext()) {
+            sb.append(deliminator);
+            sb.append(iterator.next().toString());
         }
         return sb.toString();
     }
@@ -238,7 +241,7 @@ public class AuthorTagsActivity extends FragmentActivity {
     /**
      * Add new Tag into DB
      *
-     * @param view
+     * @param view view
      */
     public void addTag(View view) {
         EditText editText = (EditText) findViewById(R.id.addTagText);
@@ -274,7 +277,7 @@ public class AuthorTagsActivity extends FragmentActivity {
     /**
      * User press cancel button
      *
-     * @param view
+     * @param view view
      */
     public void cancelClick(View view) {
         finish();
@@ -284,7 +287,7 @@ public class AuthorTagsActivity extends FragmentActivity {
     /**
      * User pre Ok button
      *
-     * @param view
+     * @param view View
      */
     public void okClick(View view) {
 
@@ -301,6 +304,7 @@ public class AuthorTagsActivity extends FragmentActivity {
         AuthorController sql = new AuthorController(this);
         Author a = sql.getById(author_id);
         sql.syncTags(a, tags);
+        helper.requestBackup();
         finish();
     }
 

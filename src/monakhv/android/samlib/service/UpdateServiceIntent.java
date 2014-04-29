@@ -44,13 +44,12 @@ public class UpdateServiceIntent extends IntentService {
     public static final String CALLER_TYPE = "CALLER_TYPE";
     public static final String SELECT_STRING = "SELECT_STRING";
     public static final int CALLER_IS_ACTIVITY = 1;
-    public static final int CALLER_IS_RECIVER = 2;
+    public static final int CALLER_IS_RECEIVER = 2;
     private static final String DEBUG_TAG = "UpdateServiceIntent";
     private int currentCaller = 0;
     private Context context;
     private SettingsHelper settings;
     private final List<Author> updatedAuthors;
-    private int skipedAuthors = 0;
 
     public UpdateServiceIntent() {
         super("UpdateServiceIntent");
@@ -60,20 +59,21 @@ public class UpdateServiceIntent extends IntentService {
 
     @Override
     protected void onHandleIntent(Intent intent) {
-        skipedAuthors = 0;
+        int skippedAuthors = 0;
         Log.d(DEBUG_TAG, "Got intent");
         context = this.getApplicationContext();
         updatedAuthors.clear();
         settings = new SettingsHelper(context);
         currentCaller = intent.getIntExtra(CALLER_TYPE, 0);
         String selection = intent.getStringExtra(SELECT_STRING);
+        settings.requestFirstBackup();
         if (currentCaller == 0) {
             Log.e(DEBUG_TAG, "Wrong Caller type");
             settings.log(DEBUG_TAG, "Wrong Caller type");
             return;
         }
 
-        if (currentCaller == CALLER_IS_RECIVER) {
+        if (currentCaller == CALLER_IS_RECEIVER) {
             selection = null;
             if (!SettingsHelper.haveInternetWIFI(context)) {
                 Log.d(DEBUG_TAG, "Ignore update task - we have no internet connection");
@@ -101,10 +101,10 @@ public class UpdateServiceIntent extends IntentService {
         wl.acquire();
         List<Author> authors = ctl.getAll(selection,SortOrder.DateUpdate.getOrder());
         int total = authors.size();
-        int icurrent = 0;//to send update information to pull-to-refresh
+        int iCurrent = 0;//to send update information to pull-to-refresh
         for (Author a : authors) {//main author cycle
             if (currentCaller == CALLER_IS_ACTIVITY) {
-                sendUpdate(total, ++icurrent, a.getName());
+                sendUpdate(total, ++iCurrent, a.getName());
             }
             String url = a.getUrl();
             Author newA;
@@ -121,7 +121,7 @@ public class UpdateServiceIntent extends IntentService {
             } catch (SamlibParseException ex) {//skip update for given author
                 Log.e(DEBUG_TAG, "Error parsing url: " + url + " skip update author ", ex);
                 settings.log(DEBUG_TAG, "Error parsing url: " + url + " skip update author ", ex);
-                ++skipedAuthors;
+                ++skippedAuthors;
                 newA = a;
             }
             if (a.update(newA)) {//we have update for the author
@@ -141,8 +141,8 @@ public class UpdateServiceIntent extends IntentService {
             }
 
         }//main author cycle END
-        if (authors.size() == skipedAuthors){
-            finish(false);//all authors skiped - this is the error
+        if (authors.size() == skippedAuthors){
+            finish(false);//all authors skipped - this is the error
         }
         else {
             finish(true);
@@ -180,7 +180,7 @@ public class UpdateServiceIntent extends IntentService {
             sendBroadcast(broadcastIntent);
         }
 
-        if (currentCaller == CALLER_IS_RECIVER) {//Call as a regular service
+        if (currentCaller == CALLER_IS_RECEIVER) {//Call as a regular service
 
 
             if (result && updatedAuthors.isEmpty() && !settings.getDebugFlag()) {
@@ -209,10 +209,10 @@ public class UpdateServiceIntent extends IntentService {
         }
     }
 
-    private void sendUpdate(int total, int icurrent, String name) {
+    private void sendUpdate(int total, int iCurrent, String name) {
 
-        //String str = context.getText(R.string.update_update)+"  ["+icurrent+"/"+total+"]:   "+name;
-        String str = " ["+icurrent+"/"+total+"]:   "+name;
+        //String str = context.getText(R.string.update_update)+"  ["+iCurrent+"/"+total+"]:   "+name;
+        String str = " ["+iCurrent+"/"+total+"]:   "+name;
         Intent broadcastIntent = new Intent();
         broadcastIntent.addCategory(Intent.CATEGORY_DEFAULT);
         broadcastIntent.setAction(UpdateActivityReceiver.ACTION_RESP);

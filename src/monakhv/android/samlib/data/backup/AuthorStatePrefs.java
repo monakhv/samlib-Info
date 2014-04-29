@@ -42,8 +42,9 @@ public class AuthorStatePrefs {
 
     private Context context;
     private SharedPreferences prefs;
+    private static AuthorStatePrefs instance;
 
-    public AuthorStatePrefs(Context context) {
+    private AuthorStatePrefs(Context context) {
 
         this.context = context;
         this.prefs = getPrefs();
@@ -104,5 +105,20 @@ public class AuthorStatePrefs {
         return context.getSharedPreferences(fn, Context.MODE_PRIVATE);
     }
 
+    static AuthorStatePrefs  getInstance(Context ctx){
+        if (instance == null){
+            instance = new AuthorStatePrefs(ctx);
+        }
+        return instance;
+    }
+
+    public static void load(Context ctx){
+        AuthorStatePrefs ins = getInstance(ctx);
+        ins.load();
+    }
+    public static void restore(Context ctx){
+        AuthorStatePrefs ins = getInstance(ctx);
+        ins.restore();
+    }
 
 }

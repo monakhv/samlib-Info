@@ -32,21 +32,17 @@ import monakhv.android.samlib.data.SettingsHelper;
  */
 public class SamLibBackupAgentHelper extends BackupAgentHelper {
     private static final String DEBUG_TAG = "SamLibBackupAgentHelper";
-    // The name of the SharedPreferences file
+
 
 
     // A key to uniquely identify the set of backup data
-    static final String PREFS_BACKUP_KEY = "prefs";
-    static final String PREFS_AUTHORS = "AUTHOR_LIST";
-
-    @Override
+    static final String PREFS_SETTINGS_KEY = "prefs";
+        @Override
     public void onCreate() {
         Log.d(DEBUG_TAG,"onCreate");
 
-        AuthorStatePrefs aa = new AuthorStatePrefs(getApplicationContext());
-        aa.load();
-        addHelper(PREFS_BACKUP_KEY, new SharedPreferencesBackupHelper(this, SettingsHelper.PREFS_NAME));
-        addHelper(PREFS_AUTHORS, new SharedPreferencesBackupHelper(this, AuthorStatePrefs.PREF_NAME));
+        AuthorStatePrefs.load(this);
+        addHelper(PREFS_SETTINGS_KEY, new SharedPreferencesBackupHelper(this, SettingsHelper.PREFS_NAME,AuthorStatePrefs.PREF_NAME));
 
     }
 
@@ -54,8 +50,7 @@ public class SamLibBackupAgentHelper extends BackupAgentHelper {
     @Override
     public void onRestore(BackupDataInput data, int appVersionCode, ParcelFileDescriptor newState) throws IOException {
         super.onRestore(data, appVersionCode, newState);
-        AuthorStatePrefs aa = new AuthorStatePrefs(getApplicationContext());
-        aa.restore();
+        AuthorStatePrefs.restore(this);
 
     }
 

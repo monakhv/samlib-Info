@@ -18,6 +18,8 @@ package monakhv.android.samlib.tasks;
 import android.content.Context;
 import android.os.AsyncTask;
 import android.util.Log;
+
+import monakhv.android.samlib.data.SettingsHelper;
 import monakhv.android.samlib.sql.AuthorController;
 
 /**
@@ -26,10 +28,12 @@ import monakhv.android.samlib.sql.AuthorController;
  */
 public class DeleteAuthor extends  AsyncTask<Integer, Void, Boolean>{
     private AuthorController ctl =null;
+    private SettingsHelper helper=null;
     private static final String DEBUG_TAG="DeleteAuthor";
     
     public DeleteAuthor(Context c){
         ctl = new AuthorController(c);
+        helper = new SettingsHelper(c);
     }
 
     @Override
@@ -39,5 +43,10 @@ public class DeleteAuthor extends  AsyncTask<Integer, Void, Boolean>{
         Log.d(DEBUG_TAG, "Author id "+params[0]+" deleted, status "+res);
         return res == 1;
     }
-    
+    @Override
+    protected void onPostExecute(Boolean result) {
+        if (result){
+            helper.requestBackup();
+        }
+    }
 }

@@ -17,6 +17,7 @@ package monakhv.android.samlib.tasks;
 
 import android.content.Context;
 import android.os.AsyncTask;
+import android.os.PowerManager;
 import android.util.Log;
 import android.widget.Toast;
 import java.io.IOException;
@@ -54,6 +55,9 @@ public class AddAuthor extends AsyncTask<String, Void, Boolean> {
 
         HttpClientController http = HttpClientController.getInstance();
         AuthorController sql = new AuthorController(context);
+        PowerManager pm = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
+        PowerManager.WakeLock wl = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, DEBUG_TAG);
+        wl.acquire();
         for (String url : texts) {
             Author a = loadAuthor(http, sql, url);
             if (a != null) {
@@ -61,6 +65,7 @@ public class AddAuthor extends AsyncTask<String, Void, Boolean> {
                 ++numberOfAdded;
             }
         }
+        wl.release();
         return true;
     }
     //
@@ -82,9 +87,11 @@ public class AddAuthor extends AsyncTask<String, Void, Boolean> {
         }
         else if (numberOfAdded ==1 ) {
             msg = context.getText(R.string.add_success);
+            settings.requestBackup();
 
         } else if (numberOfAdded >1){
             msg = context.getText(R.string.add_success_multi)+" "+numberOfAdded;
+            settings.requestBackup();
         }
 
         Toast toast = Toast.makeText(context, msg, duration);

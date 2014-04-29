@@ -29,10 +29,12 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.NetworkInfo.State;
 import android.net.Uri;
+
 import java.io.File;
 import java.net.Authenticator;
 import java.net.PasswordAuthentication;
 import java.util.Calendar;
+
 import monakhv.android.samlib.AuthorListFragment;
 import monakhv.android.samlib.BookListFragment;
 import monakhv.android.samlib.R;
@@ -41,7 +43,6 @@ import monakhv.android.samlib.sql.entity.Book;
 import monakhv.samlib.http.HttpClientController;
 
 /**
- *
  * @author monakhv
  */
 public class SettingsHelper implements SharedPreferences.OnSharedPreferenceChangeListener {
@@ -56,22 +57,34 @@ public class SettingsHelper implements SharedPreferences.OnSharedPreferenceChang
         this.context = context;
         this.prefs = context.getSharedPreferences(PREFS_NAME, 0);
 
-        //String str = prefs.getString(context.getString(R.string.pref_key_version_name),null);
-
-        //Nether put backup here because we can backup before restore
-
-//        if (str == null || !str.equals(getVersionName())){
-//
-////            SharedPreferences.Editor editor = prefs.edit();
-////            editor.putString(context.getString(R.string.pref_key_version_name),getVersionName());
-////            editor.commit();
-//            Log.d(DEBUG_TAG,"SettingsHelper: requestBackup");
-//            requestBackup();
-//        }
     }
-    public void requestBackup(){
+
+    /**
+     * unconditionally request backup data
+     */
+    public void requestBackup() {
         BackupManager bmr = new BackupManager(context);
         bmr.dataChanged();
+    }
+
+    /**
+     * Request backup the first time after upgrade only
+     * Call from update manager
+     */
+    public void requestFirstBackup() {
+        String str = prefs.getString(context.getString(R.string.pref_key_version_name), null);
+
+
+        if (str == null || !str.equals(getVersionName())) {
+
+            SharedPreferences.Editor editor = prefs.edit();
+            editor.putString(context.getString(R.string.pref_key_version_name), getVersionName());
+            editor.commit();
+            Log.d(DEBUG_TAG, "SettingsHelper: requestBackup");
+            requestBackup();
+        } else {
+            Log.d(DEBUG_TAG, "SettingsHelper: IGNORE requestBackup");
+        }
     }
 
     public String getVersionName() {
@@ -96,8 +109,7 @@ public class SettingsHelper implements SharedPreferences.OnSharedPreferenceChang
     }
 
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-        BackupManager bmr = new BackupManager(context);
-        bmr.dataChanged();
+        requestBackup();
 
         if (key.equals(context.getText(R.string.pref_key_flag_background_update).toString())
                 || key.equals(context.getText(R.string.pref_key_update_Period).toString())) {
@@ -129,8 +141,6 @@ public class SettingsHelper implements SharedPreferences.OnSharedPreferenceChang
 
     /**
      * Cancel recurring Task
-     *
-     *
      */
     private void cancelRecurringAlarm() {
         Log.d(DEBUG_TAG, "Cancel Updater service call");
@@ -147,8 +157,6 @@ public class SettingsHelper implements SharedPreferences.OnSharedPreferenceChang
 
     /**
      * Set recurring Task
-     *
-     *
      */
     private void setRecurringAlarm() {
         Log.d(DEBUG_TAG, "Update Updater service call");
@@ -168,7 +176,6 @@ public class SettingsHelper implements SharedPreferences.OnSharedPreferenceChang
                 0, downloader, PendingIntent.FLAG_CANCEL_CURRENT);
         AlarmManager alarms = (AlarmManager) context.getSystemService(
                 Context.ALARM_SERVICE);
-
 
 
         alarms.setInexactRepeating(AlarmManager.RTC_WAKEUP,
@@ -194,13 +201,13 @@ public class SettingsHelper implements SharedPreferences.OnSharedPreferenceChang
                 false);
     }
 
-    public String getGoogleAccount(){
-        return  prefs.getString(context.getString(R.string.pref_key_google_account),null);
+    public String getGoogleAccount() {
+        return prefs.getString(context.getString(R.string.pref_key_google_account), null);
     }
 
-    public void setGoogleAccount(String account){
+    public void setGoogleAccount(String account) {
         SharedPreferences.Editor edit = prefs.edit();
-        edit.putString(context.getString(R.string.pref_key_google_account),account);
+        edit.putString(context.getString(R.string.pref_key_google_account), account);
         edit.commit();
     }
 
@@ -212,15 +219,15 @@ public class SettingsHelper implements SharedPreferences.OnSharedPreferenceChang
      */
     public Uri getNotificationRingToneURI() {
 
-        String suri = prefs.getString(context.getString(R.string.pref_key_notification_ringtone), context.getString(R.string.pref_default_notification_ringtone));
+        String sUri = prefs.getString(context.getString(R.string.pref_key_notification_ringtone), context.getString(R.string.pref_default_notification_ringtone));
 
-        return Uri.parse(suri);
+        return Uri.parse(sUri);
     }
 
     /**
-     * Get automark Flag - whether clean new Mark or not on open bookmark
+     * Get auto-mark Flag - whether clean new Mark or not on open bookmark
      *
-     * @return automark Flag
+     * @return auto-mark Flag
      */
     public boolean getAutoMarkFlag() {
 
@@ -273,26 +280,26 @@ public class SettingsHelper implements SharedPreferences.OnSharedPreferenceChang
     }
 
 
-    public AuthorListFragment.SortOrder getAuthorSortOrder(){
+    public AuthorListFragment.SortOrder getAuthorSortOrder() {
         String str = prefs.getString(
-                context.getString(R.string.pref_key_author_order), 
+                context.getString(R.string.pref_key_author_order),
                 context.getString(R.string.pref_default_author_order));
         return AuthorListFragment.SortOrder.valueOf(str);
     }
 
-    public BookListFragment.SortOrder getBookSortOrder(){
+    public BookListFragment.SortOrder getBookSortOrder() {
         String str = prefs.getString(
                 context.getString(R.string.pref_key_book_order),
                 context.getString(R.string.pref_default_book_order));
         return BookListFragment.SortOrder.valueOf(str);
     }
 
-    public DataExportImport.FileType getFileType(){
-        String str= prefs.getString(
+    public DataExportImport.FileType getFileType() {
+        String str = prefs.getString(
                 context.getString(R.string.pref_key_file_format),
                 context.getString(R.string.pref_default_file_format)
         );
-        return   DataExportImport.FileType.valueOf(str);
+        return DataExportImport.FileType.valueOf(str);
     }
 
     private long getUpdatePeriod() {
@@ -361,11 +368,12 @@ public class SettingsHelper implements SharedPreferences.OnSharedPreferenceChang
             final String proxyPass = prefs.getString(context.getString(R.string.pref_key_proxy_password), "");
             Authenticator.setDefault(
                     new Authenticator() {
-                @Override
-                public PasswordAuthentication getPasswordAuthentication() {
-                    return new PasswordAuthentication(proxyUser, proxyPass.toCharArray());
-                }
-            });
+                        @Override
+                        public PasswordAuthentication getPasswordAuthentication() {
+                            return new PasswordAuthentication(proxyUser, proxyPass.toCharArray());
+                        }
+                    }
+            );
 
 
             String proxyHost = prefs.getString(context.getString(R.string.pref_key_proxy_host), "localhost");
@@ -395,7 +403,7 @@ public class SettingsHelper implements SharedPreferences.OnSharedPreferenceChang
      *
      * @param ctx Context
      * @return True if device has internet
-     *
+     * <p/>
      * Code from: http://www.androidsnippets.org/snippets/131/
      */
     public static boolean haveInternetWIFI(Context ctx) {
@@ -407,7 +415,7 @@ public class SettingsHelper implements SharedPreferences.OnSharedPreferenceChang
             return false;
         }
         SettingsHelper helper = new SettingsHelper(ctx);
-        boolean workRoaming = helper.prefs.getBoolean(ctx.getString(R.string.pref_key_flag_roaming_work),false);
+        boolean workRoaming = helper.prefs.getBoolean(ctx.getString(R.string.pref_key_flag_roaming_work), false);
         if (info.isRoaming() && !workRoaming) {
             // here is the roaming option you can change it if you want to
             // disable internet while roaming if user check do not work in Roaming
@@ -419,10 +427,9 @@ public class SettingsHelper implements SharedPreferences.OnSharedPreferenceChang
             ConnectivityManager conMan = (ConnectivityManager) ctx.getSystemService(Context.CONNECTIVITY_SERVICE);
             NetworkInfo inf = conMan.getNetworkInfo(1);
             State wifi;
-            if (inf != null){
+            if (inf != null) {
                 wifi = inf.getState();
-            }
-            else {
+            } else {
                 return false;
             }
 
@@ -437,7 +444,6 @@ public class SettingsHelper implements SharedPreferences.OnSharedPreferenceChang
      *
      * @param ctx Context
      * @return true if we have internet connection
-     *
      */
     public static boolean haveInternet(Context ctx) {
 
@@ -456,22 +462,21 @@ public class SettingsHelper implements SharedPreferences.OnSharedPreferenceChang
     public boolean testAutoLoadLimit(Book book) {
 
 
-
         String str = prefs.getString(context.getString(R.string.pref_key_update_autoload_limit), context.getString(R.string.pref_default_update_atutoload_limit));
 
         int limit;
         try {
             limit = Integer.parseInt(str);
         } catch (NumberFormatException ex) {
-            Log.e(DEBUG_TAG, "Error parse Autoload limit: " + str, ex);
+            Log.e(DEBUG_TAG, "Error parse Auto-load limit: " + str, ex);
             return false;
         }
 
         if (limit == 0) {
             return true;//download in any way
         }
-        long Llimit = (long) limit;
-        return book.getSize() < Llimit;
+        long lLimit = (long) limit;
+        return book.getSize() < lLimit;
     }
 
     void checkDeleteBook(File file) {
@@ -482,10 +487,9 @@ public class SettingsHelper implements SharedPreferences.OnSharedPreferenceChang
         try {
             limit = Integer.parseInt(str);
         } catch (NumberFormatException ex) {
-            Log.e(DEBUG_TAG, "Error parse Autoload limit: " + str, ex);
+            Log.e(DEBUG_TAG, "Error parse Auto-load limit: " + str, ex);
             return;
         }
-
 
 
         long interval = AlarmManager.INTERVAL_DAY * limit;
@@ -494,8 +498,8 @@ public class SettingsHelper implements SharedPreferences.OnSharedPreferenceChang
         //Log.d("checkDeleteBook", file.getAbsolutePath());
         if ((curTime - file.lastModified()) > interval) {
             Log.i("checkDeleteBook", "delete book: " + file.getAbsolutePath());
-            if (! file.delete()){
-                Log.e(DEBUG_TAG, "Can not delete the book: "  + file.getAbsolutePath());
+            if (!file.delete()) {
+                Log.e(DEBUG_TAG, "Can not delete the book: " + file.getAbsolutePath());
             }
         }
 

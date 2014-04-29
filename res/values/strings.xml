@@ -156,11 +156,11 @@ limitations under the License.
     
     <string name="pref_key_author_order">pref_key_author_order</string>
     <string name="pref_title_author_order">Сортировка авторов</string>
-    <string name="pref_default_author_order">DateUpdate</string>
+    <string name="pref_default_author_order">AuthorName</string>
 
     <string name="pref_key_book_order">pref_key_book_order</string>
     <string name="pref_title_book_order">Сортировка книг</string>
-    <string name="pref_default_book_order">DateUpdate</string>
+    <string name="pref_default_book_order">BookDate</string>
 
     <string name="pref_key_google_account">pref_key_google_account</string>
     <string name="pref_title_google_account">Google Account</string>
