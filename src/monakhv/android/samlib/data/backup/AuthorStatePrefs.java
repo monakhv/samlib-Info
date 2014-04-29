@@ -9,6 +9,7 @@ import android.util.Log;
 import java.util.Map;
 
 
+import monakhv.android.samlib.data.SettingsHelper;
 import monakhv.android.samlib.sql.AuthorController;
 
 import monakhv.android.samlib.sql.entity.Author;
@@ -43,11 +44,14 @@ public class AuthorStatePrefs {
     private Context context;
     private SharedPreferences prefs;
     private static AuthorStatePrefs instance;
+    private SettingsHelper settings;
+
 
     private AuthorStatePrefs(Context context) {
 
         this.context = context;
         this.prefs = getPrefs();
+        this.settings = new SettingsHelper(this.context);
     }
 
     public void load() {
@@ -55,6 +59,7 @@ public class AuthorStatePrefs {
         editor= prefs.edit();
         editor.clear();
         editor.commit();
+        settings.backup(prefs);
         editor= prefs.edit();
         AuthorController sql = new AuthorController(context);
         for (Author a : sql.getAll()) {
@@ -72,10 +77,12 @@ public class AuthorStatePrefs {
         Map<String, ?> map = prefs.getAll();
 
         AddAuthorRestore adder = new AddAuthorRestore(context);
+        settings.restore(prefs);
         for (String u:map.keySet().toArray(new String[1]) ){
             Log.d(DEBUG_TAG,"get: "+u+" - "+map.get(u).toString());
         }
         adder.execute(map.keySet().toArray(new String[1]));
+
 
     }
     public SharedPreferences getPrefs(){

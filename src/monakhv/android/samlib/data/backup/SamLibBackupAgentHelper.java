@@ -10,7 +10,6 @@ import android.util.Log;
 import java.io.IOException;
 
 
-import monakhv.android.samlib.data.SettingsHelper;
 
 
 /*
@@ -34,18 +33,17 @@ public class SamLibBackupAgentHelper extends BackupAgentHelper {
     private static final String DEBUG_TAG = "SamLibBackupAgentHelper";
 
 
-
     // A key to uniquely identify the set of backup data
     static final String PREFS_SETTINGS_KEY = "prefs";
-        @Override
+
+    @Override
     public void onCreate() {
-        Log.d(DEBUG_TAG,"onCreate");
+        Log.d(DEBUG_TAG, "onCreate");
 
         AuthorStatePrefs.load(this);
-        addHelper(PREFS_SETTINGS_KEY, new SharedPreferencesBackupHelper(this, SettingsHelper.PREFS_NAME,AuthorStatePrefs.PREF_NAME));
+        addHelper(PREFS_SETTINGS_KEY, new SharedPreferencesBackupHelper(this,  AuthorStatePrefs.PREF_NAME));
 
     }
-
 
     @Override
     public void onRestore(BackupDataInput data, int appVersionCode, ParcelFileDescriptor newState) throws IOException {

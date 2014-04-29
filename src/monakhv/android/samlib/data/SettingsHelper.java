@@ -34,6 +34,7 @@ import java.io.File;
 import java.net.Authenticator;
 import java.net.PasswordAuthentication;
 import java.util.Calendar;
+import java.util.Map;
 
 import monakhv.android.samlib.AuthorListFragment;
 import monakhv.android.samlib.BookListFragment;
@@ -504,4 +505,59 @@ public class SettingsHelper implements SharedPreferences.OnSharedPreferenceChang
         }
 
     }
+
+    public void backup(SharedPreferences tot) {
+        Log.d(DEBUG_TAG, "begin settings backup");
+        SharedPreferences.Editor editor = tot.edit();
+        for (Map.Entry<String, ?> entry : prefs.getAll().entrySet()) {
+
+            Object v = entry.getValue();
+            String key = entry.getKey();
+            Log.d(DEBUG_TAG,"copy key: "+key+" value: "+v);
+
+            if (v instanceof Boolean)
+                editor.putBoolean(key, (Boolean) v);
+            else if (v instanceof Float)
+                editor.putFloat(key, (Float) v);
+            else if (v instanceof Integer)
+                editor.putInt(key, (Integer) v);
+            else if (v instanceof Long)
+                editor.putLong(key, (Long) v);
+            else if (v instanceof String)
+                editor.putString(key, ((String) v));
+
+        }
+        editor.commit();
+
+    }
+
+    public void restore(SharedPreferences tot) {
+        Log.d(DEBUG_TAG, "begin setting restore");
+        Map<String,?> map = prefs.getAll();
+        SharedPreferences.Editor editor = prefs.edit();
+        for (Map.Entry<String, ?> entry : map.entrySet()) {
+
+
+            String key = entry.getKey();
+            Object v = tot.getAll().get(key);
+
+            Log.d(DEBUG_TAG,"restore key: "+key+" with value: "+v);
+
+            if (v instanceof Boolean)
+                editor.putBoolean(key, (Boolean) v);
+            else if (v instanceof Float)
+                editor.putFloat(key, (Float) v);
+            else if (v instanceof Integer)
+                editor.putInt(key, (Integer) v);
+            else if (v instanceof Long)
+                editor.putLong(key, (Long) v);
+            else if (v instanceof String)
+                editor.putString(key, ((String) v));
+
+        }
+        editor.commit();
+        Log.d(DEBUG_TAG, "end setting restore");
+
+    }
+
 }

@@ -74,9 +74,10 @@ public class AddAuthorRestore extends AsyncTask<String, Void, Boolean> {
         wl.acquire();
         for (String url : texts) {
             Author a = loadAuthor(http, sql, url);
-            String allTags = prefs.getString(url, "");
-            Log.d(DEBUG_TAG,"got tags: "+allTags);
+
             if (a != null) {
+                String allTags = prefs.getString(url, "");
+                Log.d(DEBUG_TAG,"got tags: "+allTags);
                 long idAuthor = sql.insert(a);
                 a = sql.getById(idAuthor);
                 ++numberOfAdded;
