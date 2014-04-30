@@ -3,13 +3,12 @@ package monakhv.android.samlib.data.backup;
 import android.app.backup.BackupAgentHelper;
 import android.app.backup.BackupDataInput;
 
+import android.app.backup.BackupDataOutput;
 import android.app.backup.SharedPreferencesBackupHelper;
 import android.os.ParcelFileDescriptor;
 import android.util.Log;
 
 import java.io.IOException;
-
-
 
 
 /*
@@ -39,17 +38,18 @@ public class SamLibBackupAgentHelper extends BackupAgentHelper {
     @Override
     public void onCreate() {
         Log.d(DEBUG_TAG, "onCreate");
+        addHelper(PREFS_SETTINGS_KEY, new SharedPreferencesBackupHelper(this, AuthorStatePrefs.PREF_NAME));
+    }
 
+    @Override
+    public void onBackup(ParcelFileDescriptor oldState, BackupDataOutput data, ParcelFileDescriptor newState) throws IOException {
         AuthorStatePrefs.load(this);
-        addHelper(PREFS_SETTINGS_KEY, new SharedPreferencesBackupHelper(this,  AuthorStatePrefs.PREF_NAME));
-
+        super.onBackup(oldState, data, newState);
     }
 
     @Override
     public void onRestore(BackupDataInput data, int appVersionCode, ParcelFileDescriptor newState) throws IOException {
         super.onRestore(data, appVersionCode, newState);
         AuthorStatePrefs.restore(this);
-
     }
-
 }

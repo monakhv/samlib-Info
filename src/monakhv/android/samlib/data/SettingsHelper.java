@@ -506,6 +506,12 @@ public class SettingsHelper implements SharedPreferences.OnSharedPreferenceChang
 
     }
 
+    /**
+     * Prepare for  backup
+     * Copy all preferences into external object
+     *
+     * @param tot Special SharedPreferences to copy settings to
+     */
     public void backup(SharedPreferences tot) {
         Log.d(DEBUG_TAG, "begin settings backup");
         SharedPreferences.Editor editor = tot.edit();
@@ -513,7 +519,7 @@ public class SettingsHelper implements SharedPreferences.OnSharedPreferenceChang
 
             Object v = entry.getValue();
             String key = entry.getKey();
-            Log.d(DEBUG_TAG,"copy key: "+key+" value: "+v);
+            Log.d(DEBUG_TAG, "copy key: " + key + " value: " + v);
 
             if (v instanceof Boolean)
                 editor.putBoolean(key, (Boolean) v);
@@ -531,31 +537,40 @@ public class SettingsHelper implements SharedPreferences.OnSharedPreferenceChang
 
     }
 
-    public void restore(SharedPreferences tot) {
+    /**
+     * Restore settings from external object
+     *
+     * @param map external data to restore data from
+     */
+    public void restore(Map<String, ?> map) {
         Log.d(DEBUG_TAG, "begin setting restore");
-        Map<String,?> map = prefs.getAll();
+
         SharedPreferences.Editor editor = prefs.edit();
         for (Map.Entry<String, ?> entry : map.entrySet()) {
 
 
             String key = entry.getKey();
-            Object v = tot.getAll().get(key);
+            Object v = entry.getValue();
 
-            Log.d(DEBUG_TAG,"restore key: "+key+" with value: "+v);
+            if (key.startsWith("pref_key_")) {
+                Log.d(DEBUG_TAG, "restore key: " + key + " with value: " + v);
 
-            if (v instanceof Boolean)
-                editor.putBoolean(key, (Boolean) v);
-            else if (v instanceof Float)
-                editor.putFloat(key, (Float) v);
-            else if (v instanceof Integer)
-                editor.putInt(key, (Integer) v);
-            else if (v instanceof Long)
-                editor.putLong(key, (Long) v);
-            else if (v instanceof String)
-                editor.putString(key, ((String) v));
+                if (v instanceof Boolean)
+                    editor.putBoolean(key, (Boolean) v);
+                else if (v instanceof Float)
+                    editor.putFloat(key, (Float) v);
+                else if (v instanceof Integer)
+                    editor.putInt(key, (Integer) v);
+                else if (v instanceof Long)
+                    editor.putLong(key, (Long) v);
+                else if (v instanceof String)
+                    editor.putString(key, ((String) v));
+            }
+
 
         }
         editor.commit();
+        updateServiceForce();
         Log.d(DEBUG_TAG, "end setting restore");
 
     }

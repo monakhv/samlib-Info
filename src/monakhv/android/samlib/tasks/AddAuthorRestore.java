@@ -40,7 +40,7 @@ import monakhv.samlib.http.HttpClientController;
 /**
  * The task to load Author into data base.
  * Take the array of full Authors URL
- *
+ * <p/>
  * Special Task for use in restore by Backup manager
  *
  * @author Dmitry Monakhov
@@ -60,7 +60,7 @@ public class AddAuthorRestore extends AsyncTask<String, Void, Boolean> {
         numberOfAdded = 0;
         settings = new SettingsHelper(context);
 
-        prefs = context.getSharedPreferences(AuthorStatePrefs.PREF_NAME,0);
+        prefs = context.getSharedPreferences(AuthorStatePrefs.PREF_NAME, 0);
     }
 
     @Override
@@ -77,7 +77,7 @@ public class AddAuthorRestore extends AsyncTask<String, Void, Boolean> {
 
             if (a != null) {
                 String allTags = prefs.getString(url, "");
-                Log.d(DEBUG_TAG,"got tags: "+allTags);
+                Log.d(DEBUG_TAG, "got tags: " + allTags);
                 long idAuthor = sql.insert(a);
                 a = sql.getById(idAuthor);
                 ++numberOfAdded;
@@ -86,13 +86,12 @@ public class AddAuthorRestore extends AsyncTask<String, Void, Boolean> {
                 List<Integer> idTags = new ArrayList<Integer>();
 
                 for (String tag : tags) {
-                    if (!tag.equals("")){
-                        Log.d(DEBUG_TAG,"insert tag: "+tag);
+                    if (!tag.equals("")) {
+                        Log.d(DEBUG_TAG, "insert tag: " + tag);
                         int idTag = (int) tagController.insert(new Tag(tag));
-                        if (idTag != 0){
+                        if (idTag != 0) {
                             idTags.add(idTag);
-                        }
-                        else {
+                        } else {
                             idTags.add(tagController.getByName(tag));
                         }
 
@@ -123,11 +122,11 @@ public class AddAuthorRestore extends AsyncTask<String, Void, Boolean> {
 
         } else if (numberOfAdded == 1) {
             msg = context.getText(R.string.add_success);
-            settings.updateServiceForce();
+
 
         } else if (numberOfAdded > 1) {
             msg = context.getText(R.string.add_success_multi) + " " + numberOfAdded;
-            settings.updateServiceForce();
+
         }
 
         Toast toast = Toast.makeText(context, msg, duration);

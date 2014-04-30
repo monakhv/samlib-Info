@@ -35,7 +35,7 @@ import monakhv.android.samlib.tasks.AddAuthorRestore;
 
 
 /**
- *  List of authors and tags put into preferences for backup and restore usage
+ * List of authors and tags put into preferences for backup and restore usage
  */
 public class AuthorStatePrefs {
     private static final String DEBUG_TAG = "AuthorStatePrefs";
@@ -54,13 +54,17 @@ public class AuthorStatePrefs {
         this.settings = new SettingsHelper(this.context);
     }
 
+    /**
+     * Prepare for backup
+     * Save Author list and setting to special SharedPreferences object
+     */
     public void load() {
         SharedPreferences.Editor editor;
-        editor= prefs.edit();
+        editor = prefs.edit();
         editor.clear();
         editor.commit();
         settings.backup(prefs);
-        editor= prefs.edit();
+        editor = prefs.edit();
         AuthorController sql = new AuthorController(context);
         for (Author a : sql.getAll()) {
             editor.putString(a.getUrlForBrowser(), a.getAll_tags_name());
@@ -71,22 +75,29 @@ public class AuthorStatePrefs {
 
     }
 
+    /**
+     * Restore actual data from  special SharedPreferences after BackupManager restore
+     * 1 Add author to data bases
+     * 2 Restore Settings
+     */
     public void restore() {
         this.prefs = getPrefs();
 
         Map<String, ?> map = prefs.getAll();
+        settings.restore(map);
 
         AddAuthorRestore adder = new AddAuthorRestore(context);
-        settings.restore(prefs);
-        for (String u:map.keySet().toArray(new String[1]) ){
-            Log.d(DEBUG_TAG,"get: "+u+" - "+map.get(u).toString());
+
+        for (String u : map.keySet().toArray(new String[1])) {
+            Log.d(DEBUG_TAG, "get: " + u + " - " + map.get(u).toString());
         }
         adder.execute(map.keySet().toArray(new String[1]));
 
 
     }
-    public SharedPreferences getPrefs(){
-        return  getSharedPreferences(context,PREF_NAME);
+
+    public SharedPreferences getPrefs() {
+        return getSharedPreferences(context, PREF_NAME);
     }
 
     private static SharedPreferences getSharedPreferences(Context context, String name) {
@@ -112,18 +123,19 @@ public class AuthorStatePrefs {
         return context.getSharedPreferences(fn, Context.MODE_PRIVATE);
     }
 
-    static AuthorStatePrefs  getInstance(Context ctx){
-        if (instance == null){
+    static AuthorStatePrefs getInstance(Context ctx) {
+        if (instance == null) {
             instance = new AuthorStatePrefs(ctx);
         }
         return instance;
     }
 
-    public static void load(Context ctx){
+    public static void load(Context ctx) {
         AuthorStatePrefs ins = getInstance(ctx);
         ins.load();
     }
-    public static void restore(Context ctx){
+
+    public static void restore(Context ctx) {
         AuthorStatePrefs ins = getInstance(ctx);
         ins.restore();
     }
