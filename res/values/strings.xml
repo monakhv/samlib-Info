@@ -209,6 +209,7 @@ limitations under the License.
 
     <string name="arc_export_google">Выгрузить базу</string>
     <string name="arc_import_google">Загрузить базу</string>
+    <string name="arc_google_file">SamLib-Info.db на Google Drive</string>
 
     <string name="arc_msg_export">Выгрузка…</string>
     <string name="arc_msg_import">Загрузка…</string>

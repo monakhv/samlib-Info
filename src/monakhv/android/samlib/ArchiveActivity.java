@@ -60,7 +60,7 @@ public class ArchiveActivity extends SherlockFragmentActivity {
         setting = new SettingsHelper(this);
     }
 
-    private Dialog createImportAlert(String filename) {
+    private Dialog createImportAlert( DialogInterface.OnClickListener listener,String filename) {
         AlertDialog.Builder adb = new AlertDialog.Builder(this);
         adb.setTitle(R.string.Attention);
 
@@ -69,8 +69,8 @@ public class ArchiveActivity extends SherlockFragmentActivity {
 
         adb.setMessage(msg);
         adb.setIcon(android.R.drawable.ic_dialog_alert);
-        adb.setPositiveButton(R.string.Yes, importDBListener);
-        adb.setNegativeButton(R.string.No, importDBListener);
+        adb.setPositiveButton(R.string.Yes, listener);
+        adb.setNegativeButton(R.string.No, listener);
         return adb.create();
 
     }
@@ -111,7 +111,7 @@ public class ArchiveActivity extends SherlockFragmentActivity {
                 selectedFile = files[position];
                 Log.d(DEBUG_TAG, selectedFile);
                 dialog.dismiss();
-                Dialog alert = createImportAlert(selectedFile);
+                Dialog alert = createImportAlert(importDBListener,selectedFile);
                 alert.show();
                 //_importDB(files[position]);
             }
@@ -217,7 +217,23 @@ public class ArchiveActivity extends SherlockFragmentActivity {
     }
     @SuppressWarnings("UnusedParameters")
     public void importGoogle(View v) {
-        makeGoogleOperation(GoogleDiskOperation.OperationType.IMPORT);
+        DialogInterface.OnClickListener listener = new OnClickListener() {
+
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                switch (which) {
+                    case Dialog.BUTTON_POSITIVE:
+                        makeGoogleOperation(GoogleDiskOperation.OperationType.IMPORT);
+                        break;
+                    case Dialog.BUTTON_NEGATIVE:
+                        break;
+
+                }
+            }
+        };
+        Dialog alert = createImportAlert(listener,getString(R.string.arc_google_file));
+        alert.show();
+
     }
     private ProgressDialog progress;
     private GoogleReceiver receiver;
@@ -253,6 +269,10 @@ public class ArchiveActivity extends SherlockFragmentActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         switch (requestCode){
             case GoogleDiskOperation.RESOLVE_CONNECTION_REQUEST_CODE:
+                if (setting == null){
+                    Log.e(DEBUG_TAG,"settings is null!!");
+                    return;
+                }
                 setting.setGoogleAccount(
                     data.getStringExtra(AccountManager.KEY_ACCOUNT_NAME));
                 progress.show();
