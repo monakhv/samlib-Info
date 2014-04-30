@@ -34,6 +34,7 @@ import android.support.v4.app.NavUtils;
 import android.util.Log;
 
 import com.actionbarsherlock.app.SherlockPreferenceActivity;
+import com.actionbarsherlock.view.MenuItem;
 import com.google.android.gms.auth.GoogleAuthUtil;
 import com.google.android.gms.common.AccountPicker;
 
@@ -53,7 +54,7 @@ public class SamlibPreferencesActivity extends SherlockPreferenceActivity
     private SettingsHelper helper;
     private final String[] autoSummaryFields = {"pref_key_update_Period", "pref_key_proxy_host",
             "pref_key_proxy_port", "pref_key_proxy_user", "pref_key_update_autoload_limit", "pref_key_book_lifetime",
-            "pref_key_author_order", "pref_key_book_order","pref_key_file_format"};
+            "pref_key_author_order", "pref_key_book_order", "pref_key_file_format"};
     private List<String> autoSumKeys;
     private RingtonePreference ringtonPref;
     private Preference googlePrefs;
@@ -61,7 +62,7 @@ public class SamlibPreferencesActivity extends SherlockPreferenceActivity
     /**
      * Called when the activity is first created.
      *
-     * @param icicle
+     * @param icicle Bundle
      */
     @Override
     public void onCreate(Bundle icicle) {
@@ -88,17 +89,18 @@ public class SamlibPreferencesActivity extends SherlockPreferenceActivity
 
             }
         });
-        String title=getString(R.string.app_name) +" - "+helper.getVersionName();
+        String title = getString(R.string.app_name) + " - " + helper.getVersionName();
 
         getSupportActionBar().setTitle(title);
     }
 
     @Override
-    protected void onActivityResult(final int rqst, final int rslt, final Intent it) {
-        if (it == null){
+    protected void onActivityResult(final int requestCode, final int resultCode, final Intent it) {
+        super.onActivityResult(requestCode, resultCode, it);
+        if (it == null) {
             return;
         }
-        switch (rqst) {
+        switch (requestCode) {
             case REQ_AUTH:
                 helper.setGoogleAccount(it.getStringExtra(AccountManager.KEY_ACCOUNT_NAME));
                 googlePrefs.setSummary(helper.getGoogleAccount());
@@ -154,7 +156,7 @@ public class SamlibPreferencesActivity extends SherlockPreferenceActivity
 
 
     @Override
-    public boolean onOptionsItemSelected(com.actionbarsherlock.view.MenuItem item) {
+    public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:
                 NavUtils.navigateUpFromSameTask(this);
@@ -166,13 +168,14 @@ public class SamlibPreferencesActivity extends SherlockPreferenceActivity
     }
 
 
-
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
         updateSummary(key);
     }
 
     public boolean onPreferenceChange(Preference preference, Object newValue) {
+        Log.d(DEBUG_TAG, "onPreferenceChange: " + preference.getKey());
         if (preference.getKey().equalsIgnoreCase(getString(R.string.pref_key_notification_ringtone))) {
+            Log.d(DEBUG_TAG, "new ringtone: " + newValue);
             updateRingtoneSummary((RingtonePreference) preference, Uri.parse((String) newValue));
         }
 
