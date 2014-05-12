@@ -451,9 +451,12 @@ public class BookListFragment extends SherlockListFragment implements
             
             if (i == idx_author){
                 TextView tv = ((TextView) view);
-                if (author_id != -1){
+                if (author_id !=  SamLibConfig.SELECTED_BOOK_ID){
                     tv.setVisibility(View.GONE);
                     return true;
+                }
+                else {
+                    tv.setVisibility(View.VISIBLE);
                 }
                 
                 tv.setText(cursor.getString(idx_author));
