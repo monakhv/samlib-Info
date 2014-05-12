@@ -60,6 +60,7 @@ limitations under the License.
     <string name="sort_book_mtime">По времени обновления</string>
     <string name="sort_book_title">По названию книги</string>
     <string name="sort_book_date">По дате</string>
+    <string name="sort_book_size">По объему</string>
     
     <string name="filter_new">Только новые</string>
     <string name="filter_all">Все</string>
