@@ -127,8 +127,10 @@ public class BookListFragment extends SherlockListFragment implements
             return;
         }
         author_id = id;
-        getLoaderManager().restartLoader(BOOK_LIST_LOADER, null, this);
-        getListView().setSelectionAfterHeaderView();
+        if (isAdded()){
+            getLoaderManager().restartLoader(BOOK_LIST_LOADER, null, this);
+            getListView().setSelectionAfterHeaderView();
+        }
     }
     public int getAuthorId(){
         return author_id; 
