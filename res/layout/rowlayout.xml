@@ -29,8 +29,17 @@ limitations under the License.
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@+id/authorName"
+        android:singleLine="true"
         android:textSize="@dimen/text_size_head" >
     </TextView>
+        <TextView
+            android:id="@+id/authorURL"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@+id/authorURL"
+            android:singleLine="true"
+            android:textSize="@dimen/text_size_small" >
+        </TextView>
     
     <LinearLayout
         android:orientation="horizontal"

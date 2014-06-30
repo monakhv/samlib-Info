@@ -126,12 +126,11 @@ public class AuthorCard implements Serializable{
 
     @Override
     public boolean equals(Object obj) {
-        if (obj == null) {
+        if (this == obj) return true;
+        if (obj == null || ((Object) this).getClass() != obj.getClass()) {
             return false;
         }
-        if (getClass() != obj.getClass()) {
-            return false;
-        }
+
         final AuthorCard other = (AuthorCard) obj;
         return !((this.url == null) ? (other.url != null) : !this.url.equals(other.url));
     }

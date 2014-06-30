@@ -33,6 +33,15 @@ limitations under the License.
         android:text="@+id/acName"
         android:textSize="@dimen/text_size_head" >
     </TextView>
+
+        <TextView
+            android:id="@+id/acURL"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@+id/acURL"
+            android:singleLine="true"
+            android:textSize="@dimen/text_size_small" >
+        </TextView>
     
     <LinearLayout
         android:orientation="horizontal"
