@@ -97,6 +97,10 @@ public class SearchAuthorsListFragment extends SherlockListFragment implements L
         super.onSaveInstanceState(outState);
     }
 
+    /**
+     * start task to search author on samLib site
+     * @param ptr string pattern using for search
+     */
     public void search(String ptr) {
         if (adapter != null) {
             result.clear();
