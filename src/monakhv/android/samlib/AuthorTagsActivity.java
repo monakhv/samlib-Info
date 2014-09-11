@@ -78,6 +78,8 @@ public class AuthorTagsActivity extends FragmentActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        helper = new SettingsHelper(this);
+        setTheme(helper.getTheme());
         super.onCreate(savedInstanceState);
         setContentView(R.layout.author_tags);
         author_id = getIntent().getExtras().getInt(AuthorTagsActivity.AUTHOR_ID);
@@ -89,7 +91,7 @@ public class AuthorTagsActivity extends FragmentActivity {
         Cursor attributesCursor = getCursor();
 
         adapter = new SimpleCursorAdapter(
-                getApplicationContext(), android.R.layout.simple_list_item_multiple_choice,
+               this, android.R.layout.simple_list_item_multiple_choice,
                 attributesCursor, from, to,
                 0);
         listView.setAdapter(adapter);
@@ -97,7 +99,7 @@ public class AuthorTagsActivity extends FragmentActivity {
         listView.setItemsCanFocus(false);
         loadTagData();
         registerForContextMenu(listView);
-        helper = new SettingsHelper(this);
+
 
     }
     private int delete_menu_id = 1;
