@@ -66,7 +66,7 @@ public class AddAuthorRestore extends AsyncTask<String, Void, Boolean> {
     @Override
     protected Boolean doInBackground(String... texts) {
 
-        HttpClientController http = HttpClientController.getInstance();
+        HttpClientController http = HttpClientController.getInstance(context);
         AuthorController sql = new AuthorController(context);
         TagController tagController = new TagController(context);
         PowerManager pm = (PowerManager) context.getSystemService(Context.POWER_SERVICE);

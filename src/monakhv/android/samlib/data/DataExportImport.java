@@ -185,7 +185,7 @@ public class DataExportImport {
         AuthorController sql = new AuthorController(applicationContext);
         List<Author> authors = sql.getAll();
         for (Author a : authors) {
-            res.add(a.getUrlForBrowser());
+            res.add(a.getUrlForBrowser(applicationContext));
         }
         return res;
     }

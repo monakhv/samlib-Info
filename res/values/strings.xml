@@ -33,7 +33,12 @@ limitations under the License.
     <string name="button_add">Искать/Добавить</string>
     <string name="button_addonly">Добавить</string>
     <string name="button_search">Искать</string>
-    
+
+
+    <string name="SamLib">SamLib</string>
+    <string name="BudClub">BudClub</string>
+    <string name="SamLibUrl">http://samlib.ru</string>
+    <string name="BudClubUrl">http://budclub.ru</string>
     
     
     <string name="menu_read">Отметить как прочитаное</string>
@@ -178,6 +183,10 @@ limitations under the License.
     <string name="pref_key_theme">pref_key_theme</string>
     <string name="pref_title_theme">Тема</string>
     <string name="pref_default_theme">DARK</string>
+
+    <string name="pref_key_mirror">pref_key_mirror</string>
+    <string name="pref_title_mirror">Первое зеркало</string>
+    <string name="pref_default_mirror">SamLib</string>
 
     <string name="change_theme_alert">Смена темы произойдет после нового запуска.  Выйти из приложения сейчас?</string>
 

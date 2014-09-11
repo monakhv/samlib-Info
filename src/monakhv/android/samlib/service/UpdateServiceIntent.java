@@ -94,7 +94,7 @@ public class UpdateServiceIntent extends IntentService {
         Log.i(DEBUG_TAG, "selection string: " + selection);
 
         SettingsHelper.addAuthenticator(this.getApplicationContext());
-        HttpClientController http = HttpClientController.getInstance();
+        HttpClientController http = HttpClientController.getInstance(this);
         AuthorController ctl = new AuthorController(context);
         PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
         PowerManager.WakeLock wl = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, DEBUG_TAG);

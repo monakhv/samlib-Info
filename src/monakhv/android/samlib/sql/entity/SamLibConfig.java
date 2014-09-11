@@ -15,6 +15,7 @@
  */
 package monakhv.android.samlib.sql.entity;
 
+import android.content.Context;
 import android.util.Log;
 
 import java.io.BufferedReader;
@@ -33,6 +34,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import monakhv.android.samlib.data.DataExportImport;
+import monakhv.android.samlib.data.SettingsHelper;
 
 /**
  *
@@ -53,8 +55,8 @@ public class SamLibConfig {
     
     private static final  int      AUTHOR_PAGE_SIZE = 500;//page size for author search
     
-    private static final SamIzdat[]   URLs = {SamIzdat.SamLib, SamIzdat.BudClub};//Samizdat mirrors. Order is important this is the order mirror is selected by
-    
+    private static final SamIzdat[]   SamLibURLs = {SamIzdat.SamLib, SamIzdat.BudClub};//Samizdat mirrors. Order is important this is the order mirror is selected by
+    private static final SamIzdat[]   BudClubURLs = {SamIzdat.SamLib, SamIzdat.BudClub};
     private static final String DEBUG_TAG = "SamLibConfig";
     
     private static final String     URLPTR = "/\\w/\\w+/";
@@ -98,19 +100,25 @@ public class SamLibConfig {
     private final LinkedList<SamIzdat> linkedSZ;
     
     
-    public static SamLibConfig getInstance(){
+    public static SamLibConfig getInstance(Context context){
         if (instance == null){
-            instance = new SamLibConfig();
+            instance = new SamLibConfig(context);
 
         }        
         return instance;
     }
     
     
-    private SamLibConfig(){
+    private SamLibConfig(Context context){
         linkedSZ = new LinkedList<SamIzdat>();
-        linkedSZ.addAll(Arrays.asList(URLs));
-
+        SettingsHelper settings = new SettingsHelper(context);
+        String fm =settings.getFirstMirror();
+        if (fm.equals(SamIzdat.SamLib.getName())){
+            linkedSZ.addAll(Arrays.asList(SamLibURLs));
+        }
+        else {
+            linkedSZ.addAll(Arrays.asList(BudClubURLs));
+        }
     }
 
     /**
@@ -217,9 +225,9 @@ public class SamLibConfig {
          * @param book the Book object to open
          * @return  URL to open the book in browser
          */
-        public static String getBookUrlForBrowser(Book book){
-            SamLibConfig slc=SamLibConfig.getInstance();
-            return slc.getDefaultURL() + SLASH + book.getUri() + ".shtml";
+        public  String getBookUrlForBrowser(Book book){
+
+            return getDefaultURL() + SLASH + book.getUri() + ".shtml";
         }
         /**
          * Construct URL to open the book in WEB browser and to store bookmark list
@@ -227,9 +235,9 @@ public class SamLibConfig {
          * @param author Author object
          * @return URL to open author page in browser
          */
-        public static String getAuthorUrlForBrowser(Author author){
-            SamLibConfig slc=SamLibConfig.getInstance();
-            return slc.getDefaultURL() +  author.getUrl() ;
+        public  String getAuthorUrlForBrowser(Author author){
+
+            return getDefaultURL() +  author.getUrl() ;
         }
 
     /**
@@ -274,7 +282,7 @@ public class SamLibConfig {
      */
     public static String getParsedUrl(String str){
         String res ;
-        for (SamIzdat sz : URLs) {       
+        for (SamIzdat sz : SamLibURLs) {
             Matcher m = sz.getSearchPattern().matcher(str);
             if (m.find()){
                 res = m.group(1);
@@ -298,7 +306,7 @@ public class SamLibConfig {
         
         
         if (str.startsWith(SAMLIB_PROTO)) {//full URL case
-            for (SamIzdat sz : URLs) {
+            for (SamIzdat sz : SamLibURLs) {
                
                 if (sz.testFullUrl(str)) {
                     return str.replaceAll(sz.url, "");

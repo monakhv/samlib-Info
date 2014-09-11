@@ -503,6 +503,10 @@ public class SettingsHelper implements SharedPreferences.OnSharedPreferenceChang
 
     }
 
+    public String getFirstMirror(){
+        return  prefs.getString(context.getString(R.string.pref_key_mirror),context.getString(R.string.pref_default_mirror));
+    }
+
     void checkDeleteBook(File file) {
 
         String str = prefs.getString(context.getString(R.string.pref_key_book_lifetime), context.getString(R.string.pref_default_book_lifetime));

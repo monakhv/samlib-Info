@@ -312,7 +312,7 @@ public class BookListFragment extends SherlockListFragment implements
      */
     private void launchBrowser(Book book) {
         
-        String surl = book.getUrlForBrowser();
+        String surl = book.getUrlForBrowser(getActivity());
 
         Log.d(DEBUG_TAG, "book url: " + surl);
 

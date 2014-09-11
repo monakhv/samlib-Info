@@ -540,7 +540,7 @@ public class AuthorListFragment extends SherlockListFragment implements
      * @param a Author object
      */
     public void launchBrowser(Author a) {
-        Uri uri = Uri.parse(a.getUrlForBrowser());
+        Uri uri = Uri.parse(a.getUrlForBrowser(getActivity()));
         Intent launchBrowser = new Intent(Intent.ACTION_VIEW, uri);
         getActivity().startActivity(launchBrowser);
 

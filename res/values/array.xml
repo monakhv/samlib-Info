@@ -103,5 +103,16 @@ limitations under the License.
     </string-array>
 
 
+    <string-array name="mirrorValues">
+        <item>@string/SamLib</item>
+        <item>@string/BudClub</item>
+    </string-array>
+
+    <string-array name="mirrorTitles">
+        <item>@string/SamLibUrl</item>
+        <item>@string/BudClubUrl</item>
+    </string-array>
+
+
     
 </resources>

@@ -58,7 +58,8 @@ public class SamlibPreferencesActivity extends SherlockPreferenceActivity
     private SettingsHelper helper;
     private final String[] autoSummaryFields = {"pref_key_update_Period", "pref_key_proxy_host",
             "pref_key_proxy_port", "pref_key_proxy_user", "pref_key_update_autoload_limit", "pref_key_book_lifetime",
-            "pref_key_author_order", "pref_key_book_order", "pref_key_file_format","pref_key_theme"};
+            "pref_key_author_order", "pref_key_book_order", "pref_key_file_format","pref_key_theme",
+    "pref_key_mirror"};
     private List<String> autoSumKeys;
     private RingtonePreference ringtonPref;
     private Preference googlePrefs;

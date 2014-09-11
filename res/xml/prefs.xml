@@ -70,6 +70,14 @@ limitations under the License.
             android:title="@string/pref_summary_background_update_flag"
             android:key="@string/pref_key_flag_background_update" 
             android:defaultValue="@bool/pref_key_flag_background_update"/>
+
+        <ListPreference
+
+            android:key="@string/pref_key_mirror"
+            android:title="@string/pref_title_mirror"
+            android:entries="@array/mirrorTitles"
+            android:entryValues="@array/mirrorValues"
+            android:defaultValue="@string/pref_default_mirror"/>
     
         <ListPreference 
             android:dependency="pref_key_flag_background_update"
