@@ -53,6 +53,8 @@ public class SettingsHelper implements SharedPreferences.OnSharedPreferenceChang
     private static final String DEBUG_TAG = "SettingsHelper";
     private boolean updateService = false;
     private final SharedPreferences prefs;
+    private static final String DARK = "DARK";
+    private static final String LIGHT = "LIGHT";
 
     public SettingsHelper(Context context) {
         this.context = context;
@@ -478,6 +480,27 @@ public class SettingsHelper implements SharedPreferences.OnSharedPreferenceChang
         }
         long lLimit = (long) limit;
         return book.getSize() < lLimit;
+    }
+
+    public int getTheme(){
+        String str = prefs.getString(context.getString(R.string.pref_key_theme),
+                context.getString(R.string.pref_default_theme));
+
+        if (str.equals(LIGHT)){
+            return R.style.MyThemeLight;
+        }
+        return R.style.MyTheme;
+
+    }
+    public int getBgColor(){
+        String str = prefs.getString(context.getString(R.string.pref_key_theme),
+                context.getString(R.string.pref_default_theme));
+
+        if (str.equals(LIGHT)){
+            return R.color.WHITE;
+        }
+        return R.color.BLACK;
+
     }
 
     void checkDeleteBook(File file) {

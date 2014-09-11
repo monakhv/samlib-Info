@@ -45,6 +45,15 @@ limitations under the License.
             android:entries="@array/fileFormatTitles"
             android:entryValues="@array/fileFormatValues"
             android:defaultValue="@string/pref_default_file_format"/>
+
+        <ListPreference
+
+            android:key="@string/pref_key_theme"
+            android:title="@string/pref_title_theme"
+            android:entries="@array/themeTitles"
+            android:entryValues="@array/themeValues"
+            android:defaultValue="@string/pref_default_theme"/>
+
         <Preference
             android:key="@string/pref_key_google_account"
             android:title="@string/pref_title_google_account"

@@ -175,6 +175,13 @@ limitations under the License.
     <string name="pref_title_file_format">Формат файла</string>
     <string name="pref_default_file_format">HTML</string>
 
+    <string name="pref_key_theme">pref_key_theme</string>
+    <string name="pref_title_theme">Тема</string>
+    <string name="pref_default_theme">DARK</string>
+
+    <string name="change_theme_alert">Смена темы произойдет после нового запуска.  Выйти из приложения сейчас?</string>
+
+
     <string name="pref_key_version_name">pref_key_version_name</string>
 
     <string name="pref_no_sound">Без звука</string>

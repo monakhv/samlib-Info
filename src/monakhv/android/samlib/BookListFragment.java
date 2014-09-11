@@ -101,7 +101,7 @@ public class BookListFragment extends SherlockListFragment implements
         int[] to = {R.id.bookTitle, R.id.bookUpdate, R.id.bookDesc, R.id.Bookicon,R.id.Staricon,R.id.bookAuthorName};
 
         adapter = new SimpleCursorAdapter(
-                getActivity().getApplicationContext(), R.layout.book_row,
+                getActivity(), R.layout.book_row,
                 null, from, to,
                 CursorAdapter.FLAG_REGISTER_CONTENT_OBSERVER);
 

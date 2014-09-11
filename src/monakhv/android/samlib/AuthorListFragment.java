@@ -144,7 +144,7 @@ public class AuthorListFragment extends SherlockListFragment implements
         int[] to = {R.id.authorName, R.id.updated, R.id.icon, R.id.tgnames, R.id.authorURL};
 
         adapter = new SimpleCursorAdapter(
-                getActivity().getApplicationContext(), R.layout.rowlayout,
+                getActivity(), R.layout.rowlayout,
                 null, from, to,
                 CursorAdapter.FLAG_REGISTER_CONTENT_OBSERVER);
 
@@ -367,7 +367,7 @@ public class AuthorListFragment extends SherlockListFragment implements
             Intent prefsIntent = new Intent(getActivity().getApplicationContext(),
                     SamlibPreferencesActivity.class);
             //prefsIntent.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
-            startActivity(prefsIntent);
+            getActivity(). startActivityForResult(prefsIntent,MainActivity.PREFS_ACTIVITY);
         }
         if (sel == R.id.archive_option_item) {
 

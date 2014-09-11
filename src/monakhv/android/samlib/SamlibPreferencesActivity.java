@@ -18,6 +18,9 @@ package monakhv.android.samlib;
 
 import android.accounts.Account;
 import android.accounts.AccountManager;
+import android.app.AlertDialog;
+import android.app.Dialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
@@ -42,6 +45,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import monakhv.android.samlib.data.SettingsHelper;
+import monakhv.android.samlib.tasks.DeleteAuthor;
 
 /**
  * @author monakhv
@@ -54,7 +58,7 @@ public class SamlibPreferencesActivity extends SherlockPreferenceActivity
     private SettingsHelper helper;
     private final String[] autoSummaryFields = {"pref_key_update_Period", "pref_key_proxy_host",
             "pref_key_proxy_port", "pref_key_proxy_user", "pref_key_update_autoload_limit", "pref_key_book_lifetime",
-            "pref_key_author_order", "pref_key_book_order", "pref_key_file_format"};
+            "pref_key_author_order", "pref_key_book_order", "pref_key_file_format","pref_key_theme"};
     private List<String> autoSumKeys;
     private RingtonePreference ringtonPref;
     private Preference googlePrefs;
@@ -66,13 +70,15 @@ public class SamlibPreferencesActivity extends SherlockPreferenceActivity
      */
     @Override
     public void onCreate(Bundle icicle) {
+        helper = new SettingsHelper(this);
+        setTheme(helper.getTheme());
         super.onCreate(icicle);
 
         getPreferenceManager().setSharedPreferencesName(
                 SettingsHelper.PREFS_NAME);
         addPreferencesFromResource(R.xml.prefs);
 
-        helper = new SettingsHelper(this);
+
         autoSumKeys = Arrays.asList(autoSummaryFields);
         ringtonPref = (RingtonePreference) findPreference(getString(R.string.pref_key_notification_ringtone));
         googlePrefs = findPreference(getString(R.string.pref_key_google_account));
@@ -170,8 +176,36 @@ public class SamlibPreferencesActivity extends SherlockPreferenceActivity
 
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
         updateSummary(key);
-    }
+        if (key.equals(getString(R.string.pref_key_theme))){
+            AlertDialog.Builder adb = new AlertDialog.Builder(this);
+            adb.setTitle(R.string.Attention);
 
+            String msg = getString(R.string.change_theme_alert);
+
+            adb.setMessage(msg);
+            adb.setIcon(android.R.drawable.ic_dialog_alert);
+            adb.setPositiveButton(R.string.Yes, changeThemeListener);
+            adb.setNegativeButton(R.string.No, changeThemeListener);
+            adb.create();
+            adb.show();
+        }
+    }
+    private final DialogInterface.OnClickListener changeThemeListener = new DialogInterface.OnClickListener() {
+        @Override
+        public void onClick(DialogInterface dialog, int which) {
+            switch (which) {
+                case Dialog.BUTTON_POSITIVE:
+                  // moveTaskToBack(true);
+                    Intent intent = new Intent();
+                    setResult(RESULT_OK, intent);
+                    finish();
+                    break;
+                case Dialog.BUTTON_NEGATIVE:
+                    break;
+            }
+
+        }
+    };
     public boolean onPreferenceChange(Preference preference, Object newValue) {
         Log.d(DEBUG_TAG, "onPreferenceChange: " + preference.getKey());
         if (preference.getKey().equalsIgnoreCase(getString(R.string.pref_key_notification_ringtone))) {
