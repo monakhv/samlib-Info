@@ -2,6 +2,6 @@
 <resources>
     <style name="MyTheme" parent="Theme.Sherlock">
     </style>
-    <style name="MyThemeLight" parent="Theme.Sherlock.Light.DarkActionBar">
+    <style name="MyThemeLight" parent="Theme.Sherlock.Light">
     </style>
 </resources>

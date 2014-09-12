@@ -56,7 +56,7 @@ public class SamLibConfig {
     private static final  int      AUTHOR_PAGE_SIZE = 500;//page size for author search
     
     private static final SamIzdat[]   SamLibURLs = {SamIzdat.SamLib, SamIzdat.BudClub};//Samizdat mirrors. Order is important this is the order mirror is selected by
-    private static final SamIzdat[]   BudClubURLs = {SamIzdat.SamLib, SamIzdat.BudClub};
+    private static final SamIzdat[]   BudClubURLs = {SamIzdat.BudClub,SamIzdat.SamLib };
     private static final String DEBUG_TAG = "SamLibConfig";
     
     private static final String     URLPTR = "/\\w/\\w+/";
@@ -98,7 +98,7 @@ public class SamLibConfig {
     private static SamLibConfig instance = null;
 
     private final LinkedList<SamIzdat> linkedSZ;
-    
+    private Context context;
     
     public static SamLibConfig getInstance(Context context){
         if (instance == null){
@@ -110,15 +110,21 @@ public class SamLibConfig {
     
     
     private SamLibConfig(Context context){
+        this.context=context;
         linkedSZ = new LinkedList<SamIzdat>();
+        refreshData( );
+    }
+    public void refreshData( ) {
         SettingsHelper settings = new SettingsHelper(context);
         String fm =settings.getFirstMirror();
+        linkedSZ.clear();
         if (fm.equals(SamIzdat.SamLib.getName())){
             linkedSZ.addAll(Arrays.asList(SamLibURLs));
         }
         else {
             linkedSZ.addAll(Arrays.asList(BudClubURLs));
         }
+
     }
 
     /**

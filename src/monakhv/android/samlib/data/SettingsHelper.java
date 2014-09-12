@@ -41,6 +41,7 @@ import monakhv.android.samlib.BookListFragment;
 import monakhv.android.samlib.R;
 import monakhv.android.samlib.receiver.UpdateReceiver;
 import monakhv.android.samlib.sql.entity.Book;
+import monakhv.android.samlib.sql.entity.SamLibConfig;
 import monakhv.samlib.http.HttpClientController;
 
 /**
@@ -114,10 +115,16 @@ public class SettingsHelper implements SharedPreferences.OnSharedPreferenceChang
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
         requestBackup();
 
-        if (key.equals(context.getText(R.string.pref_key_flag_background_update).toString())
-                || key.equals(context.getText(R.string.pref_key_update_Period).toString())) {
+        if (key.equals(context.getString(R.string.pref_key_flag_background_update))
+                || key.equals(context.getString(R.string.pref_key_update_Period))) {
             updateService = true;
 
+        }
+        if (key.equals(context.getString(R.string.pref_key_mirror))){
+            String mirror = sharedPreferences.getString(context.getString(R.string.pref_key_mirror),null);
+            Log.i(DEBUG_TAG,"Set the first mirror to: "+mirror);
+            SamLibConfig sc = SamLibConfig.getInstance(context);
+            sc.refreshData();
         }
     }
 
