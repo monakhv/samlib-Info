@@ -18,7 +18,7 @@ limitations under the License.
     xmlns:android="http://schemas.android.com/apk/res/android">
     <item
         android:id="@+id/menu_refresh"
-        android:icon="@drawable/ic_action_refresh"
+        android:icon="?attr/iconRefresh"
         android:title="@string/menu_refresh" 
         android:showAsAction="always"
         android:orderInCategory="100">
@@ -26,7 +26,7 @@ limitations under the License.
     
     <item
         android:id="@+id/selected_option_item"
-        android:icon="@drawable/rating_important"
+        android:icon="?attr/iconSelected"
         android:title="@string/menu_selected_go"
         android:showAsAction="ifRoom"
         android:orderInCategory="5">
@@ -34,7 +34,7 @@ limitations under the License.
     
     <item
         android:id="@+id/menu_filter"
-        android:icon="@drawable/ic_action_done"
+        android:icon="?attr/iconTags"
         android:title="@string/menu_tags" 
         android:showAsAction="ifRoom"
         android:orderInCategory="10">
@@ -43,7 +43,7 @@ limitations under the License.
     
     <item
         android:id="@+id/add_option_item"
-        android:icon="@drawable/action_search"
+        android:icon="?attr/iconSearch"
         android:title="@string/menu_search"
         android:showAsAction="ifRoom"
         android:orderInCategory="20">
@@ -51,7 +51,7 @@ limitations under the License.
     
     <item
         android:id="@+id/sort_option_item"
-        android:icon="@drawable/collections_sort_by_size"
+        android:icon="?attr/iconSort"
         android:title="@string/dialog_title_sort_author"
         android:showAsAction="ifRoom"
         android:orderInCategory="25">
@@ -59,7 +59,7 @@ limitations under the License.
 
     <item
         android:id="@+id/sort_option_item_books"
-        android:icon="@drawable/collections_sort_by_size"
+        android:icon="?attr/iconSort"
         android:title="@string/dialog_title_sort_book"
         android:showAsAction="ifRoom"
         android:orderInCategory="27">

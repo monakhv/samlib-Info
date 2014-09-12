@@ -509,6 +509,23 @@ public class SettingsHelper implements SharedPreferences.OnSharedPreferenceChang
         return R.color.BLACK;
 
     }
+    public int getSelectedIcon(){
+        String str = prefs.getString(context.getString(R.string.pref_key_theme),
+                context.getString(R.string.pref_default_theme));
+        if (str.equals(LIGHT)){
+            return R.drawable.rating_important_l;
+        }
+        return R.drawable.rating_important;
+    }
+    public int getSortIcon(){
+        String str = prefs.getString(context.getString(R.string.pref_key_theme),
+                context.getString(R.string.pref_default_theme));
+        if (str.equals(LIGHT)){
+            return R.drawable.collections_sort_by_size_l;
+        }
+        return R.drawable.collections_sort_by_size;
+    }
+
 
     public String getFirstMirror(){
         return  prefs.getString(context.getString(R.string.pref_key_mirror),context.getString(R.string.pref_default_mirror));

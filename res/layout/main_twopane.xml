@@ -38,7 +38,7 @@ limitations under the License.
             android:id="@+id/addUrlBt"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:background="@drawable/action_search"
+            android:background="?attr/iconSearch"
             android:onClick="addAuthor"/>
     
     </LinearLayout>

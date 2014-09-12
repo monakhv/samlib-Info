@@ -261,7 +261,7 @@ public class BookListFragment extends SherlockListFragment implements
 
         menu.add(100, id_menu_sort, 100, getString(R.string.menu_sort));
         menu.findItem(id_menu_sort).setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
-        menu.findItem(id_menu_sort).setIcon(R.drawable.collections_sort_by_size);
+        menu.findItem(id_menu_sort).setIcon(settings.getSortIcon());
         super.onCreateOptionsMenu(menu,menuInflater );
 
     }
@@ -516,7 +516,7 @@ public class BookListFragment extends SherlockListFragment implements
             }
             if (i == idx_group_id){
                 if(cursor.getInt(i)==1){
-                    ((ImageView) view).setImageResource(R.drawable.rating_important);
+                    ((ImageView) view).setImageResource(settings.getSelectedIcon());
                     return true;
                 }
                 else {
