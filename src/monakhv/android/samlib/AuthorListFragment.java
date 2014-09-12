@@ -115,6 +115,9 @@ public class AuthorListFragment extends SherlockListFragment implements
 
     public void onRefreshStarted(View view) {
 
+        if (getActivity() == null){
+            return;//try to prevent some ANR reports
+        }
         Intent service = new Intent(getActivity(), UpdateServiceIntent.class);
         service.putExtra(UpdateServiceIntent.CALLER_TYPE, UpdateServiceIntent.CALLER_IS_ACTIVITY);
         if (updateAuthor){
