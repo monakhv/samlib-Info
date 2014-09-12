@@ -97,8 +97,8 @@ public class BookListFragment extends SherlockListFragment implements
 
         String[] from = {SQLController.COL_BOOK_TITLE, SQLController.COL_BOOK_SIZE, 
             SQLController.COL_BOOK_DESCRIPTION, SQLController.COL_BOOK_ISNEW,
-            SQLController.COL_BOOK_GROUP_ID,SQLController.COL_BOOK_AUTHOR};
-        int[] to = {R.id.bookTitle, R.id.bookUpdate, R.id.bookDesc, R.id.Bookicon,R.id.Staricon,R.id.bookAuthorName};
+            SQLController.COL_BOOK_GROUP_ID,SQLController.COL_BOOK_AUTHOR,SQLController.COL_BOOK_FORM};
+        int[] to = {R.id.bookTitle, R.id.bookUpdate, R.id.bookDesc, R.id.Bookicon,R.id.Staricon,R.id.bookAuthorName,R.id.bookForm};
 
         adapter = new SimpleCursorAdapter(
                 getActivity(), R.layout.book_row,
@@ -426,6 +426,7 @@ public class BookListFragment extends SherlockListFragment implements
     private class BookViewBinder implements SimpleCursorAdapter.ViewBinder {
 
         public boolean setViewValue(View view, Cursor cursor, int i) {
+            int idx_form = cursor.getColumnIndex(SQLController.COL_BOOK_FORM);
             int idx_mtime = cursor.getColumnIndex(SQLController.COL_BOOK_MTIME);
             int idx_date = cursor.getColumnIndex(SQLController.COL_BOOK_DATE);
             int idx_desc = cursor.getColumnIndex(SQLController.COL_BOOK_DESCRIPTION);
@@ -469,6 +470,10 @@ public class BookListFragment extends SherlockListFragment implements
                 return true;
             }
 
+            if (i==idx_form){
+                TextView tv = ((TextView) view);
+                tv.setText(cursor.getString(i));
+            }
 
 
             if (i == idx_mtime || i == idx_date) {
