@@ -3,6 +3,11 @@
     <style name="MyTheme" parent="Theme.Sherlock">
         <item name="android:actionBarStyle">@style/MyActionBar</item>
         <item name="android:windowTitleStyle">@style/dialog_title_style</item>
+        <item name="iconSelected">@drawable/rating_important</item>
+        <item name="iconTags">@drawable/ic_action_done</item>
+        <item name="iconSearch">@drawable/action_search</item>
+        <item name="iconSort">@drawable/collections_sort_by_size</item>
+        <item name="iconRefresh">@drawable/navigation_refresh_d</item>
     </style>
     <style name="MyActionBar" parent="Widget.Sherlock.ActionBar">
         <!--

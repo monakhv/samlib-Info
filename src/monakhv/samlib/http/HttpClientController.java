@@ -15,6 +15,7 @@
  */
 package monakhv.samlib.http;
 
+import android.content.Context;
 import android.util.Log;
 
 import java.io.File;
@@ -74,16 +75,16 @@ public class HttpClientController {
     private static HttpClientController instance = null;
     private final SamLibConfig slc;
 
-    public static HttpClientController getInstance() {
+    public static HttpClientController getInstance(Context context) {
         if (instance == null){
-            instance = new HttpClientController();
+            instance = new HttpClientController(context);
         }
         
         return instance;
     }
 
-    private HttpClientController() {
-        slc = SamLibConfig.getInstance();
+    private HttpClientController(Context context) {
+        slc = SamLibConfig.getInstance(context);
     }
 
     /**

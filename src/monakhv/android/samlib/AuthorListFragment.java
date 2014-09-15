@@ -99,10 +99,12 @@ public class AuthorListFragment extends SherlockListFragment implements
     private SingleChoiceSelectDialog sortDialog;
     private FilterSelectDialog filterDialog;
     private GestureDetector detector;
+    private boolean updateAuthor=false;//true update the only selected author
 
     void onRefreshComplete() {
         mPullToRefreshLayout.setRefreshComplete();
         updateTextView.setGravity(android.view.Gravity.CENTER);
+        updateAuthor=false;
 
     }
 
@@ -113,9 +115,19 @@ public class AuthorListFragment extends SherlockListFragment implements
 
     public void onRefreshStarted(View view) {
 
+        if (getActivity() == null){
+            return;//try to prevent some ANR reports
+        }
         Intent service = new Intent(getActivity(), UpdateServiceIntent.class);
         service.putExtra(UpdateServiceIntent.CALLER_TYPE, UpdateServiceIntent.CALLER_IS_ACTIVITY);
-        service.putExtra(UpdateServiceIntent.SELECT_STRING, selection);
+        if (updateAuthor){
+            String str =   SQLController.TABLE_AUTHOR + "." +SQLController.COL_ID + "=" + Integer.toString(author.getId());
+            service.putExtra(UpdateServiceIntent.SELECT_STRING, str);
+        }
+        else {
+            service.putExtra(UpdateServiceIntent.SELECT_STRING, selection);
+        }
+
         getActivity().startService(service);
     }
 
@@ -144,7 +156,7 @@ public class AuthorListFragment extends SherlockListFragment implements
         int[] to = {R.id.authorName, R.id.updated, R.id.icon, R.id.tgnames, R.id.authorURL};
 
         adapter = new SimpleCursorAdapter(
-                getActivity().getApplicationContext(), R.layout.rowlayout,
+                getActivity(), R.layout.rowlayout,
                 null, from, to,
                 CursorAdapter.FLAG_REGISTER_CONTENT_OBSERVER);
 
@@ -367,7 +379,7 @@ public class AuthorListFragment extends SherlockListFragment implements
             Intent prefsIntent = new Intent(getActivity().getApplicationContext(),
                     SamlibPreferencesActivity.class);
             //prefsIntent.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
-            startActivity(prefsIntent);
+            getActivity(). startActivityForResult(prefsIntent,MainActivity.PREFS_ACTIVITY);
         }
         if (sel == R.id.archive_option_item) {
 
@@ -540,7 +552,7 @@ public class AuthorListFragment extends SherlockListFragment implements
      * @param a Author object
      */
     public void launchBrowser(Author a) {
-        Uri uri = Uri.parse(a.getUrlForBrowser());
+        Uri uri = Uri.parse(a.getUrlForBrowser(getActivity()));
         Intent launchBrowser = new Intent(Intent.ACTION_VIEW, uri);
         getActivity().startActivity(launchBrowser);
 
@@ -621,6 +633,7 @@ public class AuthorListFragment extends SherlockListFragment implements
     private final int browser_option_item = 23;
     private final int edit_author_option_item = 24;
     private final int delete_option_item = 25;
+    private final int update_option_item = 35;
 
     @Override
     public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
@@ -642,6 +655,7 @@ public class AuthorListFragment extends SherlockListFragment implements
             menu.add(1, browser_option_item, 30, getText(R.string.menu_open_web));
             menu.add(1, edit_author_option_item, 40, getText(R.string.menu_edit));
             menu.add(1, delete_option_item, 50, getText(R.string.menu_delete));
+            menu.add(1, update_option_item, 60, getText(R.string.menu_refresh));
             menu.setHeaderTitle(author.getName());
         }
 
@@ -672,6 +686,10 @@ public class AuthorListFragment extends SherlockListFragment implements
             }
             if (item.getItemId() == browser_option_item) {
                 launchBrowser(author);
+            }
+            if (item.getItemId()==update_option_item){
+                updateAuthor=true;
+                startRefresh();
             }
             if (item.getItemId() == edit_author_option_item) {
                 EnterStringDialog ddialog = new EnterStringDialog(getActivity(), new EnterStringDialog.ClickListener() {

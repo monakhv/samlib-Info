@@ -1,5 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!--
+    See also value-v11 style file
+    -->
     <style name="MyTheme" parent="Theme.Sherlock">
+        <item name="iconSelected">@drawable/rating_important</item>
+        <item name="iconTags">@drawable/ic_action_done</item>
+        <item name="iconSearch">@drawable/action_search</item>
+        <item name="iconSort">@drawable/collections_sort_by_size</item>
+        <item name="iconRefresh">@drawable/navigation_refresh_d</item>
+
+    </style>
+    <style name="MyThemeLight" parent="Theme.Sherlock.Light">
+        <item name="iconSelected">@drawable/rating_important_l</item>
+        <item name="iconTags">@drawable/navigation_accept</item>
+        <item name="iconSearch">@drawable/action_search_l</item>
+        <item name="iconSort">@drawable/collections_sort_by_size_l</item>
+        <item name="iconRefresh">@drawable/navigation_refresh</item>
     </style>
 </resources>

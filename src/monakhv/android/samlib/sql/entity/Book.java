@@ -15,6 +15,8 @@
  */
 package monakhv.android.samlib.sql.entity;
 
+import android.content.Context;
+
 import java.io.File;
 import java.io.Serializable;
 import java.util.Calendar;
@@ -238,8 +240,9 @@ public class Book implements Serializable {
      * Get book url to open it using web browser
      * @return  String url to open book for reading
      */
-    public String getUrlForBrowser(){
-        return SamLibConfig.getBookUrlForBrowser(this);
+    public String getUrlForBrowser(Context context){
+        SamLibConfig sc = SamLibConfig.getInstance(context);
+        return sc.getBookUrlForBrowser(this);
     }
     
     /**

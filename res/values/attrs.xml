@@ -28,4 +28,11 @@
         <attr name="borderDrawable" format="reference" />
     </declare-styleable>
 
+    <declare-styleable name="customAttrs">
+    <attr name="iconSelected" format="reference" />
+     <attr name="iconTags" format="reference" />
+     <attr name="iconSearch" format="reference" />
+     <attr name="iconSort" format="reference" />
+     <attr name="iconRefresh" format="reference" />
+</declare-styleable>
 </resources>

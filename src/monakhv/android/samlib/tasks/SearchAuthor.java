@@ -64,7 +64,7 @@ public class SearchAuthor extends AsyncTask<String, Void, Boolean> {
     private static final String DEBUG_TAG = "SearchAuthor";
     private Context context = null;
     private RuleBasedCollator russianCollator;
-    private final HttpClientController http = HttpClientController.getInstance();
+    private  HttpClientController http ;
 
     private int inum = 0;//Result number
     private final List<AuthorCard> result;
@@ -74,6 +74,7 @@ public class SearchAuthor extends AsyncTask<String, Void, Boolean> {
         status = ResultStatus.Good;
 
         context = ctx;
+        http = HttpClientController.getInstance(context);
         settings = new SettingsHelper(context);
         russianCollator =  (RuleBasedCollator) Collator.getInstance(new Locale("ru", "RU"));
 

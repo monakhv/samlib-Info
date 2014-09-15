@@ -5,5 +5,5 @@ nbandroid/
 .gradle/
 build/
 /local.properties
-/.idea/workspace.xml
+/.idea
 /gradlew.bat

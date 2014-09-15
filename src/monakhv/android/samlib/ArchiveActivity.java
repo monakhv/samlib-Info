@@ -55,9 +55,11 @@ public class ArchiveActivity extends SherlockFragmentActivity {
     private SettingsHelper setting;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        setting = new SettingsHelper(this);
+        setTheme(setting.getTheme());
         super.onCreate(savedInstanceState);
         setContentView(R.layout.archive);
-        setting = new SettingsHelper(this);
+
     }
 
     private Dialog createImportAlert( DialogInterface.OnClickListener listener,String filename) {

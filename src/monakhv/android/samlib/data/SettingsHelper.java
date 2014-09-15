@@ -41,6 +41,7 @@ import monakhv.android.samlib.BookListFragment;
 import monakhv.android.samlib.R;
 import monakhv.android.samlib.receiver.UpdateReceiver;
 import monakhv.android.samlib.sql.entity.Book;
+import monakhv.android.samlib.sql.entity.SamLibConfig;
 import monakhv.samlib.http.HttpClientController;
 
 /**
@@ -53,6 +54,8 @@ public class SettingsHelper implements SharedPreferences.OnSharedPreferenceChang
     private static final String DEBUG_TAG = "SettingsHelper";
     private boolean updateService = false;
     private final SharedPreferences prefs;
+    private static final String DARK = "DARK";
+    private static final String LIGHT = "LIGHT";
 
     public SettingsHelper(Context context) {
         this.context = context;
@@ -112,10 +115,16 @@ public class SettingsHelper implements SharedPreferences.OnSharedPreferenceChang
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
         requestBackup();
 
-        if (key.equals(context.getText(R.string.pref_key_flag_background_update).toString())
-                || key.equals(context.getText(R.string.pref_key_update_Period).toString())) {
+        if (key.equals(context.getString(R.string.pref_key_flag_background_update))
+                || key.equals(context.getString(R.string.pref_key_update_Period))) {
             updateService = true;
 
+        }
+        if (key.equals(context.getString(R.string.pref_key_mirror))){
+            String mirror = sharedPreferences.getString(context.getString(R.string.pref_key_mirror),null);
+            Log.i(DEBUG_TAG,"Set the first mirror to: "+mirror);
+            SamLibConfig sc = SamLibConfig.getInstance(context);
+            sc.refreshData();
         }
     }
 
@@ -478,6 +487,48 @@ public class SettingsHelper implements SharedPreferences.OnSharedPreferenceChang
         }
         long lLimit = (long) limit;
         return book.getSize() < lLimit;
+    }
+
+    public int getTheme(){
+        String str = prefs.getString(context.getString(R.string.pref_key_theme),
+                context.getString(R.string.pref_default_theme));
+
+        if (str.equals(LIGHT)){
+            return R.style.MyThemeLight;
+        }
+        return R.style.MyTheme;
+
+    }
+    public int getBgColor(){
+        String str = prefs.getString(context.getString(R.string.pref_key_theme),
+                context.getString(R.string.pref_default_theme));
+
+        if (str.equals(LIGHT)){
+            return R.color.WHITE;
+        }
+        return R.color.BLACK;
+
+    }
+    public int getSelectedIcon(){
+        String str = prefs.getString(context.getString(R.string.pref_key_theme),
+                context.getString(R.string.pref_default_theme));
+        if (str.equals(LIGHT)){
+            return R.drawable.rating_important_l;
+        }
+        return R.drawable.rating_important;
+    }
+    public int getSortIcon(){
+        String str = prefs.getString(context.getString(R.string.pref_key_theme),
+                context.getString(R.string.pref_default_theme));
+        if (str.equals(LIGHT)){
+            return R.drawable.collections_sort_by_size_l;
+        }
+        return R.drawable.collections_sort_by_size;
+    }
+
+
+    public String getFirstMirror(){
+        return  prefs.getString(context.getString(R.string.pref_key_mirror),context.getString(R.string.pref_default_mirror));
     }
 
     void checkDeleteBook(File file) {

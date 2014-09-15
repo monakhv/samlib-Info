@@ -67,9 +67,9 @@ public class AuthorStatePrefs {
         editor = prefs.edit();
         AuthorController sql = new AuthorController(context);
         for (Author a : sql.getAll()) {
-            editor.putString(a.getUrlForBrowser(), a.getAll_tags_name());
+            editor.putString(a.getUrlForBrowser(context), a.getAll_tags_name());
 
-            Log.d(DEBUG_TAG, "url: " + a.getUrlForBrowser() + " - " + a.getAll_tags_name());
+            Log.d(DEBUG_TAG, "url: " + a.getUrlForBrowser(context) + " - " + a.getAll_tags_name());
         }
         editor.commit();
 

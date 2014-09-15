@@ -93,5 +93,26 @@ limitations under the License.
         <item>FB2</item>
     </string-array>
 
+    <string-array name="themeTitles">
+        <item>Темная</item>
+        <item>Светлая</item>
+    </string-array>
+    <string-array name="themeValues">
+        <item>DARK</item>
+        <item>LIGHT</item>
+    </string-array>
+
+
+    <string-array name="mirrorValues">
+        <item>@string/SamLib</item>
+        <item>@string/BudClub</item>
+    </string-array>
+
+    <string-array name="mirrorTitles">
+        <item>@string/SamLibUrl</item>
+        <item>@string/BudClubUrl</item>
+    </string-array>
+
+
     
 </resources>

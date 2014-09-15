@@ -80,7 +80,7 @@ public class DownloadBookServiceIntent extends IntentService {
 
     private boolean getBook(Book book, DataExportImport.FileType ft) {
         book.setFileType(ft);
-        HttpClientController http = HttpClientController.getInstance();
+        HttpClientController http = HttpClientController.getInstance(this);
         try {
             http.downloadBook(book);
            return true;

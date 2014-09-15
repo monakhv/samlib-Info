@@ -36,6 +36,7 @@ import java.io.Serializable;
 import java.util.List;
 
 import monakhv.android.samlib.R;
+import monakhv.android.samlib.data.SettingsHelper;
 import monakhv.android.samlib.sql.entity.AuthorCard;
 
 /**
@@ -49,9 +50,12 @@ public class SearchAuthorActivity extends SherlockFragmentActivity {
     private SearchReceiver receiver;
     private SearchAuthorsListFragment listFragment;
     private View searchPannel;
+    private SettingsHelper settings;
     
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        settings = new SettingsHelper(this);
+        setTheme(settings.getTheme());
         super.onCreate(savedInstanceState);
         
         setContentView(R.layout.search_authors);

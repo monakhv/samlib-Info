@@ -60,10 +60,12 @@ public class MainActivity extends SherlockFragmentActivity implements AuthorList
     public static final  String CLEAN_NOTIFICATION = "CLEAN_NOTIFICATION";
     public static final int ARCHIVE_ACTIVITY = 1;
     public static final int SEARCH_ACTIVITY  = 2;
+    public static final int PREFS_ACTIVITY  = 3;
     //AddAuthorDialog addAuthorDialog;
     private UpdateActivityReceiver updateReceiver;
     private DownloadReceiver downloadReceiver;
     private AuthorListFragment listHelper;
+    private SettingsHelper settings;
 
     private BookListFragment books = null;
     private boolean isOpen = true;
@@ -163,6 +165,8 @@ public class MainActivity extends SherlockFragmentActivity implements AuthorList
 
     @Override
     public void onCreate(Bundle icicle) {
+        settings = new SettingsHelper(this);
+        setTheme(settings.getTheme());
         super.onCreate(icicle);
 
         setContentView(R.layout.main_twopane);
@@ -192,7 +196,9 @@ public class MainActivity extends SherlockFragmentActivity implements AuthorList
         ActivityUtils.setShadow(pane);
 
         LinearLayout pane2 = (LinearLayout) findViewById(R.id.pane2);
-        pane2.setBackgroundColor(getResources().getColor(R.color.BLACK));
+        pane2.setBackgroundColor(getResources().getColor(settings.getBgColor()));
+        //pane2.setBackgroundColor(getResources().getColor(R.color.BLACK));
+        // pane2.setBackgroundColor(getResources().getColor(R.color.WHITE));
 
         isOpen = true;
         //use here bundle but not icicle !!
@@ -333,6 +339,9 @@ public class MainActivity extends SherlockFragmentActivity implements AuthorList
         if (requestCode == SEARCH_ACTIVITY) {
             AddAuthor aa = new AddAuthor(getApplicationContext());
             aa.execute(data.getStringExtra(SearchAuthorsListFragment.AUTHOR_URL));
+        }
+        if (requestCode == PREFS_ACTIVITY){
+            finish();
         }
     }
 
