@@ -34,5 +34,6 @@
      <attr name="iconSearch" format="reference" />
      <attr name="iconSort" format="reference" />
      <attr name="iconRefresh" format="reference" />
+     <attr name="colorBg" format="reference" />
 </declare-styleable>
 </resources>

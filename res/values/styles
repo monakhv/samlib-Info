@@ -9,7 +9,7 @@
         <item name="iconSearch">@drawable/action_search</item>
         <item name="iconSort">@drawable/collections_sort_by_size</item>
         <item name="iconRefresh">@drawable/navigation_refresh_d</item>
-
+        <item name="colorBg">@color/BLACK</item>
     </style>
     <style name="MyThemeLight" parent="Theme.Sherlock.Light">
         <item name="iconSelected">@drawable/rating_important_l</item>
@@ -17,5 +17,6 @@
         <item name="iconSearch">@drawable/action_search_l</item>
         <item name="iconSort">@drawable/collections_sort_by_size_l</item>
         <item name="iconRefresh">@drawable/navigation_refresh</item>
+        <item name="colorBg">@color/WHITE</item>
     </style>
 </resources>

@@ -24,11 +24,13 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.content.res.TypedArray;
 import android.util.Log;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.NetworkInfo.State;
 import android.net.Uri;
+import android.util.TypedValue;
 
 import java.io.File;
 import java.net.Authenticator;
@@ -499,23 +501,12 @@ public class SettingsHelper implements SharedPreferences.OnSharedPreferenceChang
         return R.style.MyTheme;
 
     }
-    public int getBgColor(){
-        String str = prefs.getString(context.getString(R.string.pref_key_theme),
-                context.getString(R.string.pref_default_theme));
 
-        if (str.equals(LIGHT)){
-            return R.color.WHITE;
-        }
-        return R.color.BLACK;
-
-    }
     public int getSelectedIcon(){
-        String str = prefs.getString(context.getString(R.string.pref_key_theme),
-                context.getString(R.string.pref_default_theme));
-        if (str.equals(LIGHT)){
-            return R.drawable.rating_important_l;
-        }
-        return R.drawable.rating_important;
+
+        TypedArray a =context. getTheme().obtainStyledAttributes(getTheme(), new int[] {R.attr.iconSelected});
+        return a.getResourceId(0,0);
+
     }
     public int getSortIcon(){
         String str = prefs.getString(context.getString(R.string.pref_key_theme),

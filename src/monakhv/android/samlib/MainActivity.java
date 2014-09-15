@@ -195,8 +195,8 @@ public class MainActivity extends SherlockFragmentActivity implements AuthorList
         listHelper.setHasOptionsMenu(true);
         ActivityUtils.setShadow(pane);
 
-        LinearLayout pane2 = (LinearLayout) findViewById(R.id.pane2);
-        pane2.setBackgroundColor(getResources().getColor(settings.getBgColor()));
+//        LinearLayout pane2 = (LinearLayout) findViewById(R.id.pane2);
+//        pane2.setBackgroundColor(getResources().getColor(settings.getBgColor()));
         //pane2.setBackgroundColor(getResources().getColor(R.color.BLACK));
         // pane2.setBackgroundColor(getResources().getColor(R.color.WHITE));
 

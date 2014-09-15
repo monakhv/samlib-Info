@@ -515,6 +515,7 @@ public class BookListFragment extends SherlockListFragment implements
                 return true;
             }
             if (i == idx_group_id){
+                //TODO: some code reduction is need - we have attribute reference int layout resource
                 if(cursor.getInt(i)==1){
                     ((ImageView) view).setImageResource(settings.getSelectedIcon());
                     return true;
