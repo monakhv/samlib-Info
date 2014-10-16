@@ -39,6 +39,7 @@ limitations under the License.
             android:value="AEdPqrEAAAAI7SvTEhzwIRxC6fJ8z52wEta3A46aZEnBJSqpfQ"
             />
         <activity android:name="MainActivity"
+            android:launchMode="singleTask"
                   android:label="@string/app_name">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
