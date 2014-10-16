@@ -161,7 +161,20 @@ public class MainActivity extends SherlockFragmentActivity implements AuthorList
 
     }
 
-
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        if (intent == null){
+            return;
+        }
+        Bundle bundle= intent.getExtras();
+        if (bundle != null){
+            String clean = bundle.getString(CLEAN_NOTIFICATION);
+            if (clean != null) {
+                CleanNotificationData.start(this);
+            }
+        }
+    }
 
     @Override
     public void onCreate(Bundle icicle) {
