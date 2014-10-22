@@ -14,12 +14,12 @@ if(project.hasProperty("Monakhv.signing")
 }
 
 android {
-    compileSdkVersion 19
-    buildToolsVersion '20'
+    compileSdkVersion 21
+    buildToolsVersion '21.0.2'
 
     defaultConfig {
         minSdkVersion 9
-        targetSdkVersion 19
+        targetSdkVersion 21
         versionCode 10331
         versionName "3.2.11"
     }
@@ -64,7 +64,7 @@ dependencies {
     }
 
 
-    compile 'com.android.support:support-v4:20.+'
+    compile 'com.android.support:support-v4:21.+'
     compile 'com.actionbarsherlock:actionbarsherlock:4.4.0@aar'
     compile 'com.github.chrisbanes.actionbarpulltorefresh:extra-abs:0.9.3'
     compile 'com.google.android.gms:play-services:4.3.+'
