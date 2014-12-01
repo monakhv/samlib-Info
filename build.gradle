@@ -3,10 +3,10 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:0.14.0'
+        classpath 'com.android.tools.build:gradle:1.0.0-rc1'
     }
 }
-apply plugin: 'android'
+apply plugin: 'com.android.application'
 
 if(project.hasProperty("Monakhv.signing")
         && new File(project.property("Monakhv.signing") + ".gradle").exists()) {
@@ -15,7 +15,7 @@ if(project.hasProperty("Monakhv.signing")
 
 android {
     compileSdkVersion 21
-    buildToolsVersion '21.0.2'
+    buildToolsVersion '21.1.1'
 
     defaultConfig {
         minSdkVersion 9
@@ -50,9 +50,8 @@ android {
     buildTypes {
         release {
             debuggable false
-            jniDebugBuild false
-            runProguard false
-            zipAlign true
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
 
@@ -67,7 +66,7 @@ dependencies {
     compile 'com.android.support:support-v4:21.+'
     compile 'com.actionbarsherlock:actionbarsherlock:4.4.0@aar'
     compile 'com.github.chrisbanes.actionbarpulltorefresh:extra-abs:0.9.3'
-    compile 'com.google.android.gms:play-services:4.3.+'
+    compile 'com.google.android.gms:play-services:6.1.+'
 
 
 }
