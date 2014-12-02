@@ -23,6 +23,7 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.v4.app.ListFragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
@@ -32,15 +33,14 @@ import android.text.Html;
 import android.util.Log;
 import android.view.ContextMenu;
 
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ImageView;
 import android.widget.TextView;
-import com.actionbarsherlock.app.SherlockListFragment;
-import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.MenuInflater;
-import com.actionbarsherlock.view.MenuItem;
 
 
 import java.text.SimpleDateFormat;
@@ -61,7 +61,7 @@ import monakhv.android.samlib.sql.entity.SamLibConfig;
  *
  * @author monakhv
  */
-public class BookListFragment extends SherlockListFragment implements
+public class BookListFragment extends ListFragment implements
         LoaderManager.LoaderCallbacks<Cursor>, ListSwipeListener.SwipeCallBack {
     private Callbacks mCallbacks;
     public interface Callbacks {
@@ -266,7 +266,7 @@ public class BookListFragment extends SherlockListFragment implements
 
     }
     @Override
-    public boolean onOptionsItemSelected(com.actionbarsherlock.view.MenuItem item) {
+    public boolean onOptionsItemSelected(MenuItem item) {
         int sel = item.getItemId();
         if (sel == android.R.id.home ){
             mCallbacks.onOpenPanel();

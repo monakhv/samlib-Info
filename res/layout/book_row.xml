@@ -57,6 +57,7 @@ limitations under the License.
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textSize="@dimen/text_size_head"
+            android:textColor="?attr/colorText"
         >
         </TextView>
 
@@ -73,7 +74,7 @@ limitations under the License.
                 android:width="0dp"           
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-        
+                android:textColor="?attr/colorText"
                 android:textSize="@dimen/text_size_head" >
             </TextView>
 

@@ -28,16 +28,18 @@ import android.media.Ringtone;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Bundle;
+
 import android.preference.EditTextPreference;
 import android.preference.ListPreference;
 import android.preference.Preference;
-import android.preference.Preference.OnPreferenceChangeListener;
+import android.preference.PreferenceActivity;
 import android.preference.RingtonePreference;
 import android.support.v4.app.NavUtils;
-import android.util.Log;
 
-import com.actionbarsherlock.app.SherlockPreferenceActivity;
-import com.actionbarsherlock.view.MenuItem;
+import android.util.Log;
+import android.view.MenuItem;
+
+
 import com.google.android.gms.auth.GoogleAuthUtil;
 import com.google.android.gms.common.AccountPicker;
 
@@ -45,13 +47,13 @@ import java.util.Arrays;
 import java.util.List;
 
 import monakhv.android.samlib.data.SettingsHelper;
-import monakhv.android.samlib.tasks.DeleteAuthor;
+
 
 /**
  * @author monakhv
  */
-public class SamlibPreferencesActivity extends SherlockPreferenceActivity
-        implements OnSharedPreferenceChangeListener, OnPreferenceChangeListener {
+public class SamlibPreferencesActivity extends PreferenceActivity
+        implements OnSharedPreferenceChangeListener, Preference.OnPreferenceChangeListener {
 
     private static final String DEBUG_TAG = "SamlibPreferencesActivity";
     private static final int REQ_AUTH = 11;
@@ -98,7 +100,7 @@ public class SamlibPreferencesActivity extends SherlockPreferenceActivity
         });
         String title = getString(R.string.app_name) + " - " + helper.getVersionName();
 
-        getSupportActionBar().setTitle(title);
+        //getSupportActionBar().setTitle(title);
     }
 
     @Override

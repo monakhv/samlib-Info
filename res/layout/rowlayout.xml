@@ -17,21 +17,23 @@ limitations under the License.
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="?android:attr/activatedBackgroundIndicator"
     android:orientation="horizontal">
 
     <LinearLayout
-    android:layout_width="0dp"
-    android:layout_weight="2"
-    android:layout_height="wrap_content"
-    android:orientation="vertical"> 
-    <TextView
-        android:id="@+id/authorName"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
+        android:layout_weight="2"
         android:layout_height="wrap_content"
-        android:text="@+id/authorName"
-        android:singleLine="true"
-        android:textSize="@dimen/text_size_head" >
-    </TextView>
+        android:orientation="vertical">
+        <TextView
+            android:id="@+id/authorName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@+id/authorName"
+            android:singleLine="true"
+            android:textColor="?attr/colorText"
+            android:textSize="@dimen/text_size_head" >
+        </TextView>
         <TextView
             android:id="@+id/authorURL"
             android:layout_width="wrap_content"
@@ -40,33 +42,33 @@ limitations under the License.
             android:singleLine="true"
             android:textSize="@dimen/text_size_small" >
         </TextView>
-    
-    <LinearLayout
-        android:orientation="horizontal"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent" 
-    >
-    <TextView
-        android:layout_width="0dp"
-        android:layout_weight="1"
-        android:id="@+id/updated"        
-        android:layout_height="wrap_content"
-        android:text="@+id/updated"
-        android:textSize="@dimen/text_size_small" >
-    </TextView>
-    <TextView
-        android:layout_width="wrap_content"        
-        android:id="@+id/tgnames"       
-        android:layout_height="wrap_content"
-        android:text="@+id/tgnames"
-        android:textSize="@dimen/text_size_small" >
-    </TextView>
-    
-     </LinearLayout>
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            >
+            <TextView
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:id="@+id/updated"
+                android:layout_height="wrap_content"
+                android:text="@+id/updated"
+                android:textSize="@dimen/text_size_small" >
+            </TextView>
+            <TextView
+                android:layout_width="wrap_content"
+                android:id="@+id/tgnames"
+                android:layout_height="wrap_content"
+                android:text="@+id/tgnames"
+                android:textSize="@dimen/text_size_small" >
+            </TextView>
+
+        </LinearLayout>
     </LinearLayout>
-    
-    
-      
+
+
+
     <ImageView
         android:id="@+id/icon"
         android:layout_width="32sp"
@@ -77,6 +79,6 @@ limitations under the License.
         android:src="@drawable/bullet_green" >
     </ImageView>
 
-    
+
 
 </LinearLayout>

@@ -28,6 +28,7 @@ import android.database.MergeCursor;
 import android.graphics.Typeface;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.v4.app.ListFragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
@@ -37,6 +38,9 @@ import android.util.Log;
 import android.view.ContextMenu;
 import android.view.GestureDetector;
 import android.view.KeyEvent;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -47,10 +51,7 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import com.actionbarsherlock.app.SherlockListFragment;
-import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.MenuInflater;
-import com.actionbarsherlock.view.MenuItem;
+
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -72,16 +73,17 @@ import monakhv.android.samlib.dialogs.SingleChoiceSelectDialog;
 import monakhv.android.samlib.service.UpdateServiceIntent;
 import monakhv.android.samlib.sql.entity.SamLibConfig;
 import monakhv.android.samlib.tasks.DeleteAuthor;
-import uk.co.senab.actionbarpulltorefresh.extras.actionbarsherlock.PullToRefreshLayout;
+import uk.co.senab.actionbarpulltorefresh.extras.actionbarcompat.PullToRefreshLayout;
 import uk.co.senab.actionbarpulltorefresh.library.ActionBarPullToRefresh;
 import uk.co.senab.actionbarpulltorefresh.library.DefaultHeaderTransformer;
 import uk.co.senab.actionbarpulltorefresh.library.Options;
 import uk.co.senab.actionbarpulltorefresh.library.listeners.OnRefreshListener;
 
+
 /**
  * @author Dmitry Monakhov
  */
-public class AuthorListFragment extends SherlockListFragment implements
+public class AuthorListFragment extends ListFragment implements
         LoaderManager.LoaderCallbacks<Cursor>, ListSwipeListener.SwipeCallBack, OnRefreshListener {
 
     public static final int AUTHOR_LIST_LOADER = 0x01;

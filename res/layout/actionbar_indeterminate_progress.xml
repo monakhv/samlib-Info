@@ -14,20 +14,15 @@
   limitations under the License.
   -->
 
+
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="48dp"
+    android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:gravity="center"
-    android:paddingRight="12dp" >
-
-    <ProgressBar
-        style="@style/Widget.Sherlock.ProgressBar"
-        android:layout_width="44dp"
+    android:gravity="center">
+    <ProgressBar android:layout_width="40dp"
         android:layout_height="32dp"
-        android:layout_gravity="left"
         android:layout_marginLeft="12dp"
-        android:indeterminate="true"
-        android:indeterminateDrawable="@drawable/rotation_refresh"
-        android:paddingRight="12dp" />
-
+        android:layout_marginRight="12dp"
+        android:layout_gravity="center"
+        style="?android:attr/indeterminateProgressStyle" />
 </FrameLayout>

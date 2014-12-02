@@ -15,6 +15,7 @@
  */
 package monakhv.android.samlib;
 
+
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -22,6 +23,8 @@ import android.content.IntentFilter;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.widget.SlidingPaneLayout;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.ActionBarActivity;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -29,11 +32,8 @@ import android.view.KeyEvent;
 import android.view.View;
 
 import android.widget.EditText;
-import android.widget.LinearLayout;
 import android.widget.Toast;
 
-import com.actionbarsherlock.app.ActionBar;
-import com.actionbarsherlock.app.SherlockFragmentActivity;
 
 import monakhv.android.samlib.data.DataExportImport;
 import monakhv.android.samlib.search.SearchAuthorActivity;
@@ -46,7 +46,7 @@ import monakhv.android.samlib.sql.entity.Book;
 import monakhv.android.samlib.sql.entity.SamLibConfig;
 import monakhv.android.samlib.tasks.AddAuthor;
 
-public class MainActivity extends SherlockFragmentActivity implements AuthorListFragment.Callbacks, BookListFragment.Callbacks,
+public class MainActivity extends ActionBarActivity  implements AuthorListFragment.Callbacks, BookListFragment.Callbacks,
         SlidingPaneLayout.PanelSlideListener {
 
     private SlidingPaneLayout pane;
