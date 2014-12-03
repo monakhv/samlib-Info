@@ -83,7 +83,7 @@ limitations under the License.
             android:layout_width="600dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:background="?attr/colorBg"
+            android:background="?android:attr/colorBackground"
            >
     
             <fragment
