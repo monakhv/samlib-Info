@@ -37,7 +37,7 @@
         <item name="ptrReleaseText">@string/pull_to_refresh_release_label</item>
 
 
-        <item name="ptrProgressBarStyle">inside</item>
+
         <!--
       <item name="ptrHeaderHeight">20dp</item>
 -->
@@ -50,7 +50,7 @@
         <item name="ptrRefreshingText">@string/pull_to_refresh_refreshing_label</item>
         <item name="ptrReleaseText">@string/pull_to_refresh_release_label</item>
 
-        <item name="ptrProgressBarStyle">inside</item>
+
 
     </style>
 
