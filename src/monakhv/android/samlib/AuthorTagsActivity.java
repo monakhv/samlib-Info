@@ -24,6 +24,7 @@ import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.widget.SimpleCursorAdapter;
+import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.util.SparseBooleanArray;
 import android.view.ContextMenu;
@@ -51,7 +52,7 @@ import monakhv.android.samlib.sql.entity.Tag;
  *
  * @author monakhv
  */
-public class AuthorTagsActivity extends FragmentActivity {
+public class AuthorTagsActivity extends ActionBarActivity {
 
     public static final String AUTHOR_ID = "TAGS_AUTHOR_ID";
     private static final String DEBUG_TAG = "AuthorTagsActivity";
