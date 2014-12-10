@@ -1,6 +1,7 @@
 package monakhv.android.samlib;
 
 import android.content.Context;
+import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -13,17 +14,20 @@ import android.view.MotionEvent;
 import android.view.SoundEffectConstants;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import monakhv.android.samlib.adapter.AuthorCursorAdapter;
 import monakhv.android.samlib.recyclerview.DividerItemDecoration;
 import monakhv.android.samlib.recyclerview.RecyclerViewDelegate;
+import monakhv.android.samlib.service.UpdateServiceIntent;
 import monakhv.android.samlib.sql.AuthorController;
 import monakhv.android.samlib.sql.AuthorProvider;
 import monakhv.android.samlib.sql.SQLController;
 import monakhv.android.samlib.sql.entity.Author;
 import uk.co.senab.actionbarpulltorefresh.extras.actionbarcompat.PullToRefreshLayout;
 import uk.co.senab.actionbarpulltorefresh.library.ActionBarPullToRefresh;
+import uk.co.senab.actionbarpulltorefresh.library.DefaultHeaderTransformer;
 import uk.co.senab.actionbarpulltorefresh.library.Options;
 import uk.co.senab.actionbarpulltorefresh.library.listeners.OnRefreshListener;
 
@@ -53,6 +57,9 @@ public class AuthorFragment extends Fragment implements OnRefreshListener, ListS
     private SortOrder order;
     private PullToRefreshLayout mPullToRefreshLayout;
     private GestureDetector detector;
+    private boolean updateAuthor=false;//true update the only selected author
+    private Author author = null;//for context menu selection
+    private TextView updateTextView;
 
 
     @Override
@@ -95,6 +102,10 @@ public class AuthorFragment extends Fragment implements OnRefreshListener, ListS
                 .useViewDelegate(android.support.v7.widget.RecyclerView.class, new RecyclerViewDelegate())
                 .setup(mPullToRefreshLayout);
 
+        DefaultHeaderTransformer dht = (DefaultHeaderTransformer) mPullToRefreshLayout.getHeaderTransformer();
+        updateTextView = (TextView) dht.getHeaderView().findViewById(R.id.ptr_text);
+
+
 
         authorRV.setOnTouchListener(new View.OnTouchListener() {
             public boolean onTouch(View v, MotionEvent event) {
@@ -126,6 +137,31 @@ public class AuthorFragment extends Fragment implements OnRefreshListener, ListS
     @Override
     public void onRefreshStarted(View view) {
 
+        if (getActivity() == null){
+            return;//try to prevent some ANR reports
+        }
+        Intent service = new Intent(getActivity(), UpdateServiceIntent.class);
+        service.putExtra(UpdateServiceIntent.CALLER_TYPE, UpdateServiceIntent.CALLER_IS_ACTIVITY);
+        if (updateAuthor){
+            String str =   SQLController.TABLE_AUTHOR + "." +SQLController.COL_ID + "=" + Integer.toString(author.getId());
+            service.putExtra(UpdateServiceIntent.SELECT_STRING, str);
+        }
+        else {
+            service.putExtra(UpdateServiceIntent.SELECT_STRING, selection);
+        }
+
+        getActivity().startService(service);
+    }
+
+    void onRefreshComplete() {
+        mPullToRefreshLayout.setRefreshComplete();
+        updateTextView.setGravity(android.view.Gravity.CENTER);
+        updateAuthor=false;
+
+    }
+    void updateProgress(String stringExtra) {
+        updateTextView.setGravity(android.view.Gravity.CENTER_VERTICAL);
+        updateTextView.setText(stringExtra);
     }
 
     @Override
