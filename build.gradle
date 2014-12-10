@@ -3,7 +3,7 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:1.0.0-rc1'
+        classpath 'com.android.tools.build:gradle:1.0.0'
     }
 }
 apply plugin: 'com.android.application'
@@ -64,6 +64,7 @@ dependencies {
 
 
     compile 'com.android.support:appcompat-v7:21.0.+'
+    compile 'com.android.support:recyclerview-v7:21.0.+'
     compile 'com.github.chrisbanes.actionbarpulltorefresh:extra-abc:0.9.9'
     compile 'com.google.android.gms:play-services:6.1.+'
 
