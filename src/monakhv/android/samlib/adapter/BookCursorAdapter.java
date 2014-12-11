@@ -4,6 +4,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.support.v7.widget.RecyclerView;
 import android.text.Html;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -108,7 +109,8 @@ public class BookCursorAdapter extends RecyclerCursorAdapter<BookCursorAdapter.V
 
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup viewGroup, int i) {
-        return null;
+        View v = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.book_row, viewGroup, false);
+        return new ViewHolder(v);
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
