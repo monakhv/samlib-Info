@@ -112,6 +112,7 @@ public class BookCursorAdapter extends RecyclerCursorAdapter<BookCursorAdapter.V
                     sql.testMarkRead(a);
                 }
             };
+            holder.itemView.setActivated(cursor.getPosition() == getSelectedPosition());
 
         }
 
