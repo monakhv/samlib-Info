@@ -13,6 +13,7 @@ import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.GestureDetector;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.SoundEffectConstants;
 import android.view.View;
@@ -117,6 +118,9 @@ public class BookFragment extends Fragment implements ListSwipeListener.SwipeCal
 
 
         Book book =adapter.getSelected();
+        if (book == null){
+            return false;
+        }
         loadBook(book);
         bookRV.playSoundEffect(SoundEffectConstants.CLICK);
         return true;
@@ -132,6 +136,14 @@ public class BookFragment extends Fragment implements ListSwipeListener.SwipeCal
         return false;
     }
 
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int sel = item.getItemId();
+        if (sel == android.R.id.home) {
+            getActivity().finish();
+        }
+        return super.onOptionsItemSelected(item);
+    }
     private void loadBook(Book book){
         book.setFileType(settings.getFileType());
         if (book.needUpdateFile()) {

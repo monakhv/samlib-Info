@@ -5,13 +5,11 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
+import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.widget.Toast;
 
-
-
-
-
+import monakhv.android.samlib.data.SettingsHelper;
 
 
 /*
@@ -31,18 +29,22 @@ import android.widget.Toast;
  *
  * 12/5/14.
  */
-public class TestActivity extends MyAbstractActivity implements AuthorFragment.Callbacks {
+public class TestActivity extends ActionBarActivity implements AuthorFragment.Callbacks {
 
     private static final String DEBUG_TAG = "TestActivity";
     private UpdateActivityReceiver updateReceiver;
     private AuthorFragment authorFragment;
+    private SettingsHelper settingsHelper;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        settingsHelper = new SettingsHelper(this);
+        setTheme(settingsHelper.getTheme());
         super.onCreate(savedInstanceState);
         setContentView(R.layout.test_layout);
         authorFragment = (AuthorFragment) getSupportFragmentManager().findFragmentById(R.id.authorFragment);
+        authorFragment.setHasOptionsMenu(true);
     }
 
     @Override

@@ -35,14 +35,16 @@ public class BooksActivity extends MyAbstractActivity {
     
     private long author_id;
     private DownloadReceiver receiver;
-    
+    private BookFragment listFragment;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.books);
         
         author_id = getIntent().getExtras().getLong(BookListFragment.AUTHOR_ID);
-        
+        listFragment = (BookFragment) getSupportFragmentManager().findFragmentById(R.id.listBooksFragment);
+        listFragment.setHasOptionsMenu(true);
         
     }
     
@@ -92,7 +94,7 @@ public class BooksActivity extends MyAbstractActivity {
             
             AuthorController sql = new AuthorController(context);
             Book book = sql.getBookController().getById(book_id);
-            BookFragment listFragment = (BookFragment) getSupportFragmentManager().findFragmentById(R.id.listBooksFragment);
+
             if (listFragment != null) {
                 if (listFragment.progress != null) {
                     listFragment.progress.dismiss();

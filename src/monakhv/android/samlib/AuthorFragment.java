@@ -11,6 +11,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.GestureDetector;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.SoundEffectConstants;
 import android.view.View;
@@ -218,6 +219,14 @@ public class AuthorFragment extends Fragment implements OnRefreshListener, ListS
         toast.show();
     }
 
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int sel = item.getItemId();
+        if (sel == android.R.id.home) {
+            getActivity().finish();
+        }
+        return super.onOptionsItemSelected(item);
+    }
     public enum SortOrder {
 
         DateUpdate(R.string.sort_update_date, SQLController.COL_mtime + " DESC"),
