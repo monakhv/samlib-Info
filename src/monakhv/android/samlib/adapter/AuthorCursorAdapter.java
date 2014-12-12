@@ -1,5 +1,6 @@
 package monakhv.android.samlib.adapter;
 
+import android.content.Context;
 import android.database.Cursor;
 import android.graphics.Typeface;
 import android.support.v7.widget.RecyclerView;
@@ -41,8 +42,8 @@ public class AuthorCursorAdapter extends RecyclerCursorAdapter<AuthorCursorAdapt
 
 
 
-    public AuthorCursorAdapter(Cursor cursor) {
-        super(cursor);
+    public AuthorCursorAdapter(Context context,Cursor cursor) {
+        super(context,cursor);
     }
 
     public void toggleSelection(int position){

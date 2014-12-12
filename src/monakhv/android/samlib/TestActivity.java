@@ -5,11 +5,11 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
-import android.support.v7.app.ActionBarActivity;
+import android.util.Log;
 import android.widget.Toast;
 
 
-import monakhv.android.samlib.data.SettingsHelper;
+
 
 
 
@@ -31,16 +31,15 @@ import monakhv.android.samlib.data.SettingsHelper;
  *
  * 12/5/14.
  */
-public class TestActivity extends ActionBarActivity  {
-    private SettingsHelper settingsHelper;
+public class TestActivity extends MyAbstractActivity implements AuthorFragment.Callbacks {
+
+    private static final String DEBUG_TAG = "TestActivity";
     private UpdateActivityReceiver updateReceiver;
     private AuthorFragment authorFragment;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        settingsHelper = new SettingsHelper(this);
-        setTheme(settingsHelper.getTheme());
         super.onCreate(savedInstanceState);
         setContentView(R.layout.test_layout);
         authorFragment = (AuthorFragment) getSupportFragmentManager().findFragmentById(R.id.authorFragment);
@@ -70,6 +69,32 @@ public class TestActivity extends ActionBarActivity  {
         //Stop refresh status
         authorFragment.onRefreshComplete();
         //getActionBarHelper().setRefreshActionItemState(refreshStatus);
+    }
+
+    @Override
+    public void onAuthorSelected(long id) {
+        Log.d(DEBUG_TAG, "go to Books");
+        Intent intent = new Intent(this,BooksActivity.class);
+        intent.putExtra(BookFragment.AUTHOR_ID,id);
+
+        startActivity(intent);
+        
+
+    }
+
+    @Override
+    public void selectBookSortOrder() {
+
+    }
+
+    @Override
+    public void onTitleChange(String lTitle) {
+
+    }
+
+    @Override
+    public void addAuthorFromText() {
+
     }
 
     /**

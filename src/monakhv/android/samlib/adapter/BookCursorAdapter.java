@@ -4,6 +4,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.support.v7.widget.RecyclerView;
 import android.text.Html;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,8 +13,12 @@ import android.widget.TextView;
 
 
 import monakhv.android.samlib.R;
+import monakhv.android.samlib.animation.Flip3D;
 import monakhv.android.samlib.data.SettingsHelper;
+import monakhv.android.samlib.sql.AuthorController;
 import monakhv.android.samlib.sql.SQLController;
+import monakhv.android.samlib.sql.entity.Author;
+import monakhv.android.samlib.sql.entity.Book;
 import monakhv.android.samlib.sql.entity.SamLibConfig;
 
 /*
@@ -35,17 +40,21 @@ import monakhv.android.samlib.sql.entity.SamLibConfig;
  */
 public class BookCursorAdapter extends RecyclerCursorAdapter<BookCursorAdapter.ViewHolder> {
 
+    private static final String DEBUG_TAG="BookCursorAdapter";
     private int author_id;
     private Context context;
     private SettingsHelper settingsHelper;
-    public BookCursorAdapter(Cursor cursor, Context context) {
-        super(cursor);
+    private AuthorController sql;
+    public BookCursorAdapter(Context context, Cursor cursor) {
+        super(context,cursor);
         this.context = context;
         settingsHelper = new SettingsHelper(context);
+        sql=new AuthorController(context);
+
     }
 
     @Override
-    public void onBindViewHolderCursor(ViewHolder holder, Cursor cursor) {
+    public void onBindViewHolderCursor(ViewHolder holder, final Cursor cursor) {
         int idx_form = cursor.getColumnIndex(SQLController.COL_BOOK_FORM);
         int idx_mtime = cursor.getColumnIndex(SQLController.COL_BOOK_MTIME);
         int idx_date = cursor.getColumnIndex(SQLController.COL_BOOK_DATE);
@@ -56,6 +65,7 @@ public class BookCursorAdapter extends RecyclerCursorAdapter<BookCursorAdapter.V
         int idx_group_id = cursor.getColumnIndex(SQLController.COL_BOOK_GROUP_ID);
         int idx_author = cursor.getColumnIndex(SQLController.COL_BOOK_AUTHOR);
         long book_id = cursor.getLong(cursor.getColumnIndex(SQLController.COL_ID));
+        final Book book = sql.getBookController().getById(book_id);
 
         holder.bookTitle.setText(Html.fromHtml(cursor.getString(idx_title)));
 
@@ -78,20 +88,33 @@ public class BookCursorAdapter extends RecyclerCursorAdapter<BookCursorAdapter.V
         holder.bookSize.setText(cursor.getString(idx_size)+"K");
         holder.bookForm.setText(cursor.getString(idx_form));
 
+        holder.openBook.setImageResource(R.drawable.open);
+        holder.closeBook.setImageResource(R.drawable.closed);
+
         if (cursor.getInt(idx_isNew) == 1) {
-            holder.bookIcon.setImageResource(R.drawable.open);
+            holder.flip=new Flip3D(holder.openBook,holder.closeBook) {
+                @Override
+                protected void afterAnimationEnd() {
+                    Log.i(DEBUG_TAG,"Making book read!");
+                    sql.getBookController().markRead(book);
+                    Author a = sql.getByBook(book);
+                    sql.testMarkRead(a);
+                }
+            };
 
         } else {
-            holder.bookIcon.setImageResource(R.drawable.closed);
+            holder.flip=new Flip3D(holder.closeBook,holder.openBook) {
+                @Override
+                protected void afterAnimationEnd() {
+                    Log.i(DEBUG_TAG,"Making book new!!");
+                    sql.getBookController().markUnRead(book);
+                    Author a = sql.getByBook(book);
+                    sql.testMarkRead(a);
+                }
+            };
 
         }
-        holder.bookIcon.setOnClickListener(new View.OnClickListener(){
 
-            @Override
-            public void onClick(View v) {
-
-            }
-        });
 
         if(cursor.getInt(idx_group_id)==1){
             holder.starIcon.setImageResource(settingsHelper.getSelectedIcon());
@@ -109,14 +132,15 @@ public class BookCursorAdapter extends RecyclerCursorAdapter<BookCursorAdapter.V
 
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup viewGroup, int i) {
-        View v = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.book_row, viewGroup, false);
+        View v = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.book_row_anim, viewGroup, false);
         return new ViewHolder(v);
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
         // {R.id.bookTitle, R.id.bookUpdate, R.id.bookDesc, R.id.Bookicon,R.id.Staricon,R.id.bookAuthorName,R.id.bookForm};
         public TextView bookTitle,bookSize,bookDesc,bookAuthorName,bookForm;
-        public ImageView bookIcon,starIcon;
+        public ImageView starIcon,closeBook,openBook;
+        public Flip3D flip;
 
         public ViewHolder(View itemView) {
             super(itemView);
@@ -126,7 +150,8 @@ public class BookCursorAdapter extends RecyclerCursorAdapter<BookCursorAdapter.V
             bookAuthorName= (TextView) itemView.findViewById(R.id.bookAuthorName);
             bookForm = (TextView) itemView.findViewById(R.id.bookForm);
 
-            bookIcon= (ImageView) itemView.findViewById(R.id.Bookicon);
+            closeBook= (ImageView) itemView.findViewById(R.id.bookClosed);
+            openBook= (ImageView) itemView.findViewById(R.id.bookOpen);
             starIcon= (ImageView) itemView.findViewById(R.id.Staricon);
         }
     }

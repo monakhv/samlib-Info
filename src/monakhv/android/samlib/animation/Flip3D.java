@@ -36,6 +36,7 @@ import android.widget.ImageView;
     public Flip3D(ImageView image1, ImageView image2) {
         this.image1 = image1;
         this.image2 = image2;
+        image1.setVisibility(View.VISIBLE);
         image2.setVisibility(View.GONE);
 
         image1.setOnClickListener(new View.OnClickListener() {

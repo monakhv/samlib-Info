@@ -20,20 +20,20 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
-import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.widget.Toast;
 import monakhv.android.samlib.sql.AuthorController;
 import monakhv.android.samlib.sql.entity.Author;
 import monakhv.android.samlib.sql.entity.Book;
+import monakhv.android.samlib.sql.entity.SamLibConfig;
 
 /**
  *
  * @author monakhv
  */
-public class BooksActivity extends FragmentActivity {
+public class BooksActivity extends MyAbstractActivity {
     
-    private int author_id;
+    private long author_id;
     private DownloadReceiver receiver;
     
     @Override
@@ -41,7 +41,7 @@ public class BooksActivity extends FragmentActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.books);
         
-        author_id = getIntent().getExtras().getInt(BookListFragment.AUTHOR_ID);
+        author_id = getIntent().getExtras().getLong(BookListFragment.AUTHOR_ID);
         
         
     }
@@ -51,7 +51,7 @@ public class BooksActivity extends FragmentActivity {
         super.onResume();
         
         
-        if (author_id != -1) {
+        if (author_id != SamLibConfig.SELECTED_BOOK_ID) {
             AuthorController sql = new AuthorController(this);
             Author a = sql.getById(author_id);
             setTitle(a.getName());

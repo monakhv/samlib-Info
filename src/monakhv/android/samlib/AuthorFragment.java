@@ -1,5 +1,6 @@
 package monakhv.android.samlib;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
@@ -61,6 +62,18 @@ public class AuthorFragment extends Fragment implements OnRefreshListener, ListS
     private Author author = null;//for context menu selection
     private TextView updateTextView;
 
+    public interface Callbacks {
+        public void onAuthorSelected(long id);
+
+        public void selectBookSortOrder();
+
+        public void onTitleChange(String lTitle);
+
+        public void addAuthorFromText();
+    }
+
+    private static Callbacks mCallbacks;
+
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -68,6 +81,15 @@ public class AuthorFragment extends Fragment implements OnRefreshListener, ListS
         //TODO: read from Settings
         order = SortOrder.AuthorName;
         detector = new GestureDetector(getActivity(), new ListSwipeListener(this));
+    }
+    @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+        if (!(activity instanceof Callbacks)) {
+            throw new IllegalStateException(
+                    "Activity must implement fragment's callbacks.");
+        }
+        mCallbacks = (Callbacks) activity;
     }
 
     @Override
@@ -79,7 +101,7 @@ public class AuthorFragment extends Fragment implements OnRefreshListener, ListS
         sql = new AuthorController(getActivity());
         Cursor c = getActivity().getContentResolver().query(AuthorProvider.AUTHOR_URI, null, selection, null, order.getOrder());
 
-        adapter = new AuthorCursorAdapter(c);
+        adapter = new AuthorCursorAdapter(getActivity(),c);
         authorRV.setHasFixedSize(true);
         authorRV.setLayoutManager(new LinearLayoutManager(getActivity()));
         authorRV.setAdapter(adapter);
@@ -174,6 +196,7 @@ public class AuthorFragment extends Fragment implements OnRefreshListener, ListS
 //        makeToast(a.getName());
         adapter.toggleSelection(position);
         authorRV.playSoundEffect(SoundEffectConstants.CLICK);
+        mCallbacks.onAuthorSelected(adapter.getItemId(position));
         return true;
         //return false;
 
