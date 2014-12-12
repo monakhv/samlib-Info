@@ -92,7 +92,7 @@ public class BooksActivity extends MyAbstractActivity {
             
             AuthorController sql = new AuthorController(context);
             Book book = sql.getBookController().getById(book_id);
-            BookListFragment listFragment = (BookListFragment) getSupportFragmentManager().findFragmentById(R.id.listBooksFragment);
+            BookFragment listFragment = (BookFragment) getSupportFragmentManager().findFragmentById(R.id.listBooksFragment);
             if (listFragment != null) {
                 if (listFragment.progress != null) {
                     listFragment.progress.dismiss();

@@ -1,7 +1,10 @@
 package monakhv.android.samlib;
 
+import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.Intent;
 import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -17,7 +20,10 @@ import android.view.ViewGroup;
 
 
 import monakhv.android.samlib.adapter.BookCursorAdapter;
+import monakhv.android.samlib.data.SettingsHelper;
 import monakhv.android.samlib.recyclerview.DividerItemDecoration;
+import monakhv.android.samlib.service.DownloadBookServiceIntent;
+import monakhv.android.samlib.sql.AuthorController;
 import monakhv.android.samlib.sql.AuthorProvider;
 import monakhv.android.samlib.sql.SQLController;
 import monakhv.android.samlib.sql.entity.Book;
@@ -48,6 +54,8 @@ public class BookFragment extends Fragment implements ListSwipeListener.SwipeCal
     private BookCursorAdapter adapter;
     private SortOrder order;
     private GestureDetector detector;
+    private SettingsHelper settings;
+    ProgressDialog progress;
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -61,6 +69,7 @@ public class BookFragment extends Fragment implements ListSwipeListener.SwipeCal
         order=SortOrder.BookDate;
         detector = new GestureDetector(getActivity(), new ListSwipeListener(this));
 
+        settings= new SettingsHelper(getActivity().getApplicationContext());
     }
 
 
@@ -103,6 +112,12 @@ public class BookFragment extends Fragment implements ListSwipeListener.SwipeCal
 
     @Override
     public boolean singleClick(MotionEvent e) {
+        int position = bookRV.getChildPosition(bookRV.findChildViewUnder(e.getX(),e.getY()));
+        adapter.toggleSelection(position);
+
+
+        Book book =adapter.getSelected();
+        loadBook(book);
         bookRV.playSoundEffect(SoundEffectConstants.CLICK);
         return true;
     }
@@ -115,6 +130,41 @@ public class BookFragment extends Fragment implements ListSwipeListener.SwipeCal
     @Override
     public boolean swipeLeft(MotionEvent e) {
         return false;
+    }
+
+    private void loadBook(Book book){
+        book.setFileType(settings.getFileType());
+        if (book.needUpdateFile()) {
+            progress = new ProgressDialog(getActivity());
+            progress.setMessage(getActivity().getText(R.string.download_Loading));
+            progress.setCancelable(true);
+            progress.setIndeterminate(true);
+            progress.show();
+            DownloadBookServiceIntent.start(getActivity(), book.getId(), true);
+
+
+        } else {
+
+            launchReader(book);
+        }
+
+    }
+    /**
+     * Launch Reader to read the book considering book is downloaded
+     *
+     * @param book the book to read
+     */
+    void launchReader(Book book) {
+
+        Intent launchBrowser = new Intent();
+        launchBrowser.setAction(android.content.Intent.ACTION_VIEW);
+        launchBrowser.setDataAndType(Uri.parse(book.getFileURL()), book.getFileMime());
+
+
+        if (settings.getAutoMarkFlag()) {
+            adapter.makeSelectedRead();
+        }
+        startActivity(launchBrowser);
     }
 
     public enum SortOrder {

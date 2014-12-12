@@ -11,9 +11,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
+
 
 import monakhv.android.samlib.R;
 import monakhv.android.samlib.sql.SQLController;
@@ -37,8 +36,7 @@ import monakhv.android.samlib.sql.SQLController;
  */
 public class AuthorCursorAdapter extends RecyclerCursorAdapter<AuthorCursorAdapter.ViewHolder>  {
     public static final String DATE_FORMAT = "dd.MM.yyyy HH:mm:ss";
-    public static int NOT_SELECTED=-1;
-    private int selected = NOT_SELECTED;
+
 
 
 
@@ -46,17 +44,7 @@ public class AuthorCursorAdapter extends RecyclerCursorAdapter<AuthorCursorAdapt
         super(context,cursor);
     }
 
-    public void toggleSelection(int position){
-        List<Integer> poss = new ArrayList<>();
-        if (selected != NOT_SELECTED ){
-            poss.add(selected);
-        }
-        selected = position;
-        poss.add(selected);
-        for(Integer ii : poss){
-            notifyItemChanged(ii);
-        }
-    }
+
     @Override
     public void onBindViewHolderCursor(ViewHolder holder, Cursor cursor) {
         int idx_isNew = cursor.getColumnIndex(SQLController.COL_isnew);
@@ -88,7 +76,7 @@ public class AuthorCursorAdapter extends RecyclerCursorAdapter<AuthorCursorAdapt
         Date date = new Date(dd);
         holder.updatedData.setText(df.format(date));
 
-        holder.itemView.setActivated(cursor.getPosition() == selected);
+        holder.itemView.setActivated(cursor.getPosition() == getSelectedPosition());
 
 //        holder.itemView.setClickable(true);
 //        holder.itemView.setFocusable(true);

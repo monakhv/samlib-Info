@@ -155,4 +155,20 @@ public class BookCursorAdapter extends RecyclerCursorAdapter<BookCursorAdapter.V
             starIcon= (ImageView) itemView.findViewById(R.id.Staricon);
         }
     }
+    public Book getSelected(){
+        int pos = getSelectedPosition();
+        if (pos == NOT_SELECTED){
+            return null;
+        }
+        return sql.getBookController().getById(getItemId(pos));
+    }
+    public void makeSelectedRead(){
+        Book book  = getSelected();
+        if (book == null){
+            return;
+        }
+        sql.getBookController().markRead(book);
+        sql.testMarkRead(sql.getByBook(book));
+
+    }
 }

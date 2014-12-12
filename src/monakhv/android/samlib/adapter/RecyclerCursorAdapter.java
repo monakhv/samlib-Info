@@ -8,6 +8,9 @@ import android.os.Handler;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 
+import java.util.ArrayList;
+import java.util.List;
+
 
 /*
  * Copyright (C) 2014 skyfish.jy@gmail.com
@@ -144,6 +147,11 @@ public abstract class RecyclerCursorAdapter<VH
             c.registerDataSetObserver(mDataSetObserver);
         }
     }
+    protected void onContentChanged() {
+        if ( mCursor != null && !mCursor.isClosed()) {
+            mDataValid = mCursor.requery();
+        }
+    }
 
     private class NotifyingDataSetObserver extends DataSetObserver {
         @Override
@@ -179,7 +187,24 @@ public abstract class RecyclerCursorAdapter<VH
         @Override
         public void onChange(boolean selfChange) {
             Log.d(DEBUG_TAG, "ChangeObserver: onChange");
-            mCursor.requery();
+            onContentChanged();
         }
+    }
+    public static final int NOT_SELECTED=-1;
+    private int selected = NOT_SELECTED;
+    public void toggleSelection(int position){
+        List<Integer> poss = new ArrayList<>();
+        if (selected != NOT_SELECTED ){
+            poss.add(selected);
+        }
+        selected = position;
+        poss.add(selected);
+        for(Integer ii : poss){
+            notifyItemChanged(ii);
+        }
+    }
+
+    public int getSelectedPosition() {
+        return selected;
     }
 }
