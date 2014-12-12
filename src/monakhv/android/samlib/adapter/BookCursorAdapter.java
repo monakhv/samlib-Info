@@ -172,4 +172,7 @@ public class BookCursorAdapter extends RecyclerCursorAdapter<BookCursorAdapter.V
         sql.testMarkRead(sql.getByBook(book));
 
     }
+    public void update(Book book){
+        sql.getBookController().update(book);
+    }
 }

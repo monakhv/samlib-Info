@@ -18,10 +18,16 @@ import android.view.MotionEvent;
 import android.view.SoundEffectConstants;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 
+
+import java.util.ArrayList;
+import java.util.List;
 
 import monakhv.android.samlib.adapter.BookCursorAdapter;
 import monakhv.android.samlib.data.SettingsHelper;
+import monakhv.android.samlib.dialogs.ContextMenuDialog;
+import monakhv.android.samlib.dialogs.MyMenuData;
 import monakhv.android.samlib.recyclerview.DividerItemDecoration;
 import monakhv.android.samlib.service.DownloadBookServiceIntent;
 import monakhv.android.samlib.sql.AuthorController;
@@ -53,10 +59,12 @@ public class BookFragment extends Fragment implements ListSwipeListener.SwipeCal
     private RecyclerView bookRV;
     private long author_id;
     private BookCursorAdapter adapter;
+    private Book book=null;//for context menu
     private SortOrder order;
     private GestureDetector detector;
     private SettingsHelper settings;
     ProgressDialog progress;
+    ContextMenuDialog contextMenuDialog;
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -136,11 +144,90 @@ public class BookFragment extends Fragment implements ListSwipeListener.SwipeCal
         return false;
     }
 
+    private final int menu_mark_read = 1;
+    private final int menu_browser = 2;
+    private final int menu_selected = 3;
+    private final int menu_deselected = 4;
+    private final int menu_reload = 5;
     @Override
     public void longPress(MotionEvent e) {
+        int position = bookRV.getChildPosition(bookRV.findChildViewUnder(e.getX(),e.getY()));
+        adapter.toggleSelection(position);
+
+        book= adapter.getSelected();
+
+        if (book == null){
+            return;
+        }
+        final MyMenuData menu = new MyMenuData();
+
+        if (book.isIsNew()){
+            menu.add( menu_mark_read,  getString(R.string.menu_read));
+        }
+        menu.add( menu_browser, getString(R.string.menu_open_web));
+        if (book.getGroup_id() == Book.SELECTED_GROUP_ID) {
+            menu.add( menu_deselected,  getString(R.string.menu_deselected));
+        } else {
+            menu.add( menu_selected, getString(R.string.menu_selected));
+        }
+        menu.add( menu_reload, getString(R.string.menu_reload));
+
+        contextMenuDialog= ContextMenuDialog.getInstance(menu, new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                int item = menu.getIdByPosition(position);
+                contextSelector(item);
+                contextMenuDialog.dismiss();
+            }
+        },null);
+
+        contextMenuDialog.show(getActivity().getSupportFragmentManager(), "bookContext");
+
 
     }
 
+    private void  contextSelector(int item) {
+        if (item == menu_browser) {
+            launchBrowser(book);
+        }
+        if (item == menu_mark_read) {
+            adapter.makeSelectedRead();
+        }
+        if (item == menu_selected) {
+            book.setGroup_id(Book.SELECTED_GROUP_ID);
+            adapter.update(book);
+        }
+        if (item == menu_deselected) {
+            book.setGroup_id(0);
+            adapter.update(book);
+        }
+        if (item == menu_reload){
+
+            book.cleanFile();
+            loadBook(book);
+        }
+    }
+
+    /**
+     * Launch Browser to load book from web server
+     *
+     * @param book book to read
+     */
+    private void launchBrowser(Book book) {
+
+        String surl = book.getUrlForBrowser(getActivity());
+
+        Log.d(DEBUG_TAG, "book url: " + surl);
+
+        Uri uri = Uri.parse(surl);
+        Intent launchBrowser = new Intent(Intent.ACTION_VIEW, uri);
+        SettingsHelper setting = new SettingsHelper(getActivity());
+        if (setting.getAutoMarkFlag()) {
+            adapter.makeSelectedRead();
+        }
+
+        startActivity(launchBrowser);
+    }
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int sel = item.getItemId();

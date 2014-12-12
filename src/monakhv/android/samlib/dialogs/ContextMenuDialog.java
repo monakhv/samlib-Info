@@ -22,6 +22,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.view.Window;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -49,7 +50,16 @@ public class ContextMenuDialog extends DialogFragment {
 
     }
 
+    public static ContextMenuDialog getInstance(MyMenuData mdata,OnItemClickListener listener,String title) {
+        ContextMenuDialog res = new ContextMenuDialog();
+        Bundle args = new Bundle();
+        args.putStringArray(EXTRA_DATA,mdata.getSData());
+        args.putString(EXTRA_TITLE, title);
 
+        res.setArguments(args);
+        res.setListener(listener);
+        return res;
+    }
 
 
     public static ContextMenuDialog getInstance(String[] data,OnItemClickListener listener,String title) {
@@ -90,8 +100,13 @@ public class ContextMenuDialog extends DialogFragment {
         fileList.setAdapter(adapter);
         fileList.setOnItemClickListener(listener);
 
-        
-        getDialog().setTitle(title);
+        if (title != null){
+            getDialog().setTitle(title);
+        }
+        else {
+            getDialog().getWindow().requestFeature(Window.FEATURE_NO_TITLE);
+        }
+
                 
 
         return v;

@@ -30,6 +30,7 @@ import java.util.List;
 import monakhv.android.samlib.adapter.AuthorCursorAdapter;
 import monakhv.android.samlib.dialogs.ContextMenuDialog;
 import monakhv.android.samlib.dialogs.EnterStringDialog;
+import monakhv.android.samlib.dialogs.MyMenuData;
 import monakhv.android.samlib.recyclerview.DividerItemDecoration;
 import monakhv.android.samlib.recyclerview.RecyclerViewDelegate;
 import monakhv.android.samlib.service.UpdateServiceIntent;
@@ -238,36 +239,34 @@ public class AuthorFragment extends Fragment implements OnRefreshListener, ListS
         if (author == null){
             return;
         }
-        List<String> menu= new ArrayList<>();
-        final List<Integer> iMenu = new ArrayList<>();
-
+        final MyMenuData menu = new MyMenuData();
 
         if (author.isIsNew()) {
-            menu.add(getString(R.string.menu_read));
-            iMenu.add(read_option_item);
+            menu.add(read_option_item,getString(R.string.menu_read));
+
 
         }
-        menu.add( getString(R.string.menu_tags));
-        iMenu.add(tags_option_item);
+        menu.add(tags_option_item, getString(R.string.menu_tags));
 
 
-        menu.add( getString(R.string.menu_open_web));
-        iMenu.add( browser_option_item);
 
-        menu.add( getString(R.string.menu_edit));
-        iMenu.add( edit_author_option_item);
-
-        menu.add( getString(R.string.menu_delete));
-        iMenu.add( delete_option_item);
-
-        menu.add( getString(R.string.menu_refresh));
-        iMenu.add( update_option_item);
+        menu.add(browser_option_item, getString(R.string.menu_open_web));
 
 
-        contextMenu = ContextMenuDialog.getInstance(menu.toArray(new String[1]), new AdapterView.OnItemClickListener() {
+        menu.add(edit_author_option_item, getString(R.string.menu_edit));
+
+
+        menu.add(delete_option_item, getString(R.string.menu_delete));
+
+
+        menu.add( update_option_item,getString(R.string.menu_refresh));
+
+
+
+        contextMenu = ContextMenuDialog.getInstance(menu, new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                int item = iMenu.get(position);
+                int item = menu.getIdByPosition(position);
                 contextSelector(item);
                 contextMenu.dismiss();
             }
