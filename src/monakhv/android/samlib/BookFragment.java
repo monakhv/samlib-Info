@@ -137,6 +137,11 @@ public class BookFragment extends Fragment implements ListSwipeListener.SwipeCal
     }
 
     @Override
+    public void longPress(MotionEvent e) {
+
+    }
+
+    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int sel = item.getItemId();
         if (sel == android.R.id.home) {

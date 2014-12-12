@@ -329,6 +329,14 @@ public class AuthorListFragment extends ListFragment implements
                 mCallbacks.onTitleChange(getString(R.string.app_name));
             }
         }
+        //TODO: just for testing only
+        if (sel == R.id.test_item){
+            Log.d(DEBUG_TAG, "go to Archive");
+            Intent prefsIntent = new Intent(getActivity().getApplicationContext(),
+                    TestActivity.class);
+
+            getActivity().startActivityForResult(prefsIntent, MainActivity.ARCHIVE_ACTIVITY);
+        }
 
         if (sel == R.id.menu_refresh) {
             startRefresh();
@@ -546,6 +554,11 @@ public class AuthorListFragment extends ListFragment implements
             return true;
         }
         return false;
+    }
+
+    @Override
+    public void longPress(MotionEvent e) {
+
     }
 
     /**

@@ -1,9 +1,13 @@
 package monakhv.android.samlib;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -16,17 +20,24 @@ import android.view.MotionEvent;
 import android.view.SoundEffectConstants;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.TextView;
-import android.widget.Toast;
+
+
+import java.util.ArrayList;
+import java.util.List;
 
 import monakhv.android.samlib.adapter.AuthorCursorAdapter;
+import monakhv.android.samlib.dialogs.ContextMenuDialog;
+import monakhv.android.samlib.dialogs.EnterStringDialog;
 import monakhv.android.samlib.recyclerview.DividerItemDecoration;
 import monakhv.android.samlib.recyclerview.RecyclerViewDelegate;
 import monakhv.android.samlib.service.UpdateServiceIntent;
-import monakhv.android.samlib.sql.AuthorController;
 import monakhv.android.samlib.sql.AuthorProvider;
 import monakhv.android.samlib.sql.SQLController;
 import monakhv.android.samlib.sql.entity.Author;
+import monakhv.android.samlib.tasks.DeleteAuthor;
+import monakhv.android.samlib.tasks.MarkRead;
 import uk.co.senab.actionbarpulltorefresh.extras.actionbarcompat.PullToRefreshLayout;
 import uk.co.senab.actionbarpulltorefresh.library.ActionBarPullToRefresh;
 import uk.co.senab.actionbarpulltorefresh.library.DefaultHeaderTransformer;
@@ -54,7 +65,7 @@ public class AuthorFragment extends Fragment implements OnRefreshListener, ListS
 
     private RecyclerView authorRV;
     private AuthorCursorAdapter adapter;
-    private AuthorController sql;
+
     private String selection = null;
     private SortOrder order;
     private PullToRefreshLayout mPullToRefreshLayout;
@@ -62,6 +73,7 @@ public class AuthorFragment extends Fragment implements OnRefreshListener, ListS
     private boolean updateAuthor=false;//true update the only selected author
     private Author author = null;//for context menu selection
     private TextView updateTextView;
+    private ContextMenuDialog contextMenu;
 
     public interface Callbacks {
         public void onAuthorSelected(long id);
@@ -99,7 +111,7 @@ public class AuthorFragment extends Fragment implements OnRefreshListener, ListS
                 container, false);
         authorRV = (RecyclerView) view.findViewById(R.id.authorRV);
 
-        sql = new AuthorController(getActivity());
+
         Cursor c = getActivity().getContentResolver().query(AuthorProvider.AUTHOR_URI, null, selection, null, order.getOrder());
 
         adapter = new AuthorCursorAdapter(getActivity(),c);
@@ -189,9 +201,6 @@ public class AuthorFragment extends Fragment implements OnRefreshListener, ListS
 
     @Override
     public boolean singleClick(MotionEvent e) {
-
-
-
         int position = authorRV.getChildPosition(authorRV.findChildViewUnder(e.getX(),e.getY()));
 //        Author a = sql.getById(adapter.getItemId(position));
 //        makeToast(a.getName());
@@ -213,11 +222,150 @@ public class AuthorFragment extends Fragment implements OnRefreshListener, ListS
         return false;
     }
 
-    private void makeToast(String mesg){
-        Toast toast = Toast.makeText(getActivity(), mesg, Toast.LENGTH_SHORT);
+    private final int read_option_item = 21;
+    private final int tags_option_item = 22;
+    private final int browser_option_item = 23;
+    private final int edit_author_option_item = 24;
+    private final int delete_option_item = 25;
+    private final int update_option_item = 35;
+    @Override
+    public void longPress(MotionEvent e) {
+        int position = authorRV.getChildPosition(authorRV.findChildViewUnder(e.getX(),e.getY()));
+        adapter.toggleSelection(position);
 
-        toast.show();
+        author= adapter.getSelected();
+
+        if (author == null){
+            return;
+        }
+        List<String> menu= new ArrayList<>();
+        final List<Integer> iMenu = new ArrayList<>();
+
+
+        if (author.isIsNew()) {
+            menu.add(getString(R.string.menu_read));
+            iMenu.add(read_option_item);
+
+        }
+        menu.add( getString(R.string.menu_tags));
+        iMenu.add(tags_option_item);
+
+
+        menu.add( getString(R.string.menu_open_web));
+        iMenu.add( browser_option_item);
+
+        menu.add( getString(R.string.menu_edit));
+        iMenu.add( edit_author_option_item);
+
+        menu.add( getString(R.string.menu_delete));
+        iMenu.add( delete_option_item);
+
+        menu.add( getString(R.string.menu_refresh));
+        iMenu.add( update_option_item);
+
+
+        contextMenu = ContextMenuDialog.getInstance(menu.toArray(new String[1]), new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                int item = iMenu.get(position);
+                contextSelector(item);
+                contextMenu.dismiss();
+            }
+        },author.getName());
+
+        contextMenu.show(getActivity().getSupportFragmentManager(), "authorContext");
+
     }
+
+    private void contextSelector(int item){
+
+
+        if (item== delete_option_item) {
+            Dialog alert = createDeleteAuthorAlert(author.getName());
+            alert.show();
+        }
+
+        if (item == read_option_item) {
+            MarkRead marker = new MarkRead(getActivity().getApplicationContext());
+            marker.execute(author.getId());
+        }
+        if (item == tags_option_item) {
+            Intent intent = new Intent(getActivity(), AuthorTagsActivity.class);
+            intent.putExtra(AuthorTagsActivity.AUTHOR_ID, author.getId());
+            intent.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
+            startActivity(intent);
+
+        }
+        if (item == browser_option_item) {
+            launchBrowser(author);
+        }
+        if (item==update_option_item){
+            updateAuthor=true;
+            startRefresh();
+        }
+        if (item == edit_author_option_item) {
+            EnterStringDialog ddialog = new EnterStringDialog(getActivity(), new EnterStringDialog.ClickListener() {
+                public void okClick(String txt) {
+                    author.setName(txt);
+                    adapter.update(author);
+                }
+            }, getText(R.string.dialog_title_edit_author).toString(), author.getName());
+
+            ddialog.show();
+        }
+
+    }
+    void startRefresh() {
+        mPullToRefreshLayout.setRefreshing(true);
+        onRefreshStarted(null);
+    }
+    /**
+     * Launch Browser to load Author home page
+     *
+     * @param a Author object
+     */
+    public void launchBrowser(Author a) {
+        Uri uri = Uri.parse(a.getUrlForBrowser(getActivity()));
+        Intent launchBrowser = new Intent(Intent.ACTION_VIEW, uri);
+        getActivity().startActivity(launchBrowser);
+
+    }
+
+    /**
+     * Create Alert Dialog to wrn about Author delete
+     *
+     * @param authorName Name of the author
+     * @return Warning Author delete dialog
+     */
+    private Dialog createDeleteAuthorAlert(String authorName) {
+        AlertDialog.Builder adb = new AlertDialog.Builder(getActivity());
+        adb.setTitle(R.string.Attention);
+
+        String msg = getString(R.string.alert_delete_author);
+        msg = msg.replaceAll("__", authorName);
+
+        adb.setMessage(msg);
+        adb.setIcon(android.R.drawable.ic_dialog_alert);
+        adb.setPositiveButton(R.string.Yes, deleteAuthorListener);
+        adb.setNegativeButton(R.string.No, deleteAuthorListener);
+        return adb.create();
+
+    }
+    private final DialogInterface.OnClickListener deleteAuthorListener = new DialogInterface.OnClickListener() {
+        public void onClick(DialogInterface dialog, int which) {
+            switch (which) {
+                case Dialog.BUTTON_POSITIVE:
+                    if (author != null) {
+                        DeleteAuthor deleter = new DeleteAuthor(getActivity().getApplicationContext());
+                        deleter.execute(author.getId());
+                    }
+                    break;
+                case Dialog.BUTTON_NEGATIVE:
+                    break;
+            }
+
+        }
+    };
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {

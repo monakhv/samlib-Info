@@ -15,7 +15,9 @@ import java.util.Date;
 
 
 import monakhv.android.samlib.R;
+import monakhv.android.samlib.sql.AuthorController;
 import monakhv.android.samlib.sql.SQLController;
+import monakhv.android.samlib.sql.entity.Author;
 
 /*
  * Copyright 2014  Dmitry Monakhov
@@ -36,12 +38,14 @@ import monakhv.android.samlib.sql.SQLController;
  */
 public class AuthorCursorAdapter extends RecyclerCursorAdapter<AuthorCursorAdapter.ViewHolder>  {
     public static final String DATE_FORMAT = "dd.MM.yyyy HH:mm:ss";
+    private AuthorController sql;
 
 
 
 
     public AuthorCursorAdapter(Context context,Cursor cursor) {
         super(context,cursor);
+        sql= new AuthorController(context);
     }
 
 
@@ -108,5 +112,17 @@ public class AuthorCursorAdapter extends RecyclerCursorAdapter<AuthorCursorAdapt
             updateIcon = (ImageView) itemView.findViewById(R.id.icon);
         }
 
+    }
+
+    public Author getSelected(){
+        int pos = getSelectedPosition();
+        if (pos == NOT_SELECTED){
+            return null;
+        }
+        return sql.getById(getItemId(pos));
+    }
+
+    public void update(Author author){
+        sql.update(author);
     }
 }

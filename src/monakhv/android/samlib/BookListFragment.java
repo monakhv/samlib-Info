@@ -423,6 +423,11 @@ public class BookListFragment extends ListFragment implements
         return true;
     }
 
+    @Override
+    public void longPress(MotionEvent e) {
+
+    }
+
     private class BookViewBinder implements SimpleCursorAdapter.ViewBinder {
 
         public boolean setViewValue(View view, Cursor cursor, int i) {

@@ -165,6 +165,11 @@ public class SearchAuthorsListFragment extends ListFragment implements ListSwipe
         return true;
     }
 
+    @Override
+    public void longPress(MotionEvent e) {
+
+    }
+
     private Dialog createAddAuthorAlert(String authorname) {
         AlertDialog.Builder adb = new AlertDialog.Builder(getActivity());
         adb.setTitle(R.string.Attention);

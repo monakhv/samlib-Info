@@ -27,6 +27,7 @@ public class ListSwipeListener implements GestureDetector.OnGestureListener{
         public boolean singleClick(MotionEvent e);
         public boolean swipeRight(MotionEvent e);
         public boolean swipeLeft(MotionEvent e);
+        public void longPress(MotionEvent e);
     }
     private final SwipeCallBack calBack;
     public ListSwipeListener(SwipeCallBack calBack){
@@ -55,6 +56,7 @@ public class ListSwipeListener implements GestureDetector.OnGestureListener{
     }
 
     public void onLongPress(MotionEvent e) {
+        calBack.longPress(e);
         //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
