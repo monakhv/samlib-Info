@@ -16,6 +16,8 @@ import android.widget.Toast;
 
 import monakhv.android.samlib.data.SettingsHelper;
 import monakhv.android.samlib.search.SearchAuthorActivity;
+import monakhv.android.samlib.search.SearchAuthorsListFragment;
+import monakhv.android.samlib.service.CleanNotificationData;
 import monakhv.android.samlib.sql.entity.SamLibConfig;
 import monakhv.android.samlib.tasks.AddAuthor;
 
@@ -60,6 +62,20 @@ public class MainActivity extends ActionBarActivity implements AuthorFragment.Ca
     }
 
     @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        if (intent == null){
+            return;
+        }
+        Bundle bundle= intent.getExtras();
+        if (bundle != null){
+            String clean = bundle.getString(CLEAN_NOTIFICATION);
+            if (clean != null) {
+                CleanNotificationData.start(this);
+            }
+        }
+    }
+    @Override
     protected void onResume() {
         super.onResume();
 
@@ -83,6 +99,37 @@ public class MainActivity extends ActionBarActivity implements AuthorFragment.Ca
         //Stop refresh status
         authorFragment.onRefreshComplete();
         //getActionBarHelper().setRefreshActionItemState(refreshStatus);
+    }
+
+    /**
+     * Return from ArchiveActivity or SearchActivity
+     *
+     * @param requestCode request code
+     * @param resultCode result code
+     * @param data Intent data
+     */
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (resultCode != RESULT_OK) {
+            Log.d(DEBUG_TAG, "Wrong result code from onActivityResult");
+            return;
+        }
+        if (requestCode == ARCHIVE_ACTIVITY) {
+
+            int res = data.getIntExtra(ArchiveActivity.UPDATE_KEY, -1);
+            if (res == ArchiveActivity.UPDATE_LIST) {
+                Log.d(DEBUG_TAG, "Reconstruct List View");
+                authorFragment.refresh(null, null);
+
+            }
+        }
+        if (requestCode == SEARCH_ACTIVITY) {
+            AddAuthor aa = new AddAuthor(getApplicationContext());
+            aa.execute(data.getStringExtra(SearchAuthorsListFragment.AUTHOR_URL));
+        }
+        if (requestCode == PREFS_ACTIVITY){
+            finish();
+        }
     }
 
     @Override
