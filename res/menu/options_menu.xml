@@ -75,11 +75,5 @@ limitations under the License.
         android:orderInCategory="50">
     </item>
 
-    <item
-        android:id="@+id/test_item"
-        android:icon="@drawable/action_settings"
-        android:title="@string/menu_settings"
-        app:showAsAction="never"
-        android:orderInCategory="150">
-    </item>
+
 </menu>

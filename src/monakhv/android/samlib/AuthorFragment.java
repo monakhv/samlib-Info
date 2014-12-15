@@ -7,43 +7,52 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
+import android.database.MatrixCursor;
+import android.database.MergeCursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.GestureDetector;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.SoundEffectConstants;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.EditText;
 import android.widget.TextView;
 
-
-import java.util.ArrayList;
-import java.util.List;
-
 import monakhv.android.samlib.adapter.AuthorCursorAdapter;
+import monakhv.android.samlib.data.SettingsHelper;
 import monakhv.android.samlib.dialogs.ContextMenuDialog;
 import monakhv.android.samlib.dialogs.EnterStringDialog;
+import monakhv.android.samlib.dialogs.FilterSelectDialog;
 import monakhv.android.samlib.dialogs.MyMenuData;
+import monakhv.android.samlib.dialogs.SingleChoiceSelectDialog;
 import monakhv.android.samlib.recyclerview.DividerItemDecoration;
 import monakhv.android.samlib.recyclerview.RecyclerViewDelegate;
 import monakhv.android.samlib.service.UpdateServiceIntent;
 import monakhv.android.samlib.sql.AuthorProvider;
 import monakhv.android.samlib.sql.SQLController;
 import monakhv.android.samlib.sql.entity.Author;
+import monakhv.android.samlib.sql.entity.SamLibConfig;
 import monakhv.android.samlib.tasks.DeleteAuthor;
 import monakhv.android.samlib.tasks.MarkRead;
+
 import uk.co.senab.actionbarpulltorefresh.extras.actionbarcompat.PullToRefreshLayout;
 import uk.co.senab.actionbarpulltorefresh.library.ActionBarPullToRefresh;
 import uk.co.senab.actionbarpulltorefresh.library.DefaultHeaderTransformer;
 import uk.co.senab.actionbarpulltorefresh.library.Options;
 import uk.co.senab.actionbarpulltorefresh.library.listeners.OnRefreshListener;
+
+import static monakhv.android.samlib.ActivityUtils.getClipboardText;
 
 /*
  * Copyright 2014  Dmitry Monakhov
@@ -63,6 +72,7 @@ import uk.co.senab.actionbarpulltorefresh.library.listeners.OnRefreshListener;
  * 12/5/14.
  */
 public class AuthorFragment extends Fragment implements OnRefreshListener, ListSwipeListener.SwipeCallBack {
+    private static final String DEBUG_TAG="AuthorFragment";
 
     private RecyclerView authorRV;
     private AuthorCursorAdapter adapter;
@@ -75,6 +85,8 @@ public class AuthorFragment extends Fragment implements OnRefreshListener, ListS
     private Author author = null;//for context menu selection
     private TextView updateTextView;
     private ContextMenuDialog contextMenu;
+    private SingleChoiceSelectDialog sortDialog;
+    private FilterSelectDialog filterDialog;
 
     public interface Callbacks {
         public void onAuthorSelected(long id);
@@ -92,8 +104,8 @@ public class AuthorFragment extends Fragment implements OnRefreshListener, ListS
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        //TODO: read from Settings
-        order = SortOrder.AuthorName;
+        SettingsHelper settingsHelper= new SettingsHelper(getActivity().getApplicationContext());
+        order = SortOrder.valueOf(settingsHelper.getAuthorSortOrderString());
         detector = new GestureDetector(getActivity(), new ListSwipeListener(this));
     }
     @Override
@@ -113,9 +125,9 @@ public class AuthorFragment extends Fragment implements OnRefreshListener, ListS
         authorRV = (RecyclerView) view.findViewById(R.id.authorRV);
 
 
-        Cursor c = getActivity().getContentResolver().query(AuthorProvider.AUTHOR_URI, null, selection, null, order.getOrder());
 
-        adapter = new AuthorCursorAdapter(getActivity(),c);
+
+        adapter = getAdapter();
         authorRV.setHasFixedSize(true);
         authorRV.setLayoutManager(new LinearLayoutManager(getActivity()));
         authorRV.setAdapter(adapter);
@@ -152,22 +164,16 @@ public class AuthorFragment extends Fragment implements OnRefreshListener, ListS
 
 
 
-
-//        authorRV.setClickable(true);
-//        authorRV.setFocusable(true);
-//        authorRV.setFocusableInTouchMode(true);
-
-//        authorRV.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                int position = authorRV.getChildPosition(v);
-//                Author a = sql.getById(adapter.getItemId(position));
-//                makeToast(a.getName());
-//            }
-//        });
-
         return view;
 
+    }
+    private AuthorCursorAdapter  getAdapter(){
+        Cursor c = getActivity().getContentResolver().query(AuthorProvider.AUTHOR_URI, null, selection, null, order.getOrder());
+
+        return  new AuthorCursorAdapter(getActivity(),c);
+    }
+    private void updateAdapter(){
+        adapter.changeCursor(getActivity().getContentResolver().query(AuthorProvider.AUTHOR_URI, null, selection, null, order.getOrder()));
     }
 
     @Override
@@ -243,25 +249,12 @@ public class AuthorFragment extends Fragment implements OnRefreshListener, ListS
 
         if (author.isIsNew()) {
             menu.add(read_option_item,getString(R.string.menu_read));
-
-
         }
         menu.add(tags_option_item, getString(R.string.menu_tags));
-
-
-
         menu.add(browser_option_item, getString(R.string.menu_open_web));
-
-
         menu.add(edit_author_option_item, getString(R.string.menu_edit));
-
-
         menu.add(delete_option_item, getString(R.string.menu_delete));
-
-
         menu.add( update_option_item,getString(R.string.menu_refresh));
-
-
 
         contextMenu = ContextMenuDialog.getInstance(menu, new AdapterView.OnItemClickListener() {
             @Override
@@ -367,12 +360,179 @@ public class AuthorFragment extends Fragment implements OnRefreshListener, ListS
     };
 
     @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+
+        inflater.inflate(R.menu.options_menu, menu);
+        super.onCreateOptionsMenu(menu, inflater);
+
+    }
+
+
+    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int sel = item.getItemId();
         if (sel == android.R.id.home) {
-            getActivity().finish();
+            if (getSelection() != null) {
+                refresh(null, null);
+                mCallbacks.onTitleChange(getString(R.string.app_name));
+            } else {
+                getActivity().finish();
+            }
+        }
+        if (sel == R.id.menu_refresh) {
+            startRefresh();
+
+        }
+
+        if (sel == R.id.sort_option_item_books) {
+            mCallbacks.selectBookSortOrder();
+        }
+        if (sel == R.id.sort_option_item) {
+
+            AdapterView.OnItemClickListener listener = new AdapterView.OnItemClickListener() {
+
+                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                    SortOrder so = SortOrder.values()[position];
+                    //mCallbacks.onAuthorSelected(0);
+                    setSortOrder(so);
+                    sortDialog.dismiss();
+                }
+
+            };
+            sortDialog = SingleChoiceSelectDialog.getInstance(SortOrder.getTitles(getActivity()), listener, this.getString(R.string.dialog_title_sort_author), getSortOrder().ordinal());
+
+            sortDialog.show(getActivity().getSupportFragmentManager(), "DoSortDialog");
+        }
+
+        if (sel == R.id.add_option_item) {
+            View v = getActivity().findViewById(R.id.add_author_panel);
+
+            v.setVisibility(View.VISIBLE);
+
+            String txt = null;
+            try {
+                txt = getClipboardText(getActivity());
+            } catch (Exception ex) {
+                Log.e(DEBUG_TAG, "Clipboard Error!", ex);
+            }
+
+            if (txt != null) {
+
+                if (SamLibConfig.getParsedUrl(txt) != null) {
+                    EditText editText = (EditText) getActivity().findViewById(R.id.addUrlText);
+                    editText.setText(txt);
+                }
+            }
+
+        }
+        if (sel == R.id.settings_option_item) {
+            Log.d(DEBUG_TAG, "go to Settings");
+            Intent prefsIntent = new Intent(getActivity().getApplicationContext(),
+                    SamlibPreferencesActivity.class);
+            //prefsIntent.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
+            getActivity(). startActivityForResult(prefsIntent,MainActivity.PREFS_ACTIVITY);
+        }
+        if (sel == R.id.archive_option_item) {
+
+            Log.d(DEBUG_TAG, "go to Archive");
+            Intent prefsIntent = new Intent(getActivity().getApplicationContext(),
+                    ArchiveActivity.class);
+            //prefsIntent.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
+
+            //startActivityForResult must be called via getActivity direct call produce wrong requestCode
+            getActivity().startActivityForResult(prefsIntent, MainActivity.ARCHIVE_ACTIVITY);
+        }
+        if (sel == R.id.selected_option_item) {
+            Log.d(DEBUG_TAG, "go to Selected");
+            cleanSelection();
+            mCallbacks.onAuthorSelected(SamLibConfig.SELECTED_BOOK_ID);
+        }
+        if (sel == R.id.menu_filter) {
+            Log.d(DEBUG_TAG, "go to Filter");
+            Cursor tags = getActivity().getContentResolver().query(AuthorProvider.TAG_URI, null, null, null, SQLController.COL_TAG_NAME);
+
+            MatrixCursor extras = new MatrixCursor(new String[]{SQLController.COL_ID, SQLController.COL_TAG_NAME});
+
+            extras.addRow(new String[]{Integer.toString(SamLibConfig.TAG_AUTHOR_ALL), getText(R.string.filter_all).toString()});
+            extras.addRow(new String[]{Integer.toString(SamLibConfig.TAG_AUTHOR_NEW), getText(R.string.filter_new).toString()});
+            Cursor[] cursors = {extras, tags};
+            final Cursor extendedCursor = new MergeCursor(cursors);
+
+            AdapterView.OnItemClickListener listener = new AdapterView.OnItemClickListener() {
+                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+
+                    extendedCursor.moveToPosition(position);
+
+                    int tag_id = extendedCursor.getInt(extendedCursor.getColumnIndex(SQLController.COL_ID));
+                    String tg_name = extendedCursor.getString(extendedCursor.getColumnIndex(SQLController.COL_TAG_NAME));
+                    filterDialog.dismiss();
+
+                    selection = SQLController.TABLE_TAGS + "." + SQLController.COL_ID + "=" + tag_id;
+
+                    if (tag_id == SamLibConfig.TAG_AUTHOR_ALL) {
+                        selection = null;
+                        mCallbacks.onTitleChange(getActivity().getText(R.string.app_name).toString());
+                    } else {
+                        mCallbacks.onTitleChange(tg_name);
+                    }
+
+                    if (tag_id == SamLibConfig.TAG_AUTHOR_NEW) {
+                        selection = SQLController.TABLE_AUTHOR + "." + SQLController.COL_isnew + "=1";
+                    }
+                    Log.i(DEBUG_TAG, "WHERE " + selection);
+                    refresh(selection, null);
+                    //mCallbacks.onAuthorSelected(0);
+                }
+            };
+            filterDialog = FilterSelectDialog.getInstance(extendedCursor, listener, getText(R.string.dialog_title_filtr).toString());
+            filterDialog.show(getActivity().getSupportFragmentManager(), "FilterDialogShow");
+
         }
         return super.onOptionsItemSelected(item);
+
+    }
+
+    public String getSelection() {
+        return selection;
+    }
+
+    private void cleanSelection() {
+        adapter.cleanSelection();
+    }
+    /**
+     * update sort order and selection parameters and restart loader
+     *
+     * @param selection selection string
+     * @param so        sort order string
+     */
+    public void refresh(String selection, SortOrder so) {
+        Log.d(DEBUG_TAG, "set Selection: " + selection);
+        cleanSelection();
+        this.selection = selection;
+        if (so != null) {
+            order = so;
+        }
+        //TODO: make empty text VIEW
+//        if (selection == null) {
+//            setEmptyText(R.string.no_authors);
+//        } else {
+//            setEmptyText(R.string.no_authors_tag);
+//        }
+
+        updateAdapter();
+    }
+    /**
+     * set sort order and restart loader to make is  actual
+     *
+     * @param so new sort order
+     */
+    public void setSortOrder(SortOrder so) {
+        cleanSelection();
+        order = so;
+        updateAdapter();
+    }
+    public SortOrder getSortOrder(){
+        return order;
     }
     public enum SortOrder {
 

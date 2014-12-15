@@ -13,6 +13,8 @@ import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.GestureDetector;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.SoundEffectConstants;
@@ -21,16 +23,13 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 
 
-import java.util.ArrayList;
-import java.util.List;
-
 import monakhv.android.samlib.adapter.BookCursorAdapter;
 import monakhv.android.samlib.data.SettingsHelper;
 import monakhv.android.samlib.dialogs.ContextMenuDialog;
 import monakhv.android.samlib.dialogs.MyMenuData;
+import monakhv.android.samlib.dialogs.SingleChoiceSelectDialog;
 import monakhv.android.samlib.recyclerview.DividerItemDecoration;
 import monakhv.android.samlib.service.DownloadBookServiceIntent;
-import monakhv.android.samlib.sql.AuthorController;
 import monakhv.android.samlib.sql.AuthorProvider;
 import monakhv.android.samlib.sql.SQLController;
 import monakhv.android.samlib.sql.entity.Book;
@@ -65,6 +64,7 @@ public class BookFragment extends Fragment implements ListSwipeListener.SwipeCal
     private SettingsHelper settings;
     ProgressDialog progress;
     ContextMenuDialog contextMenuDialog;
+    private String selection;
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -75,10 +75,11 @@ public class BookFragment extends Fragment implements ListSwipeListener.SwipeCal
             author_id = getActivity().getIntent().getExtras().getLong(AUTHOR_ID, 0);
         }
         Log.i(DEBUG_TAG,"author_id = "+author_id);
-        order=SortOrder.BookDate;
+
         detector = new GestureDetector(getActivity(), new ListSwipeListener(this));
 
         settings= new SettingsHelper(getActivity().getApplicationContext());
+        order=SortOrder.valueOf(settings.getBookSortOrderString());
     }
 
 
@@ -89,7 +90,7 @@ public class BookFragment extends Fragment implements ListSwipeListener.SwipeCal
                 container, false);
         Log.i(DEBUG_TAG,"Done making view");
         bookRV = (RecyclerView) view.findViewById(R.id.bookRV);
-        String selection;
+
         if (author_id ==  SamLibConfig.SELECTED_BOOK_ID){
             selection = SQLController.COL_BOOK_GROUP_ID+"="+ Book.SELECTED_GROUP_ID;
         }
@@ -117,6 +118,10 @@ public class BookFragment extends Fragment implements ListSwipeListener.SwipeCal
         });
 
         return view;
+    }
+
+    private void updateAdapter(){
+        adapter.changeCursor( getActivity().getContentResolver().query(AuthorProvider.BOOKS_URI, null, selection, null, order.getOrder()));
     }
 
     @Override
@@ -228,14 +233,56 @@ public class BookFragment extends Fragment implements ListSwipeListener.SwipeCal
 
         startActivity(launchBrowser);
     }
+    private int id_menu_sort=31;
+    private SingleChoiceSelectDialog sortDialog;
+    public void onCreateOptionsMenu(Menu menu,MenuInflater menuInflater) {
+
+        menu.add(100, id_menu_sort, 100, getString(R.string.menu_sort));
+        menu.findItem(id_menu_sort).setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
+        menu.findItem(id_menu_sort).setIcon(settings.getSortIcon());
+        super.onCreateOptionsMenu(menu,menuInflater );
+
+    }
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int sel = item.getItemId();
+        //TODO: make tablet variant for two fragment activity
         if (sel == android.R.id.home) {
             getActivity().finish();
         }
+        if (sel == id_menu_sort){
+            selectSortOrder();
+
+        }
         return super.onOptionsItemSelected(item);
     }
+    /**
+     * Show Dialog to select sort order for Book list
+     *
+     */
+    public void selectSortOrder(){
+        AdapterView.OnItemClickListener listener = new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                SortOrder so = SortOrder.values()[position];
+                setSortOrder(so);
+                sortDialog.dismiss();
+
+            }
+        };
+        sortDialog =  SingleChoiceSelectDialog.getInstance(SortOrder.getTitles(getActivity()),listener,this.getString(R.string.dialog_title_sort_book),getSortOrder().ordinal());
+        sortDialog.show(getActivity().getSupportFragmentManager(), "DoBookSortDialog");
+    }
+    private void setSortOrder(SortOrder so) {
+        order=so;
+        updateAdapter();
+    }
+
+    private SortOrder getSortOrder(){
+        return order;
+    }
+
+
     private void loadBook(Book book){
         book.setFileType(settings.getFileType());
         if (book.needUpdateFile()) {

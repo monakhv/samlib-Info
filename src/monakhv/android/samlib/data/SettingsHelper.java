@@ -30,13 +30,14 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.NetworkInfo.State;
 import android.net.Uri;
-import android.util.TypedValue;
+
 
 import java.io.File;
 import java.net.Authenticator;
 import java.net.PasswordAuthentication;
 import java.util.Calendar;
 import java.util.Map;
+
 
 import monakhv.android.samlib.AuthorListFragment;
 import monakhv.android.samlib.BookListFragment;
@@ -299,13 +300,25 @@ public class SettingsHelper implements SharedPreferences.OnSharedPreferenceChang
         return AuthorListFragment.SortOrder.valueOf(str);
     }
 
+    public String getAuthorSortOrderString() {
+        String str = prefs.getString(
+                context.getString(R.string.pref_key_author_order),
+                context.getString(R.string.pref_default_author_order));
+        return str;
+    }
+
     public BookListFragment.SortOrder getBookSortOrder() {
         String str = prefs.getString(
                 context.getString(R.string.pref_key_book_order),
                 context.getString(R.string.pref_default_book_order));
         return BookListFragment.SortOrder.valueOf(str);
     }
-
+    public String getBookSortOrderString() {
+        String str = prefs.getString(
+                context.getString(R.string.pref_key_book_order),
+                context.getString(R.string.pref_default_book_order));
+        return str;
+    }
     public DataExportImport.FileType getFileType() {
         String str = prefs.getString(
                 context.getString(R.string.pref_key_file_format),

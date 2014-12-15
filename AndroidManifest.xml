@@ -63,19 +63,12 @@ limitations under the License.
         </activity>
         <activity
             android:name=".BooksActivity"
-            android:parentActivityName="monakhv.android.samlib.TestActivity" >
-            <meta-data 
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value="monakhv.android.samlib.TestActivity"/>
-        </activity>
-        <activity
-            android:name=".TestActivity"
             android:parentActivityName="monakhv.android.samlib.MainActivity" >
-            <meta-data
+            <meta-data 
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="monakhv.android.samlib.MainActivity"/>
         </activity>
-        
+
         <activity
             android:name=".AuthorTagsActivity" 
             android:parentActivityName="monakhv.android.samlib.MainActivity" >

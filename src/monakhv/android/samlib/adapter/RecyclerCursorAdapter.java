@@ -192,17 +192,24 @@ public abstract class RecyclerCursorAdapter<VH
     }
     public static final int NOT_SELECTED=-1;
     private int selected = NOT_SELECTED;
+
     public void toggleSelection(int position){
-        List<Integer> poss = new ArrayList<>();
-        if (selected != NOT_SELECTED ){
-            poss.add(selected);
-        }
+
+        int old_selection = selected;
         selected = position;
-        poss.add(selected);
-        for(Integer ii : poss){
-            notifyItemChanged(ii);
+
+        if (old_selection!= NOT_SELECTED){
+            notifyItemChanged(old_selection);
+        }
+        if (selected != NOT_SELECTED){
+            notifyItemChanged(selected);
         }
     }
+
+    public void cleanSelection(){
+        toggleSelection(NOT_SELECTED);
+    }
+
 
     public int getSelectedPosition() {
         return selected;
