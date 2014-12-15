@@ -7,11 +7,17 @@ import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.KeyEvent;
+import android.view.View;
+import android.widget.EditText;
 import android.widget.Toast;
 
 import monakhv.android.samlib.data.SettingsHelper;
+import monakhv.android.samlib.search.SearchAuthorActivity;
+import monakhv.android.samlib.sql.entity.SamLibConfig;
+import monakhv.android.samlib.tasks.AddAuthor;
 
 
 /*
@@ -108,9 +114,51 @@ public class MainActivity extends ActionBarActivity implements AuthorFragment.Ca
         }
 
     }
+    /**
+     * Add new Author to SQL Store
+     *
+     * @param view View
+     */
+    @SuppressWarnings("UnusedParameters")
+    public void addAuthor(View view) {
+
+        addAuthorFromText();
+
+    }
 
     @Override
-    public void addAuthorFromText() {
+    public void addAuthorFromText(){
+        EditText editText = (EditText) findViewById(R.id.addUrlText);
+
+        if (editText == null){
+            return;
+        }
+        if (editText.getText() == null){
+            return;
+        }
+        String text = editText.getText().toString();
+        editText.setText("");
+
+
+        View v = findViewById(R.id.add_author_panel);
+        v.setVisibility(View.GONE);
+
+        String url = SamLibConfig.getParsedUrl(text);
+        if (url != null){
+            AddAuthor aa = new AddAuthor(this.getApplicationContext());
+            aa.execute(url);
+        }
+        else {
+            if (TextUtils.isEmpty(text)) {
+                return;
+            }
+            Intent prefsIntent = new Intent(getApplicationContext(),
+                    SearchAuthorActivity.class);
+            prefsIntent.putExtra(SearchAuthorActivity.EXTRA_PATTERN, text);
+            prefsIntent.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
+
+            startActivityForResult(prefsIntent, SEARCH_ACTIVITY);
+        }
 
     }
 
