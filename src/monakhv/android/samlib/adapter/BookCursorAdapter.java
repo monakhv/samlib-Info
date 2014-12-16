@@ -12,6 +12,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 
+import java.util.HashMap;
+
 import monakhv.android.samlib.R;
 import monakhv.android.samlib.animation.Flip3D;
 import monakhv.android.samlib.data.SettingsHelper;
@@ -45,11 +47,13 @@ public class BookCursorAdapter extends RecyclerCursorAdapter<BookCursorAdapter.V
     private Context context;
     private SettingsHelper settingsHelper;
     private AuthorController sql;
+    private HashMap<Integer,Flip3D> flips;
     public BookCursorAdapter(Context context, Cursor cursor) {
         super(context,cursor);
         this.context = context;
         settingsHelper = new SettingsHelper(context);
         sql=new AuthorController(context);
+        flips=new HashMap<>();
 
     }
 
@@ -112,9 +116,10 @@ public class BookCursorAdapter extends RecyclerCursorAdapter<BookCursorAdapter.V
                     sql.testMarkRead(a);
                 }
             };
-            holder.itemView.setActivated(cursor.getPosition() == getSelectedPosition());
 
         }
+        flips.put(cursor.getPosition(),holder.flip);
+        holder.itemView.setActivated(cursor.getPosition() == getSelectedPosition());
 
 
         if(cursor.getInt(idx_group_id)==1){
@@ -168,8 +173,15 @@ public class BookCursorAdapter extends RecyclerCursorAdapter<BookCursorAdapter.V
         if (book == null){
             return;
         }
-        sql.getBookController().markRead(book);
-        sql.testMarkRead(sql.getByBook(book));
+        Flip3D ff= flips.get(getSelectedPosition());
+        if (ff != null){
+            ff.makeFlip();
+        }
+        else {
+            sql.getBookController().markRead(book);
+            sql.testMarkRead(sql.getByBook(book));
+        }
+        cleanSelection();
 
     }
     public void update(Book book){

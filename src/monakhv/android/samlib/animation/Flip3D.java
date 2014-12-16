@@ -41,18 +41,21 @@ import android.widget.ImageView;
 
         image1.setOnClickListener(new View.OnClickListener() {
             public void onClick(View view) {
-                if (isFirstImage) {
-                    applyRotation(0, 90);
-                    isFirstImage = !isFirstImage;
-
-                } else {
-                    applyRotation(0, -90);
-                    isFirstImage = !isFirstImage;
-                }
+               makeFlip();
             }
         });
     }
 
+    public void makeFlip(){
+        if (isFirstImage) {
+            applyRotation(0, 90);
+            isFirstImage = !isFirstImage;
+
+        } else {
+            applyRotation(0, -90);
+            isFirstImage = !isFirstImage;
+        }
+    }
     private void applyRotation(float start, float end) {
 // Find the center of image
         final float centerX = image1.getWidth() / 2.0f;
