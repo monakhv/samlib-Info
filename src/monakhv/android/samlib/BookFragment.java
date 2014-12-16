@@ -141,12 +141,30 @@ public class BookFragment extends Fragment implements ListSwipeListener.SwipeCal
 
     @Override
     public boolean swipeRight(MotionEvent e) {
-        return false;
+        int position = bookRV.getChildPosition(bookRV.findChildViewUnder(e.getX(),e.getY()));
+        adapter.toggleSelection(position);
+
+        book= adapter.getSelected();
+
+        if (book == null){
+            return false;
+        }
+        adapter.makeSelectedRead();
+        return true;
     }
 
     @Override
     public boolean swipeLeft(MotionEvent e) {
-        return false;
+        int position = bookRV.getChildPosition(bookRV.findChildViewUnder(e.getX(),e.getY()));
+        adapter.toggleSelection(position);
+
+        book= adapter.getSelected();
+
+        if (book == null){
+            return false;
+        }
+        launchBrowser(book);
+        return true;
     }
 
     private final int menu_mark_read = 1;
