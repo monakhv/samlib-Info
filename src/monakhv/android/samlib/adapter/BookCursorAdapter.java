@@ -42,18 +42,19 @@ import monakhv.android.samlib.sql.entity.SamLibConfig;
  */
 public class BookCursorAdapter extends RecyclerCursorAdapter<BookCursorAdapter.ViewHolder> {
 
-    private static final String DEBUG_TAG="BookCursorAdapter";
+    private static final String DEBUG_TAG = "BookCursorAdapter";
     private int author_id;
     private Context context;
     private SettingsHelper settingsHelper;
     private AuthorController sql;
-    private HashMap<Integer,Flip3D> flips;
+    private HashMap<Integer, Flip3D> flips;
+
     public BookCursorAdapter(Context context, Cursor cursor) {
-        super(context,cursor);
+        super(context, cursor);
         this.context = context;
         settingsHelper = new SettingsHelper(context);
-        sql=new AuthorController(context);
-        flips=new HashMap<>();
+        sql = new AuthorController(context);
+        flips = new HashMap<>();
 
     }
 
@@ -81,25 +82,24 @@ public class BookCursorAdapter extends RecyclerCursorAdapter<BookCursorAdapter.V
 
 
         holder.bookAuthorName.setText(cursor.getString(idx_author));
-        if (author_id !=  SamLibConfig.SELECTED_BOOK_ID){
+        if (author_id != SamLibConfig.SELECTED_BOOK_ID) {
             holder.bookAuthorName.setVisibility(View.GONE);
 
-        }
-        else {
+        } else {
             holder.bookAuthorName.setVisibility(View.VISIBLE);
         }
 
-        holder.bookSize.setText(cursor.getString(idx_size)+"K");
+        holder.bookSize.setText(cursor.getString(idx_size) + "K");
         holder.bookForm.setText(cursor.getString(idx_form));
 
         holder.openBook.setImageResource(R.drawable.open);
         holder.closeBook.setImageResource(R.drawable.closed);
 
         if (cursor.getInt(idx_isNew) == 1) {
-            holder.flip=new Flip3D(holder.openBook,holder.closeBook) {
+            holder.flip = new Flip3D(holder.openBook, holder.closeBook) {
                 @Override
                 protected void afterAnimationEnd() {
-                    Log.i(DEBUG_TAG,"Making book read!");
+                    Log.i(DEBUG_TAG, "Making book read!");
                     sql.getBookController().markRead(book);
                     Author a = sql.getByBook(book);
                     sql.testMarkRead(a);
@@ -107,10 +107,10 @@ public class BookCursorAdapter extends RecyclerCursorAdapter<BookCursorAdapter.V
             };
 
         } else {
-            holder.flip=new Flip3D(holder.closeBook,holder.openBook) {
+            holder.flip = new Flip3D(holder.closeBook, holder.openBook) {
                 @Override
                 protected void afterAnimationEnd() {
-                    Log.i(DEBUG_TAG,"Making book new!!");
+                    Log.i(DEBUG_TAG, "Making book new!!");
                     sql.getBookController().markUnRead(book);
                     Author a = sql.getByBook(book);
                     sql.testMarkRead(a);
@@ -118,20 +118,17 @@ public class BookCursorAdapter extends RecyclerCursorAdapter<BookCursorAdapter.V
             };
 
         }
-        flips.put(cursor.getPosition(),holder.flip);
+        flips.put(cursor.getPosition(), holder.flip);
         holder.itemView.setActivated(cursor.getPosition() == getSelectedPosition());
 
 
-        if(cursor.getInt(idx_group_id)==1){
+        if (cursor.getInt(idx_group_id) == 1) {
             holder.starIcon.setImageResource(settingsHelper.getSelectedIcon());
             holder.starIcon.setVisibility(View.VISIBLE);
-        }
-        else {
-           holder.starIcon.setImageResource(R.drawable.rating_not_important);
+        } else {
+            holder.starIcon.setImageResource(R.drawable.rating_not_important);
             holder.starIcon.setVisibility(View.GONE);
         }
-
-
 
 
     }
@@ -144,47 +141,51 @@ public class BookCursorAdapter extends RecyclerCursorAdapter<BookCursorAdapter.V
 
     public class ViewHolder extends RecyclerView.ViewHolder {
         // {R.id.bookTitle, R.id.bookUpdate, R.id.bookDesc, R.id.Bookicon,R.id.Staricon,R.id.bookAuthorName,R.id.bookForm};
-        public TextView bookTitle,bookSize,bookDesc,bookAuthorName,bookForm;
-        public ImageView starIcon,closeBook,openBook;
+        public TextView bookTitle, bookSize, bookDesc, bookAuthorName, bookForm;
+        public ImageView starIcon, closeBook, openBook;
         public Flip3D flip;
 
         public ViewHolder(View itemView) {
             super(itemView);
             bookTitle = (TextView) itemView.findViewById(R.id.bookTitle);
-            bookSize= (TextView) itemView.findViewById(R.id.bookUpdate);
-            bookDesc= (TextView) itemView.findViewById(R.id.bookDesc);
-            bookAuthorName= (TextView) itemView.findViewById(R.id.bookAuthorName);
+            bookSize = (TextView) itemView.findViewById(R.id.bookUpdate);
+            bookDesc = (TextView) itemView.findViewById(R.id.bookDesc);
+            bookAuthorName = (TextView) itemView.findViewById(R.id.bookAuthorName);
             bookForm = (TextView) itemView.findViewById(R.id.bookForm);
 
-            closeBook= (ImageView) itemView.findViewById(R.id.bookClosed);
-            openBook= (ImageView) itemView.findViewById(R.id.bookOpen);
-            starIcon= (ImageView) itemView.findViewById(R.id.Staricon);
+            closeBook = (ImageView) itemView.findViewById(R.id.bookClosed);
+            openBook = (ImageView) itemView.findViewById(R.id.bookOpen);
+            starIcon = (ImageView) itemView.findViewById(R.id.Staricon);
         }
     }
-    public Book getSelected(){
+
+    public Book getSelected() {
         int pos = getSelectedPosition();
-        if (pos == NOT_SELECTED){
+        if (pos == NOT_SELECTED) {
             return null;
         }
         return sql.getBookController().getById(getItemId(pos));
     }
-    public void makeSelectedRead(){
-        Book book  = getSelected();
-        if (book == null){
+
+    public void makeSelectedRead() {
+        Book book = getSelected();
+        if (book == null) {
             return;
         }
-        Flip3D ff= flips.get(getSelectedPosition());
-        if (ff != null){
-            ff.makeFlip();
-        }
-        else {
-            sql.getBookController().markRead(book);
-            sql.testMarkRead(sql.getByBook(book));
+        if (book.isIsNew()) {
+            Flip3D ff = flips.get(getSelectedPosition());
+            if (ff != null) {
+                ff.makeFlip();
+            } else {
+                sql.getBookController().markRead(book);
+                sql.testMarkRead(sql.getByBook(book));
+            }
         }
         cleanSelection();
 
     }
-    public void update(Book book){
+
+    public void update(Book book) {
         sql.getBookController().update(book);
     }
 }
