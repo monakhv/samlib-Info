@@ -57,6 +57,17 @@ public class MainActivity extends ActionBarActivity implements AuthorFragment.Ca
         setTheme(settingsHelper.getTheme());
         super.onCreate(savedInstanceState);
         setContentView(R.layout.test_layout);
+        Bundle bundle = getIntent().getExtras();
+
+        String clean = null;
+        if (bundle != null) {
+            clean = bundle.getString(CLEAN_NOTIFICATION);
+        }
+        if (clean != null) {
+            CleanNotificationData.start(this);
+            bundle = null;
+        }
+        SettingsHelper.addAuthenticator(this.getApplicationContext());
         authorFragment = (AuthorFragment) getSupportFragmentManager().findFragmentById(R.id.authorFragment);
         authorFragment.setHasOptionsMenu(true);
     }
