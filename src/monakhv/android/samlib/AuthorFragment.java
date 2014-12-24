@@ -184,6 +184,9 @@ public class AuthorFragment extends Fragment implements OnRefreshListener, ListS
 
 
         //probable Leek - to make back from search bug
+        if (adapter!= null){
+            adapter.getCursor().close();
+        }
         adapter = getAdapter();
         adapter.registerAdapterDataObserver(observer);
         authorRV.setAdapter(adapter);
