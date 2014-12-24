@@ -147,6 +147,7 @@ public abstract class RecyclerCursorAdapter<VH
     }
     protected void onContentChanged() {
         if ( mCursor != null && !mCursor.isClosed()) {
+            Log.d(DEBUG_TAG,"onContentChanged: reQuery");
             mDataValid = mCursor.requery();
         }
     }

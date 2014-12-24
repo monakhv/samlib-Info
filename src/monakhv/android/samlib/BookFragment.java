@@ -70,6 +70,7 @@ public class BookFragment extends Fragment implements ListSwipeListener.SwipeCal
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Log.i(DEBUG_TAG,"onCreate");
 
         if (getActivity().getIntent().getExtras() == null) {
             author_id = 0;
@@ -84,16 +85,10 @@ public class BookFragment extends Fragment implements ListSwipeListener.SwipeCal
         order=SortOrder.valueOf(settings.getBookSortOrderString());
     }
 
-    @Override
-    public void onResume() {
-        super.onResume();
-        settings= new SettingsHelper(getActivity().getApplicationContext());
-        order=SortOrder.valueOf(settings.getBookSortOrderString());
-
-    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        Log.i(DEBUG_TAG,"onCreateView");
 
         View view = inflater.inflate(R.layout.book_fragment,
                 container, false);
@@ -161,6 +156,15 @@ public class BookFragment extends Fragment implements ListSwipeListener.SwipeCal
         }
     }
     private void updateAdapter(){
+        //very ugly hack
+        if (order==null){
+            Context ctx=getActivity().getApplicationContext();
+            if (ctx== null){
+                Log.e(DEBUG_TAG,"Context is NULL");
+            }
+            settings=new SettingsHelper(ctx);
+            order=SortOrder.valueOf(settings.getBookSortOrderString());
+        }
         String so = order.getOrder();
         adapter.changeCursor( getActivity().getContentResolver().query(AuthorProvider.BOOKS_URI, null, selection, null, so));
     }

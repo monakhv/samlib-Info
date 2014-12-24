@@ -52,6 +52,8 @@ public class MainActivity extends ActionBarActivity implements AuthorFragment.Ca
     private AuthorFragment authorFragment;
     private BookFragment bookFragment;
     private SettingsHelper settingsHelper;
+    private DownloadReceiver downloadReceiver;
+    private boolean twoPain;
 
 
     @Override
@@ -73,11 +75,19 @@ public class MainActivity extends ActionBarActivity implements AuthorFragment.Ca
         SettingsHelper.addAuthenticator(this.getApplicationContext());
         authorFragment = (AuthorFragment) getSupportFragmentManager().findFragmentById(R.id.authorFragment);
         authorFragment.setHasOptionsMenu(true);
-        bookFragment= (BookFragment) getSupportFragmentManager().findFragmentById(R.id.listBooksFragment);
+
 //        if (bundle != null) {
 //            Log.i(DEBUG_TAG, "Restore state");
 //            onRestoreInstanceState(bundle);
 //        }
+
+        twoPain=findViewById(R.id.two_pain)!= null;
+        if (twoPain){
+            Log.i(DEBUG_TAG,"onCreate: two pane");
+        }
+        else {
+            Log.i(DEBUG_TAG,"onCreate: one pane");
+        }
     }
 
     @Override
@@ -109,11 +119,26 @@ public class MainActivity extends ActionBarActivity implements AuthorFragment.Ca
         //getActionBarHelper().setRefreshActionItemState(refreshStatus);
         registerReceiver(updateReceiver, updateFilter);
 
+        if (twoPain){
+            bookFragment= (BookFragment) getSupportFragmentManager().findFragmentById(R.id.listBooksFragment);
+            if (bookFragment == null){
+                Log.e(DEBUG_TAG,"Fragment is NULL for two pane layout!!");
+            }
+            downloadReceiver = new DownloadReceiver(bookFragment);
+            IntentFilter filter = new IntentFilter(DownloadReceiver.ACTION_RESP);
+            filter.addCategory(Intent.CATEGORY_DEFAULT);
+            registerReceiver(downloadReceiver, filter);
+        }
+
+
     }
     @Override
     protected void onPause() {
         super.onPause();
         unregisterReceiver(updateReceiver);
+        if (twoPain){
+            unregisterReceiver(downloadReceiver);
+        }
 
         //Stop refresh status
         authorFragment.onRefreshComplete();
@@ -155,6 +180,7 @@ public class MainActivity extends ActionBarActivity implements AuthorFragment.Ca
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (resultCode != RESULT_OK) {
             Log.d(DEBUG_TAG, "Wrong result code from onActivityResult");
+            authorFragment.refresh(null, null);
             return;
         }
         if (requestCode == ARCHIVE_ACTIVITY) {
@@ -178,15 +204,16 @@ public class MainActivity extends ActionBarActivity implements AuthorFragment.Ca
     @Override
     public void onAuthorSelected(long id) {
         Log.d(DEBUG_TAG, "onAuthorSelected: go to Books");
-        if (bookFragment == null){
+        if (twoPain){
+            Log.i(DEBUG_TAG, "Two fragments Layout - set author_id: "+id);
+            bookFragment.setAuthorId(id);
+        }
+        else {
+            Log.i(DEBUG_TAG, "One fragment Layout - set author_id: "+id);
             Intent intent = new Intent(this,BooksActivity.class);
             intent.putExtra(BookFragment.AUTHOR_ID,id);
 
             startActivity(intent);
-        }
-        else {
-            Log.w(DEBUG_TAG, "Two fragments Layout!");
-            bookFragment.setAuthorId(id);
         }
 
         
@@ -214,7 +241,7 @@ public class MainActivity extends ActionBarActivity implements AuthorFragment.Ca
 
     @Override
     public void cleanBookSelection() {
-        if (bookFragment != null){
+        if (twoPain){
             bookFragment.setAuthorId(0);//empty selection
         }
     }
