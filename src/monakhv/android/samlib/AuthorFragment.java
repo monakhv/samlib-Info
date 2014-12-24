@@ -108,6 +108,7 @@ public class AuthorFragment extends Fragment implements OnRefreshListener, ListS
         SettingsHelper settingsHelper = new SettingsHelper(getActivity().getApplicationContext());
         order = SortOrder.valueOf(settingsHelper.getAuthorSortOrderString());
         detector = new GestureDetector(getActivity(), new ListSwipeListener(this));
+        Log.d(DEBUG_TAG,"onCreate");
     }
 
     @Override
@@ -122,16 +123,17 @@ public class AuthorFragment extends Fragment implements OnRefreshListener, ListS
 
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        Log.d(DEBUG_TAG,"onCreateView");
         View view = inflater.inflate(R.layout.author_fragment,
                 container, false);
         authorRV = (RecyclerView) view.findViewById(R.id.authorRV);
         empty = view.findViewById(R.id.add_author_panel);
 
 
-        adapter = getAdapter();
+
         authorRV.setHasFixedSize(true);
         authorRV.setLayoutManager(new LinearLayoutManager(getActivity()));
-        authorRV.setAdapter(adapter);
+
 
 
         authorRV.addItemDecoration(new DividerItemDecoration(getActivity(), DividerItemDecoration.VERTICAL_LIST));
@@ -162,17 +164,40 @@ public class AuthorFragment extends Fragment implements OnRefreshListener, ListS
             }
         });
 
-        makeEmptyView();
-        adapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
+
+        return view;
+
+    }
+
+    private RecyclerView.AdapterDataObserver observer;
+    @Override
+    public void onResume() {
+        super.onResume();
+        observer = new RecyclerView.AdapterDataObserver() {
             @Override
             public void onChanged() {
                 super.onChanged();
                 Log.d(DEBUG_TAG,"Observed: makeEmpty");
                 makeEmptyView();
             }
-        });
-        return view;
+        };
 
+
+        //probable Leek - to make back from search bug
+        adapter = getAdapter();
+        adapter.registerAdapterDataObserver(observer);
+        authorRV.setAdapter(adapter);
+        makeEmptyView();
+
+        Log.d(DEBUG_TAG,"onResume");
+
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        adapter.unregisterAdapterDataObserver(observer);
+        Log.d(DEBUG_TAG,"onPause");
     }
 
     private AuthorCursorAdapter getAdapter() {
@@ -590,12 +615,7 @@ public class AuthorFragment extends Fragment implements OnRefreshListener, ListS
         if (so != null) {
             order = so;
         }
-        //TODO: make empty text VIEW
-//        if (selection == null) {
-//            setEmptyText(R.string.no_authors);
-//        } else {
-//            setEmptyText(R.string.no_authors_tag);
-//        }
+
 
         updateAdapter();
     }
