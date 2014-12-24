@@ -41,13 +41,16 @@ import monakhv.android.samlib.tasks.AddAuthor;
  */
 public class MainActivity extends ActionBarActivity implements AuthorFragment.Callbacks {
 
-    private static final String DEBUG_TAG = "TestActivity";
+    private static final String DEBUG_TAG = "MainActivity";
+//    private static final String STATE_SELECTION = "STATE_SELECTION";
+//    private static final String STATE_AUTHOR_POS = "STATE_AUTHOR_ID";
     public static final int ARCHIVE_ACTIVITY = 1;
     public static final int SEARCH_ACTIVITY  = 2;
     public static final int PREFS_ACTIVITY  = 3;
     public static final  String CLEAN_NOTIFICATION = "CLEAN_NOTIFICATION";
     private UpdateActivityReceiver updateReceiver;
     private AuthorFragment authorFragment;
+    private BookFragment bookFragment;
     private SettingsHelper settingsHelper;
 
 
@@ -56,7 +59,7 @@ public class MainActivity extends ActionBarActivity implements AuthorFragment.Ca
         settingsHelper = new SettingsHelper(this);
         setTheme(settingsHelper.getTheme());
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.test_layout);
+        setContentView(R.layout.main_layout);
         Bundle bundle = getIntent().getExtras();
 
         String clean = null;
@@ -70,6 +73,11 @@ public class MainActivity extends ActionBarActivity implements AuthorFragment.Ca
         SettingsHelper.addAuthenticator(this.getApplicationContext());
         authorFragment = (AuthorFragment) getSupportFragmentManager().findFragmentById(R.id.authorFragment);
         authorFragment.setHasOptionsMenu(true);
+        bookFragment= (BookFragment) getSupportFragmentManager().findFragmentById(R.id.listBooksFragment);
+//        if (bundle != null) {
+//            Log.i(DEBUG_TAG, "Restore state");
+//            onRestoreInstanceState(bundle);
+//        }
     }
 
     @Override
@@ -112,6 +120,30 @@ public class MainActivity extends ActionBarActivity implements AuthorFragment.Ca
         //getActionBarHelper().setRefreshActionItemState(refreshStatus);
     }
 
+//    @Override
+//    public void onSaveInstanceState(Bundle bundle) {
+//        super.onSaveInstanceState(bundle);
+//        bundle.putString(STATE_SELECTION, authorFragment.getSelection());
+//        bundle.putInt(STATE_AUTHOR_POS, authorFragment.getSelectedAuthorPosition());
+//
+//    }
+//    @Override
+//    public void onRestoreInstanceState(Bundle bundle) {
+//        super.onRestoreInstanceState(bundle);
+//        if (bundle == null) {
+//            return;
+//        }
+//        Log.i(DEBUG_TAG,"onRestoreInstanceState");
+//
+//
+//        authorFragment.refresh(bundle.getString(STATE_SELECTION), null);
+//        authorFragment.restoreSelection(bundle.getInt(STATE_AUTHOR_POS));
+//        if (bookFragment != null){
+//            bookFragment.setAuthorId(authorFragment.getSelectedAuthorId());
+//        }
+//
+//    }
+
     /**
      * Return from ArchiveActivity or SearchActivity
      *
@@ -145,11 +177,18 @@ public class MainActivity extends ActionBarActivity implements AuthorFragment.Ca
 
     @Override
     public void onAuthorSelected(long id) {
-        Log.d(DEBUG_TAG, "go to Books");
-        Intent intent = new Intent(this,BooksActivity.class);
-        intent.putExtra(BookFragment.AUTHOR_ID,id);
+        Log.d(DEBUG_TAG, "onAuthorSelected: go to Books");
+        if (bookFragment == null){
+            Intent intent = new Intent(this,BooksActivity.class);
+            intent.putExtra(BookFragment.AUTHOR_ID,id);
 
-        startActivity(intent);
+            startActivity(intent);
+        }
+        else {
+            Log.w(DEBUG_TAG, "Two fragments Layout!");
+            bookFragment.setAuthorId(id);
+        }
+
         
 
     }
@@ -172,6 +211,14 @@ public class MainActivity extends ActionBarActivity implements AuthorFragment.Ca
         }
 
     }
+
+    @Override
+    public void cleanBookSelection() {
+        if (bookFragment != null){
+            bookFragment.setAuthorId(0);//empty selection
+        }
+    }
+
     /**
      * Add new Author to SQL Store
      *
@@ -184,7 +231,7 @@ public class MainActivity extends ActionBarActivity implements AuthorFragment.Ca
 
     }
 
-    @Override
+
     public void addAuthorFromText(){
         EditText editText = (EditText) findViewById(R.id.addUrlText);
 
@@ -202,7 +249,7 @@ public class MainActivity extends ActionBarActivity implements AuthorFragment.Ca
         v.setVisibility(View.GONE);
 
         String url = SamLibConfig.getParsedUrl(text);
-        if (url != null){
+        if (url != null){//add  Author by URL
             AddAuthor aa = new AddAuthor(this.getApplicationContext());
             aa.execute(url);
         }
@@ -210,6 +257,7 @@ public class MainActivity extends ActionBarActivity implements AuthorFragment.Ca
             if (TextUtils.isEmpty(text)) {
                 return;
             }
+            //Start Search activity to make search and add selected Authors to Data Base
             Intent prefsIntent = new Intent(getApplicationContext(),
                     SearchAuthorActivity.class);
             prefsIntent.putExtra(SearchAuthorActivity.EXTRA_PATTERN, text);

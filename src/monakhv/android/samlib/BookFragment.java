@@ -21,6 +21,7 @@ import android.view.SoundEffectConstants;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.TextView;
 
 
 import monakhv.android.samlib.adapter.BookCursorAdapter;
@@ -65,6 +66,7 @@ public class BookFragment extends Fragment implements ListSwipeListener.SwipeCal
     ProgressDialog progress;
     ContextMenuDialog contextMenuDialog;
     private String selection;
+    private TextView emptyText;
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -82,6 +84,13 @@ public class BookFragment extends Fragment implements ListSwipeListener.SwipeCal
         order=SortOrder.valueOf(settings.getBookSortOrderString());
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        settings= new SettingsHelper(getActivity().getApplicationContext());
+        order=SortOrder.valueOf(settings.getBookSortOrderString());
+
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -90,13 +99,9 @@ public class BookFragment extends Fragment implements ListSwipeListener.SwipeCal
                 container, false);
         Log.i(DEBUG_TAG,"Done making view");
         bookRV = (RecyclerView) view.findViewById(R.id.bookRV);
+        emptyText = (TextView) view.findViewById(R.id.id_empty_book_text);
 
-        if (author_id ==  SamLibConfig.SELECTED_BOOK_ID){
-            selection = SQLController.COL_BOOK_GROUP_ID+"="+ Book.SELECTED_GROUP_ID;
-        }
-        else {
-            selection = SQLController.COL_BOOK_AUTHOR_ID + "=" + author_id;
-        }
+       setSelection();
         Log.i(DEBUG_TAG,"selection = "+selection);
 
 
@@ -117,13 +122,59 @@ public class BookFragment extends Fragment implements ListSwipeListener.SwipeCal
             }
         });
 
+        makeEmpty();
+        adapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
+            @Override
+            public void onChanged() {
+                super.onChanged();
+                Log.d(DEBUG_TAG,"Observed: makeEmpty");
+                makeEmpty();
+            }
+        });
         return view;
     }
 
-    private void updateAdapter(){
-        adapter.changeCursor( getActivity().getContentResolver().query(AuthorProvider.BOOKS_URI, null, selection, null, order.getOrder()));
+    /**
+     * Construction selection string using author_id parameter
+     *
+     */
+    private void setSelection() {
+        if (author_id ==  SamLibConfig.SELECTED_BOOK_ID){
+            selection = SQLController.COL_BOOK_GROUP_ID+"="+ Book.SELECTED_GROUP_ID;
+        }
+        else {
+            selection = SQLController.COL_BOOK_AUTHOR_ID + "=" + author_id;
+        }
     }
 
+    /**
+     * Make empty text view
+     */
+    private void makeEmpty(){
+        if (adapter.getItemCount()==0){
+            bookRV.setVisibility(View.GONE);
+            emptyText.setVisibility(View.VISIBLE);
+        }
+        else {
+            bookRV.setVisibility(View.VISIBLE);
+            emptyText.setVisibility(View.GONE);
+        }
+    }
+    private void updateAdapter(){
+        String so = order.getOrder();
+        adapter.changeCursor( getActivity().getContentResolver().query(AuthorProvider.BOOKS_URI, null, selection, null, so));
+    }
+
+    /**
+     * Set new author_id and update selection,adapter and empty view
+     * @param id Author id or special parameters
+     */
+    public void setAuthorId(long id){
+        author_id = id;
+        setSelection();
+        updateAdapter();
+        makeEmpty();
+    }
     @Override
     public boolean singleClick(MotionEvent e) {
         int position = bookRV.getChildPosition(bookRV.findChildViewUnder(e.getX(),e.getY()));

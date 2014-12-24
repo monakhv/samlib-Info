@@ -87,6 +87,7 @@ public class AuthorFragment extends Fragment implements OnRefreshListener, ListS
     private ContextMenuDialog contextMenu;
     private SingleChoiceSelectDialog sortDialog;
     private FilterSelectDialog filterDialog;
+    private View empty;
 
     public interface Callbacks {
         public void onAuthorSelected(long id);
@@ -95,7 +96,7 @@ public class AuthorFragment extends Fragment implements OnRefreshListener, ListS
 
         public void onTitleChange(String lTitle);
 
-        public void addAuthorFromText();
+        public void cleanBookSelection();
     }
 
     private static Callbacks mCallbacks;
@@ -124,6 +125,7 @@ public class AuthorFragment extends Fragment implements OnRefreshListener, ListS
         View view = inflater.inflate(R.layout.author_fragment,
                 container, false);
         authorRV = (RecyclerView) view.findViewById(R.id.authorRV);
+        empty = view.findViewById(R.id.add_author_panel);
 
 
         adapter = getAdapter();
@@ -160,7 +162,15 @@ public class AuthorFragment extends Fragment implements OnRefreshListener, ListS
             }
         });
 
-
+        makeEmptyView();
+        adapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
+            @Override
+            public void onChanged() {
+                super.onChanged();
+                Log.d(DEBUG_TAG,"Observed: makeEmpty");
+                makeEmptyView();
+            }
+        });
         return view;
 
     }
@@ -173,6 +183,18 @@ public class AuthorFragment extends Fragment implements OnRefreshListener, ListS
 
     private void updateAdapter() {
         adapter.changeCursor(getActivity().getContentResolver().query(AuthorProvider.AUTHOR_URI, null, selection, null, order.getOrder()));
+        makeEmptyView();
+    }
+    private void makeEmptyView(){
+
+        if (adapter.getItemCount()==0){
+            authorRV.setVisibility(View.GONE);
+            empty.setVisibility(View.VISIBLE);
+        }
+        else {
+            authorRV.setVisibility(View.VISIBLE);
+            empty.setVisibility(View.GONE);
+        }
     }
 
     @Override
@@ -210,6 +232,10 @@ public class AuthorFragment extends Fragment implements OnRefreshListener, ListS
         int position = authorRV.getChildPosition(authorRV.findChildViewUnder(e.getX(), e.getY()));
 //        Author a = sql.getById(adapter.getItemId(position));
 //        makeToast(a.getName());
+        Log.d(DEBUG_TAG,"Selected position: "+position);
+        if (position<0){
+            return false;
+        }
         adapter.toggleSelection(position);
         authorRV.playSoundEffect(SoundEffectConstants.CLICK);
         mCallbacks.onAuthorSelected(adapter.getItemId(position));
@@ -376,6 +402,7 @@ public class AuthorFragment extends Fragment implements OnRefreshListener, ListS
                     if (author != null) {
                         DeleteAuthor deleter = new DeleteAuthor(getActivity().getApplicationContext());
                         deleter.execute(author.getId());
+                        mCallbacks.cleanBookSelection();
                     }
                     break;
                 case Dialog.BUTTON_NEGATIVE:
@@ -518,10 +545,34 @@ public class AuthorFragment extends Fragment implements OnRefreshListener, ListS
 
     }
 
+    /**
+     * Get selection string for author search
+     * @return
+     */
     public String getSelection() {
         return selection;
     }
 
+    /**
+     * Get Selected Author list position
+     * @return
+     */
+    public int getSelectedAuthorPosition() {
+        return adapter.getSelectedPosition();
+    }
+    public long getSelectedAuthorId() {
+        Author a  = adapter.getSelected();
+        if (a == null){
+            return 0;
+        }
+        else {
+            return a.getId();
+        }
+    }
+    public void restoreSelection(int position) {
+        adapter.toggleSelection(position);
+
+    }
     private void cleanSelection() {
         adapter.cleanSelection();
     }

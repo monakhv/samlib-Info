@@ -15,12 +15,14 @@ See the License for the specific language governing permissions and
 limitations under the License.
 -->
 <menu
-    xmlns:android="http://schemas.android.com/apk/res/android">
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    >
     <item
         android:id="@+id/menu_refresh"
         android:icon="?attr/iconRefresh"
         android:title="@string/menu_refresh" 
-        android:showAsAction="always"
+        app:showAsAction="always"
         android:orderInCategory="100">
     </item>
     
@@ -28,15 +30,15 @@ limitations under the License.
         android:id="@+id/selected_option_item"
         android:icon="?attr/iconSelected"
         android:title="@string/menu_selected_go"
-        android:showAsAction="ifRoom"
+        app:showAsAction="ifRoom"
         android:orderInCategory="5">
     </item>
     
     <item
         android:id="@+id/menu_filter"
         android:icon="?attr/iconTags"
-        android:title="@string/menu_tags" 
-        android:showAsAction="ifRoom"
+        android:title="@string/menu_tags"
+        app:showAsAction="ifRoom"
         android:orderInCategory="10">
     </item>
     
@@ -45,7 +47,7 @@ limitations under the License.
         android:id="@+id/add_option_item"
         android:icon="?attr/iconSearch"
         android:title="@string/menu_search"
-        android:showAsAction="ifRoom"
+        app:showAsAction="ifRoom"
         android:orderInCategory="20">
     </item>
     
@@ -53,7 +55,7 @@ limitations under the License.
         android:id="@+id/sort_option_item"
         android:icon="?attr/iconSort"
         android:title="@string/dialog_title_sort_author"
-        android:showAsAction="ifRoom"
+        app:showAsAction="ifRoom"
         android:orderInCategory="25">
     </item>
 
@@ -61,14 +63,14 @@ limitations under the License.
         android:id="@+id/sort_option_item_books"
         android:icon="?attr/iconSort"
         android:title="@string/dialog_title_sort_book"
-        android:showAsAction="ifRoom"
+        app:showAsAction="ifRoom"
         android:orderInCategory="27">
     </item>
     <item
         android:id="@+id/archive_option_item"
         android:icon="@drawable/device_access_storage"
         android:title="@string/menu_archive"
-        android:showAsAction="never"
+        app:showAsAction="never"
         android:orderInCategory="30">
     </item>
     
@@ -76,7 +78,7 @@ limitations under the License.
         android:id="@+id/settings_option_item"
         android:icon="@drawable/action_settings"
         android:title="@string/menu_settings"
-        android:showAsAction="never"
+        app:showAsAction="never"
         android:orderInCategory="50">
     </item>
 

@@ -19,7 +19,8 @@ limitations under the License.
     <string name="app_nm">SamLib: </string>
     <string name="author_url">фамилия или http://samlib.ru/&#8230;</string>
     <string name="author_name">Фамилия автора</string>
-    <string name="author_tag">Новый тэг</string>    
+    <string name="author_tag">Новый тэг</string>
+    <string name="author_add_desc">Для добавления автора введите его фамилию или полный URL его страницы самиздата</string>
     
     <string name="update_update">Обновление</string>    
     
