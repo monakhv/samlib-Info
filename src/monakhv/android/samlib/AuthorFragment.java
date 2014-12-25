@@ -181,39 +181,14 @@ public class AuthorFragment extends Fragment implements OnRefreshListener, ListS
             makeEmptyView();
         }
     };
-//    @Override
-//    public void onResume() {
-//        super.onResume();
-//        observer = new RecyclerView.AdapterDataObserver() {
-//            @Override
-//            public void onChanged() {
-//                super.onChanged();
-//                Log.d(DEBUG_TAG,"Observed: makeEmpty");
-//                makeEmptyView();
-//            }
-//        };
-//
-//
-//       //updateAdapter();
-//        adapter.registerAdapterDataObserver(observer);
-//
-//        Log.d(DEBUG_TAG,"onResume");
-//
-//    }
-//
-//    @Override
-//    public void onPause() {
-//        super.onPause();
-//        adapter.unregisterAdapterDataObserver(observer);
-//        Log.d(DEBUG_TAG,"onPause");
-//    }
+
 
     private Cursor getCursor() {
         return getActivity().getContentResolver().query(AuthorProvider.AUTHOR_URI, null, selection, null, order.getOrder());
 
     }
 
-     void updateAdapter() {
+     private void updateAdapter() {
         adapter.changeCursor(getCursor());
         makeEmptyView();
     }
@@ -603,7 +578,7 @@ public class AuthorFragment extends Fragment implements OnRefreshListener, ListS
 
     }
     public void selectAuthor(long id){
-        updateAdapter();
+
         boolean res=adapter.findAndSelect(id);
         if (!res){
             Log.e(DEBUG_TAG,"selectAuthor: id not found - "+id);
