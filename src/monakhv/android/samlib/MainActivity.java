@@ -17,6 +17,7 @@ import android.widget.Toast;
 import monakhv.android.samlib.data.SettingsHelper;
 import monakhv.android.samlib.search.SearchAuthorActivity;
 import monakhv.android.samlib.search.SearchAuthorsListFragment;
+import monakhv.android.samlib.service.AuthorEditorServiceIntent;
 import monakhv.android.samlib.service.CleanNotificationData;
 import monakhv.android.samlib.sql.entity.SamLibConfig;
 import monakhv.android.samlib.tasks.AddAuthor;
@@ -53,6 +54,7 @@ public class MainActivity extends ActionBarActivity implements AuthorFragment.Ca
     private BookFragment bookFragment;
     private SettingsHelper settingsHelper;
     private DownloadReceiver downloadReceiver;
+    private  AuthorEditReceiver authorReceiver;
     private boolean twoPain;
 
 
@@ -109,15 +111,19 @@ public class MainActivity extends ActionBarActivity implements AuthorFragment.Ca
         super.onResume();
 
         IntentFilter updateFilter = new IntentFilter(UpdateActivityReceiver.ACTION_RESP);
+        IntentFilter authorFilter = new IntentFilter(AuthorEditorServiceIntent.RECEIVER_FILTER);
 
 
         updateFilter.addCategory(Intent.CATEGORY_DEFAULT);
+        authorFilter.addCategory(Intent.CATEGORY_DEFAULT);
 
 
         updateReceiver = new UpdateActivityReceiver();
+        authorReceiver = new AuthorEditReceiver();
 
         //getActionBarHelper().setRefreshActionItemState(refreshStatus);
         registerReceiver(updateReceiver, updateFilter);
+        registerReceiver(authorReceiver, authorFilter);
 
         if (twoPain){
             bookFragment= (BookFragment) getSupportFragmentManager().findFragmentById(R.id.listBooksFragment);
@@ -136,6 +142,7 @@ public class MainActivity extends ActionBarActivity implements AuthorFragment.Ca
     protected void onPause() {
         super.onPause();
         unregisterReceiver(updateReceiver);
+        unregisterReceiver(authorReceiver);
         if (twoPain){
             unregisterReceiver(downloadReceiver);
         }
@@ -193,8 +200,9 @@ public class MainActivity extends ActionBarActivity implements AuthorFragment.Ca
             }
         }
         if (requestCode == SEARCH_ACTIVITY) {
-            AddAuthor aa = new AddAuthor(getApplicationContext());
-            aa.execute(data.getStringExtra(SearchAuthorsListFragment.AUTHOR_URL));
+            Log.v(DEBUG_TAG,"Start add Author");
+
+            AuthorEditorServiceIntent.addAuthor(getApplicationContext(),data.getStringExtra(SearchAuthorsListFragment.AUTHOR_URL));
         }
         if (requestCode == PREFS_ACTIVITY){
             finish();
@@ -277,8 +285,8 @@ public class MainActivity extends ActionBarActivity implements AuthorFragment.Ca
 
         String url = SamLibConfig.getParsedUrl(text);
         if (url != null){//add  Author by URL
-            AddAuthor aa = new AddAuthor(this.getApplicationContext());
-            aa.execute(url);
+            AuthorEditorServiceIntent.addAuthor(getApplicationContext(),url);
+
         }
         else {
             if (TextUtils.isEmpty(text)) {
@@ -309,6 +317,27 @@ public class MainActivity extends ActionBarActivity implements AuthorFragment.Ca
             return true;
         }
         return super.onKeyDown(keyCode, event);
+    }
+    public class AuthorEditReceiver extends BroadcastReceiver {
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            int duration = Toast.LENGTH_SHORT;
+            CharSequence msg = intent.getCharSequenceExtra(AuthorEditorServiceIntent.RESULT_MESSAGE);
+            Toast toast =Toast.makeText(context,msg,duration);
+
+            if (intent.getStringExtra(AuthorEditorServiceIntent.EXTRA_ACTION_TYPE).equals(AuthorEditorServiceIntent.ACTION_ADD)){
+                Log.d(DEBUG_TAG,"onReceive: author add");
+                authorFragment.updateAdapter();
+                toast.show();
+            }
+            if (intent.getStringExtra(AuthorEditorServiceIntent.EXTRA_ACTION_TYPE).equals(AuthorEditorServiceIntent.ACTION_DELETE)){
+                Log.d(DEBUG_TAG,"onReceive: author del");
+                authorFragment.updateAdapter();
+                toast.show();
+            }
+
+        }
     }
     /**
      * Receive updates from Update Service

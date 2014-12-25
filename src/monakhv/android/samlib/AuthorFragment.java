@@ -38,12 +38,12 @@ import monakhv.android.samlib.dialogs.MyMenuData;
 import monakhv.android.samlib.dialogs.SingleChoiceSelectDialog;
 import monakhv.android.samlib.recyclerview.DividerItemDecoration;
 import monakhv.android.samlib.recyclerview.RecyclerViewDelegate;
+import monakhv.android.samlib.service.AuthorEditorServiceIntent;
 import monakhv.android.samlib.service.UpdateServiceIntent;
 import monakhv.android.samlib.sql.AuthorProvider;
 import monakhv.android.samlib.sql.SQLController;
 import monakhv.android.samlib.sql.entity.Author;
 import monakhv.android.samlib.sql.entity.SamLibConfig;
-import monakhv.android.samlib.tasks.DeleteAuthor;
 import monakhv.android.samlib.tasks.MarkRead;
 
 import uk.co.senab.actionbarpulltorefresh.extras.actionbarcompat.PullToRefreshLayout;
@@ -163,54 +163,59 @@ public class AuthorFragment extends Fragment implements OnRefreshListener, ListS
                 return false;
             }
         });
+        adapter = new AuthorCursorAdapter(getActivity(),getCursor());
+
+        authorRV.setAdapter(adapter);
+        adapter.registerAdapterDataObserver(observer);
+        makeEmptyView();
 
 
         return view;
 
     }
 
-    private RecyclerView.AdapterDataObserver observer;
-    @Override
-    public void onResume() {
-        super.onResume();
-        observer = new RecyclerView.AdapterDataObserver() {
-            @Override
-            public void onChanged() {
-                super.onChanged();
-                Log.d(DEBUG_TAG,"Observed: makeEmpty");
-                makeEmptyView();
-            }
-        };
-
-
-        //probable Leek - to make back from search bug
-        if (adapter!= null){
-            adapter.getCursor().close();
+    private RecyclerView.AdapterDataObserver observer= new RecyclerView.AdapterDataObserver() {
+        @Override
+        public void onChanged() {
+            super.onChanged();
+            Log.d(DEBUG_TAG,"Observed: makeEmpty");
+            makeEmptyView();
         }
-        adapter = getAdapter();
-        adapter.registerAdapterDataObserver(observer);
-        authorRV.setAdapter(adapter);
-        makeEmptyView();
+    };
+//    @Override
+//    public void onResume() {
+//        super.onResume();
+//        observer = new RecyclerView.AdapterDataObserver() {
+//            @Override
+//            public void onChanged() {
+//                super.onChanged();
+//                Log.d(DEBUG_TAG,"Observed: makeEmpty");
+//                makeEmptyView();
+//            }
+//        };
+//
+//
+//       //updateAdapter();
+//        adapter.registerAdapterDataObserver(observer);
+//
+//        Log.d(DEBUG_TAG,"onResume");
+//
+//    }
+//
+//    @Override
+//    public void onPause() {
+//        super.onPause();
+//        adapter.unregisterAdapterDataObserver(observer);
+//        Log.d(DEBUG_TAG,"onPause");
+//    }
 
-        Log.d(DEBUG_TAG,"onResume");
+    private Cursor getCursor() {
+        return getActivity().getContentResolver().query(AuthorProvider.AUTHOR_URI, null, selection, null, order.getOrder());
 
     }
 
-    @Override
-    public void onPause() {
-        super.onPause();
-        adapter.unregisterAdapterDataObserver(observer);
-        Log.d(DEBUG_TAG,"onPause");
-    }
-
-    private AuthorCursorAdapter getAdapter() {
-        Cursor c = getActivity().getContentResolver().query(AuthorProvider.AUTHOR_URI, null, selection, null, order.getOrder());
-
-        return new AuthorCursorAdapter(getActivity(), c);
-    }
-
-    private void updateAdapter() {
-        adapter.changeCursor(getActivity().getContentResolver().query(AuthorProvider.AUTHOR_URI, null, selection, null, order.getOrder()));
+     void updateAdapter() {
+        adapter.changeCursor(getCursor());
         makeEmptyView();
     }
     private void makeEmptyView(){
@@ -428,8 +433,7 @@ public class AuthorFragment extends Fragment implements OnRefreshListener, ListS
             switch (which) {
                 case Dialog.BUTTON_POSITIVE:
                     if (author != null) {
-                        DeleteAuthor deleter = new DeleteAuthor(getActivity().getApplicationContext());
-                        deleter.execute(author.getId());
+                        AuthorEditorServiceIntent.delAuthor(getActivity().getApplicationContext(),author.getId());
                         mCallbacks.cleanBookSelection();
                     }
                     break;

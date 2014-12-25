@@ -78,6 +78,11 @@ limitations under the License.
     <string name="add_error">Ошибка добавления автора</string>
     <string name="add_error_double">Этот автор уже есть в базе!</string>
     <string name="add_author_title">Добавить URL автора</string>
+
+
+    <string name="del_success">Автор удалён</string>
+    <string name="del_error">Ошибка удаления автора</string>
+
     
     <string name="author_search_error">Ошибка поиска</string>
     <string name="author_search_empty">Ничего не найдено</string>

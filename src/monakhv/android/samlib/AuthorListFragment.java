@@ -57,6 +57,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import monakhv.android.samlib.data.SettingsHelper;
+import monakhv.android.samlib.service.AuthorEditorServiceIntent;
 import monakhv.android.samlib.sql.AuthorController;
 import monakhv.android.samlib.sql.AuthorProvider;
 import monakhv.android.samlib.sql.SQLController;
@@ -72,7 +73,7 @@ import monakhv.android.samlib.dialogs.FilterSelectDialog;
 import monakhv.android.samlib.dialogs.SingleChoiceSelectDialog;
 import monakhv.android.samlib.service.UpdateServiceIntent;
 import monakhv.android.samlib.sql.entity.SamLibConfig;
-import monakhv.android.samlib.tasks.DeleteAuthor;
+
 import uk.co.senab.actionbarpulltorefresh.extras.actionbarcompat.PullToRefreshLayout;
 import uk.co.senab.actionbarpulltorefresh.library.ActionBarPullToRefresh;
 import uk.co.senab.actionbarpulltorefresh.library.DefaultHeaderTransformer;
@@ -743,8 +744,7 @@ public class AuthorListFragment extends ListFragment implements
             switch (which) {
                 case Dialog.BUTTON_POSITIVE:
                     if (author != null) {
-                        DeleteAuthor deleter = new DeleteAuthor(getActivity().getApplicationContext());
-                        deleter.execute(author.getId());
+                        AuthorEditorServiceIntent.delAuthor(getActivity().getApplicationContext(), author.getId());
                     }
                     break;
                 case Dialog.BUTTON_NEGATIVE:
