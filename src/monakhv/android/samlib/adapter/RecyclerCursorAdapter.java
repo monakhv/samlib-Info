@@ -4,6 +4,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.DataSetObserver;
 import android.database.ContentObserver;
+import android.net.Uri;
 import android.os.Handler;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -41,6 +42,7 @@ public abstract class RecyclerCursorAdapter<VH
     private DataSetObserver mDataSetObserver;
     private ContentObserver mChangeObserver;
 
+    private String name;//for testing
 
     public RecyclerCursorAdapter(Context context, Cursor cursor) {
         mContext = context;
@@ -137,10 +139,16 @@ public abstract class RecyclerCursorAdapter<VH
         Cursor oldCursor = mCursor;
         if (oldCursor != null && mDataSetObserver != null) {
             oldCursor.unregisterDataSetObserver(mDataSetObserver);
+            oldCursor.unregisterContentObserver(mChangeObserver);
         }
         mCursor = newCursor;
         if (newCursor != null) {
-            registerDataSetObserver(newCursor);
+            if (mDataSetObserver != null){
+                mCursor.registerDataSetObserver(mDataSetObserver);
+            }
+            if (mChangeObserver!= null){
+                mCursor.registerContentObserver(mChangeObserver);
+            }
             mRowIdColumn = newCursor.getColumnIndexOrThrow("_id");
             mDataValid = true;
             notifyDataSetChanged();
@@ -156,11 +164,6 @@ public abstract class RecyclerCursorAdapter<VH
     }
 
 
-    private void registerDataSetObserver(Cursor c) {
-        if (mDataSetObserver != null) {
-            c.registerDataSetObserver(mDataSetObserver);
-        }
-    }
     protected void onContentChanged() {
         if ( mCursor != null && !mCursor.isClosed()) {
             Log.d(DEBUG_TAG,"onContentChanged: reQuery");
@@ -174,7 +177,7 @@ public abstract class RecyclerCursorAdapter<VH
             super.onChanged();
             mDataValid = true;
             notifyDataSetChanged();
-            Log.d(DEBUG_TAG, "NotifyingDataSetObserver: onChanged");
+            Log.d(DEBUG_TAG, "NotifyingDataSetObserver: onChanged "+name);
         }
 
         @Override
@@ -183,7 +186,7 @@ public abstract class RecyclerCursorAdapter<VH
             mDataValid = false;
             notifyDataSetChanged();
             //There is no notifyDataSetInvalidated() method in RecyclerView.Adapter
-            Log.d(DEBUG_TAG, "NotifyingDataSetObserver: onInvalidated");
+            Log.d(DEBUG_TAG, "NotifyingDataSetObserver: onInvalidated  "+name);
         }
     }
 
@@ -201,9 +204,11 @@ public abstract class RecyclerCursorAdapter<VH
 
         @Override
         public void onChange(boolean selfChange) {
-            Log.d(DEBUG_TAG, "ChangeObserver: onChange");
+            super.onChange(selfChange);
+            Log.d(DEBUG_TAG, "ChangeObserver: onChange - " + name + " -- " + selfChange);
             onContentChanged();
         }
+
     }
     public static final int NOT_SELECTED=-1;
     private int selected = NOT_SELECTED;
@@ -228,5 +233,14 @@ public abstract class RecyclerCursorAdapter<VH
 
     public int getSelectedPosition() {
         return selected;
+    }
+
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 }

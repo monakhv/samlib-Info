@@ -55,6 +55,7 @@ public class BookCursorAdapter extends RecyclerCursorAdapter<BookCursorAdapter.V
         settingsHelper = new SettingsHelper(context);
         sql = new AuthorController(context);
         flips = new HashMap<>();
+        setName(DEBUG_TAG);
 
     }
 

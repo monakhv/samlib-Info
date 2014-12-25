@@ -44,7 +44,6 @@ import monakhv.android.samlib.sql.AuthorProvider;
 import monakhv.android.samlib.sql.SQLController;
 import monakhv.android.samlib.sql.entity.Author;
 import monakhv.android.samlib.sql.entity.SamLibConfig;
-import monakhv.android.samlib.tasks.MarkRead;
 
 import uk.co.senab.actionbarpulltorefresh.extras.actionbarcompat.PullToRefreshLayout;
 import uk.co.senab.actionbarpulltorefresh.library.ActionBarPullToRefresh;
@@ -288,8 +287,7 @@ public class AuthorFragment extends Fragment implements OnRefreshListener, ListS
             return false;
         }
 
-        MarkRead marker = new MarkRead(getActivity().getApplicationContext());
-        marker.execute(author.getId());
+       adapter.makeSelectedRead();
         return true;
 
     }
@@ -360,8 +358,7 @@ public class AuthorFragment extends Fragment implements OnRefreshListener, ListS
         }
 
         if (item == read_option_item) {
-            MarkRead marker = new MarkRead(getActivity().getApplicationContext());
-            marker.execute(author.getId());
+            adapter.makeSelectedRead();
         }
         if (item == tags_option_item) {
             Intent intent = new Intent(getActivity(), AuthorTagsActivity.class);
