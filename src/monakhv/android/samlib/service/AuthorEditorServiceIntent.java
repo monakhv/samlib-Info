@@ -49,7 +49,7 @@ public class AuthorEditorServiceIntent extends IntentService {
     public static final String RESULT_ADD_NUMBER="AddAuthorServiceIntent_RESULT_ADD_NUMBER";
     public static final String RESULT_DOUBLE_NUMBER="AddAuthorServiceIntent_RESULT_DOUBLE_NUMBER";
     public static final String RESULT_AUTHOR_ID="AddAuthorServiceIntent_ RESULT_AUTHOR_ID";
-    public static final String RESULT_MESSAGE="AddAuthorServiceIntent_ RESULT_AUTHOR_ID";
+    public static final String RESULT_MESSAGE="AddAuthorServiceIntent_ RESULT_RESULT_MESSAGE";
 
     private Context context;
     private  int numberOfAdded=0;

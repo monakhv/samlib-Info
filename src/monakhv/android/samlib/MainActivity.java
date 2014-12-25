@@ -328,8 +328,12 @@ public class MainActivity extends ActionBarActivity implements AuthorFragment.Ca
 
             if (intent.getStringExtra(AuthorEditorServiceIntent.EXTRA_ACTION_TYPE).equals(AuthorEditorServiceIntent.ACTION_ADD)){
                 Log.d(DEBUG_TAG,"onReceive: author add");
-                authorFragment.updateAdapter();
+                long id = intent.getLongExtra(AuthorEditorServiceIntent.RESULT_AUTHOR_ID,0);
+
+                authorFragment.selectAuthor(id);
                 toast.show();
+                onAuthorSelected(id);
+
             }
             if (intent.getStringExtra(AuthorEditorServiceIntent.EXTRA_ACTION_TYPE).equals(AuthorEditorServiceIntent.ACTION_DELETE)){
                 Log.d(DEBUG_TAG,"onReceive: author del");

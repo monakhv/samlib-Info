@@ -76,6 +76,22 @@ public abstract class RecyclerCursorAdapter<VH
         return 0;
     }
 
+    /**
+     * Find item with given id and select it
+     *
+     * @param id
+     * @return true if found
+     */
+    public boolean findAndSelect(long id){
+        for(int i=0; i<getItemCount(); i++){
+              if (getItemId(i) == id){
+                  toggleSelection(i);
+                  return true;
+              }
+         }
+        return false;
+    }
+
     @Override
     public void setHasStableIds(boolean hasStableIds) {
         super.setHasStableIds(true);

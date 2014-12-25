@@ -605,6 +605,13 @@ public class AuthorFragment extends Fragment implements OnRefreshListener, ListS
         adapter.toggleSelection(position);
 
     }
+    public void selectAuthor(long id){
+        updateAdapter();
+        boolean res=adapter.findAndSelect(id);
+        if (!res){
+            Log.e(DEBUG_TAG,"selectAuthor: id not found - "+id);
+        }
+    }
     private void cleanSelection() {
         adapter.cleanSelection();
     }
