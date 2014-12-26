@@ -78,7 +78,7 @@ public class AuthorCursorAdapter extends RecyclerCursorAdapter<AuthorCursorAdapt
         holder.closeBook.setImageResource(R.drawable.closed);
         if (isNew) {
             holder.authorName.setTypeface(Typeface.DEFAULT_BOLD);
-            holder.flip = new Flip3D(holder.openBook, holder.closeBook) {
+            holder.flip = new Flip3D(holder.openBook, holder.closeBook,false) {
                 @Override
                 protected void afterAnimationEnd() {
                     Log.i(DEBUG_TAG, "Making Author read!");
@@ -88,7 +88,7 @@ public class AuthorCursorAdapter extends RecyclerCursorAdapter<AuthorCursorAdapt
             };
         } else {
             holder.authorName.setTypeface(Typeface.DEFAULT);
-            holder.flip = new Flip3D(holder.closeBook, holder.openBook) {
+            holder.flip = new Flip3D(holder.closeBook, holder.openBook,false) {
                 @Override
                 protected void afterAnimationEnd() {
                     Log.i(DEBUG_TAG, "Making Author new!!");

@@ -33,17 +33,25 @@ import android.widget.ImageView;
 
 
 
-    public Flip3D(ImageView image1, ImageView image2) {
+    public Flip3D(ImageView image1, ImageView image2,boolean clickable) {
         this.image1 = image1;
         this.image2 = image2;
         image1.setVisibility(View.VISIBLE);
         image2.setVisibility(View.GONE);
 
-        image1.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View view) {
-               makeFlip();
-            }
-        });
+        if (clickable){
+            image1.setOnClickListener(new View.OnClickListener() {
+                public void onClick(View view) {
+                    makeFlip();
+                }
+            });
+        }
+
+    }
+
+    public Flip3D(ImageView image1, ImageView image2) {
+        //clickable by default
+        this(image1,image2,true);
     }
 
     public void makeFlip(){
