@@ -142,7 +142,7 @@ public abstract class RecyclerCursorAdapter<VH
             oldCursor.unregisterContentObserver(mChangeObserver);
         }
         mCursor = newCursor;
-        if (newCursor != null) {
+        if (mCursor != null) {
             if (mDataSetObserver != null){
                 mCursor.registerDataSetObserver(mDataSetObserver);
             }
@@ -242,5 +242,13 @@ public abstract class RecyclerCursorAdapter<VH
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    /**
+     * This method must be call onDestroy handler
+     * To unregister Observers and close cursor
+     */
+    public void clear(){
+        changeCursor(null);
     }
 }

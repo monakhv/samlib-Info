@@ -648,5 +648,13 @@ public class AuthorFragment extends Fragment implements OnRefreshListener, ListS
         }
     }
 
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        if (adapter != null){
+            adapter.clear();
+            adapter.unregisterAdapterDataObserver( observer);
+        }
+    }
 
 }

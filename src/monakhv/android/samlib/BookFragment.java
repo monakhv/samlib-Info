@@ -118,17 +118,18 @@ public class BookFragment extends Fragment implements ListSwipeListener.SwipeCal
         });
 
         makeEmpty();
-        adapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
-            @Override
-            public void onChanged() {
-                super.onChanged();
-                Log.d(DEBUG_TAG,"Observed: makeEmpty");
-                makeEmpty();
-            }
-        });
+        adapter.registerAdapterDataObserver(observer);
         return view;
     }
 
+    private RecyclerView.AdapterDataObserver observer= new RecyclerView.AdapterDataObserver() {
+        @Override
+        public void onChanged() {
+            super.onChanged();
+            Log.d(DEBUG_TAG,"Observed: makeEmpty");
+            makeEmpty();
+        }
+    };
     /**
      * Construction selection string using author_id parameter
      *
@@ -149,6 +150,13 @@ public class BookFragment extends Fragment implements ListSwipeListener.SwipeCal
         if (adapter.getItemCount()==0){
             bookRV.setVisibility(View.GONE);
             emptyText.setVisibility(View.VISIBLE);
+            if (author_id == SamLibConfig.SELECTED_BOOK_ID){
+                emptyText.setText(R.string.no_selected_books);
+            }
+            else {
+                emptyText.setText(R.string.no_new_books);
+            }
+
         }
         else {
             bookRV.setVisibility(View.VISIBLE);
@@ -418,6 +426,15 @@ public class BookFragment extends Fragment implements ListSwipeListener.SwipeCal
                 ++i;
             }
             return res;
+        }
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        if (adapter != null){
+            adapter.clear();
+            adapter.unregisterAdapterDataObserver( observer);
         }
     }
 }
