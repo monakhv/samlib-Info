@@ -39,7 +39,7 @@ public class BooksActivity extends MyAbstractActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.books);
         
-        author_id = getIntent().getExtras().getLong(BookListFragment.AUTHOR_ID);
+        author_id = getIntent().getExtras().getLong(BookFragment.AUTHOR_ID);
         listFragment = (BookFragment) getSupportFragmentManager().findFragmentById(R.id.listBooksFragment);
         listFragment.setHasOptionsMenu(true);
         

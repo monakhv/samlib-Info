@@ -103,6 +103,7 @@ public class BookFragment extends Fragment implements ListSwipeListener.SwipeCal
         Cursor c = getActivity().getContentResolver().query(AuthorProvider.BOOKS_URI, null, selection, null, order.getOrder());
 
         adapter = new BookCursorAdapter(getActivity(),c);
+        adapter.setAuthor_id(author_id);
         bookRV.setHasFixedSize(true);
         bookRV.setLayoutManager(new LinearLayoutManager(getActivity()));
         bookRV.setAdapter(adapter);
@@ -186,6 +187,7 @@ public class BookFragment extends Fragment implements ListSwipeListener.SwipeCal
         setSelection();
         updateAdapter();
         makeEmpty();
+        adapter.setAuthor_id(id);
     }
     @Override
     public boolean singleClick(MotionEvent e) {

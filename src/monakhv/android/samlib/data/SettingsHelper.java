@@ -39,8 +39,7 @@ import java.util.Calendar;
 import java.util.Map;
 
 
-import monakhv.android.samlib.AuthorListFragment;
-import monakhv.android.samlib.BookListFragment;
+
 import monakhv.android.samlib.R;
 import monakhv.android.samlib.receiver.UpdateReceiver;
 import monakhv.android.samlib.sql.entity.Book;
@@ -293,12 +292,7 @@ public class SettingsHelper implements SharedPreferences.OnSharedPreferenceChang
     }
 
 
-    public AuthorListFragment.SortOrder getAuthorSortOrder() {
-        String str = prefs.getString(
-                context.getString(R.string.pref_key_author_order),
-                context.getString(R.string.pref_default_author_order));
-        return AuthorListFragment.SortOrder.valueOf(str);
-    }
+
 
     public String getAuthorSortOrderString() {
         String str = prefs.getString(
@@ -307,12 +301,7 @@ public class SettingsHelper implements SharedPreferences.OnSharedPreferenceChang
         return str;
     }
 
-    public BookListFragment.SortOrder getBookSortOrder() {
-        String str = prefs.getString(
-                context.getString(R.string.pref_key_book_order),
-                context.getString(R.string.pref_default_book_order));
-        return BookListFragment.SortOrder.valueOf(str);
-    }
+
     public String getBookSortOrderString() {
         String str = prefs.getString(
                 context.getString(R.string.pref_key_book_order),

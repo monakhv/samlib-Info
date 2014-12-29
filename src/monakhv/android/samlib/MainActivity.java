@@ -20,7 +20,7 @@ import monakhv.android.samlib.search.SearchAuthorsListFragment;
 import monakhv.android.samlib.service.AuthorEditorServiceIntent;
 import monakhv.android.samlib.service.CleanNotificationData;
 import monakhv.android.samlib.sql.entity.SamLibConfig;
-import monakhv.android.samlib.tasks.AddAuthor;
+
 
 
 /*

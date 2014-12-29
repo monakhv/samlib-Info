@@ -18,10 +18,11 @@ import java.util.HashMap;
 
 import monakhv.android.samlib.R;
 import monakhv.android.samlib.animation.Flip3D;
+import monakhv.android.samlib.service.AuthorEditorServiceIntent;
 import monakhv.android.samlib.sql.AuthorController;
 import monakhv.android.samlib.sql.SQLController;
 import monakhv.android.samlib.sql.entity.Author;
-import monakhv.android.samlib.tasks.MarkRead;
+
 
 /*
  * Copyright 2014  Dmitry Monakhov
@@ -82,8 +83,7 @@ public class AuthorCursorAdapter extends RecyclerCursorAdapter<AuthorCursorAdapt
                 @Override
                 protected void afterAnimationEnd() {
                     Log.i(DEBUG_TAG, "Making Author read!");
-                    MarkRead marker = new MarkRead(context);
-                    marker.execute(id_author);
+                    AuthorEditorServiceIntent.markAuthorRead(context,id_author);
                 }
             };
         } else {
@@ -171,8 +171,7 @@ public class AuthorCursorAdapter extends RecyclerCursorAdapter<AuthorCursorAdapt
             if (ff != null) {
                 ff.makeFlip();
             } else {
-                MarkRead marker = new MarkRead(context);
-                marker.execute(author.getId());
+                AuthorEditorServiceIntent.markAuthorRead(context,author.getId());
             }
         }
         cleanSelection();

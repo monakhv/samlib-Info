@@ -31,15 +31,18 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
+import android.text.Html;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
+import android.widget.TextView;
 import android.widget.Toast;
 
 
 import monakhv.android.samlib.data.DataExportImport;
+import monakhv.android.samlib.service.AuthorEditorServiceIntent;
 
 /**
  *
@@ -53,6 +56,8 @@ public class ArchiveActivity extends ActionBarActivity {
     private SingleChoiceSelectDialog dialog = null;
     private String selectedFile;
     private SettingsHelper setting;
+    private AuthorEditReceiver authorReceiver;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         setting = new SettingsHelper(this);
@@ -191,17 +196,22 @@ public class ArchiveActivity extends ActionBarActivity {
     private void _importTxt(String file) {
         
          boolean res = DataExportImport.importAuthorList(this.getApplicationContext(),file);
+        progress = new ProgressDialog(this);
+        progress.setMessage(getText(R.string.arc_import_text_title));
+        progress.setCancelable(false);
+        progress.setIndeterminate(true);
+        progress.show();
          
-         String text;
-        if (res) {
-            text = getString(R.string.res_import_txt_good);
-        } else {
-            text = getString(R.string.res_import_txt_bad);
-
-        }
-        int duration = Toast.LENGTH_SHORT;
-        Toast toast = Toast.makeText(this, text, duration);
-        toast.show();
+//         String text;
+//        if (res) {
+//            text = getString(R.string.res_import_txt_good);
+//        } else {
+//            text = getString(R.string.res_import_txt_bad);
+//
+//        }
+//        int duration = Toast.LENGTH_SHORT;
+//        Toast toast = Toast.makeText(this, text, duration);
+//        toast.show();
 
         
     }
@@ -259,12 +269,18 @@ public class ArchiveActivity extends ActionBarActivity {
         IntentFilter filter = new IntentFilter(GoogleReceiver.ACTION);
         filter.addCategory(Intent.CATEGORY_DEFAULT);
         registerReceiver(receiver, filter);
+
+        IntentFilter authorFilter = new IntentFilter(AuthorEditorServiceIntent.RECEIVER_FILTER);
+       authorFilter.addCategory(Intent.CATEGORY_DEFAULT);
+       authorReceiver = new AuthorEditReceiver();
+        registerReceiver(authorReceiver,authorFilter);
     }
 
     @Override
     protected void onPause() {
         super.onPause();
         unregisterReceiver(receiver);
+        unregisterReceiver(authorReceiver);
     }
 
     @Override
@@ -308,6 +324,34 @@ public class ArchiveActivity extends ActionBarActivity {
             String error = intent.getStringExtra(EXTRA_ERROR);
             if (!res && error!= null){
                 Toast.makeText(context,error,Toast.LENGTH_LONG).show();
+            }
+
+        }
+    }
+
+    public class AuthorEditReceiver extends BroadcastReceiver {
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            CharSequence msg = intent.getCharSequenceExtra(AuthorEditorServiceIntent.RESULT_MESSAGE);
+            if (intent.getStringExtra(AuthorEditorServiceIntent.EXTRA_ACTION_TYPE).equals(AuthorEditorServiceIntent.ACTION_ADD))
+            {
+                TextView tvMsg = new TextView(ArchiveActivity.this);
+                tvMsg.setText(Html.fromHtml(msg.toString()));
+                AlertDialog.Builder builder = new AlertDialog.Builder(ArchiveActivity.this);
+                builder.setTitle(R.string.import_author_result)
+                        .setView(tvMsg)
+                        .setCancelable(false)
+                        .setNegativeButton(R.string.Yes,new OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                dialog.cancel();
+                            }
+                        });
+                AlertDialog alert = builder.create();
+                progress.dismiss();
+                alert.show();
+
             }
 
         }

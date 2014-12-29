@@ -147,7 +147,7 @@ public class BookController implements AbstractController<Book> {
         settings.log(DEBUG_TAG, "Book mark: "+i+"  status: "+status);
     }
 
-    public static Book cursor2Book(Cursor cursor) {
+    private static Book cursor2Book(Cursor cursor) {
         Book res = new Book();
         res.setId(cursor.getInt(cursor.getColumnIndex(SQLController.COL_ID)));
         res.setAuthorName(cursor.getString(cursor.getColumnIndex(SQLController.COL_BOOK_AUTHOR)));

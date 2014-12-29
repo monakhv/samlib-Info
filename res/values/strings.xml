@@ -78,6 +78,8 @@ limitations under the License.
     <string name="add_error">Ошибка добавления автора</string>
     <string name="add_error_double">Этот автор уже есть в базе!</string>
     <string name="add_author_title">Добавить URL автора</string>
+    <string name="add_success_double">Повторов авторов:</string>
+    <string name="import_author_result">Результат иморта авторов</string>
 
 
     <string name="del_success">Автор удалён</string>
@@ -226,7 +228,8 @@ limitations under the License.
     <string name="arc_title2_db">Текст/HTML URL Export/Import</string>
     
     <string name="arc_export_text_text">Выгрузить список авторов</string>
-    <string name="arc_import_text_text">Загрузить список авторов</string>
+    <string name="arc_import_text_text">Загрузить список авторов.  Для успешной работы необходима устойчивая связь с сайтом самизата!</string>
+    <string name="arc_import_text_title">Загрузка авторов</string>
 
     <string name="arc_title_google">Google Disk Export/Import</string>
 

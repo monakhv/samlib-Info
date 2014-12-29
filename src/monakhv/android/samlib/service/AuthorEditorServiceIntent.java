@@ -15,6 +15,7 @@ import monakhv.android.samlib.data.SettingsHelper;
 import monakhv.android.samlib.exception.SamlibParseException;
 import monakhv.android.samlib.sql.AuthorController;
 import monakhv.android.samlib.sql.entity.Author;
+import monakhv.android.samlib.sql.entity.Book;
 import monakhv.android.samlib.sql.entity.SamLibConfig;
 import monakhv.samlib.http.HttpClientController;
 
@@ -44,6 +45,9 @@ public class AuthorEditorServiceIntent extends IntentService {
     public static final String EXTRA_ACTION_TYPE="AddAuthorServiceIntent_EXTRA_ACTION_TYPE";
     public static final String ACTION_ADD="AddAuthorServiceIntent_ACTION_ADD";
     public static final String ACTION_DELETE="AddAuthorServiceIntent_ACTION_DELETE";
+    public static final String ACTION_AUTHOR_READ="AddAuthorServiceIntent_ACTION_AUTHOR_READ";
+    public static final String ACTION_BOOK_READ_FLIP="AddAuthorServiceIntent_ACTION_BOOK_READ_FLIP";
+
 
     public static final String RESULT_DEL_NUMBER ="AddAuthorServiceIntent_RESULT_DEL_NUMBER";
     public static final String RESULT_ADD_NUMBER="AddAuthorServiceIntent_RESULT_ADD_NUMBER";
@@ -54,10 +58,13 @@ public class AuthorEditorServiceIntent extends IntentService {
     private Context context;
     private  int numberOfAdded=0;
     private  int numberOfDeleted=0;
-    private int doubleAdd = 0;
+    private  int doubleAdd = 0;
+    private int totalToAdd;
     private long author_id=0;
     private  SettingsHelper settings;
     private String action;
+
+
     public AuthorEditorServiceIntent() {
         super(DEBUG_TAG);
     }
@@ -82,6 +89,7 @@ public class AuthorEditorServiceIntent extends IntentService {
                 Log.e(DEBUG_TAG,"Null add data - nothing to add!");
                 return;
             }
+            totalToAdd = ll.size();
             makeAuthorAdd(ll);
             return;
 
@@ -96,10 +104,82 @@ public class AuthorEditorServiceIntent extends IntentService {
             makeAuthorDel(id);
             return;
         }
+        if (action.equals(ACTION_AUTHOR_READ)){
+            int id =intent.getIntExtra(EXTRA_DEL_AUTHOR_DATA,-1);
+            if (id <0){
+                Log.e(DEBUG_TAG,"Null author data, can not make it read");
+                return;
+            }
+            makeAuthorRead(id);
+            return;
+        }
+        if (action.equals(ACTION_BOOK_READ_FLIP)){
+            int id =intent.getIntExtra(EXTRA_DEL_AUTHOR_DATA,-1);
+            if (id <0){
+                Log.e(DEBUG_TAG,"Null book data, can not make it read/unread");
+                return;
+            }
+            makeBookReadFlip(id);
+            return;
+        }
         Log.e(DEBUG_TAG,"Wrong Action Type");
 
     }
 
+    /**
+     * Special method to make Author read, also make sure that all book re read either
+     * @param id author id
+     * @return true if success
+     */
+    private  boolean makeAuthorRead(int id) {
+        AuthorController sql = new AuthorController(context);
+        Author a = sql.getById(id);
+
+        if (a == null){
+            Log.e(DEBUG_TAG, "Author not found to update");
+            return false;
+        }
+
+        if (! a.isIsNew()) {
+            Log.d(DEBUG_TAG, "Author is read - no update need");
+            return false;
+        }
+
+
+        int i = sql.markRead(a);
+
+        Log.d(DEBUG_TAG, "Update author status: "+i);
+
+        return true;
+
+    }
+
+    /**
+     * Invert read book flag
+     * Adjust author flag either
+     * @param id  book id
+     */
+    private  void makeBookReadFlip(int id) {
+        AuthorController sql = new AuthorController(context);
+        Book book=sql.getBookController().getById(id);
+
+        if (book.isIsNew()){
+            sql.getBookController().markRead(book);
+            Author a = sql.getByBook(book);
+            sql.testMarkRead(a);
+        }
+        else {
+            sql.getBookController().markUnRead(book);
+            Author a = sql.getByBook(book);
+            sql.testMarkRead(a);
+        }
+
+    }
+
+    /**
+     * Delete author from DB
+     * @param id author id
+     */
     private void makeAuthorDel(int id){
         AuthorController sql = new AuthorController(context);
         int res = sql.delete(sql.getById(id));
@@ -192,24 +272,29 @@ public class AuthorEditorServiceIntent extends IntentService {
         broadcastIntent.putExtra(RESULT_DOUBLE_NUMBER,doubleAdd);
         broadcastIntent.putExtra(RESULT_AUTHOR_ID,author_id);
         CharSequence msg="";
-        if (action.equals(ACTION_ADD)){
-            if (numberOfAdded ==0){
+        if (action.equals(ACTION_ADD)){//ADD Action
 
-                if (doubleAdd != 0) {//double is here
+            if (totalToAdd == 1){//add single author
+                if (numberOfAdded ==1 ) {
+                    msg = context.getText(R.string.add_success);
+                }
+                else if (doubleAdd ==1) {
                     msg = context.getText(R.string.add_error_double);
                 }
                 else {
                     msg = context.getText(R.string.add_error);
                 }
-
             }
-            else if (numberOfAdded ==1 ) {
-                msg = context.getText(R.string.add_success);
-
-            } else if (numberOfAdded >1){
+            else {//import list of authors
                 msg = context.getText(R.string.add_success_multi)+" "+numberOfAdded;
+
+                if (doubleAdd != 0) {//double is here
+                    msg = msg +"<br>"+context.getText(R.string.add_success_double)+" "+doubleAdd;
+                }
             }
-        }
+        }//end ADD Action
+
+
         if (action.equals(ACTION_DELETE)){
             if (numberOfDeleted == 1){
                 msg=context.getText(R.string.del_success);
@@ -259,5 +344,19 @@ public class AuthorEditorServiceIntent extends IntentService {
         service.putExtra(EXTRA_DEL_AUTHOR_DATA, id);
         ctx.startService(service);
 
+    }
+    public static void markAuthorRead(Context ctx,int id){
+        Log.v(DEBUG_TAG,"Starting author read service");
+        Intent service = new Intent(ctx,AuthorEditorServiceIntent.class );
+        service.putExtra(EXTRA_ACTION_TYPE,ACTION_AUTHOR_READ);
+        service.putExtra(EXTRA_DEL_AUTHOR_DATA, id);
+        ctx.startService(service);
+    }
+    public static void markBookReadFlip(Context ctx,int id){
+        Log.v(DEBUG_TAG,"Starting book read service");
+        Intent service = new Intent(ctx,AuthorEditorServiceIntent.class );
+        service.putExtra(EXTRA_ACTION_TYPE,ACTION_BOOK_READ_FLIP);
+        service.putExtra(EXTRA_DEL_AUTHOR_DATA, id);
+        ctx.startService(service);
     }
 }

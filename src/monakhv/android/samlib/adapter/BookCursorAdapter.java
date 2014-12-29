@@ -17,10 +17,9 @@ import java.util.HashMap;
 import monakhv.android.samlib.R;
 import monakhv.android.samlib.animation.Flip3D;
 import monakhv.android.samlib.data.SettingsHelper;
+import monakhv.android.samlib.service.AuthorEditorServiceIntent;
 import monakhv.android.samlib.sql.AuthorController;
-import monakhv.android.samlib.sql.BookController;
 import monakhv.android.samlib.sql.SQLController;
-import monakhv.android.samlib.sql.entity.Author;
 import monakhv.android.samlib.sql.entity.Book;
 import monakhv.android.samlib.sql.entity.SamLibConfig;
 
@@ -44,7 +43,7 @@ import monakhv.android.samlib.sql.entity.SamLibConfig;
 public class BookCursorAdapter extends RecyclerCursorAdapter<BookCursorAdapter.ViewHolder> {
 
     private static final String DEBUG_TAG = "BookCursorAdapter";
-    private int author_id;
+    private long author_id;
     private Context context;
     private SettingsHelper settingsHelper;
     private AuthorController sql;
@@ -60,19 +59,23 @@ public class BookCursorAdapter extends RecyclerCursorAdapter<BookCursorAdapter.V
 
     }
 
+    public void setAuthor_id(long author_id) {
+        this.author_id = author_id;
+    }
+
     @Override
     public void onBindViewHolderCursor(ViewHolder holder, final Cursor cursor) {
         int idx_form = cursor.getColumnIndex(SQLController.COL_BOOK_FORM);
-        int idx_mtime = cursor.getColumnIndex(SQLController.COL_BOOK_MTIME);
-        int idx_date = cursor.getColumnIndex(SQLController.COL_BOOK_DATE);
+//        int idx_mtime = cursor.getColumnIndex(SQLController.COL_BOOK_MTIME);
+//        int idx_date = cursor.getColumnIndex(SQLController.COL_BOOK_DATE);
         int idx_desc = cursor.getColumnIndex(SQLController.COL_BOOK_DESCRIPTION);
         int idx_size = cursor.getColumnIndex(SQLController.COL_BOOK_SIZE);
         int idx_title = cursor.getColumnIndex(SQLController.COL_BOOK_TITLE);
         int idx_isNew = cursor.getColumnIndex(SQLController.COL_BOOK_ISNEW);
         int idx_group_id = cursor.getColumnIndex(SQLController.COL_BOOK_GROUP_ID);
         int idx_author = cursor.getColumnIndex(SQLController.COL_BOOK_AUTHOR);
-        long book_id = cursor.getLong(cursor.getColumnIndex(SQLController.COL_ID));
-        final Book book = BookController.cursor2Book(cursor);
+        final int book_id = cursor.getInt(cursor.getColumnIndex(SQLController.COL_ID));
+
 
         holder.bookTitle.setText(Html.fromHtml(cursor.getString(idx_title)));
 
@@ -102,9 +105,7 @@ public class BookCursorAdapter extends RecyclerCursorAdapter<BookCursorAdapter.V
                 @Override
                 protected void afterAnimationEnd() {
                     Log.i(DEBUG_TAG, "Making book read!");
-                    sql.getBookController().markRead(book);
-                    Author a = sql.getByBook(book);
-                    sql.testMarkRead(a);
+                    AuthorEditorServiceIntent.markBookReadFlip(context,book_id);
                 }
             };
 
@@ -113,9 +114,7 @@ public class BookCursorAdapter extends RecyclerCursorAdapter<BookCursorAdapter.V
                 @Override
                 protected void afterAnimationEnd() {
                     Log.i(DEBUG_TAG, "Making book new!!");
-                    sql.getBookController().markUnRead(book);
-                    Author a = sql.getByBook(book);
-                    sql.testMarkRead(a);
+                    AuthorEditorServiceIntent.markBookReadFlip(context,book_id);
                 }
             };
 

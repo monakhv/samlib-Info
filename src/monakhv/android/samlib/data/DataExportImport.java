@@ -34,12 +34,14 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+
+import monakhv.android.samlib.service.AuthorEditorServiceIntent;
 import monakhv.android.samlib.sql.AuthorController;
 import monakhv.android.samlib.sql.SQLController;
 import monakhv.android.samlib.sql.entity.Author;
 import monakhv.android.samlib.sql.entity.Book;
 import monakhv.android.samlib.sql.entity.SamLibConfig;
-import monakhv.android.samlib.tasks.AddAuthor;
+
 
 /**
  *
@@ -276,7 +278,7 @@ public class DataExportImport {
 
     public static boolean importAuthorList(Context applicationContext, String fileToImport) {
         File backupTxt = new File(backupDIR, fileToImport);
-        List<String> urls = new ArrayList<String>();
+        ArrayList<String> urls = new ArrayList<String>();
         try {
             BufferedReader in = new BufferedReader(new FileReader(backupTxt));
 
@@ -300,8 +302,7 @@ public class DataExportImport {
         }
         
         if (!urls.isEmpty()){
-            AddAuthor adder = new AddAuthor(applicationContext);
-            adder.execute(urls.toArray(new String[urls.size()]));
+            AuthorEditorServiceIntent.addAuthor(applicationContext,urls);
         }
         
         return true;
