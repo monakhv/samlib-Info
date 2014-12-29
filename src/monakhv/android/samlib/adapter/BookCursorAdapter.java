@@ -18,6 +18,7 @@ import monakhv.android.samlib.R;
 import monakhv.android.samlib.animation.Flip3D;
 import monakhv.android.samlib.data.SettingsHelper;
 import monakhv.android.samlib.sql.AuthorController;
+import monakhv.android.samlib.sql.BookController;
 import monakhv.android.samlib.sql.SQLController;
 import monakhv.android.samlib.sql.entity.Author;
 import monakhv.android.samlib.sql.entity.Book;
@@ -71,7 +72,7 @@ public class BookCursorAdapter extends RecyclerCursorAdapter<BookCursorAdapter.V
         int idx_group_id = cursor.getColumnIndex(SQLController.COL_BOOK_GROUP_ID);
         int idx_author = cursor.getColumnIndex(SQLController.COL_BOOK_AUTHOR);
         long book_id = cursor.getLong(cursor.getColumnIndex(SQLController.COL_ID));
-        final Book book = sql.getBookController().getById(book_id);
+        final Book book = BookController.cursor2Book(cursor);
 
         holder.bookTitle.setText(Html.fromHtml(cursor.getString(idx_title)));
 

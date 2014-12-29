@@ -46,6 +46,7 @@ public class AuthorCursorAdapter extends RecyclerCursorAdapter<AuthorCursorAdapt
     private AuthorController sql;
     private Context context;
     private HashMap<Integer, Flip3D> flips;
+    private SimpleDateFormat df;
 
 
 
@@ -57,6 +58,7 @@ public class AuthorCursorAdapter extends RecyclerCursorAdapter<AuthorCursorAdapt
         flips = new HashMap<>();
 
         setName(DEBUG_TAG);
+        df = new SimpleDateFormat(DATE_FORMAT);
     }
 
 
@@ -67,15 +69,13 @@ public class AuthorCursorAdapter extends RecyclerCursorAdapter<AuthorCursorAdapt
         int idx_mtime = cursor.getColumnIndex(SQLController.COL_mtime);
         int idx_tags = cursor.getColumnIndex(SQLController.COL_TGNAMES);
         int idx_url = cursor.getColumnIndex(SQLController.COL_URL);
-        final long author_id = cursor.getLong(cursor.getColumnIndex(SQLController.COL_ID));
-        final Author a = sql.getById(author_id);
+        final int id_author=cursor.getInt(cursor.getColumnIndex(SQLController.COL_ID));
 
 
         boolean isNew = cursor.getInt(idx_isNew) == 1;
         holder.authorName.setText(cursor.getString(idx_name));
         holder.authorURL.setText(cursor.getString(idx_url));
-        holder.openBook.setImageResource(R.drawable.open);
-        holder.closeBook.setImageResource(R.drawable.closed);
+
         if (isNew) {
             holder.authorName.setTypeface(Typeface.DEFAULT_BOLD);
             holder.flip = new Flip3D(holder.openBook, holder.closeBook,false) {
@@ -83,7 +83,7 @@ public class AuthorCursorAdapter extends RecyclerCursorAdapter<AuthorCursorAdapt
                 protected void afterAnimationEnd() {
                     Log.i(DEBUG_TAG, "Making Author read!");
                     MarkRead marker = new MarkRead(context);
-                    marker.execute(a.getId());
+                    marker.execute(id_author);
                 }
             };
         } else {
@@ -106,7 +106,7 @@ public class AuthorCursorAdapter extends RecyclerCursorAdapter<AuthorCursorAdapt
             holder.tgnames.setText("");
         }
 
-        SimpleDateFormat df = new SimpleDateFormat(DATE_FORMAT);
+
 
         long dd = cursor.getLong(idx_mtime);
         Date date = new Date(dd);
@@ -144,6 +144,8 @@ public class AuthorCursorAdapter extends RecyclerCursorAdapter<AuthorCursorAdapt
 
             closeBook = (ImageView) itemView.findViewById(R.id.bookClosed);
             openBook = (ImageView) itemView.findViewById(R.id.bookOpen);
+            openBook.setImageResource(R.drawable.open);
+            closeBook.setImageResource(R.drawable.closed);
         }
 
     }
