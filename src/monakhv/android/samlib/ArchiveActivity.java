@@ -195,25 +195,13 @@ public class ArchiveActivity extends ActionBarActivity {
 
     private void _importTxt(String file) {
         
-         boolean res = DataExportImport.importAuthorList(this.getApplicationContext(),file);
+        boolean res = DataExportImport.importAuthorList(this.getApplicationContext(),file);
         progress = new ProgressDialog(this);
         progress.setMessage(getText(R.string.arc_import_text_title));
         progress.setCancelable(false);
         progress.setIndeterminate(true);
         progress.show();
-         
-//         String text;
-//        if (res) {
-//            text = getString(R.string.res_import_txt_good);
-//        } else {
-//            text = getString(R.string.res_import_txt_bad);
-//
-//        }
-//        int duration = Toast.LENGTH_SHORT;
-//        Toast toast = Toast.makeText(this, text, duration);
-//        toast.show();
 
-        
     }
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {

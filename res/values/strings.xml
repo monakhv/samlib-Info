@@ -47,7 +47,7 @@ limitations under the License.
     <string name="menu_delete">Удалить</string>
     <string name="menu_refresh">Обновить</string>
     <string name="menu_add">Добавить</string>
-    <string name="menu_search">Поиск</string>
+    <string name="menu_search">Искать/Добавить</string>
     <string name="menu_sort">Сортировка</string>
     <string name="menu_settings">Настройки</string>
     <string name="menu_archive">Данные</string>

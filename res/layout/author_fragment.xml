@@ -34,7 +34,7 @@
                 android:id="@+id/addUrlBt"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:background="?attr/iconSearch"
+                android:text="@string/button_add"
                 android:onClick="addAuthor"/>
         </LinearLayout>
         </LinearLayout>
