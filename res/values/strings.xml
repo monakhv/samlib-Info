@@ -135,6 +135,9 @@ limitations under the License.
     <string name="pref_key_flag_roaming_work">pref_key_flag_roaming_work</string>
     <string name="pref_title_roaming_work">Работать в роуминге</string>
 
+    <string name="pref_key_directory">pref_key_directory</string>
+    <string name="pref_title_directory">Папка данных</string>
+
     
     <string name="pref_key_ignore_connect_error">pref_key_ignore_connect_error</string>
     <string name="pref_title_ignore_con_err">Не информировать об ошибках</string>

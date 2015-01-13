@@ -62,10 +62,11 @@ public class SamlibPreferencesFragment extends PreferenceFragment
     private final String[] autoSummaryFields = {"pref_key_update_Period", "pref_key_proxy_host",
             "pref_key_proxy_port", "pref_key_proxy_user", "pref_key_update_autoload_limit", "pref_key_book_lifetime",
             "pref_key_author_order", "pref_key_book_order", "pref_key_file_format","pref_key_theme",
-    "pref_key_mirror"};
+    "pref_key_mirror","pref_key_directory"};
     private List<String> autoSumKeys;
     private RingtonePreference ringtonPref;
      Preference googlePrefs;
+    private EditTextPreference storageDir;
 
     /**
      * Called when the activity is first created.
@@ -77,15 +78,23 @@ public class SamlibPreferencesFragment extends PreferenceFragment
 
         super.onCreate(icicle);
 
+        helper = new SettingsHelper(getActivity());
         getPreferenceManager().setSharedPreferencesName(
                 SettingsHelper.PREFS_NAME);
         addPreferencesFromResource(R.xml.prefs);
 
-        helper = new SettingsHelper(getActivity());
+
 
         autoSumKeys = Arrays.asList(autoSummaryFields);
         ringtonPref = (RingtonePreference) findPreference(getString(R.string.pref_key_notification_ringtone));
         googlePrefs = findPreference(getString(R.string.pref_key_google_account));
+        storageDir= (EditTextPreference) findPreference(getString(R.string.pref_key_directory));
+//        storageDir.setOnPreferenceChangeListener( new Preference.OnPreferenceChangeListener() {
+//            @Override
+//            public boolean onPreferenceChange(Preference preference, Object newValue) {
+//                return helper.isDirectoryWritable ((String )newValue);
+//            }
+//        });
         googlePrefs.setSummary(helper.getGoogleAccount());
         googlePrefs.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
@@ -131,6 +140,7 @@ public class SamlibPreferencesFragment extends PreferenceFragment
 
         ringtonPref.setOnPreferenceChangeListener(this);
         updateRingtoneSummary(ringtonPref, helper.getNotificationRingToneURI());
+        storageDir.setOnPreferenceChangeListener(this);
 
     }
 
@@ -146,6 +156,13 @@ public class SamlibPreferencesFragment extends PreferenceFragment
     }
 
     private void updateSummary(String key) {
+
+        if (key.equals(getString(R.string.pref_key_directory))){
+
+            EditTextPreference pr = (EditTextPreference) getPreferenceScreen().findPreference(key);
+            pr.setSummary(helper.getDataDirectory());
+            return;
+        }
         if (autoSumKeys.contains(key)) {
             Preference pr = getPreferenceScreen().findPreference(key);
             if (pr instanceof ListPreference) {
@@ -207,6 +224,11 @@ public class SamlibPreferencesFragment extends PreferenceFragment
     };
     public boolean onPreferenceChange(Preference preference, Object newValue) {
         Log.d(DEBUG_TAG, "onPreferenceChange: " + preference.getKey());
+        if (preference.getKey().equals(getString(R.string.pref_key_directory))){
+            Log.d(DEBUG_TAG,"DIR - new "+newValue);
+            Log.d(DEBUG_TAG,"DIR - old "+helper.getDataDirectory());
+            return helper.isDirectoryWritable((String) newValue);
+        }
         if (preference.getKey().equalsIgnoreCase(getString(R.string.pref_key_notification_ringtone))) {
             Log.d(DEBUG_TAG, "new ringtone: " + newValue);
             updateRingtoneSummary((RingtonePreference) preference, Uri.parse((String) newValue));

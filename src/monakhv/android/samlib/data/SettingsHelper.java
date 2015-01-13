@@ -25,6 +25,8 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.res.TypedArray;
+import android.os.Environment;
+import android.text.TextUtils;
 import android.util.Log;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -50,6 +52,7 @@ import monakhv.samlib.http.HttpClientController;
  * @author monakhv
  */
 public class SettingsHelper implements SharedPreferences.OnSharedPreferenceChangeListener {
+    private static final String DATA_DIR = "/SamLib-Info/";
 
     public final static String PREFS_NAME = "samlib_prefs";
     private Context context = null;
@@ -62,6 +65,7 @@ public class SettingsHelper implements SharedPreferences.OnSharedPreferenceChang
     public SettingsHelper(Context context) {
         this.context = context;
         this.prefs = context.getSharedPreferences(PREFS_NAME, 0);
+        getDataDirectory();
 
     }
 
@@ -619,4 +623,43 @@ public class SettingsHelper implements SharedPreferences.OnSharedPreferenceChang
 
     }
 
+    public boolean isDirectoryWritable(String newValue) {
+        File ff = new File(newValue+DATA_DIR);
+        ff.mkdirs();
+        return ff.canWrite();
+//        if (ff.canWrite()){
+//            Log.d(DEBUG_TAG,"Directory is Valid!!");
+//            return true;
+//
+//        }
+//        else {
+//            Log.d(DEBUG_TAG,"WRONG Directory!!");
+//            return false;
+//        }
+
+    }
+
+    /**
+     * Return absolute path data directory preference
+     * get Default directory as SD-path + Samlib-Info
+     *
+     *  Create if need
+     *
+     * @return Absolute path to the data directory
+     */
+    public String getDataDirectory(){
+        String SdPath = prefs.getString(context.getString(R.string.pref_key_directory),null);
+        if (TextUtils.isEmpty(SdPath)){
+            SdPath= Environment.getExternalStorageDirectory().getAbsolutePath();
+            Log.d(DEBUG_TAG,"Data dir default set to: "+SdPath);
+
+            SharedPreferences.Editor edit = prefs.edit();
+            edit.putString(context.getString(R.string.pref_key_directory),SdPath);
+            edit.commit();
+
+        }
+        File ff = new File(SdPath+DATA_DIR);
+        ff.mkdirs();
+        return ff.getAbsolutePath();
+    }
 }

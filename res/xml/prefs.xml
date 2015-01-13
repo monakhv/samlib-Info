@@ -140,7 +140,11 @@ limitations under the License.
             android:title="@string/pref_title_book_lifetime"
             android:entries="@array/BooksLifeTimeTitle"
             android:entryValues="@array/BooksLifeTimeValues"
-            android:defaultValue="@string/pref_default_book_lifetime"/> 
+            android:defaultValue="@string/pref_default_book_lifetime"/>
+        <EditTextPreference
+            android:key="@string/pref_key_directory"
+            android:title="@string/pref_title_directory"
+            android:defaultValue=""/>
                
     </PreferenceCategory>
     
