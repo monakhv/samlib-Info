@@ -87,6 +87,7 @@ public class AuthorFragment extends Fragment implements OnRefreshListener, ListS
     private SingleChoiceSelectDialog sortDialog;
     private FilterSelectDialog filterDialog;
     private View empty;
+    private boolean canUpdate;
 
     public interface Callbacks {
         public void onAuthorSelected(long id);
@@ -123,6 +124,7 @@ public class AuthorFragment extends Fragment implements OnRefreshListener, ListS
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         Log.d(DEBUG_TAG,"onCreateView");
+        canUpdate=true;
         View view = inflater.inflate(R.layout.author_fragment,
                 container, false);
         authorRV = (RecyclerView) view.findViewById(R.id.authorRV);
@@ -206,6 +208,7 @@ public class AuthorFragment extends Fragment implements OnRefreshListener, ListS
 
     @Override
     public void onRefreshStarted(View view) {
+        Log.d(DEBUG_TAG,"Start update service");
 
         if (getActivity() == null) {
             return;//try to prevent some ANR reports
@@ -223,6 +226,9 @@ public class AuthorFragment extends Fragment implements OnRefreshListener, ListS
     }
 
     void onRefreshComplete() {
+        Log.d(DEBUG_TAG,"Stop updating state");
+        canUpdate=false;
+        mPullToRefreshLayout.setRefreshing(false);
         mPullToRefreshLayout.setRefreshComplete();
         updateTextView.setGravity(android.view.Gravity.CENTER);
         updateAuthor = false;
@@ -230,6 +236,11 @@ public class AuthorFragment extends Fragment implements OnRefreshListener, ListS
     }
 
     void updateProgress(String stringExtra) {
+
+        if ( !mPullToRefreshLayout.isRefreshing() && canUpdate){
+            Log.d(DEBUG_TAG,"Restore refreshing state");
+            mPullToRefreshLayout.setRefreshing(true);
+        }
         updateTextView.setGravity(android.view.Gravity.CENTER_VERTICAL);
         updateTextView.setText(stringExtra);
     }
@@ -362,7 +373,7 @@ public class AuthorFragment extends Fragment implements OnRefreshListener, ListS
 
     }
 
-    void startRefresh() {
+    private void startRefresh() {
         mPullToRefreshLayout.setRefreshing(true);
         onRefreshStarted(null);
     }
@@ -657,4 +668,16 @@ public class AuthorFragment extends Fragment implements OnRefreshListener, ListS
         }
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        canUpdate=true;
+    }
+
+    @Override
+    public void onPause() {
+        onRefreshComplete();
+        super.onPause();
+
+    }
 }
