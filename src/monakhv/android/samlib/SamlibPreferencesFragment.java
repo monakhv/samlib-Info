@@ -79,6 +79,8 @@ public class SamlibPreferencesFragment extends PreferenceFragment
         super.onCreate(icicle);
 
         helper = new SettingsHelper(getActivity());
+        helper.getDataDirectoryPath();//just to make sure that preference is loaded
+
         getPreferenceManager().setSharedPreferencesName(
                 SettingsHelper.PREFS_NAME);
         addPreferencesFromResource(R.xml.prefs);
@@ -160,7 +162,7 @@ public class SamlibPreferencesFragment extends PreferenceFragment
         if (key.equals(getString(R.string.pref_key_directory))){
 
             EditTextPreference pr = (EditTextPreference) getPreferenceScreen().findPreference(key);
-            pr.setSummary(helper.getDataDirectory());
+            pr.setSummary(helper.getDataDirectoryPath());
             return;
         }
         if (autoSumKeys.contains(key)) {
@@ -226,7 +228,7 @@ public class SamlibPreferencesFragment extends PreferenceFragment
         Log.d(DEBUG_TAG, "onPreferenceChange: " + preference.getKey());
         if (preference.getKey().equals(getString(R.string.pref_key_directory))){
             Log.d(DEBUG_TAG,"DIR - new "+newValue);
-            Log.d(DEBUG_TAG,"DIR - old "+helper.getDataDirectory());
+            Log.d(DEBUG_TAG,"DIR - old "+helper.getDataDirectoryPath());
             return helper.isDirectoryWritable((String) newValue);
         }
         if (preference.getKey().equalsIgnoreCase(getString(R.string.pref_key_notification_ringtone))) {

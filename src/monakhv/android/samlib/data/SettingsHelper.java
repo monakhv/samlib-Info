@@ -65,7 +65,6 @@ public class SettingsHelper implements SharedPreferences.OnSharedPreferenceChang
     public SettingsHelper(Context context) {
         this.context = context;
         this.prefs = context.getSharedPreferences(PREFS_NAME, 0);
-        getDataDirectory();
 
     }
 
@@ -647,7 +646,11 @@ public class SettingsHelper implements SharedPreferences.OnSharedPreferenceChang
      *
      * @return Absolute path to the data directory
      */
-    public String getDataDirectory(){
+    public String getDataDirectoryPath(){
+
+        return getDataDirectory().getAbsolutePath();
+    }
+    public File getDataDirectory(){
         String SdPath = prefs.getString(context.getString(R.string.pref_key_directory),null);
         if (TextUtils.isEmpty(SdPath)){
             SdPath= Environment.getExternalStorageDirectory().getAbsolutePath();
@@ -659,7 +662,11 @@ public class SettingsHelper implements SharedPreferences.OnSharedPreferenceChang
 
         }
         File ff = new File(SdPath+DATA_DIR);
+        if (ff.isDirectory()){
+            return ff;
+        }
         ff.mkdirs();
-        return ff.getAbsolutePath();
+        return ff;
     }
+
 }
