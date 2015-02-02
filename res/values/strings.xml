@@ -37,8 +37,13 @@ limitations under the License.
 
 
     <string name="SamLib">SamLib</string>
+    <string name="ZhurnalLib">ZhurnalLib</string>
     <string name="BudClub">BudClub</string>
+
+    <!--      This URL for settings decoration only!!!
+     Real URLs are defined into SamLibConfig.SamIzdat      class                 -->
     <string name="SamLibUrl">http://samlib.ru</string>
+    <string name="ZhurnalLibUrl">http://zhurnal.lib.ru</string>
     <string name="BudClubUrl">http://budclub.ru</string>
     
     

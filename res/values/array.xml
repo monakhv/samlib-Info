@@ -105,12 +105,12 @@ limitations under the License.
 
     <string-array name="mirrorValues">
         <item>@string/SamLib</item>
-        <item>@string/BudClub</item>
+        <item>@string/ZhurnalLib</item>
     </string-array>
 
     <string-array name="mirrorTitles">
         <item>@string/SamLibUrl</item>
-        <item>@string/BudClubUrl</item>
+        <item>@string/ZhurnalLibUrl</item>
     </string-array>
 
 

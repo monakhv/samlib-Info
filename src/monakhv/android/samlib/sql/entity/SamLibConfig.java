@@ -55,8 +55,15 @@ public class SamLibConfig {
     
     private static final  int      AUTHOR_PAGE_SIZE = 500;//page size for author search
     
-    private static final SamIzdat[]   SamLibURLs = {SamIzdat.SamLib, SamIzdat.BudClub};//Samizdat mirrors. Order is important this is the order mirror is selected by
-    private static final SamIzdat[]   BudClubURLs = {SamIzdat.BudClub,SamIzdat.SamLib };
+//    private static final SamIzdat[] ForwardURLsOrder = {SamIzdat.SamLib, SamIzdat.BudClub};//Samizdat mirrors. Order is important this is the order mirror is selected by
+//    private static final SamIzdat[] ReverseURLsOrder = {SamIzdat.BudClub,SamIzdat.SamLib };
+
+    private static final SamIzdat[] ForwardURLOrder= {SamIzdat.SamLib, SamIzdat.ZhurnalLib};//Samizdat mirrors. Order is important this is the order mirror is selected by
+    private static final SamIzdat[] ReverseURLOrder = {SamIzdat.ZhurnalLib,SamIzdat.SamLib };
+
+    private static final SamIzdat[] AllUrl = {SamIzdat.SamLib,SamIzdat.ZhurnalLib,SamIzdat.BudClub};
+
+
     private static final String DEBUG_TAG = "SamLibConfig";
     
     private static final String     URLPTR = "/\\w/\\w+/";
@@ -97,7 +104,7 @@ public class SamLibConfig {
         
     private static SamLibConfig instance = null;
 
-    private final LinkedList<SamIzdat> linkedSZ;
+    private final LinkedList<SamIzdat> linkedSZ;//actual list of Samizdat URLs
     private Context context;
     
     public static SamLibConfig getInstance(Context context){
@@ -114,15 +121,20 @@ public class SamLibConfig {
         linkedSZ = new LinkedList<SamIzdat>();
         refreshData( );
     }
+
+    /**
+     * Load Samizdat data according to the preference data
+     * We have two possible redefined orders
+     */
     public void refreshData( ) {
         SettingsHelper settings = new SettingsHelper(context);
         String fm =settings.getFirstMirror();
         linkedSZ.clear();
         if (fm.equals(SamIzdat.SamLib.getName())){
-            linkedSZ.addAll(Arrays.asList(SamLibURLs));
+            linkedSZ.addAll(Arrays.asList(ForwardURLOrder));
         }
         else {
-            linkedSZ.addAll(Arrays.asList(BudClubURLs));
+            linkedSZ.addAll(Arrays.asList(ReverseURLOrder));
         }
 
     }
@@ -142,16 +154,22 @@ public class SamLibConfig {
      * Small Internal class to store Samizdat mirrors data
      */
         private static enum SamIzdat {
-        SamLib("SamLib","http://samlib.ru"),
-        BudClub("BudClub","http://budclub.ru");
+        SamLib("SamLib","samlib.ru","81.176.66.171"),
+        BudClub("BudClub","budclub.ru","194.63.140.119"),
+         ZhurnalLib("ZhurnalLib","zhurnal.lib.ru","81.176.66.169");
         private static final String ZIP =".zip" ;
-        private final String url;
+
         private final String name;
         private final Pattern pattern;//search url pattern
-        private SamIzdat(String name,String url) {
-            this.url = url;
+        private final String urlH;//Host URL for browser usage
+        private final String urlIP;//For internal update usage
+        private SamIzdat(String name,String host, String ip) {
+
             this.name = name;
-            pattern=Pattern.compile(".*("+url+"/\\w/\\w+)($|\\b)");
+
+            urlH = SAMLIB_PROTO+host;
+            urlIP=SAMLIB_PROTO+ip;
+            pattern=Pattern.compile(".*("+urlH+"/\\w/\\w+)($|\\b)");
         }
         public String getName(){
             return name;
@@ -171,7 +189,7 @@ public class SamLibConfig {
             if (!txt.endsWith(SLASH)) {
                 txt = txt + SLASH;
             }
-            String ptr = url + URLPTR;
+            String ptr = urlH + URLPTR;
 
             return txt.matches(ptr);
         }
@@ -182,7 +200,7 @@ public class SamLibConfig {
          * @return  URL used to get author data from the site
          */
         private String getAuthorRequestURL(String uu) {
-            return url + REQUEST_AUTHOR_DATA +uu;
+            return urlIP + REQUEST_AUTHOR_DATA +uu;
 
         }
         /**
@@ -193,9 +211,9 @@ public class SamLibConfig {
         private String getBookURL(String uu,DataExportImport.FileType fileType){
             switch (fileType){
                 case HTML:
-                    return url+REQUEST_BOOK_TEXT+uu;
+                    return urlIP+REQUEST_BOOK_TEXT+uu;
                 case FB2:
-                    return url+SLASH+uu+fileType.ext+ZIP;
+                    return urlIP+SLASH+uu+fileType.ext+ZIP;
                 default:
                     return null;
             }
@@ -210,7 +228,7 @@ public class SamLibConfig {
          */
         private String getSearchAuthorURL(String pattern,int page){
             //Log.i(DEBUG_TAG, "Got pattern: "+pattern);
-            String res = url+REQUEST_AUTHOR_SEARCH;
+            String res = urlIP+REQUEST_AUTHOR_SEARCH;
             //Log.i(DEBUG_TAG, "Template string: "+res);
             String first = pattern.substring(0, 1);
             first = first.toUpperCase();
@@ -288,7 +306,7 @@ public class SamLibConfig {
      */
     public static String getParsedUrl(String str){
         String res ;
-        for (SamIzdat sz : SamLibURLs) {
+        for (SamIzdat sz : AllUrl) {
             Matcher m = sz.getSearchPattern().matcher(str);
             if (m.find()){
                 res = m.group(1);
@@ -312,10 +330,10 @@ public class SamLibConfig {
         
         
         if (str.startsWith(SAMLIB_PROTO)) {//full URL case
-            for (SamIzdat sz : SamLibURLs) {
+            for (SamIzdat sz : AllUrl) {
                
                 if (sz.testFullUrl(str)) {
-                    return str.replaceAll(sz.url, "");
+                    return str.replaceAll(sz.urlH, "");
                 }
             }
             return null;
@@ -343,10 +361,14 @@ public class SamLibConfig {
         }
         return res;
     }
-    
-    public String getDefaultURL(){
+
+    /**
+     * Get Default URL to use for browser  open intend
+     * @return
+     */
+    private String getDefaultURL(){
         Iterator<SamIzdat> itr = getIterator();
-        return itr.next().url;
+        return itr.next().urlH;
     }
     /**
      * Return the list of request URLs to search authors

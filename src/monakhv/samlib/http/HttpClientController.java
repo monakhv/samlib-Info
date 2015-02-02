@@ -305,7 +305,7 @@ public class HttpClientController {
         }
         if (status != 200) {
             httpclient.getConnectionManager().shutdown();
-            throw new SamlibParseException("Status code: " + status);
+            throw new SamlibParseException("URL:"+url.toString()+"  status code: " + status);
         }
 
         String result = reader.doReadPage(response.getEntity().getContent());
