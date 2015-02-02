@@ -27,6 +27,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+
+import monakhv.android.samlib.data.DataExportImport;
 import monakhv.android.samlib.exception.SamlibParseException;
 import monakhv.android.samlib.exception.BookParseException;
 import monakhv.android.samlib.exception.SamLibIsBusyException;
@@ -74,6 +76,7 @@ public class HttpClientController {
     private static UsernamePasswordCredentials pwd = null;
     private static HttpClientController instance = null;
     private final SamLibConfig slc;
+    private final DataExportImport dataExportImport;
 
     public static HttpClientController getInstance(Context context) {
         if (instance == null){
@@ -85,6 +88,7 @@ public class HttpClientController {
 
     private HttpClientController(Context context) {
         slc = SamLibConfig.getInstance(context);
+        dataExportImport = new DataExportImport(context);
     }
 
     /**
@@ -136,16 +140,16 @@ public class HttpClientController {
      * @throws SamlibParseException remote host return status other then 200
      */
     public void downloadBook(Book book) throws IOException, SamlibParseException {
-        File f = book.getFile();
+        File f = dataExportImport.getBookFile(book,book.getFileType());
         PageReader reader;
         switch (book.getFileType()){
             case HTML:
-                reader=new TextFileReader(book.getFile());
+                reader=new TextFileReader(f);
                 getURL(slc.getBookUrl(book), reader);
                 SamLibConfig.transformBook(f);
                 break;
             case FB2:
-                reader=new Fb2ZipReader(book.getFile());
+                reader=new Fb2ZipReader(f);
                 getURL(slc.getBookUrl(book), reader);
                 break;
             default:

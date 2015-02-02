@@ -27,7 +27,7 @@ import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.PrintStream;
+
 import java.nio.channels.FileChannel;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -61,19 +61,24 @@ public class DataExportImport {
     }
 
     private static final String DATE_FORMAT = "dd-MM-yyyy";
-    private static final String DATE_FORMAT_DEBUG = "dd-MM-yyyy HH:mm:ss";
     private static final String DEBUG_TAG = "DataExportImport";
-    private static final String BACKUP_DIR = "//SamLib-Info//";
-    private static final String BOOKS_DIR = "Book//";
+        private static final String BOOKS_DIR = "Book//";
     private static final String DB_EXT = ".db";
     private static final String DB_PREFIX = SQLController.DB_NAME;
-    private static final String DEBUG_FILE = SQLController.DB_NAME + ".log";
     private static final File SD = Environment.getExternalStorageDirectory();
-    private static final File backupDIR = new File(SD, BACKUP_DIR);
     private static final String TXT_PREFIX = "Authors";
     private static final String TXT_EXT      = ".txt";
     private static final String HTM_EXT     = ".htm";
     private static final String HTML_EXT   = ".html";
+
+    private SettingsHelper settingsHelper;
+    private File backupDIR;
+    private Context context;
+    public  DataExportImport(Context context){
+        this.context=context;
+        settingsHelper = new SettingsHelper(context);
+        backupDIR=settingsHelper.getDataDirectory();
+    }
     
     /**
      * Setting file to store book content 
@@ -82,7 +87,7 @@ public class DataExportImport {
      * @param book Book object to get File for
      * @return  File object to sore book to
      */
-    public static File _getBookFile(Book book,FileType fileType){
+    public   File getBookFile(Book book,FileType fileType){
                 
         String ff=  BOOKS_DIR +"/"+    book.getUri()    +      fileType.ext;
         
@@ -92,10 +97,58 @@ public class DataExportImport {
         Log.d(DEBUG_TAG, "Path: " + pp.getAbsolutePath() + " result is: " + res);
         return ss;
     }
-    public static void findDeleteBookFile(SettingsHelper settings) {
-        findDeleteBookFile( settings, new File(backupDIR,BOOKS_DIR) );
+    /**
+     * Get URL to open book for offline reading
+     * @return construct URL to start external program for offline reading
+     */
+    public String getBookFileURL(Book book) {
+        return "file://" + getBookFile(book,book.getFileType()).getAbsolutePath();
     }
-    private static void findDeleteBookFile(SettingsHelper settings, File dir){
+    /**
+     * Clean downloaded files of any types
+     */
+    public void cleanBookFile(Book book){
+        for (FileType ft : FileType.values()){
+            File ff = getBookFile(book,ft);
+
+            if (ff.exists()) {
+                ff.delete();
+            }
+        }
+    }
+    /**
+     * Test whether file for the book is fresh enought
+     *
+     *
+     * @return true if we need update file
+     */
+    public boolean needUpdateFile(Book book) {
+
+        File ff = getBookFile(book,book.getFileType());
+        switch (book.getFileType()){
+            case HTML:
+                return !ff.exists() || ff.lastModified() < book.getModifyTime();
+            case FB2:
+                if (ff.exists()){
+                    return  ff.lastModified() < book.getModifyTime();
+                }
+                else {
+                    book.setFileType(DataExportImport.FileType.HTML);
+                    ff = getBookFile(book,book.getFileType());
+                    return !ff.exists() || ff.lastModified() < book.getModifyTime();
+                }
+            default:
+                throw new UnsupportedOperationException();
+        }
+
+
+
+    }
+
+    public  void findDeleteBookFile() {
+        findDeleteBookFile(  new File(backupDIR,BOOKS_DIR) );
+    }
+    private  void findDeleteBookFile( File dir){
         
         
         File[] files =dir.listFiles();
@@ -104,10 +157,10 @@ public class DataExportImport {
         }
         for (File file : files){
             if ( file.isDirectory()){
-                findDeleteBookFile(settings, file);
+                findDeleteBookFile( file);
             }
             else {
-                settings.checkDeleteBook(file);
+                settingsHelper.checkDeleteBook(file);
             }
             
         }
@@ -116,7 +169,7 @@ public class DataExportImport {
         return context.getDatabasePath(DB_PREFIX);
     }
     
-    public static String exportDB(Context context) {
+    public String exportDB() {
 
         String backupDBPath = null;
         try {
@@ -151,10 +204,10 @@ public class DataExportImport {
     /**
      * Copy list of author's URLs to file and return the file name
      *
-     * @param applicationContext Context
+     *
      * @return File Name where the list of urls is stored
      */
-    public static String exportAuthorList(Context applicationContext) {
+    public  String exportAuthorList() {
         String backupTxtPath = null;
         try {
             @SuppressWarnings("UnusedDeclaration")
@@ -165,7 +218,7 @@ public class DataExportImport {
 
                 BufferedWriter bw = new BufferedWriter(new FileWriter(backupTxt));
 
-                for (String u : getAuthorUrls(applicationContext)) {
+                for (String u : getAuthorUrls(context)) {
                     bw.write(u);
                     bw.newLine();
                 }
@@ -195,11 +248,11 @@ public class DataExportImport {
     /**
      * Scan directory and return all files can be used to import DB from
      *
-     * @param context Context
+     *
      * @return arrays of file names
      */
     @SuppressWarnings("UnusedParameters")
-    public static String[] getFilesToImportDB(Context context) {
+    public  String[] getFilesToImportDB() {
         List<String> files = new ArrayList<String>();
         @SuppressWarnings("UnusedDeclaration")
         boolean re = backupDIR.mkdir();
@@ -214,7 +267,7 @@ public class DataExportImport {
     }
 
     @SuppressWarnings("UnusedParameters")
-    public static String[] getFilesToImportTxt(Context context) {
+    public  String[] getFilesToImportTxt() {
         List<String> files = new ArrayList<String>();
         @SuppressWarnings("UnusedDeclaration")
           boolean re = backupDIR.mkdir();
@@ -250,11 +303,11 @@ public class DataExportImport {
     /**
      * Replace working DB by DM from backup
      *
-     * @param context Context
+     *
      * @param fileToImport backup db used to import from
      * @return true if success
      */
-    public static boolean importDB(Context context, String fileToImport) {
+    public  boolean importDB( String fileToImport) {
         File currentDB = context.getDatabasePath(DB_PREFIX);
         File backupDB = new File(backupDIR, fileToImport);
         try {
@@ -276,7 +329,7 @@ public class DataExportImport {
         return df.format(date);
     }
 
-    public static boolean importAuthorList(Context applicationContext, String fileToImport) {
+    public  boolean importAuthorList(String fileToImport) {
         File backupTxt = new File(backupDIR, fileToImport);
         ArrayList<String> urls = new ArrayList<String>();
         try {
@@ -302,44 +355,13 @@ public class DataExportImport {
         }
         
         if (!urls.isEmpty()){
-            AuthorEditorServiceIntent.addAuthor(applicationContext,urls);
+            AuthorEditorServiceIntent.addAuthor(context,urls);
         }
         
         return true;
         
     }
 
-    /**
-     * Log output - do not take into account DEBUG Flag
-     *
-     * @param tag debug tag
-     * @param msg message
-     * @param ex Exception
-     */
-    static void log(String tag, String msg, Exception ex) {
-        SimpleDateFormat df = new SimpleDateFormat(DATE_FORMAT_DEBUG);
-        File save = new File(backupDIR, DEBUG_FILE);
-        FileOutputStream dst;
-        Date date = Calendar.getInstance().getTime();
 
-        try {
-            dst = new FileOutputStream(save, true);
-            PrintStream ps = new PrintStream(dst);
-            ps.println(df.format(date) + "  " + tag + " " + msg);
-            if (ex != null) {
-                ex.printStackTrace(ps);
-            }
-            ps.flush();
-            dst.flush();
-            ps.close();
-            dst.close();
-        } catch (Exception ex1) {
-            Log.e(DEBUG_TAG, "Log save error", ex1);
-        }
 
-    }
-
-    static void log(String tag, String msg) {
-        log(tag, msg, null);
-    }
 }

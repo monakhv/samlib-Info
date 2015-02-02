@@ -27,6 +27,7 @@ import java.util.List;
 import monakhv.android.samlib.AuthorFragment;
 import monakhv.android.samlib.MainActivity.UpdateActivityReceiver;
 import monakhv.android.samlib.R;
+import monakhv.android.samlib.data.DataExportImport;
 import monakhv.android.samlib.data.SettingsHelper;
 import monakhv.android.samlib.exception.SamlibParseException;
 import monakhv.android.samlib.sql.AuthorController;
@@ -50,6 +51,7 @@ public class UpdateServiceIntent extends IntentService {
     private int currentCaller = 0;
     private Context context;
     private SettingsHelper settings;
+    private DataExportImport dataExportImport;
     private final List<Author> updatedAuthors;
 
     public UpdateServiceIntent() {
@@ -65,6 +67,7 @@ public class UpdateServiceIntent extends IntentService {
         context = this.getApplicationContext();
         updatedAuthors.clear();
         settings = new SettingsHelper(context);
+        dataExportImport = new DataExportImport(context);
         currentCaller = intent.getIntExtra(CALLER_TYPE, 0);
         String selection = intent.getStringExtra(SELECT_STRING);
         settings.requestFirstBackup();
@@ -133,7 +136,7 @@ public class UpdateServiceIntent extends IntentService {
                 if (settings.getAutoLoadFlag()) {//download the book
 
                     for (Book book : ctl.getBookController().getBooksByAuthor(a)) {//book cycle for the author to update
-                        if (book.isIsNew() && settings.testAutoLoadLimit(book) && book.needUpdateFile()) {
+                        if (book.isIsNew() && settings.testAutoLoadLimit(book) && dataExportImport.needUpdateFile(book)) {
                             Log.i(DEBUG_TAG, "Auto Load book: " + book.getId());
                             DownloadBookServiceIntent.start(this, book,false);
                         }

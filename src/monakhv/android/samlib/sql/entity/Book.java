@@ -17,7 +17,7 @@ package monakhv.android.samlib.sql.entity;
 
 import android.content.Context;
 
-import java.io.File;
+
 import java.io.Serializable;
 import java.util.Calendar;
 import java.util.Date;
@@ -249,63 +249,17 @@ public class Book implements Serializable {
      * Get file object to store book for offline reading
      * @return  File to store book
      */
-    public File getFile() {
-        return DataExportImport._getBookFile(this,fileType);
-    }
+//    public File getFile() {
+//        return DataExportImport._getBookFile(this,fileType);
+//    }
 
-    /**
-     * Get URL to open book for offline reading
-     * @return construct URL to start external program for offline reading
-     */
-    public String getFileURL() {
-        return "file://" + getFile().getAbsolutePath();
-    }
+
 
    public String getFileMime(){
        return fileType.mime;
    }
-    @SuppressWarnings("ResultOfMethodCallIgnored")
-    /**
-     * Clean downloaded files of any types
-     */
-    public void cleanFile() {
-        for (DataExportImport.FileType ft : DataExportImport.FileType.values()){
-            File ff = DataExportImport._getBookFile(this,ft);
-
-            if (ff.exists()) {
-                ff.delete();
-            }
-        }
-    }
-
-    /**
-     * Test whether file for the book is fresh enoght
-     *
-     *
-     * @return true if we need update file
-     */
-    public boolean needUpdateFile() {
-
-        File ff = getFile();
-        switch (fileType){
-            case HTML:
-                return !ff.exists() || ff.lastModified() < getModifyTime();
-            case FB2:
-                if (ff.exists()){
-                    return  ff.lastModified() < getModifyTime();
-                }
-                else {
-                    fileType= DataExportImport.FileType.HTML;
-                    ff = getFile();
-                    return !ff.exists() || ff.lastModified() < getModifyTime();
-                }
-              default:
-                throw new UnsupportedOperationException();
-        }
 
 
-
-    }
 
     public static Calendar string2Cal(String str) throws BookParseException {
         String[] dd = str.split("/");

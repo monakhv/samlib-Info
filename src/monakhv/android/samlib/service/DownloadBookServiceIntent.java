@@ -86,7 +86,8 @@ public class DownloadBookServiceIntent extends IntentService {
            return true;
 
         } catch (Exception ex) {
-            book.cleanFile();//clean file on error
+            DataExportImport data = new DataExportImport(this);
+            data.cleanBookFile(book);//clean file on error
 
             Log.e(DEBUG_TAG, "Download book error: " + book.getUri(), ex);
             return false;

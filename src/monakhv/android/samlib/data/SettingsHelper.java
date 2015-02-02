@@ -35,15 +35,19 @@ import android.net.Uri;
 
 
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.PrintStream;
 import java.net.Authenticator;
 import java.net.PasswordAuthentication;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.Map;
-
 
 
 import monakhv.android.samlib.R;
 import monakhv.android.samlib.receiver.UpdateReceiver;
+import monakhv.android.samlib.sql.SQLController;
 import monakhv.android.samlib.sql.entity.Book;
 import monakhv.android.samlib.sql.entity.SamLibConfig;
 import monakhv.samlib.http.HttpClientController;
@@ -61,6 +65,8 @@ public class SettingsHelper implements SharedPreferences.OnSharedPreferenceChang
     private final SharedPreferences prefs;
     private static final String DARK = "DARK";
     private static final String LIGHT = "LIGHT";
+    private static final String DATE_FORMAT_DEBUG = "dd-MM-yyyy HH:mm:ss";
+    private static final String DEBUG_FILE = SQLController.DB_NAME + ".log";
 
     public SettingsHelper(Context context) {
         this.context = context;
@@ -125,9 +131,9 @@ public class SettingsHelper implements SharedPreferences.OnSharedPreferenceChang
             updateService = true;
 
         }
-        if (key.equals(context.getString(R.string.pref_key_mirror))){
-            String mirror = sharedPreferences.getString(context.getString(R.string.pref_key_mirror),null);
-            Log.i(DEBUG_TAG,"Set the first mirror to: "+mirror);
+        if (key.equals(context.getString(R.string.pref_key_mirror))) {
+            String mirror = sharedPreferences.getString(context.getString(R.string.pref_key_mirror), null);
+            Log.i(DEBUG_TAG, "Set the first mirror to: " + mirror);
             SamLibConfig sc = SamLibConfig.getInstance(context);
             sc.refreshData();
         }
@@ -160,7 +166,7 @@ public class SettingsHelper implements SharedPreferences.OnSharedPreferenceChang
     private void cancelRecurringAlarm() {
         Log.d(DEBUG_TAG, "Cancel Updater service call");
         if (getDebugFlag()) {
-            DataExportImport.log(DEBUG_TAG, "Cancel Updater service call");
+            log(DEBUG_TAG, "Cancel Updater service call");
 
         }
         Intent downloader = new Intent(context, UpdateReceiver.class);
@@ -176,7 +182,7 @@ public class SettingsHelper implements SharedPreferences.OnSharedPreferenceChang
     private void setRecurringAlarm() {
         Log.d(DEBUG_TAG, "Update Updater service call");
         if (getDebugFlag()) {
-            DataExportImport.log(DEBUG_TAG, "Update Updater service call");
+            log(DEBUG_TAG, "Update Updater service call");
 
         }
         //the fist time will be only after updatePeriod
@@ -295,8 +301,6 @@ public class SettingsHelper implements SharedPreferences.OnSharedPreferenceChang
     }
 
 
-
-
     public String getAuthorSortOrderString() {
         String str = prefs.getString(
                 context.getString(R.string.pref_key_author_order),
@@ -311,6 +315,7 @@ public class SettingsHelper implements SharedPreferences.OnSharedPreferenceChang
                 context.getString(R.string.pref_default_book_order));
         return str;
     }
+
     public DataExportImport.FileType getFileType() {
         String str = prefs.getString(
                 context.getString(R.string.pref_key_file_format),
@@ -326,7 +331,7 @@ public class SettingsHelper implements SharedPreferences.OnSharedPreferenceChang
         if (getDebugFlag()) {
             //TODO: remove this hack
             //str = "15MINUTES";
-            DataExportImport.log(DEBUG_TAG, "Update interval set to: " + str);
+            log(DEBUG_TAG, "Update interval set to: " + str);
 
         }
         Log.d(DEBUG_TAG, "Update interval: " + str);
@@ -351,7 +356,7 @@ public class SettingsHelper implements SharedPreferences.OnSharedPreferenceChang
         }
         Log.e(DEBUG_TAG, "Period Format error us default one");
         if (getDebugFlag()) {
-            DataExportImport.log(DEBUG_TAG, "Period Format error us default one");
+            log(DEBUG_TAG, "Period Format error us default one");
 
         }
 
@@ -359,15 +364,41 @@ public class SettingsHelper implements SharedPreferences.OnSharedPreferenceChang
 
     }
 
+    /**
+     * Log output
+     *
+     * @param tag debug tag
+     * @param msg message
+     * @param ex  Exception
+     */
     public void log(String tag, String msg, Exception ex) {
         if (getDebugFlag()) {
-            DataExportImport.log(tag, msg, ex);
+            SimpleDateFormat df = new SimpleDateFormat(DATE_FORMAT_DEBUG);
+            File save = new File(getDataDirectory(), DEBUG_FILE);
+            FileOutputStream dst;
+            Date date = Calendar.getInstance().getTime();
+
+            try {
+                dst = new FileOutputStream(save, true);
+                PrintStream ps = new PrintStream(dst);
+                ps.println(df.format(date) + "  " + tag + " " + msg);
+                if (ex != null) {
+                    ex.printStackTrace(ps);
+                }
+                ps.flush();
+                dst.flush();
+                ps.close();
+                dst.close();
+            } catch (Exception ex1) {
+                Log.e(DEBUG_TAG, "Log save error", ex1);
+            }
+
         }
     }
 
     public void log(String tag, String msg) {
         if (getDebugFlag()) {
-            DataExportImport.log(tag, msg);
+            log(tag, msg, null);
         }
     }
 
@@ -496,35 +527,36 @@ public class SettingsHelper implements SharedPreferences.OnSharedPreferenceChang
         return book.getSize() < lLimit;
     }
 
-    public int getTheme(){
+    public int getTheme() {
         String str = prefs.getString(context.getString(R.string.pref_key_theme),
                 context.getString(R.string.pref_default_theme));
 
-        if (str.equals(LIGHT)){
+        if (str.equals(LIGHT)) {
             return R.style.MyThemeLight;
         }
         return R.style.MyTheme;
 
     }
 
-    public int getSelectedIcon(){
+    public int getSelectedIcon() {
 
-        TypedArray a =context. getTheme().obtainStyledAttributes(getTheme(), new int[] {R.attr.iconSelected});
-        return a.getResourceId(0,0);
+        TypedArray a = context.getTheme().obtainStyledAttributes(getTheme(), new int[]{R.attr.iconSelected});
+        return a.getResourceId(0, 0);
 
     }
-    public int getSortIcon(){
+
+    public int getSortIcon() {
         String str = prefs.getString(context.getString(R.string.pref_key_theme),
                 context.getString(R.string.pref_default_theme));
-        if (str.equals(LIGHT)){
+        if (str.equals(LIGHT)) {
             return R.drawable.collections_sort_by_size_l;
         }
         return R.drawable.collections_sort_by_size;
     }
 
 
-    public String getFirstMirror(){
-        return  prefs.getString(context.getString(R.string.pref_key_mirror),context.getString(R.string.pref_default_mirror));
+    public String getFirstMirror() {
+        return prefs.getString(context.getString(R.string.pref_key_mirror), context.getString(R.string.pref_default_mirror));
     }
 
     void checkDeleteBook(File file) {
@@ -623,7 +655,7 @@ public class SettingsHelper implements SharedPreferences.OnSharedPreferenceChang
     }
 
     public boolean isDirectoryWritable(String newValue) {
-        File ff = new File(newValue+DATA_DIR);
+        File ff = new File(newValue + DATA_DIR);
         ff.mkdirs();
         return ff.canWrite();
 //        if (ff.canWrite()){
@@ -641,28 +673,29 @@ public class SettingsHelper implements SharedPreferences.OnSharedPreferenceChang
     /**
      * Return absolute path data directory preference
      * get Default directory as SD-path + Samlib-Info
-     *
-     *  Create if need
+     * <p/>
+     * Create if need
      *
      * @return Absolute path to the data directory
      */
-    public String getDataDirectoryPath(){
+    public String getDataDirectoryPath() {
 
         return getDataDirectory().getAbsolutePath();
     }
-    public File getDataDirectory(){
-        String SdPath = prefs.getString(context.getString(R.string.pref_key_directory),null);
-        if (TextUtils.isEmpty(SdPath)){
-            SdPath= Environment.getExternalStorageDirectory().getAbsolutePath();
-            Log.d(DEBUG_TAG,"Data dir default set to: "+SdPath);
+
+    public File getDataDirectory() {
+        String SdPath = prefs.getString(context.getString(R.string.pref_key_directory), null);
+        if (TextUtils.isEmpty(SdPath)) {
+            SdPath = Environment.getExternalStorageDirectory().getAbsolutePath();
+            Log.d(DEBUG_TAG, "Data dir default set to: " + SdPath);
 
             SharedPreferences.Editor edit = prefs.edit();
-            edit.putString(context.getString(R.string.pref_key_directory),SdPath);
+            edit.putString(context.getString(R.string.pref_key_directory), SdPath);
             edit.commit();
 
         }
-        File ff = new File(SdPath+DATA_DIR);
-        if (ff.isDirectory()){
+        File ff = new File(SdPath + DATA_DIR);
+        if (ff.isDirectory()) {
             return ff;
         }
         ff.mkdirs();

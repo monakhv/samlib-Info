@@ -20,7 +20,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
 import monakhv.android.samlib.data.DataExportImport;
-import monakhv.android.samlib.data.SettingsHelper;
 
 /**
  * Service To delete download book file at the end for life time
@@ -39,8 +38,8 @@ public class CleanBookServiceIntent extends IntentService {
     @Override
     protected void onHandleIntent(Intent intent) {
         Log.d(DEBUG_TAG, "Got intent");
-        SettingsHelper settings = new SettingsHelper(this);
-        DataExportImport.findDeleteBookFile(settings);
+        DataExportImport data = new DataExportImport(this);
+        data.findDeleteBookFile();
 
     }
 

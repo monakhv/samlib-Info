@@ -56,11 +56,13 @@ public class ArchiveActivity extends ActionBarActivity {
     private SingleChoiceSelectDialog dialog = null;
     private String selectedFile;
     private SettingsHelper setting;
+    private DataExportImport dataExportImport;
     private AuthorEditReceiver authorReceiver;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         setting = new SettingsHelper(this);
+        dataExportImport = new DataExportImport(this);
         setTheme(setting.getTheme());
         super.onCreate(savedInstanceState);
         setContentView(R.layout.archive);
@@ -97,7 +99,7 @@ public class ArchiveActivity extends ActionBarActivity {
 
     @SuppressWarnings("UnusedParameters")
     public void exportDB(View v) {
-        String file = DataExportImport.exportDB(this.getApplicationContext());
+        String file = dataExportImport.exportDB();
 
         String text;
         if (file != null) {
@@ -112,7 +114,7 @@ public class ArchiveActivity extends ActionBarActivity {
 
     @SuppressWarnings("UnusedParameters")
     public void importDB(View v) {
-        final String[] files = DataExportImport.getFilesToImportDB(getApplicationContext());
+        final String[] files = dataExportImport.getFilesToImportDB();
         OnItemClickListener listener = new OnItemClickListener() {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 selectedFile = files[position];
@@ -131,7 +133,7 @@ public class ArchiveActivity extends ActionBarActivity {
     }
 
     private void _importDB(String fileName) {
-        boolean res = DataExportImport.importDB(getApplicationContext(), fileName);
+        boolean res = dataExportImport.importDB( fileName);
 
         String text;
         if (res) {
@@ -161,7 +163,7 @@ public class ArchiveActivity extends ActionBarActivity {
 
     @SuppressWarnings("UnusedParameters")
     public void exportTxt(View v) {
-        String file = DataExportImport.exportAuthorList(this.getApplicationContext());
+        String file = dataExportImport.exportAuthorList();
         String text;
         if (file != null) {
             text = getString(R.string.res_export_txt_good) + " " + file;
@@ -175,7 +177,7 @@ public class ArchiveActivity extends ActionBarActivity {
 
     @SuppressWarnings("UnusedParameters")
     public void importTxt(View v) {
-        final String[] files = DataExportImport.getFilesToImportTxt(getApplicationContext());
+        final String[] files = dataExportImport.getFilesToImportTxt();
         OnItemClickListener listener = new OnItemClickListener() {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 selectedFile = files[position];
@@ -195,7 +197,7 @@ public class ArchiveActivity extends ActionBarActivity {
 
     private void _importTxt(String file) {
         
-        boolean res = DataExportImport.importAuthorList(this.getApplicationContext(),file);
+        boolean res = dataExportImport.importAuthorList(file);
         progress = new ProgressDialog(this);
         progress.setMessage(getText(R.string.arc_import_text_title));
         progress.setCancelable(false);

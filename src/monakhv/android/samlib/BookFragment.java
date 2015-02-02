@@ -25,6 +25,7 @@ import android.widget.TextView;
 
 
 import monakhv.android.samlib.adapter.BookCursorAdapter;
+import monakhv.android.samlib.data.DataExportImport;
 import monakhv.android.samlib.data.SettingsHelper;
 import monakhv.android.samlib.dialogs.ContextMenuDialog;
 import monakhv.android.samlib.dialogs.MyMenuData;
@@ -67,6 +68,7 @@ public class BookFragment extends Fragment implements ListSwipeListener.SwipeCal
     ContextMenuDialog contextMenuDialog;
     private String selection;
     private TextView emptyText;
+    private DataExportImport dataExportImport;
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -83,6 +85,7 @@ public class BookFragment extends Fragment implements ListSwipeListener.SwipeCal
 
         settings= new SettingsHelper(getActivity().getApplicationContext());
         order=SortOrder.valueOf(settings.getBookSortOrderString());
+        dataExportImport  = new DataExportImport(getActivity().getApplicationContext());
     }
 
 
@@ -291,7 +294,7 @@ public class BookFragment extends Fragment implements ListSwipeListener.SwipeCal
         }
         if (item == menu_reload){
 
-            book.cleanFile();
+            dataExportImport.cleanBookFile(book);
             loadBook(book);
         }
     }
@@ -368,7 +371,7 @@ public class BookFragment extends Fragment implements ListSwipeListener.SwipeCal
 
     private void loadBook(Book book){
         book.setFileType(settings.getFileType());
-        if (book.needUpdateFile()) {
+        if (dataExportImport.needUpdateFile(book)) {
             progress = new ProgressDialog(getActivity());
             progress.setMessage(getActivity().getText(R.string.download_Loading));
             progress.setCancelable(true);
@@ -392,7 +395,7 @@ public class BookFragment extends Fragment implements ListSwipeListener.SwipeCal
 
         Intent launchBrowser = new Intent();
         launchBrowser.setAction(android.content.Intent.ACTION_VIEW);
-        launchBrowser.setDataAndType(Uri.parse(book.getFileURL()), book.getFileMime());
+        launchBrowser.setDataAndType(Uri.parse(dataExportImport.getBookFileURL(book)), book.getFileMime());
 
 
         if (settings.getAutoMarkFlag()) {

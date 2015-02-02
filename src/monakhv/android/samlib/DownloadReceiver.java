@@ -61,7 +61,7 @@ public  class DownloadReceiver extends BroadcastReceiver {
         }
 
         if (res) {
-            Log.d(DEBUG_TAG, "Starting web for url: " + book.getFileURL());
+            //Log.d(DEBUG_TAG, "Starting web for url: " + book.getFileURL());
 //
             if (books != null) {
                 books.launchReader(book);
