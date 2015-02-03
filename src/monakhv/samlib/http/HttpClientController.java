@@ -54,12 +54,15 @@ import org.apache.http.params.HttpParams;
  * @author Dmitry Monakhov
  *
  * The Class make all internet connection for SamLib Info project. Must be call
- * from Async tasks or Services only! Have 3 main method
+ * from Async tasks or Services only! Have 4 main method
  *
- * - addAuthor to add new Author to data base. The method is used by AddAuthor
- * task - getAuthorByURL get Author object using http connection.The method is
- * used by Update service - downloadBook to download book content to file in
+ * - addAuthor to add new Author to data base. The method is used by AuthorEditorServiceIntent
+ *
+ * - getAuthorByURL get Author object using http connection.The method is
+ * used by Update service
+ * - downloadBook to download book content to file in
  * HTML from. It is used by DownloadBook service
+ * -searchAuthors used by SearchAuthor async task
  */
 public class HttpClientController {
     public interface PageReader {
@@ -196,7 +199,7 @@ public class HttpClientController {
         SamlibParseException exparse = null;
         for (String surl : urls) {
             Log.i(DEBUG_TAG, "using urls: "+surl);
-            settingsHelper.log(DEBUG_TAG, "using urls: "+surl);
+            settingsHelper.log(DEBUG_TAG, "using urls: " + surl);
             exio = null;
             exparse = null;
             try {
@@ -367,7 +370,7 @@ public class HttpClientController {
 
     private HashMap<String, ArrayList<AuthorCard>> parseSearchAuthorData(String text) throws  SamlibParseException {
         String[] lines = text.split("\n");
-        HashMap<String, ArrayList<AuthorCard>> res = new HashMap<String, ArrayList<AuthorCard>>();
+        HashMap<String, ArrayList<AuthorCard>> res = new HashMap<>();
          for (String line : lines) {
              if (SamLibConfig.testSplit(line) < 7){
                  Log.e(DEBUG_TAG, "Line Search parse Error:  length=" + SamLibConfig.testSplit(line) + "\nline: " + line + "\nlines: " + lines.length);
@@ -382,7 +385,7 @@ public class HttpClientController {
                     
                 }
                 else {
-                    ArrayList<AuthorCard> aa = new ArrayList<AuthorCard>();
+                    ArrayList<AuthorCard> aa = new ArrayList<>();
                     aa.add(card);
                     res.put(name, aa);
                     
