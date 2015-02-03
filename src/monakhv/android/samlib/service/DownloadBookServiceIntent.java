@@ -41,6 +41,7 @@ public class DownloadBookServiceIntent extends IntentService {
     public static final  String SEND_UPDATE="SEND_UPDATE";
     private boolean sendResult;
     private long book_id;
+    private SettingsHelper helper;
 
     public DownloadBookServiceIntent() {
         super("DownloadBookServiceIntent");
@@ -57,10 +58,11 @@ public class DownloadBookServiceIntent extends IntentService {
        
 
 
-        SettingsHelper helper = new SettingsHelper(this);
+        helper = new SettingsHelper(this);
+        helper.log(DEBUG_TAG,"Got intent");
         DataExportImport.FileType ft = helper.getFileType();
         Log.d(DEBUG_TAG, "default type is  " + ft.toString());
-
+        helper.log(DEBUG_TAG, "default type is  " + ft.toString());
         switch (ft){
             case HTML:
                 finish(getBook(book, DataExportImport.FileType.HTML),DataExportImport.FileType.HTML);
@@ -90,6 +92,7 @@ public class DownloadBookServiceIntent extends IntentService {
             data.cleanBookFile(book);//clean file on error
 
             Log.e(DEBUG_TAG, "Download book error: " + book.getUri(), ex);
+            helper.log(DEBUG_TAG, "Download book error: " + book.getUri(), ex);
             return false;
         }
     }

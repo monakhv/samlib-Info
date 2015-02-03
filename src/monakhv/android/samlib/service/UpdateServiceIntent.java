@@ -115,8 +115,8 @@ public class UpdateServiceIntent extends IntentService {
             try {
                 newA = http.getAuthorByURL(url);
             } catch (IOException ex) {//here we abort cycle author and total update
-                Log.i(DEBUG_TAG, "Connection Error", ex);
-                settings.log(DEBUG_TAG, "Connection Error", ex);
+                Log.i(DEBUG_TAG, "Connection Error: "+url, ex);
+                settings.log(DEBUG_TAG, "Connection Error: "+url, ex);
 
                 finish(false);
                 wl.release();

@@ -29,6 +29,7 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import monakhv.android.samlib.data.DataExportImport;
+import monakhv.android.samlib.data.SettingsHelper;
 import monakhv.android.samlib.exception.SamlibParseException;
 import monakhv.android.samlib.exception.BookParseException;
 import monakhv.android.samlib.exception.SamLibIsBusyException;
@@ -77,6 +78,7 @@ public class HttpClientController {
     private static HttpClientController instance = null;
     private final SamLibConfig slc;
     private final DataExportImport dataExportImport;
+    private final SettingsHelper settingsHelper;
 
     public static HttpClientController getInstance(Context context) {
         if (instance == null){
@@ -89,6 +91,7 @@ public class HttpClientController {
     private HttpClientController(Context context) {
         slc = SamLibConfig.getInstance(context);
         dataExportImport = new DataExportImport(context);
+        settingsHelper = new SettingsHelper(context);
     }
 
     /**
@@ -140,7 +143,7 @@ public class HttpClientController {
      * @throws SamlibParseException remote host return status other then 200
      */
     public void downloadBook(Book book) throws IOException, SamlibParseException {
-        File f = dataExportImport.getBookFile(book,book.getFileType());
+        File f = dataExportImport.getBookFile(book, book.getFileType());
         PageReader reader;
         switch (book.getFileType()){
             case HTML:
@@ -193,6 +196,7 @@ public class HttpClientController {
         SamlibParseException exparse = null;
         for (String surl : urls) {
             Log.i(DEBUG_TAG, "using urls: "+surl);
+            settingsHelper.log(DEBUG_TAG, "using urls: "+surl);
             exio = null;
             exparse = null;
             try {
@@ -202,10 +206,12 @@ public class HttpClientController {
                 slc.flipOrder();
                 exio = e;
                 Log.e(DEBUG_TAG, "IOException: " + surl, e);
+                settingsHelper.log(DEBUG_TAG, "IOException: " + surl, e);
             } catch (SamlibParseException e) {
                 slc.flipOrder();
                 exparse = e;
                 Log.e(DEBUG_TAG, "AuthorParseException: " + surl, e);
+                settingsHelper.log(DEBUG_TAG, "AuthorParseException: " + surl, e);
             }
 
             if (exio == null && exparse == null) {
@@ -242,6 +248,7 @@ public class HttpClientController {
             } catch (SamLibIsBusyException ex) {
                 loopCount++;
                 Log.w(DEBUG_TAG, "Retry number: " + loopCount + "  sleep 1 second");
+                settingsHelper.log(DEBUG_TAG, "Retry number: " + loopCount + "  sleep 1 second");
                 try {
                     TimeUnit.SECONDS.sleep(loopCount);
                 } catch (InterruptedException ex1) {

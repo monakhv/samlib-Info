@@ -36,6 +36,7 @@ import android.net.Uri;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.PrintStream;
 import java.net.Authenticator;
 import java.net.PasswordAuthentication;
@@ -375,6 +376,13 @@ public class SettingsHelper implements SharedPreferences.OnSharedPreferenceChang
         if (getDebugFlag()) {
             SimpleDateFormat df = new SimpleDateFormat(DATE_FORMAT_DEBUG);
             File save = new File(getDataDirectory(), DEBUG_FILE);
+            if (! save.exists()){
+                try {
+                    save.createNewFile();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
             FileOutputStream dst;
             Date date = Calendar.getInstance().getTime();
 
