@@ -74,7 +74,7 @@ public class MainActivity extends ActionBarActivity implements AuthorFragment.Ca
             CleanNotificationData.start(this);
             bundle = null;
         }
-        SettingsHelper.addAuthenticator(this.getApplicationContext());
+
         authorFragment = (AuthorFragment) getSupportFragmentManager().findFragmentById(R.id.authorFragment);
         authorFragment.setHasOptionsMenu(true);
 

@@ -48,6 +48,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import monakhv.android.samlib.data.SettingsHelper;
+import monakhv.samlib.http.HttpClientController;
 
 
 /**
@@ -151,7 +152,8 @@ public class SamlibPreferencesFragment extends PreferenceFragment
         super.onPause();
         helper.updateService();
         helper.unRegisterListener();
-        SettingsHelper.addAuthenticator(getActivity().getApplicationContext());
+        //if http instance already exist make sure we have right proxy settings
+        helper.setProxy(HttpClientController.getInstance(getActivity().getApplicationContext()));
         Log.d(DEBUG_TAG, "onPause");
         getPreferenceScreen().getSharedPreferences().unregisterOnSharedPreferenceChangeListener(this);
 

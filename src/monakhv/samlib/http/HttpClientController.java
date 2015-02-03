@@ -75,9 +75,9 @@ public class HttpClientController {
     public static final String ENCODING = "windows-1251";
     protected static final String USER_AGENT = "Android reader";
     private static final String DEBUG_TAG = "HttpClientController";
-    private static HttpHost proxy = null;
-    private static AuthScope scope = null;
-    private static UsernamePasswordCredentials pwd = null;
+    private  HttpHost proxy = null;
+    private  AuthScope scope = null;
+    private  UsernamePasswordCredentials pwd = null;
     private static HttpClientController instance = null;
     private final SamLibConfig slc;
     private final DataExportImport dataExportImport;
@@ -95,6 +95,7 @@ public class HttpClientController {
         slc = SamLibConfig.getInstance(context);
         dataExportImport = new DataExportImport(context);
         settingsHelper = new SettingsHelper(context);
+        settingsHelper.setProxy(this);
     }
 
     /**
@@ -324,7 +325,7 @@ public class HttpClientController {
 
     }
 
-    public static void setProxy(String host, int port, String user, String password) {
+    public  void setProxy(String host, int port, String user, String password) {
         proxy = new HttpHost(host, port);
         scope = new AuthScope(host, port);
         pwd = new UsernamePasswordCredentials(user, password);
@@ -332,7 +333,7 @@ public class HttpClientController {
 
     }
 
-    public static void cleanProxy() {
+    public  void cleanProxy() {
         proxy = null;
         pwd = null;
         scope = null;

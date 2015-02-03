@@ -413,10 +413,10 @@ public class SettingsHelper implements SharedPreferences.OnSharedPreferenceChang
     /**
      * Read preferences and add default Authenticator for proxy auth
      *
-     * @param context Context
+     *
      */
-    public static void addAuthenticator(Context context) {
-        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, 0);
+    public  void setProxy(HttpClientController http) {
+
         boolean useProxy = prefs.getBoolean(context.getString(R.string.pref_key_use_proxy_flag), false);
 
         if (useProxy) {
@@ -444,12 +444,12 @@ public class SettingsHelper implements SharedPreferences.OnSharedPreferenceChang
                 pp = 3128;
             }
 
-            HttpClientController.setProxy(proxyHost, pp, proxyUser, proxyPass);
+            http.setProxy(proxyHost, pp, proxyUser, proxyPass);
 
 
         } else {
             Authenticator.setDefault(null);
-            HttpClientController.cleanProxy();
+            http.cleanProxy();
         }
 
     }
