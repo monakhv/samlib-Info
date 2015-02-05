@@ -22,6 +22,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 
+import java.net.Authenticator;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -29,6 +30,7 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import monakhv.android.samlib.data.DataExportImport;
+import monakhv.android.samlib.data.Proxy;
 import monakhv.android.samlib.data.SettingsHelper;
 import monakhv.android.samlib.exception.SamlibParseException;
 import monakhv.android.samlib.exception.BookParseException;
@@ -95,7 +97,8 @@ public class HttpClientController {
         slc = SamLibConfig.getInstance(context);
         dataExportImport = new DataExportImport(context);
         settingsHelper = new SettingsHelper(context);
-        settingsHelper.setProxy(this);
+        setProxy(settingsHelper.getProxy());
+        //settingsHelper.setProxy(this);
     }
 
     /**
@@ -325,15 +328,20 @@ public class HttpClientController {
 
     }
 
-    public  void setProxy(String host, int port, String user, String password) {
-        proxy = new HttpHost(host, port);
-        scope = new AuthScope(host, port);
-        pwd = new UsernamePasswordCredentials(user, password);
-
+    public    void setProxy(Proxy proxy1) {
+        if (proxy1 == null){
+            cleanProxy();
+            return;
+        }
+        Authenticator.setDefault(proxy1.getAuthenticator());
+        proxy =proxy1.getHttpHost();
+        scope =proxy1.getAuthScope();
+        pwd = proxy1.getPasswordCredentials();
 
     }
 
-    public  void cleanProxy() {
+    private   void cleanProxy() {
+        Authenticator.setDefault(null);
         proxy = null;
         pwd = null;
         scope = null;

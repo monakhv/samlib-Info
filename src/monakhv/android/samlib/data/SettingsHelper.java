@@ -410,49 +410,29 @@ public class SettingsHelper implements SharedPreferences.OnSharedPreferenceChang
         }
     }
 
-    /**
-     * Read preferences and add default Authenticator for proxy auth
-     *
-     *
-     */
-    public  void setProxy(HttpClientController http) {
-
+    public Proxy getProxy(){
+        Proxy proxy=new Proxy();
         boolean useProxy = prefs.getBoolean(context.getString(R.string.pref_key_use_proxy_flag), false);
-
-        if (useProxy) {
-            final String proxyUser = prefs.getString(context.getString(R.string.pref_key_proxy_user), "");
-            final String proxyPass = prefs.getString(context.getString(R.string.pref_key_proxy_password), "");
-            Authenticator.setDefault(
-                    new Authenticator() {
-                        @Override
-                        public PasswordAuthentication getPasswordAuthentication() {
-                            return new PasswordAuthentication(proxyUser, proxyPass.toCharArray());
-                        }
-                    }
-            );
-
-
-            String proxyHost = prefs.getString(context.getString(R.string.pref_key_proxy_host), "localhost");
-            String proxyPort = prefs.getString(context.getString(R.string.pref_key_proxy_port), "3128");
-
-
-            int pp;
-            try {
-                pp = Integer.parseInt(proxyPort);
-            } catch (NumberFormatException ex) {
-                Log.e(DEBUG_TAG, "Parse proxy port exception: " + proxyPort);
-                pp = 3128;
-            }
-
-            http.setProxy(proxyHost, pp, proxyUser, proxyPass);
-
-
-        } else {
-            Authenticator.setDefault(null);
-            http.cleanProxy();
+        if (! useProxy){
+            return null;
         }
+        proxy.user = prefs.getString(context.getString(R.string.pref_key_proxy_user), "");
+        proxy.password = prefs.getString(context.getString(R.string.pref_key_proxy_password), "");
+        proxy.host = prefs.getString(context.getString(R.string.pref_key_proxy_host), "localhost");
+        String proxyPort = prefs.getString(context.getString(R.string.pref_key_proxy_port), "3128");
 
+        int pp;
+        try {
+            pp = Integer.parseInt(proxyPort);
+        } catch (NumberFormatException ex) {
+            Log.e(DEBUG_TAG, "Parse proxy port exception: " + proxyPort);
+            pp = 3128;
+        }
+        proxy.port=pp;
+
+        return proxy;
     }
+
 
     /**
      * Checks if we have a valid Internet Connection on the device.
