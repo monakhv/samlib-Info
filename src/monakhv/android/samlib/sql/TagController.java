@@ -20,6 +20,9 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
+import android.util.Log;
+
+import java.util.ArrayList;
 import java.util.List;
 import monakhv.android.samlib.sql.entity.Tag;
 
@@ -28,6 +31,7 @@ import monakhv.android.samlib.sql.entity.Tag;
  * @author monakhv
  */
 public class TagController  implements AbstractController<Tag>{
+    private static final String DEBUG_TAG ="TagController" ;
     private Context context;
     
     public TagController(Context context) {
@@ -89,7 +93,17 @@ public class TagController  implements AbstractController<Tag>{
     }
 
     public List<Tag> getAll() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        List<Tag> res = new ArrayList<>();
+        Cursor cursor=context.getContentResolver().query(AuthorProvider.TAG_URI,null,null,null,SQLController.COL_TAG_NAME);
+        if (cursor == null){
+            Log.e(DEBUG_TAG, "getAll: cursor is null");
+            return res;
+        }
+        while (cursor.moveToNext()){
+            res.add(cursor2Tag(cursor));
+        }
+        cursor.close();
+        return res;
     }
 
     public Tag getById(long id) {

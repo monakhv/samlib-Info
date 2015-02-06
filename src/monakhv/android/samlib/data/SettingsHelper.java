@@ -690,4 +690,8 @@ public class SettingsHelper implements SharedPreferences.OnSharedPreferenceChang
         return ff;
     }
 
+    public String getUpdateTag() {
+        return prefs.getString(context.getString(R.string.pref_key_update_tag),
+                Integer.toString(SamLibConfig.TAG_AUTHOR_ALL));
+    }
 }

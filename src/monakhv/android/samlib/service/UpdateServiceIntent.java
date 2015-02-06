@@ -31,6 +31,8 @@ import monakhv.android.samlib.data.DataExportImport;
 import monakhv.android.samlib.data.SettingsHelper;
 import monakhv.android.samlib.exception.SamlibParseException;
 import monakhv.android.samlib.sql.AuthorController;
+import monakhv.android.samlib.sql.SQLController;
+import monakhv.android.samlib.sql.entity.SamLibConfig;
 import monakhv.samlib.http.HttpClientController;
 import monakhv.android.samlib.sql.entity.Author;
 import monakhv.android.samlib.sql.entity.Book;
@@ -78,7 +80,15 @@ public class UpdateServiceIntent extends IntentService {
         }
 
         if (currentCaller == CALLER_IS_RECEIVER) {
-            selection = null;
+            String stag = settings.getUpdateTag();
+            int tag_id = Integer.parseInt(stag);
+            if (tag_id == SamLibConfig.TAG_AUTHOR_ALL){
+                selection = null;
+            }
+            else {
+                selection = SQLController.TABLE_TAGS + "." + SQLController.COL_ID + "=" + tag_id;
+
+            }
             if (!SettingsHelper.haveInternetWIFI(context)) {
                 Log.d(DEBUG_TAG, "Ignore update task - we have no internet connection");
                 settings.log(DEBUG_TAG, "Ignore update task - we have no internet connection");
@@ -109,6 +119,9 @@ public class UpdateServiceIntent extends IntentService {
         for (Author a : authors) {//main author cycle
             if (currentCaller == CALLER_IS_ACTIVITY) {
                 sendUpdate(total, ++iCurrent, a.getName());
+            }
+            else {
+                Log.d(DEBUG_TAG,"update: "+a.getName());
             }
             String url = a.getUrl();
             Author newA;

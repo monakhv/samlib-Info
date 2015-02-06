@@ -48,6 +48,9 @@ import java.util.Arrays;
 import java.util.List;
 
 import monakhv.android.samlib.data.SettingsHelper;
+import monakhv.android.samlib.sql.TagController;
+import monakhv.android.samlib.sql.entity.SamLibConfig;
+import monakhv.android.samlib.sql.entity.Tag;
 import monakhv.samlib.http.HttpClientController;
 
 
@@ -63,7 +66,7 @@ public class SamlibPreferencesFragment extends PreferenceFragment
     private final String[] autoSummaryFields = {"pref_key_update_Period", "pref_key_proxy_host",
             "pref_key_proxy_port", "pref_key_proxy_user", "pref_key_update_autoload_limit", "pref_key_book_lifetime",
             "pref_key_author_order", "pref_key_book_order", "pref_key_file_format","pref_key_theme",
-    "pref_key_mirror","pref_key_directory"};
+    "pref_key_mirror","pref_key_directory","pref_key_update_tag"};
     private List<String> autoSumKeys;
     private RingtonePreference ringtonPref;
      Preference googlePrefs;
@@ -111,6 +114,30 @@ public class SamlibPreferencesFragment extends PreferenceFragment
 
             }
         });
+
+        ListPreference updateTagPref = (ListPreference) findPreference(getString(R.string.pref_key_update_tag));
+
+        TagController tagCtl = new TagController(getActivity());
+        List<Tag> tags = tagCtl.getAll();
+
+        CharSequence [] entries = new CharSequence[1+tags.size()];
+        CharSequence [] entrieValues= new CharSequence[1+tags.size()];
+
+        entrieValues[0]=Integer.toString(SamLibConfig.TAG_AUTHOR_ALL);
+        entries[0]=getActivity().getString(R.string.pref_update_all_title);
+        int i=1;
+        for (Tag tag:tags){
+            entrieValues[i]=Integer.toString(tag.getId());
+            entries[i]=tag.getName();
+            ++i;
+        }
+
+
+        updateTagPref.setEntries(entries);
+        updateTagPref.setEntryValues(entrieValues);
+
+
+        updateTagPref.setValue(helper.getUpdateTag());
 
     }
 

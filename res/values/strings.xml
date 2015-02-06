@@ -137,6 +137,13 @@ limitations under the License.
     <string name="pref_key_flag_wihi_only">pref_key_flag_wihi_only</string>
     <string name="pref_title_wihi_only">Только по Wifi</string>
 
+    <string name="pref_key_update_tag">pref_key_update_tag</string>
+    <string name="pref_title_update_tag">Проверяем авторов с тэгом ...</string>
+
+
+    <string name="pref_update_all_title">Всё</string>
+
+
     <string name="pref_key_flag_roaming_work">pref_key_flag_roaming_work</string>
     <string name="pref_title_roaming_work">Работать в роуминге</string>
 
