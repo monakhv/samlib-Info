@@ -30,7 +30,6 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import monakhv.android.samlib.data.DataExportImport;
-import monakhv.android.samlib.data.Proxy;
 import monakhv.android.samlib.data.SettingsHelper;
 import monakhv.android.samlib.exception.SamlibParseException;
 import monakhv.android.samlib.exception.BookParseException;
@@ -40,12 +39,8 @@ import monakhv.android.samlib.sql.entity.Author;
 import monakhv.android.samlib.sql.entity.AuthorCard;
 import monakhv.android.samlib.sql.entity.Book;
 import monakhv.android.samlib.sql.entity.SamLibConfig;
-import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
-import org.apache.http.auth.AuthScope;
-import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.methods.HttpGet;
-import org.apache.http.conn.params.ConnRoutePNames;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpConnectionParams;
@@ -77,9 +72,7 @@ public class HttpClientController {
     public static final String ENCODING = "windows-1251";
     protected static final String USER_AGENT = "Android reader";
     private static final String DEBUG_TAG = "HttpClientController";
-    private  HttpHost proxy = null;
-    private  AuthScope scope = null;
-    private  UsernamePasswordCredentials pwd = null;
+    private Proxy proxy;
     private static HttpClientController instance = null;
     private final SamLibConfig slc;
     private final DataExportImport dataExportImport;
@@ -97,7 +90,8 @@ public class HttpClientController {
         slc = SamLibConfig.getInstance(context);
         dataExportImport = new DataExportImport(context);
         settingsHelper = new SettingsHelper(context);
-        setProxy(settingsHelper.getProxy());
+        proxy = settingsHelper.getProxy();
+        setProxy(proxy);
         //settingsHelper.setProxy(this);
     }
 
@@ -292,13 +286,10 @@ public class HttpClientController {
 
         DefaultHttpClient httpclient = new DefaultHttpClient(httpParams);
 
-        if (pwd != null && scope != null) {
-            httpclient.getCredentialsProvider().setCredentials(scope, pwd);
+        if (proxy != null){
+            proxy.applyProxy(httpclient);
         }
 
-        if (proxy != null) {
-            httpclient.getParams().setParameter(ConnRoutePNames.DEFAULT_PROXY, proxy);
-        }
 
         method.setHeader("User-Agent", USER_AGENT);
         method.setHeader("Accept-Charset", ENCODING);
@@ -329,22 +320,19 @@ public class HttpClientController {
     }
 
     public    void setProxy(Proxy proxy1) {
+        proxy =proxy1;
         if (proxy1 == null){
             cleanProxy();
             return;
         }
         Authenticator.setDefault(proxy1.getAuthenticator());
-        proxy =proxy1.getHttpHost();
-        scope =proxy1.getAuthScope();
-        pwd = proxy1.getPasswordCredentials();
 
     }
 
     private   void cleanProxy() {
         Authenticator.setDefault(null);
         proxy = null;
-        pwd = null;
-        scope = null;
+
     }
 
 

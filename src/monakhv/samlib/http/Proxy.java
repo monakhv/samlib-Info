@@ -1,8 +1,11 @@
-package monakhv.android.samlib.data;
+package monakhv.samlib.http;
 
 import org.apache.http.HttpHost;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
+
+import org.apache.http.conn.params.ConnRoutePNames;
+import org.apache.http.impl.client.DefaultHttpClient;
 
 import java.net.Authenticator;
 import java.net.PasswordAuthentication;
@@ -25,33 +28,40 @@ import java.net.PasswordAuthentication;
  * 2/5/15.
  */
 public class Proxy {
-     String host;
-    int port;
-    String user;
-    String password;
+    private String host;
+    private int port;
+    private String user;
+    private String password;
 
-    Proxy(){
-
-    }
-    public HttpHost getHttpHost() {
-        return new HttpHost(host, port);
-    }
-    public AuthScope getAuthScope(){
-
-        return  new AuthScope(host, port);
-    }
-    public UsernamePasswordCredentials getPasswordCredentials(){
-        return new UsernamePasswordCredentials(user, password);
+    public Proxy(String host, int port, String user, String password) {
+        this.host = host;
+        this.port = port;
+        this.user = user;
+        this.password = password;
     }
 
     public Authenticator getAuthenticator(){
-        Authenticator a = new Authenticator() {
+        return new Authenticator() {
             @Override
             public PasswordAuthentication getPasswordAuthentication() {
                 return new PasswordAuthentication(user, password.toCharArray());
             }
         };
-        return a;
+    }
+
+    public void applyProxy(DefaultHttpClient httpclient){
+          HttpHost proxy = new HttpHost(host, port);
+          AuthScope scope = new AuthScope(host, port);
+          UsernamePasswordCredentials pwd = new UsernamePasswordCredentials(user, password);
+
+
+        if (pwd != null && scope != null) {
+            httpclient.getCredentialsProvider().setCredentials(scope, pwd);
+        }
+
+        if (proxy != null) {
+            httpclient.getParams().setParameter(ConnRoutePNames.DEFAULT_PROXY, proxy);
+        }
     }
 
 }

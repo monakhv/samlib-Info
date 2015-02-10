@@ -38,8 +38,6 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
-import java.net.Authenticator;
-import java.net.PasswordAuthentication;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
@@ -51,7 +49,7 @@ import monakhv.android.samlib.receiver.UpdateReceiver;
 import monakhv.android.samlib.sql.SQLController;
 import monakhv.android.samlib.sql.entity.Book;
 import monakhv.android.samlib.sql.entity.SamLibConfig;
-import monakhv.samlib.http.HttpClientController;
+import monakhv.samlib.http.Proxy;
 
 /**
  * @author monakhv
@@ -411,14 +409,14 @@ public class SettingsHelper implements SharedPreferences.OnSharedPreferenceChang
     }
 
     public Proxy getProxy(){
-        Proxy proxy=new Proxy();
+
         boolean useProxy = prefs.getBoolean(context.getString(R.string.pref_key_use_proxy_flag), false);
         if (! useProxy){
             return null;
         }
-        proxy.user = prefs.getString(context.getString(R.string.pref_key_proxy_user), "");
-        proxy.password = prefs.getString(context.getString(R.string.pref_key_proxy_password), "");
-        proxy.host = prefs.getString(context.getString(R.string.pref_key_proxy_host), "localhost");
+        String user = prefs.getString(context.getString(R.string.pref_key_proxy_user), "");
+        String password = prefs.getString(context.getString(R.string.pref_key_proxy_password), "");
+        String host = prefs.getString(context.getString(R.string.pref_key_proxy_host), "localhost");
         String proxyPort = prefs.getString(context.getString(R.string.pref_key_proxy_port), "3128");
 
         int pp;
@@ -428,7 +426,7 @@ public class SettingsHelper implements SharedPreferences.OnSharedPreferenceChang
             Log.e(DEBUG_TAG, "Parse proxy port exception: " + proxyPort);
             pp = 3128;
         }
-        proxy.port=pp;
+        Proxy proxy=new Proxy(host,pp,user,password);
 
         return proxy;
     }
