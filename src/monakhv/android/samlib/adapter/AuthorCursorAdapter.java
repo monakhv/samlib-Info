@@ -12,6 +12,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 
@@ -44,10 +45,12 @@ import monakhv.android.samlib.sql.entity.Author;
 public class AuthorCursorAdapter extends RecyclerCursorAdapter<AuthorCursorAdapter.ViewHolder>  {
     public static final String DATE_FORMAT = "dd.MM.yyyy HH:mm:ss";
     private static final String DEBUG_TAG = "AuthorCursorAdapter";
+    private static long YEAR = 31556952000L;
     private AuthorController sql;
     private Context context;
     private HashMap<Integer, Flip3D> flips;
     private SimpleDateFormat df;
+    private Calendar now;
 
 
 
@@ -60,6 +63,7 @@ public class AuthorCursorAdapter extends RecyclerCursorAdapter<AuthorCursorAdapt
 
         setName(DEBUG_TAG);
         df = new SimpleDateFormat(DATE_FORMAT);
+         now = Calendar.getInstance();
     }
 
 
@@ -77,9 +81,20 @@ public class AuthorCursorAdapter extends RecyclerCursorAdapter<AuthorCursorAdapt
         holder.authorName.setText(cursor.getString(idx_name));
         holder.authorURL.setText(cursor.getString(idx_url));
 
+        long dd = cursor.getLong(idx_mtime);
+        Date update = new Date(dd);
+        holder.updatedData.setText(df.format(update));
+
+
+        if (            (now.getTimeInMillis() -dd) < YEAR) {
+            holder.oldAuthor.setImageResource(R.drawable.author_old);
+        }
+        else {
+            holder.oldAuthor.setImageResource(R.drawable.author_very_old);
+        }
         if (isNew) {
             holder.authorName.setTypeface(Typeface.DEFAULT_BOLD);
-            holder.flip = new Flip3D(holder.openBook, holder.closeBook,false) {
+            holder.flip = new Flip3D(holder.newAuthor, holder.oldAuthor,false) {
                 @Override
                 protected void afterAnimationEnd() {
                     Log.i(DEBUG_TAG, "Making Author read!");
@@ -88,7 +103,7 @@ public class AuthorCursorAdapter extends RecyclerCursorAdapter<AuthorCursorAdapt
             };
         } else {
             holder.authorName.setTypeface(Typeface.DEFAULT);
-            holder.flip = new Flip3D(holder.closeBook, holder.openBook,false) {
+            holder.flip = new Flip3D(holder.oldAuthor, holder.newAuthor,false) {
                 @Override
                 protected void afterAnimationEnd() {
                     Log.i(DEBUG_TAG, "Making Author new!!");
@@ -108,9 +123,7 @@ public class AuthorCursorAdapter extends RecyclerCursorAdapter<AuthorCursorAdapt
 
 
 
-        long dd = cursor.getLong(idx_mtime);
-        Date date = new Date(dd);
-        holder.updatedData.setText(df.format(date));
+
 
         holder.itemView.setActivated(cursor.getPosition() == getSelectedPosition());
 
@@ -131,7 +144,7 @@ public class AuthorCursorAdapter extends RecyclerCursorAdapter<AuthorCursorAdapt
     public static class ViewHolder extends RecyclerView.ViewHolder  {
         //{R.id.authorName, R.id.updated, R.id.icon, R.id.tgnames, R.id.authorURL};
         public TextView authorName, updatedData, tgnames, authorURL;
-        public ImageView closeBook, openBook;
+        public ImageView newAuthor, oldAuthor;
         public Flip3D flip;
 
         public ViewHolder(View itemView) {
@@ -142,10 +155,10 @@ public class AuthorCursorAdapter extends RecyclerCursorAdapter<AuthorCursorAdapt
             tgnames = (TextView) itemView.findViewById(R.id.tgnames);
             authorURL = (TextView) itemView.findViewById(R.id.authorURL);
 
-            closeBook = (ImageView) itemView.findViewById(R.id.bookClosed);
-            openBook = (ImageView) itemView.findViewById(R.id.bookOpen);
-            openBook.setImageResource(R.drawable.open);
-            closeBook.setImageResource(R.drawable.closed);
+            newAuthor = (ImageView) itemView.findViewById(R.id.authorNew);
+            oldAuthor = (ImageView) itemView.findViewById(R.id.authorOld);
+           newAuthor.setImageResource(R.drawable.author_new);
+           // oldAuthor.setImageResource(R.drawable.author_old);
         }
 
     }

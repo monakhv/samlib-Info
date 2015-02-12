@@ -68,6 +68,6 @@ limitations under the License.
     </LinearLayout>
 
 
-    <include  android:id="@+id/twoButtons"  layout="@layout/buttons_flip"/>
+    <include  android:id="@+id/twoButtons"  layout="@layout/author_flip"/>
 
 </LinearLayout>
