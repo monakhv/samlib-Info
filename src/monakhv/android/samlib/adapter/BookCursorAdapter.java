@@ -168,14 +168,18 @@ public class BookCursorAdapter extends RecyclerCursorAdapter<BookCursorAdapter.V
         return sql.getBookController().getById(getItemId(pos));
     }
 
-    public void makeSelectedRead() {
+    /**
+     * Mark selected book as read
+     * @param animation if true make icon animation
+     */
+    public void makeSelectedRead(boolean animation) {
         Book book = getSelected();
         if (book == null) {
             return;
         }
         if (book.isIsNew()) {
             Flip3D ff = flips.get(getSelectedPosition());
-            if (ff != null) {
+            if (ff != null && animation) {
                 ff.makeFlip();
             } else {
                 sql.getBookController().markRead(book);

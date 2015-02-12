@@ -217,7 +217,7 @@ public class BookFragment extends Fragment implements ListSwipeListener.SwipeCal
         if (book == null){
             return false;
         }
-        adapter.makeSelectedRead();
+        adapter.makeSelectedRead(true);
         return true;
     }
 
@@ -282,7 +282,7 @@ public class BookFragment extends Fragment implements ListSwipeListener.SwipeCal
             launchBrowser(book);
         }
         if (item == menu_mark_read) {
-            adapter.makeSelectedRead();
+            adapter.makeSelectedRead(true );
         }
         if (item == menu_selected) {
             book.setGroup_id(Book.SELECTED_GROUP_ID);
@@ -314,7 +314,7 @@ public class BookFragment extends Fragment implements ListSwipeListener.SwipeCal
         Intent launchBrowser = new Intent(Intent.ACTION_VIEW, uri);
         SettingsHelper setting = new SettingsHelper(getActivity());
         if (setting.getAutoMarkFlag()) {
-            adapter.makeSelectedRead();
+            adapter.makeSelectedRead(false);
         }
 
         startActivity(launchBrowser);
@@ -399,7 +399,7 @@ public class BookFragment extends Fragment implements ListSwipeListener.SwipeCal
 
 
         if (settings.getAutoMarkFlag()) {
-            adapter.makeSelectedRead();
+            adapter.makeSelectedRead(false);
         }
         startActivity(launchBrowser);
     }
