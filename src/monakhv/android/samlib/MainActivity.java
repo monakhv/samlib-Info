@@ -230,7 +230,7 @@ public class MainActivity extends ActionBarActivity implements AuthorFragment.Ca
 
     @Override
     public void selectBookSortOrder() {
-
+        bookFragment.selectSortOrder();
     }
 
     @Override
