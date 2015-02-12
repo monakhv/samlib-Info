@@ -7,4 +7,3 @@ build/
 /local.properties
 /.idea
 /gradlew.bat
-*.iml
