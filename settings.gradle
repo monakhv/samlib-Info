@@ -1,0 +1,3 @@
+rootProject.name='samlib-info'
+include ':samlib-android', ':samlib-core'
+
