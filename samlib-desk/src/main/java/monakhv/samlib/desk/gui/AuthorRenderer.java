@@ -50,10 +50,12 @@ public class AuthorRenderer extends DefaultListCellRenderer {
         font = name.getFont();
 //        Font ff =font.deriveFont(Font.TYPE1_FONT);
 //        font = ff;
-        Log.i(DEBUG_TAG,"Font size: "+font.getSize2D());
+        Log.i(DEBUG_TAG,"Normal Font size: "+font.getSize2D());
 
         boldfont = font.deriveFont(Font.BOLD);
-        smallFont=font.deriveFont((float) (font.getSize2D()*3./4.));
+        float ss = ((float) (font.getSize2D()*3./4.));
+        Log.i(DEBUG_TAG,"Small Font size: "+ss);
+        smallFont=font.deriveFont(ss);
 
         SpringLayout layout = new SpringLayout();
         apan.setLayout(layout);
