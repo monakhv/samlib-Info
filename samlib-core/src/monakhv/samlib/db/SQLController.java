@@ -16,11 +16,8 @@
 package monakhv.samlib.db;
 
 import java.io.IOException;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
+
 import monakhv.samlib.db.entity.Author;
 
 /**
@@ -87,7 +84,7 @@ public class SQLController {
     public static final String TABLE_STATE    ="StateData";
     
     private static final String CLASS_NAME = "org.sqlite.JDBC";
-    private static final String CONNECT_STRING = "jdbc:sqlite:"+DB_NAME+".db";
+    private static final String CONNECT_STRING_PREFIX = "jdbc:sqlite:";
     
     public static final String DB_CREATE_AUTHOR ="create table if not exists "+TABLE_AUTHOR+"( "+
             COL_ID+"  integer primary key autoincrement, "+
@@ -144,34 +141,32 @@ public class SQLController {
             COL_STATE_VAR_VALUE                  +" blob"+           
             ");";
     
-    public static final String DB_IDX1 = "CREATE INDEX  author_url_idx ON Author(URL);";
-    public static final String DB_IDX2 = "CREATE INDEX  book_author   ON Book(AUTHOR_ID);";
-    public static final String DB_IDX3 = "CREATE INDEX  tagName  ON Tags(UCNAME);";
-    public static final String DB_IDX4 = "CREATE INDEX  tag_author     ON Tag2Author(TAG_ID,AUTHOR_ID);";
+    public static final String DB_IDX1 = "CREATE INDEX if not exists  author_url_idx ON Author(URL);";
+    public static final String DB_IDX2 = "CREATE INDEX if not exists book_author   ON Book(AUTHOR_ID);";
+    public static final String DB_IDX3 = "CREATE INDEX if not exists tagName  ON Tags(UCNAME);";
+    public static final String DB_IDX4 = "CREATE INDEX  if not exists tag_author     ON Tag2Author(TAG_ID,AUTHOR_ID);";
     ///public static final String ALTER2_1 = "ALTER TABLE  "+TABLE_AUTHOR+" DROP COLUMN "+COL_books+" ;";//Not Supported by SQLight
     public static final String ALTER2_2 = "UPDATE   "+TABLE_AUTHOR+" SET  "+COL_isnew+" =0;";
-    
+
     public static final String INSERT_AUTHOR ="INSERT INTO " + TABLE_AUTHOR +" ( "+
             COL_NAME +","+
             COL_URL+","+
             COL_mtime+"," +
-            COL_isnew+","+
-            COL_books+")";
+            COL_isnew+")";
             
     public static final String UPDATE_AUTHOR ="UPDATE "+ TABLE_AUTHOR +" SET "+
             COL_NAME + "=? ,"+
             COL_URL+"=?,"+
             COL_mtime+"=?,"+
             COL_isnew+"=?,"+
-            COL_books+"=? "+
-            " WHERE "+ COL_ID+"=?";
+             " WHERE "+ COL_ID+"=?";
     private static SQLController instance = null;
     private final Connection bd;
     private Statement st;
 
-    private SQLController() throws ClassNotFoundException, SQLException {
+    private SQLController(String data_path ) throws ClassNotFoundException, SQLException {
         Class.forName(CLASS_NAME);
-        bd = DriverManager.getConnection(CONNECT_STRING);
+        bd = DriverManager.getConnection(CONNECT_STRING_PREFIX+data_path+"/"+DB_NAME+".sqlite");
         st = bd.createStatement();
         st.execute(DB_CREATE_AUTHOR);
         st.execute(DB_CREATE_BOOKS);
@@ -202,6 +197,10 @@ public class SQLController {
         
     }
 
+    public ResultSet query(String sql) throws SQLException {
+        return st.executeQuery(sql);
+    }
+
     
   
     /**
@@ -209,10 +208,10 @@ public class SQLController {
      *
      * @return
      */
-    public static SQLController getInstance() throws ClassNotFoundException, SQLException {
+    public static SQLController getInstance(String path) throws ClassNotFoundException, SQLException {
         if (instance == null) {
 
-            instance = new SQLController();
+            instance = new SQLController(path);
 
         }
         return instance;

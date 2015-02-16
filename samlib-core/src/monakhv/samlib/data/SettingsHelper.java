@@ -28,6 +28,7 @@ public interface SettingsHelper {
     void log(String debugTag, String s);
     void log(String debugTag, String s, Exception e);
     public File getBookFile(Book book,FileType fileType);
+    public String getDataDirectoryPath();
 
 
     public static enum FileType {

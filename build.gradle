@@ -42,3 +42,15 @@ project(":samlib-android") {
     }
 }
 
+project(":samlib-desk") {
+    apply plugin: "java"
+    dependencies {
+        compile project(":samlib-core")
+        compile group: 'org.apache.logging.log4j', name: 'log4j-api', version: '2.1'
+        compile group: 'org.apache.logging.log4j', name: 'log4j-core', version: '2.1'
+        compile group: 'org.xerial', name: 'sqlite-jdbc', version: '3.7.2'
+        compile group: 'com.jgoodies', name: 'jgoodies-common', version: '1.6.0'
+        compile group: 'com.jgoodies', name: 'jgoodies-forms', version: '1.6.0'
+        testCompile group: 'junit', name: 'junit', version: '4.11'
+    }
+}
