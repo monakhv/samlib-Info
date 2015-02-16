@@ -3,11 +3,13 @@ package monakhv.samlib.desk.sql;
 import monakhv.samlib.db.AbstractController;
 import monakhv.samlib.db.SQLController;
 import monakhv.samlib.db.entity.Author;
+import monakhv.samlib.db.entity.Book;
 import monakhv.samlib.log.Log;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /*
@@ -58,14 +60,20 @@ public class AuthorController implements AbstractController<Author> {
 
     public List<Author> getAll(String selection, String order ) {
 
-        String statement= "SELECT * from "+TABLE;
+        String statement=SQLController.SELECT_AUTHOR_WITH_TAGS;
 
-        if (selection != null){
-            statement +=" where "+selection;
-        }
         if (order != null){
             statement += " ORDER BY "+order;
         }
+
+        if (selection == null){
+            statement=statement.replaceAll(SQLController.WHERE_PAT, "");
+
+        }
+        else {
+            statement=statement.replaceAll(SQLController.WHERE_PAT, "where "+selection);
+        }
+
         ResultSet rs;
 
         try {
@@ -109,9 +117,41 @@ public class AuthorController implements AbstractController<Author> {
             a.setUrl(rs.getString(SQLController.COL_URL));
             a.setUpdateDate(rs.getLong(SQLController.COL_mtime));
             a.setIsNew(rs.getInt(SQLController.COL_isnew)==1);
+
+            String all_tag_names = rs.getString(SQLController.COL_TGNAMES);
+            a.setAll_tags_name(all_tag_names);
+
+            if (all_tag_names != null) {
+                String[] names = all_tag_names.split(",");
+                a.setTags_name(Arrays.asList(names));
+            }
+
+            String all_tag_ids = rs.getString(SQLController.COL_TGIDS);
+
+            if (all_tag_ids != null) {
+                String[] ids = all_tag_ids.split(",");
+
+                List<Integer> res = new ArrayList<Integer>();
+                for (String s : ids) {
+                    res.add(Integer.valueOf(s));
+                }
+
+                a.setTags_id(res);
+            }
+
+
+
         } catch (SQLException e) {
             Log.e(DEBUG_TAG,"Author create error: ",e);
         }
+
+
+        //Populate List of Books
+//        List<Book> books = bkCtr.getBooksByAuthor(a);
+//        a.setBooks(books);
+
+
+
         return a;
     }
 

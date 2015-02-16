@@ -27,7 +27,7 @@ import java.util.Date;
  * 2/16/15.
  */
 public class AuthorRenderer extends DefaultListCellRenderer {
-    private static final String DEBUG_TAG="AuthorRenderer";
+    private static final String DEBUG_TAG = "AuthorRenderer";
     public static final String DATE_FORMAT = "dd.MM.yyyy HH:mm:ss";
     private final static ImageIcon GREEN_ICON = new ImageIcon(AuthorRenderer.class.getResource("/pics/16x16/bullet_green.png"));
     private final static ImageIcon BLACK_ICON = new ImageIcon(AuthorRenderer.class.getResource("/pics/16x16/bullet_black.png"));
@@ -37,6 +37,8 @@ public class AuthorRenderer extends DefaultListCellRenderer {
     private final JLabel name = new JLabel();
     private final JLabel newIcon = new JLabel();
     private final JLabel updated = new JLabel();
+    private final JLabel url = new JLabel();
+    private final JLabel tgnames = new JLabel();
     private Font font;
     private final Font boldfont;
     private Font smallFont;
@@ -44,38 +46,53 @@ public class AuthorRenderer extends DefaultListCellRenderer {
 
     public AuthorRenderer() {
         df = new SimpleDateFormat(DATE_FORMAT);
-        panel.setLayout(new BorderLayout());
-        panel.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.RAISED));
-        panel.setOpaque(true);
+
         font = name.getFont();
 //        Font ff =font.deriveFont(Font.TYPE1_FONT);
 //        font = ff;
-        Log.i(DEBUG_TAG,"Normal Font size: "+font.getSize2D());
+        Log.i(DEBUG_TAG, "Normal Font size: " + font.getSize2D());
 
         boldfont = font.deriveFont(Font.BOLD);
-        float ss = ((float) (font.getSize2D()*3./4.));
-        Log.i(DEBUG_TAG,"Small Font size: "+ss);
-        smallFont=font.deriveFont(ss);
+        float ss = ((float) (font.getSize2D() * 3. / 4.));
+        Log.i(DEBUG_TAG, "Small Font size: " + ss);
+        smallFont = font.deriveFont(ss);
 
-        SpringLayout layout = new SpringLayout();
+
+
+        panel.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.RAISED));
+        panel.setLayout(new BorderLayout());
+        panel.setOpaque(true);
+
+
+        GroupLayout layout = new GroupLayout(apan);
+        layout.setAutoCreateGaps(true);
+        layout.setAutoCreateContainerGaps(true);
         apan.setLayout(layout);
+
+        layout.setHorizontalGroup(
+                layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING)
+                                .addComponent(name)
+                                .addComponent(url)
+                                .addComponent(updated))
+                .addComponent(tgnames)
+
+        );
+
+        layout.setVerticalGroup(
+                layout.createSequentialGroup()
+
+                        .addComponent(name)
+                        .addComponent(url)
+                        .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
+                                .addComponent(updated)
+                                .addComponent(tgnames))
+
+
+        );
         apan.setOpaque(true);
-        apan.add(name);
-        apan.add(updated);
-        layout.putConstraint(SpringLayout.WEST, name, 5, SpringLayout.WEST, apan);
-        layout.putConstraint(SpringLayout.NORTH, name, 5, SpringLayout.NORTH, apan);
-
-        layout.putConstraint(SpringLayout.NORTH, updated, 5, SpringLayout.SOUTH, name);
-        layout.putConstraint(SpringLayout.WEST, updated, 0, SpringLayout.WEST, name);
-
-        layout.putConstraint(SpringLayout.SOUTH, apan, 5, SpringLayout.SOUTH, updated);
-        layout.putConstraint(SpringLayout.EAST, apan, 5, SpringLayout.EAST, name);
-
-        apan.setOpaque(true);
-
-        panel.add(apan, BorderLayout.CENTER);
-        panel.add(newIcon, BorderLayout.EAST);
-
+        panel.add(apan,BorderLayout.CENTER);
+        panel.add(newIcon,BorderLayout.EAST);
 
     }
 
@@ -92,6 +109,15 @@ public class AuthorRenderer extends DefaultListCellRenderer {
                 Date d = new Date(a.getUpdateDate());
                 updated.setText(df.format(d));
                 updated.setFont(smallFont);
+                url.setText(a.getUrl());
+                url.setFont(smallFont);
+                String tags = a.getAll_tags_name();
+                if (tags != null) {
+                    tgnames.setText(tags.replaceAll(",", ", "));
+                } else {
+                    tgnames.setText("");
+                }
+                tgnames.setFont(smallFont);
 
                 if (a.isIsNew()) {
                     newIcon.setIcon(GREEN_ICON);
@@ -107,6 +133,7 @@ public class AuthorRenderer extends DefaultListCellRenderer {
         if (isSelected) {
             name.setForeground(Color.WHITE);
             updated.setForeground(Color.WHITE);
+            url.setForeground(Color.WHITE);
             panel.setBackground(list.getSelectionBackground());
             panel.setForeground(list.getSelectionForeground());
             apan.setBackground(list.getSelectionBackground());
@@ -115,6 +142,7 @@ public class AuthorRenderer extends DefaultListCellRenderer {
         } else {
             name.setForeground(Color.BLACK);
             updated.setForeground(Color.BLACK);
+            url.setForeground(Color.BLACK);
             panel.setBackground(list.getBackground());
             panel.setForeground(list.getForeground());
             apan.setBackground(list.getBackground());

@@ -7,7 +7,7 @@ new FormModel {
 			name: "this"
 			"minimumSize": new java.awt.Dimension( 20, 70 )
 			add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class com.jgoodies.forms.layout.FormLayout ) {
-				"$columnSpecs": "max(default;150dlu):grow, max(default;300dlu):grow"
+				"$columnSpecs": "max(default;200dlu):grow, max(default;400dlu):grow"
 				"$rowSpecs": "fill:max(default;400dlu):grow"
 			} ) {
 				name: "panelMain"
