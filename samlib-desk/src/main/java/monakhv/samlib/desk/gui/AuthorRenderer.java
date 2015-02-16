@@ -1,6 +1,7 @@
 package monakhv.samlib.desk.gui;
 
 import monakhv.samlib.db.entity.Author;
+import monakhv.samlib.log.Log;
 
 import javax.swing.*;
 import javax.swing.border.EtchedBorder;
@@ -26,6 +27,7 @@ import java.util.Date;
  * 2/16/15.
  */
 public class AuthorRenderer extends DefaultListCellRenderer {
+    private static final String DEBUG_TAG="AuthorRenderer";
     public static final String DATE_FORMAT = "dd.MM.yyyy HH:mm:ss";
     private final static ImageIcon GREEN_ICON = new ImageIcon(AuthorRenderer.class.getResource("/pics/16x16/bullet_green.png"));
     private final static ImageIcon BLACK_ICON = new ImageIcon(AuthorRenderer.class.getResource("/pics/16x16/bullet_black.png"));
@@ -35,8 +37,9 @@ public class AuthorRenderer extends DefaultListCellRenderer {
     private final JLabel name = new JLabel();
     private final JLabel newIcon = new JLabel();
     private final JLabel updated = new JLabel();
-    private final Font font;
+    private Font font;
     private final Font boldfont;
+    private Font smallFont;
     private SimpleDateFormat df;
 
     public AuthorRenderer() {
@@ -45,7 +48,12 @@ public class AuthorRenderer extends DefaultListCellRenderer {
         panel.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.RAISED));
         panel.setOpaque(true);
         font = name.getFont();
+//        Font ff =font.deriveFont(Font.TYPE1_FONT);
+//        font = ff;
+        Log.i(DEBUG_TAG,"Font size: "+font.getSize2D());
+
         boldfont = font.deriveFont(Font.BOLD);
+        smallFont=font.deriveFont((float) (font.getSize2D()*3./4.));
 
         SpringLayout layout = new SpringLayout();
         apan.setLayout(layout);
@@ -81,6 +89,7 @@ public class AuthorRenderer extends DefaultListCellRenderer {
                 name.setText(a.getName());
                 Date d = new Date(a.getUpdateDate());
                 updated.setText(df.format(d));
+                updated.setFont(smallFont);
 
                 if (a.isIsNew()) {
                     newIcon.setIcon(GREEN_ICON);

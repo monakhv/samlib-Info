@@ -109,7 +109,7 @@ public class MainForm extends JFrame {
             panelMain.setMinimumSize(new Dimension(800, 100));
             panelMain.setBorder(Borders.DLU4);
             panelMain.setLayout(new FormLayout(
-                "[150dlu,default], [300dlu,default]",
+                "[150dlu,default]:grow, [300dlu,default]:grow",
                 "fill:[400dlu,default]:grow"));
 
             //======== scrollPane1 ========
