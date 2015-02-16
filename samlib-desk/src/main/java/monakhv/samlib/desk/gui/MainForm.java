@@ -6,8 +6,10 @@ package monakhv.samlib.desk.gui;
 
 import java.awt.*;
 import java.awt.event.*;
-import java.sql.SQLException;
 import javax.swing.*;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
+
 import com.jgoodies.forms.factories.*;
 import com.jgoodies.forms.layout.*;
 import monakhv.samlib.db.SQLController;
@@ -45,6 +47,25 @@ public class MainForm extends JFrame {
         jAuthorList.setModel(authorsModel);
         jAuthorList.setCellRenderer(new AuthorRenderer());
         jAuthorList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+
+        jAuthorList.addListSelectionListener(new ListSelectionListener() {
+            @Override
+            public void valueChanged(ListSelectionEvent e) {
+                JList lsm = (JList) e.getSource();
+
+
+                if (lsm.isSelectionEmpty()|| !e.getValueIsAdjusting() ) {
+                    return;
+                }
+                if (lsm.getMinSelectionIndex() != lsm.getMaxSelectionIndex()) {
+                    Log.i(DEBUG_TAG, "selection " + lsm.getMinSelectionIndex() + " - " + lsm.getMaxSelectionIndex());
+                    return;
+                }
+                Log.i(DEBUG_TAG, "selection " + authorsModel.get(lsm.getMaxSelectionIndex()).getName()+"  "+e.getValueIsAdjusting());
+
+
+            }
+        });
     }
 
     private void addSortedAuthorList() {
