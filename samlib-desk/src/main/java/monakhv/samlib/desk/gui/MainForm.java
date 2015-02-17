@@ -14,6 +14,7 @@ import com.jgoodies.forms.factories.*;
 import com.jgoodies.forms.layout.*;
 import monakhv.samlib.db.SQLController;
 import monakhv.samlib.db.entity.Author;
+import monakhv.samlib.desk.Main;
 import monakhv.samlib.desk.data.Settings;
 import monakhv.samlib.desk.sql.AuthorController;
 import monakhv.samlib.log.Log;
@@ -28,9 +29,10 @@ public class MainForm extends JFrame {
     private final SQLController sql;
     private Settings settings;
 
-    public MainForm() {
+    public MainForm( Settings settings ) {
+        this.settings=settings;
         SQLController sql1;
-        settings = Settings.getInstance();
+
         try {
             sql1 = SQLController.getInstance( settings.getDataDirectoryPath()  );
         } catch (Exception e) {
@@ -39,6 +41,13 @@ public class MainForm extends JFrame {
         }
         sql = sql1;
         authorsModel = new DefaultListModel<>();
+        this.addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                super.windowClosing(e);
+                Main.exit(1);
+            }
+        });
 
         initComponents();
 
@@ -79,8 +88,9 @@ public class MainForm extends JFrame {
 
     }
 
+
     private void menuItemExitActionPerformed(ActionEvent e) {
-       System.exit(0);
+        Main.exit(0);
     }
 
     private void initComponents() {

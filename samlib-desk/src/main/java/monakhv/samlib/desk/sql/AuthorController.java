@@ -288,7 +288,7 @@ public class AuthorController implements AbstractController<Author> {
 
 
         } catch (SQLException e) {
-            Log.e(DEBUG_TAG, "Author create error: ", e);
+            Log.e(DEBUG_TAG, "resultSetToAuthor error: ", e);
         }
 
 

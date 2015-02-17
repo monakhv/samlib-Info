@@ -35,8 +35,11 @@ public class Main {
         javax.swing.SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {
-                new MainForm().setVisible(true);
+                new MainForm(Settings.getInstance()).setVisible(true);
             }
         });
+    }
+    public static void exit(int i){
+        System.exit(i);
     }
 }

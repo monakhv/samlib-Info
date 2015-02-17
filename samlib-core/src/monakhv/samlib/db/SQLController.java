@@ -162,12 +162,12 @@ public class SQLController {
              " WHERE "+ COL_ID+"=?";
     private static SQLController instance = null;
     private final Connection bd;
-    private Statement st;
+
 
     private SQLController(String data_path ) throws ClassNotFoundException, SQLException {
         Class.forName(CLASS_NAME);
         bd = DriverManager.getConnection(CONNECT_STRING_PREFIX+data_path+"/"+DB_NAME+".sqlite");
-        st = bd.createStatement();
+        Statement st = bd.createStatement();
         st.execute(DB_CREATE_AUTHOR);
         st.execute(DB_CREATE_BOOKS);
         st.execute(DB_IDX1);
@@ -181,21 +181,11 @@ public class SQLController {
         st.execute(DB_IDX3);
         st.execute(DB_IDX4);
 
+        st.close();
+
     }
 
         
-    /**
-     * Delete author from SQL store
-     * @param a author to delete
-     * @throws SQLException
-     * @throws IOException 
-     */
-    public void delete(Author a) throws SQLException, IOException {        
-        PreparedStatement statement = bd.prepareStatement("DELETE from Author  WHERE ID=?");     
-            statement.setInt(1, a.getId());
-            statement.executeUpdate();
-        
-    }
 
     /**
      * Make low level SQL query
@@ -204,6 +194,7 @@ public class SQLController {
      * @throws SQLException
      */
     public ResultSet query(String sql) throws SQLException {
+        Statement st = bd.createStatement();
         return st.executeQuery(sql);
     }
 
