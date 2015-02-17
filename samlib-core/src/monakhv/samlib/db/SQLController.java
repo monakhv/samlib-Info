@@ -111,12 +111,12 @@ public class SQLController {
             COL_ID+"  integer primary key autoincrement, "+
             COL_BOOK_LINK +" text,"+
             COL_BOOK_AUTHOR                +" text,"+
-            COL_BOOK_TITLE                     +" text,"+ 
+            COL_BOOK_TITLE                     +" text,"+
             COL_BOOK_FORM                     +" text,"+
             COL_BOOK_SIZE                        +" INTEGER,"+
             COL_BOOK_GROUP_ID             +" INTEGER,"+
             COL_BOOK_DATE                      +" timestamp,"+//from the samlib
-            COL_BOOK_DESCRIPTION        +" text,"+       
+            COL_BOOK_DESCRIPTION        +" text,"+
            COL_BOOK_AUTHOR_ID            +" INTEGER NOT NULL,"+
            COL_BOOK_MTIME                    +" timestamp, "+//updated in the db
            COL_BOOK_ISNEW                    +" BOOLEAN DEFAULT '0' NOT NULL"+
@@ -197,10 +197,19 @@ public class SQLController {
         
     }
 
+    /**
+     * Make low level SQL query
+     * @param sql SQL Language query string
+     * @return ResultSet Object
+     * @throws SQLException
+     */
     public ResultSet query(String sql) throws SQLException {
         return st.executeQuery(sql);
     }
 
+    public PreparedStatement getPrepare(String sql) throws SQLException {
+        return  bd.prepareStatement(sql);
+    }
     
   
     /**
