@@ -15,6 +15,8 @@ new FormModel {
 				"border": sfield com.jgoodies.forms.factories.Borders DLU4_BORDER
 				add( new FormContainer( "javax.swing.JScrollPane", new FormLayoutManager( class javax.swing.JScrollPane ) ) {
 					name: "scrollPane1"
+					"horizontalScrollBarPolicy": 31
+					"verticalScrollBarPolicy": 21
 					add( new FormComponent( "javax.swing.JList" ) {
 						name: "jAuthorList"
 					} )
@@ -24,6 +26,8 @@ new FormModel {
 				} )
 				add( new FormContainer( "javax.swing.JScrollPane", new FormLayoutManager( class javax.swing.JScrollPane ) ) {
 					name: "scrollPane2"
+					"horizontalScrollBarPolicy": 31
+					"verticalScrollBarPolicy": 21
 					add( new FormComponent( "javax.swing.JList" ) {
 						name: "jBookList"
 					} )

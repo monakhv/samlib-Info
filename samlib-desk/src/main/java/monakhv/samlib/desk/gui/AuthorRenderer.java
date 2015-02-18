@@ -32,67 +32,11 @@ public class AuthorRenderer extends DefaultListCellRenderer {
     private final static ImageIcon GREEN_ICON = new ImageIcon(AuthorRenderer.class.getResource("/pics/16x16/bullet_green.png"));
     private final static ImageIcon BLACK_ICON = new ImageIcon(AuthorRenderer.class.getResource("/pics/16x16/bullet_black.png"));
 
-    private final JPanel panel = new JPanel();
-    private final JPanel apan = new JPanel();
-    private final JLabel name = new JLabel();
-    private final JLabel newIcon = new JLabel();
-    private final JLabel updated = new JLabel();
-    private final JLabel url = new JLabel();
-    private final JLabel tgnames = new JLabel();
-    private Font font;
-    private final Font boldfont;
-    private Font smallFont;
+    private final AuthorRow pan = new AuthorRow();
     private SimpleDateFormat df;
 
     public AuthorRenderer() {
         df = new SimpleDateFormat(DATE_FORMAT);
-
-        font = name.getFont();
-//        Font ff =font.deriveFont(Font.TYPE1_FONT);
-//        font = ff;
-        Log.i(DEBUG_TAG, "Normal Font size: " + font.getSize2D());
-
-        boldfont = font.deriveFont(Font.BOLD);
-        float ss = ((float) (font.getSize2D() * 3. / 4.));
-        Log.i(DEBUG_TAG, "Small Font size: " + ss);
-        smallFont = font.deriveFont(ss);
-
-
-
-        panel.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.RAISED));
-        panel.setLayout(new BorderLayout());
-        panel.setOpaque(true);
-
-
-        GroupLayout layout = new GroupLayout(apan);
-        layout.setAutoCreateGaps(true);
-        layout.setAutoCreateContainerGaps(true);
-        apan.setLayout(layout);
-
-        layout.setHorizontalGroup(
-                layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING)
-                                .addComponent(name)
-                                .addComponent(url)
-                                .addComponent(updated))
-                .addComponent(tgnames)
-
-        );
-
-        layout.setVerticalGroup(
-                layout.createSequentialGroup()
-
-                        .addComponent(name)
-                        .addComponent(url)
-                        .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
-                                .addComponent(updated)
-                                .addComponent(tgnames))
-
-
-        );
-        apan.setOpaque(true);
-        panel.add(apan,BorderLayout.CENTER);
-        panel.add(newIcon,BorderLayout.EAST);
 
     }
 
@@ -102,54 +46,43 @@ public class AuthorRenderer extends DefaultListCellRenderer {
                                                   int index,
                                                   boolean isSelected,
                                                   boolean hasFocus) {
+        JLabel name = pan.getJName();
+        JLabel updated=pan.getUpdated();
+        JLabel url = pan.getUrl();
+        JLabel tgnames = pan.getTgnames();
+        JLabel newIcon = pan.getNewIcon();
         if (value != null) {
             if (value instanceof Author) {
                 final Author a = (Author) value;
                 name.setText(a.getName());
                 Date d = new Date(a.getUpdateDate());
                 updated.setText(df.format(d));
-                updated.setFont(smallFont);
+
                 url.setText(a.getUrl());
-                url.setFont(smallFont);
+
                 String tags = a.getAll_tags_name();
                 if (tags != null) {
                     tgnames.setText(tags.replaceAll(",", ", "));
                 } else {
                     tgnames.setText("");
                 }
-                tgnames.setFont(smallFont);
+
 
                 if (a.isIsNew()) {
                     newIcon.setIcon(GREEN_ICON);
-                    name.setFont(boldfont);
+                    //name.setFont(boldfont);
                 } else {
                     newIcon.setIcon(BLACK_ICON);
-                    name.setFont(font);
+                    //name.setFont(font);
                 }
             }
 
         }
 
-        if (isSelected) {
-            name.setForeground(Color.WHITE);
-            updated.setForeground(Color.WHITE);
-            url.setForeground(Color.WHITE);
-            panel.setBackground(list.getSelectionBackground());
-            panel.setForeground(list.getSelectionForeground());
-            apan.setBackground(list.getSelectionBackground());
-            apan.setForeground(list.getSelectionForeground());
+        pan.setSelected(isSelected,list);
 
-        } else {
-            name.setForeground(Color.BLACK);
-            updated.setForeground(Color.BLACK);
-            url.setForeground(Color.BLACK);
-            panel.setBackground(list.getBackground());
-            panel.setForeground(list.getForeground());
-            apan.setBackground(list.getBackground());
-            apan.setForeground(list.getForeground());
-        }
-        panel.setEnabled(list.isEnabled());
-        return panel;
+        pan.setEnabled(list.isEnabled());
+        return pan;
 
 
     }

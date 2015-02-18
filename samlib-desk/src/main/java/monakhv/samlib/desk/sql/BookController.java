@@ -79,7 +79,7 @@ public class BookController  implements AbstractController<Book> {
 
     private final SQLController sql;
 
-    BookController(SQLController sql) {
+    public BookController(SQLController sql) {
         this.sql=sql;
 
     }

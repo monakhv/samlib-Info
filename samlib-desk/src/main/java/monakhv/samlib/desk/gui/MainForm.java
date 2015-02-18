@@ -14,9 +14,11 @@ import com.jgoodies.forms.factories.*;
 import com.jgoodies.forms.layout.*;
 import monakhv.samlib.db.SQLController;
 import monakhv.samlib.db.entity.Author;
+import monakhv.samlib.db.entity.Book;
 import monakhv.samlib.desk.Main;
 import monakhv.samlib.desk.data.Settings;
 import monakhv.samlib.desk.sql.AuthorController;
+import monakhv.samlib.desk.sql.BookController;
 import monakhv.samlib.log.Log;
 
 /**
@@ -25,6 +27,7 @@ import monakhv.samlib.log.Log;
 public class MainForm extends JFrame {
     private static final String DEBUG_TAG="MainForm";
     private final DefaultListModel<Author> authorsModel;
+    private final DefaultListModel<Book> booksModel;
 
     private final SQLController sql;
     private Settings settings;
@@ -41,6 +44,7 @@ public class MainForm extends JFrame {
         }
         sql = sql1;
         authorsModel = new DefaultListModel<>();
+        booksModel = new DefaultListModel<>();
         this.addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent e) {
@@ -56,6 +60,9 @@ public class MainForm extends JFrame {
         jAuthorList.setModel(authorsModel);
         jAuthorList.setCellRenderer(new AuthorRenderer());
         jAuthorList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        jBookList.setModel(booksModel);
+        jBookList.setCellRenderer(new BookRenderer());
+        jBookList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 
         jAuthorList.addListSelectionListener(new ListSelectionListener() {
             @Override
@@ -70,7 +77,9 @@ public class MainForm extends JFrame {
                     Log.i(DEBUG_TAG, "selection " + lsm.getMinSelectionIndex() + " - " + lsm.getMaxSelectionIndex());
                     return;
                 }
-                Log.i(DEBUG_TAG, "selection " + authorsModel.get(lsm.getMaxSelectionIndex()).getName()+"  "+e.getValueIsAdjusting());
+                Author a =authorsModel.get(lsm.getMaxSelectionIndex());
+                Log.i(DEBUG_TAG, "selection " +a.getName()+"  "+e.getValueIsAdjusting());
+                loadBookList(a);
 
 
             }
@@ -84,6 +93,16 @@ public class MainForm extends JFrame {
 
         for (Author a : ctl.getAll(null, SQLController.COL_NAME) ){
             authorsModel.addElement(a);
+        }
+
+    }
+    private void loadBookList(Author a){
+        BookController ctl = new BookController(sql);
+        booksModel.removeAllElements();
+
+
+        for (Book book : ctl.getAll(a,null) ){
+            booksModel.addElement(book);
         }
 
     }
@@ -145,12 +164,16 @@ public class MainForm extends JFrame {
 
             //======== scrollPane1 ========
             {
+                scrollPane1.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+                scrollPane1.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER);
                 scrollPane1.setViewportView(jAuthorList);
             }
             panelMain.add(scrollPane1, CC.xy(1, 1));
 
             //======== scrollPane2 ========
             {
+                scrollPane2.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+                scrollPane2.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER);
                 scrollPane2.setViewportView(jBookList);
             }
             panelMain.add(scrollPane2, CC.xy(2, 1));
