@@ -52,8 +52,8 @@ public class BookRow extends JPanel {
         //======== this ========
         setBorder(new EtchedBorder(EtchedBorder.RAISED));
         setLayout(new FormLayout(
-            "pref, $lcgap, pref:grow",
-            "fill:pref:grow"));
+            "pref, $lcgap, [pref,300dlu]:grow",
+            "top:pref:grow"));
         add(newIcon, CC.xy(1, 1));
 
         //======== panel1 ========
@@ -74,22 +74,22 @@ public class BookRow extends JPanel {
             //======== panel2 ========
             {
                 panel2.setLayout(new GridBagLayout());
-                ((GridBagLayout)panel2.getLayout()).columnWidths = new int[] {0, 0};
+                ((GridBagLayout)panel2.getLayout()).columnWidths = new int[] {0, 10, 0};
                 ((GridBagLayout)panel2.getLayout()).rowHeights = new int[] {0, 0, 0};
-                ((GridBagLayout)panel2.getLayout()).columnWeights = new double[] {0.0, 1.0E-4};
+                ((GridBagLayout)panel2.getLayout()).columnWeights = new double[] {0.0, 0.0, 1.0E-4};
                 ((GridBagLayout)panel2.getLayout()).rowWeights = new double[] {0.0, 0.0, 1.0E-4};
 
                 //---- size ----
                 size.setText("text");
                 panel2.add(size, new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0,
                     GridBagConstraints.EAST, GridBagConstraints.VERTICAL,
-                    new Insets(0, 0, 5, 0), 0, 0));
+                    new Insets(0, 0, 5, 5), 0, 0));
 
                 //---- form ----
                 form.setText("text");
                 panel2.add(form, new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0,
                     GridBagConstraints.EAST, GridBagConstraints.VERTICAL,
-                    new Insets(0, 0, 0, 0), 0, 0));
+                    new Insets(0, 0, 0, 5), 0, 0));
             }
             panel1.add(panel2, new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0,
                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
@@ -99,9 +99,11 @@ public class BookRow extends JPanel {
             {
                 scrollPane1.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
                 scrollPane1.setBorder(null);
+                scrollPane1.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER);
 
                 //---- description ----
                 description.setLineWrap(true);
+                description.setWrapStyleWord(true);
                 scrollPane1.setViewportView(description);
             }
             panel1.add(scrollPane1, new GridBagConstraints(0, 1, 2, 1, 0.0, 0.0,

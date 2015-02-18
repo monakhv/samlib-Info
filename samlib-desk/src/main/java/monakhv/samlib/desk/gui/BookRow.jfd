@@ -4,8 +4,8 @@ new FormModel {
 	contentType: "form/swing"
 	root: new FormRoot {
 		add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class com.jgoodies.forms.layout.FormLayout ) {
-			"$columnSpecs": "pref, labelcompgap, pref:grow"
-			"$rowSpecs": "fill:pref:grow"
+			"$columnSpecs": "pref, labelcompgap, min(pref;300dlu):grow"
+			"$rowSpecs": "top:pref:grow"
 		} ) {
 			name: "this"
 			"border": new javax.swing.border.EtchedBorder( 0, null, null )
@@ -30,7 +30,7 @@ new FormModel {
 					"font": new com.jformdesigner.model.SwingDerivedFont( null, 0, 6, false )
 				}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) )
 				add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.GridBagLayout ) {
-					"$columnSpecs": "right:0"
+					"$columnSpecs": "right:0, 10"
 					"$rowSpecs": "0, 0"
 					"$hGap": 5
 					"$vGap": 5
@@ -55,9 +55,11 @@ new FormModel {
 					name: "scrollPane1"
 					"horizontalScrollBarPolicy": 31
 					"border": sfield com.jformdesigner.model.FormObject NULL_VALUE
+					"verticalScrollBarPolicy": 21
 					add( new FormComponent( "javax.swing.JTextArea" ) {
 						name: "description"
 						"lineWrap": true
+						"wrapStyleWord": true
 					} )
 				}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
 					"gridy": 1

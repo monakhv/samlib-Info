@@ -7,7 +7,7 @@ new FormModel {
 			name: "this"
 			"minimumSize": new java.awt.Dimension( 20, 70 )
 			add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class com.jgoodies.forms.layout.FormLayout ) {
-				"$columnSpecs": "max(default;200dlu):grow, max(default;400dlu):grow"
+				"$columnSpecs": "max(default;200dlu):grow, 5dlu, max(default;400dlu):grow(0.8), default"
 				"$rowSpecs": "fill:max(default;400dlu):grow"
 			} ) {
 				name: "panelMain"
@@ -16,7 +16,6 @@ new FormModel {
 				add( new FormContainer( "javax.swing.JScrollPane", new FormLayoutManager( class javax.swing.JScrollPane ) ) {
 					name: "scrollPane1"
 					"horizontalScrollBarPolicy": 31
-					"verticalScrollBarPolicy": 21
 					add( new FormComponent( "javax.swing.JList" ) {
 						name: "jAuthorList"
 					} )
@@ -27,12 +26,12 @@ new FormModel {
 				add( new FormContainer( "javax.swing.JScrollPane", new FormLayoutManager( class javax.swing.JScrollPane ) ) {
 					name: "scrollPane2"
 					"horizontalScrollBarPolicy": 31
-					"verticalScrollBarPolicy": 21
+					"autoscrolls": true
 					add( new FormComponent( "javax.swing.JList" ) {
 						name: "jBookList"
 					} )
 				}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
-					"gridX": 2
+					"gridX": 3
 					"gridY": 1
 				} )
 			}, new FormLayoutConstraints( class java.lang.String ) {
@@ -55,7 +54,7 @@ new FormModel {
 				} )
 			}
 		}, new FormLayoutConstraints( null ) {
-			"location": new java.awt.Point( 0, 5 )
+			"location": new java.awt.Point( 10, 10 )
 			"size": new java.awt.Dimension( 780, 615 )
 		} )
 	}

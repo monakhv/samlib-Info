@@ -28,15 +28,11 @@ import java.util.Date;
  */
 public class AuthorRenderer extends DefaultListCellRenderer {
     private static final String DEBUG_TAG = "AuthorRenderer";
-    public static final String DATE_FORMAT = "dd.MM.yyyy HH:mm:ss";
-    private final static ImageIcon GREEN_ICON = new ImageIcon(AuthorRenderer.class.getResource("/pics/16x16/bullet_green.png"));
-    private final static ImageIcon BLACK_ICON = new ImageIcon(AuthorRenderer.class.getResource("/pics/16x16/bullet_black.png"));
 
     private final AuthorRow pan = new AuthorRow();
-    private SimpleDateFormat df;
+
 
     public AuthorRenderer() {
-        df = new SimpleDateFormat(DATE_FORMAT);
 
     }
 
@@ -46,35 +42,11 @@ public class AuthorRenderer extends DefaultListCellRenderer {
                                                   int index,
                                                   boolean isSelected,
                                                   boolean hasFocus) {
-        JLabel name = pan.getJName();
-        JLabel updated=pan.getUpdated();
-        JLabel url = pan.getUrl();
-        JLabel tgnames = pan.getTgnames();
-        JLabel newIcon = pan.getNewIcon();
+
         if (value != null) {
             if (value instanceof Author) {
                 final Author a = (Author) value;
-                name.setText(a.getName());
-                Date d = new Date(a.getUpdateDate());
-                updated.setText(df.format(d));
-
-                url.setText(a.getUrl());
-
-                String tags = a.getAll_tags_name();
-                if (tags != null) {
-                    tgnames.setText(tags.replaceAll(",", ", "));
-                } else {
-                    tgnames.setText("");
-                }
-
-
-                if (a.isIsNew()) {
-                    newIcon.setIcon(GREEN_ICON);
-                    //name.setFont(boldfont);
-                } else {
-                    newIcon.setIcon(BLACK_ICON);
-                    //name.setFont(font);
-                }
+                pan.load(a);
             }
 
         }

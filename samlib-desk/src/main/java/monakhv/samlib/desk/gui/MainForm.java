@@ -159,13 +159,12 @@ public class MainForm extends JFrame {
             panelMain.setMinimumSize(new Dimension(800, 100));
             panelMain.setBorder(Borders.DLU4);
             panelMain.setLayout(new FormLayout(
-                "[200dlu,default]:grow, [400dlu,default]:grow",
+                "[200dlu,default]:grow, 5dlu, [400dlu,default]:grow(0.8), default",
                 "fill:[400dlu,default]:grow"));
 
             //======== scrollPane1 ========
             {
                 scrollPane1.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
-                scrollPane1.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER);
                 scrollPane1.setViewportView(jAuthorList);
             }
             panelMain.add(scrollPane1, CC.xy(1, 1));
@@ -173,10 +172,10 @@ public class MainForm extends JFrame {
             //======== scrollPane2 ========
             {
                 scrollPane2.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
-                scrollPane2.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER);
+                scrollPane2.setAutoscrolls(true);
                 scrollPane2.setViewportView(jBookList);
             }
-            panelMain.add(scrollPane2, CC.xy(2, 1));
+            panelMain.add(scrollPane2, CC.xy(3, 1));
         }
         contentPane.add(panelMain, BorderLayout.CENTER);
         pack();

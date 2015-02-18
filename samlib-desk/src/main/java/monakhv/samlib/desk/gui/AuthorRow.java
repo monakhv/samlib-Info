@@ -8,56 +8,50 @@ import javax.swing.*;
 import javax.swing.border.*;
 import com.jgoodies.forms.factories.*;
 import com.jgoodies.forms.layout.*;
+import monakhv.samlib.db.entity.Author;
 
 import java.awt.*;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 /**
  * @author Dmitry Monakhov
  */
 public class AuthorRow extends JPanel {
+    public static final String DATE_FORMAT = "dd.MM.yyyy HH:mm:ss";
+    private final static ImageIcon GREEN_ICON = new ImageIcon(AuthorRenderer.class.getResource("/pics/16x16/bullet_green.png"));
+    private final static ImageIcon BLACK_ICON = new ImageIcon(AuthorRenderer.class.getResource("/pics/16x16/bullet_black.png"));
+
+    private SimpleDateFormat df;
     public AuthorRow() {
+        df = new SimpleDateFormat(DATE_FORMAT);
+
         initComponents();
     }
 
 
-    public JLabel getJName() {
-        return name;
-    }
+    public void load(Author a){
+        name.setText(a.getName());
+        Date d = new Date(a.getUpdateDate());
+        updated.setText(df.format(d));
 
-    public void setName(JLabel name) {
-        this.name = name;
-    }
+        url.setText(a.getUrl());
 
-    public JLabel getUrl() {
-        return url;
-    }
+        String tags = a.getAll_tags_name();
+        if (tags != null) {
+            tgnames.setText(tags.replaceAll(",", ", "));
+        } else {
+            tgnames.setText("");
+        }
 
-    public void setUrl(JLabel url) {
-        this.url = url;
-    }
 
-    public JLabel getUpdated() {
-        return updated;
-    }
-
-    public void setUpdated(JLabel updated) {
-        this.updated = updated;
-    }
-
-    public JLabel getTgnames() {
-        return tgnames;
-    }
-
-    public void setTgnames(JLabel tgnames) {
-        this.tgnames = tgnames;
-    }
-
-    public JLabel getNewIcon() {
-        return newIcon;
-    }
-
-    public void setNewIcon(JLabel newIcon) {
-        this.newIcon = newIcon;
+        if (a.isIsNew()) {
+            newIcon.setIcon(GREEN_ICON);
+            //name.setFont(boldfont);
+        } else {
+            newIcon.setIcon(BLACK_ICON);
+            //name.setFont(font);
+        }
     }
     public void setSelected(boolean isSelected, JList list) {
         if (isSelected) {
