@@ -109,18 +109,21 @@ public class AuthorRow extends JPanel {
 
             //---- url ----
             url.setText("text");
+            url.setFont(new Font("Monospaced", Font.PLAIN, 12));
             panel1.add(url, new GridBagConstraints(0, 2, 3, 1, 0.0, 0.0,
                 GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL,
                 new Insets(0, 0, 0, 0), 0, 0));
 
             //---- updated ----
             updated.setText("text");
+            updated.setFont(new Font("Monospaced", Font.PLAIN, 12));
             panel1.add(updated, new GridBagConstraints(0, 4, 1, 1, 0.0, 0.0,
                 GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL,
                 new Insets(0, 0, 0, 0), 0, 0));
 
             //---- tgnames ----
             tgnames.setText("text");
+            tgnames.setFont(new Font("Monospaced", Font.PLAIN, 12));
             panel1.add(tgnames, new GridBagConstraints(2, 4, 1, 1, 0.0, 0.0,
                 GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL,
                 new Insets(0, 0, 0, 0), 0, 0));

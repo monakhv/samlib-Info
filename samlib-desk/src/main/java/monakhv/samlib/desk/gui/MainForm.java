@@ -84,6 +84,10 @@ public class MainForm extends JFrame {
 
             }
         });
+
+
+        JTable jt= new JTable();
+
     }
 
     private void addSortedAuthorList() {
@@ -119,6 +123,9 @@ public class MainForm extends JFrame {
         menuItem1 = new JMenuItem();
         menuItemExit = new JMenuItem();
         panelMain = new JPanel();
+        toolBar = new JPanel();
+        button1 = new JButton();
+        progressBar1 = new JProgressBar();
         scrollPane1 = new JScrollPane();
         jAuthorList = new JList();
         scrollPane2 = new JScrollPane();
@@ -159,15 +166,34 @@ public class MainForm extends JFrame {
             panelMain.setMinimumSize(new Dimension(800, 100));
             panelMain.setBorder(Borders.DLU4);
             panelMain.setLayout(new FormLayout(
-                "[200dlu,default]:grow, 5dlu, [400dlu,default]:grow(0.8), default",
-                "fill:[400dlu,default]:grow"));
+                "[200dlu,default]:grow, 5dlu, [350dlu,default]:grow(0.8), default",
+                "default, fill:[400dlu,default]:grow"));
+
+            //======== toolBar ========
+            {
+                toolBar.setLayout(new GridBagLayout());
+                ((GridBagLayout)toolBar.getLayout()).columnWidths = new int[] {0, 0, 0, 0, 0, 0};
+                ((GridBagLayout)toolBar.getLayout()).rowHeights = new int[] {0, 5, 0};
+                ((GridBagLayout)toolBar.getLayout()).columnWeights = new double[] {0.0, 0.0, 0.0, 0.0, 0.0, 1.0E-4};
+                ((GridBagLayout)toolBar.getLayout()).rowWeights = new double[] {0.0, 0.0, 1.0E-4};
+
+                //---- button1 ----
+                button1.setText("Update");
+                toolBar.add(button1, new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0,
+                    GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                    new Insets(0, 0, 5, 5), 0, 0));
+                toolBar.add(progressBar1, new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0,
+                    GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                    new Insets(0, 0, 5, 5), 0, 0));
+            }
+            panelMain.add(toolBar, CC.xywh(1, 1, 3, 1));
 
             //======== scrollPane1 ========
             {
                 scrollPane1.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
                 scrollPane1.setViewportView(jAuthorList);
             }
-            panelMain.add(scrollPane1, CC.xy(1, 1));
+            panelMain.add(scrollPane1, CC.xy(1, 2));
 
             //======== scrollPane2 ========
             {
@@ -175,7 +201,7 @@ public class MainForm extends JFrame {
                 scrollPane2.setAutoscrolls(true);
                 scrollPane2.setViewportView(jBookList);
             }
-            panelMain.add(scrollPane2, CC.xy(3, 1));
+            panelMain.add(scrollPane2, CC.xy(3, 2));
         }
         contentPane.add(panelMain, BorderLayout.CENTER);
         pack();
@@ -189,6 +215,9 @@ public class MainForm extends JFrame {
     private JMenuItem menuItem1;
     private JMenuItem menuItemExit;
     private JPanel panelMain;
+    private JPanel toolBar;
+    private JButton button1;
+    private JProgressBar progressBar1;
     private JScrollPane scrollPane1;
     private JList jAuthorList;
     private JScrollPane scrollPane2;

@@ -25,7 +25,14 @@ public class BookRow extends JPanel {
 
     public void load (Book book){
         title.setText("<html>"+book.getTitle()+"</html>");
-        description.setText(book.getDescription());
+        description.setContentType("text/html");
+        try {
+            description.setText(book.getDescription());
+        }
+        catch (RuntimeException e ){
+            description.setContentType("text/plain");
+            description.setText(book.getDescription());
+        }
 
         size.setText(book.getSize()+"K");
         form.setText(book.getForm());
@@ -47,12 +54,12 @@ public class BookRow extends JPanel {
         size = new JLabel();
         form = new JLabel();
         scrollPane1 = new JScrollPane();
-        description = new JTextArea();
+        description = new JTextPane();
 
         //======== this ========
         setBorder(new EtchedBorder(EtchedBorder.RAISED));
         setLayout(new FormLayout(
-            "pref, $lcgap, [pref,300dlu]:grow",
+            "pref, $lcgap, [pref,250dlu]:grow",
             "top:pref:grow"));
         add(newIcon, CC.xy(1, 1));
 
@@ -102,8 +109,7 @@ public class BookRow extends JPanel {
                 scrollPane1.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER);
 
                 //---- description ----
-                description.setLineWrap(true);
-                description.setWrapStyleWord(true);
+                description.setContentType("text/html");
                 scrollPane1.setViewportView(description);
             }
             panel1.add(scrollPane1, new GridBagConstraints(0, 1, 2, 1, 0.0, 0.0,
@@ -122,6 +128,6 @@ public class BookRow extends JPanel {
     private JLabel size;
     private JLabel form;
     private JScrollPane scrollPane1;
-    private JTextArea description;
+    private JTextPane description;
     // JFormDesigner - End of variables declaration  //GEN-END:variables
 }

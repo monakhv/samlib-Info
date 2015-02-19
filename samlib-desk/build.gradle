@@ -1,4 +1,23 @@
 apply plugin: 'java'
+apply plugin: "application"
+mainClassName = 'monakhv.samlib.desk.Main'
 
 sourceCompatibility = 1.7
 version = '1.0'
+
+
+
+jar {
+    manifest {
+        attributes 'Main-Class': 'monakhv.samlib.desk.Main'
+    }
+}
+
+task fatJar(type: Jar) {
+    manifest {
+        attributes 'Main-Class': 'monakhv.samlib.desk.Main'
+    }
+    baseName = project.name + '-all'
+    from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
+    with jar
+}

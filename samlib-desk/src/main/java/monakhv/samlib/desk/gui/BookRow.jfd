@@ -4,7 +4,7 @@ new FormModel {
 	contentType: "form/swing"
 	root: new FormRoot {
 		add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class com.jgoodies.forms.layout.FormLayout ) {
-			"$columnSpecs": "pref, labelcompgap, min(pref;300dlu):grow"
+			"$columnSpecs": "pref, labelcompgap, min(pref;250dlu):grow"
 			"$rowSpecs": "top:pref:grow"
 		} ) {
 			name: "this"
@@ -56,10 +56,9 @@ new FormModel {
 					"horizontalScrollBarPolicy": 31
 					"border": sfield com.jformdesigner.model.FormObject NULL_VALUE
 					"verticalScrollBarPolicy": 21
-					add( new FormComponent( "javax.swing.JTextArea" ) {
+					add( new FormComponent( "javax.swing.JTextPane" ) {
 						name: "description"
-						"lineWrap": true
-						"wrapStyleWord": true
+						"contentType": "text/html"
 					} )
 				}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
 					"gridy": 1

@@ -26,6 +26,7 @@ new FormModel {
 				add( new FormComponent( "javax.swing.JLabel" ) {
 					name: "url"
 					"text": "text"
+					"font": new java.awt.Font( "Monospaced", 0, 12 )
 				}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
 					"gridy": 2
 					"gridwidth": 3
@@ -33,12 +34,14 @@ new FormModel {
 				add( new FormComponent( "javax.swing.JLabel" ) {
 					name: "updated"
 					"text": "text"
+					"font": new java.awt.Font( "Monospaced", 0, 12 )
 				}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
 					"gridy": 4
 				} )
 				add( new FormComponent( "javax.swing.JLabel" ) {
 					name: "tgnames"
 					"text": "text"
+					"font": new java.awt.Font( "Monospaced", 0, 12 )
 				}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
 					"gridx": 2
 					"gridy": 4

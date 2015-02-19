@@ -7,12 +7,33 @@ new FormModel {
 			name: "this"
 			"minimumSize": new java.awt.Dimension( 20, 70 )
 			add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class com.jgoodies.forms.layout.FormLayout ) {
-				"$columnSpecs": "max(default;200dlu):grow, 5dlu, max(default;400dlu):grow(0.8), default"
-				"$rowSpecs": "fill:max(default;400dlu):grow"
+				"$columnSpecs": "max(default;200dlu):grow, 5dlu, max(default;350dlu):grow(0.8), default"
+				"$rowSpecs": "default, fill:max(default;400dlu):grow"
 			} ) {
 				name: "panelMain"
 				"minimumSize": new java.awt.Dimension( 800, 100 )
 				"border": sfield com.jgoodies.forms.factories.Borders DLU4_BORDER
+				add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.GridBagLayout ) {
+					"$columnSpecs": "0, 0, 0, 0, 0"
+					"$rowSpecs": "0, 5"
+					"$hGap": 5
+					"$vGap": 5
+					"$alignLeft": true
+					"$alignTop": true
+				} ) {
+					name: "toolBar"
+					add( new FormComponent( "javax.swing.JButton" ) {
+						name: "button1"
+						"text": "Update"
+					}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) )
+					add( new FormComponent( "javax.swing.JProgressBar" ) {
+						name: "progressBar1"
+					}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
+						"gridx": 1
+					} )
+				}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
+					"gridWidth": 3
+				} )
 				add( new FormContainer( "javax.swing.JScrollPane", new FormLayoutManager( class javax.swing.JScrollPane ) ) {
 					name: "scrollPane1"
 					"horizontalScrollBarPolicy": 31
@@ -21,7 +42,7 @@ new FormModel {
 					} )
 				}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
 					"gridX": 1
-					"gridY": 1
+					"gridY": 2
 				} )
 				add( new FormContainer( "javax.swing.JScrollPane", new FormLayoutManager( class javax.swing.JScrollPane ) ) {
 					name: "scrollPane2"
@@ -32,7 +53,7 @@ new FormModel {
 					} )
 				}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
 					"gridX": 3
-					"gridY": 1
+					"gridY": 2
 				} )
 			}, new FormLayoutConstraints( class java.lang.String ) {
 				"value": "Center"
@@ -54,8 +75,8 @@ new FormModel {
 				} )
 			}
 		}, new FormLayoutConstraints( null ) {
-			"location": new java.awt.Point( 10, 10 )
-			"size": new java.awt.Dimension( 780, 615 )
+			"location": new java.awt.Point( 100, 15 )
+			"size": new java.awt.Dimension( 825, 720 )
 		} )
 	}
 }
