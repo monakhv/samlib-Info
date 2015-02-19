@@ -14,7 +14,6 @@ import com.jgoodies.forms.factories.*;
 import com.jgoodies.forms.layout.*;
 import monakhv.samlib.db.SQLController;
 import monakhv.samlib.db.entity.Author;
-import monakhv.samlib.db.entity.Book;
 import monakhv.samlib.desk.Main;
 import monakhv.samlib.desk.data.Settings;
 import monakhv.samlib.desk.sql.AuthorController;
@@ -61,9 +60,10 @@ public class MainForm extends JFrame {
         jAuthorList.setModel(authorsModel);
         jAuthorList.setCellRenderer(new AuthorRenderer());
         jAuthorList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-//        jBookList.setModel(booksModel);
-//        jBookList.setCellRenderer(new BookRenderer());
-//        jBookList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+
+
+        //TODO: we can move the constant 20 to settings
+        bookScrolPanel.getVerticalScrollBar().setUnitIncrement(20);
 
         bkList = new BookList(bookPanel);
 
@@ -121,6 +121,8 @@ public class MainForm extends JFrame {
         bookPanel.revalidate();
         this.repaint();
     }
+
+
 
     private void initComponents() {
         // JFormDesigner - Component initialization - DO NOT MODIFY  //GEN-BEGIN:initComponents
@@ -217,12 +219,12 @@ public class MainForm extends JFrame {
             //======== bookScrolPanel ========
             {
                 bookScrolPanel.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
-                bookScrolPanel.setAutoscrolls(true);
-                bookScrolPanel.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
                 bookScrolPanel.setDoubleBuffered(true);
+                bookScrolPanel.setAutoscrolls(true);
 
                 //======== bookPanel ========
                 {
+                    bookPanel.setAutoscrolls(true);
                     bookPanel.setLayout(new GridBagLayout());
                     ((GridBagLayout)bookPanel.getLayout()).columnWidths = new int[] {0, 0, 0};
                     ((GridBagLayout)bookPanel.getLayout()).rowHeights = new int[] {0, 0, 0, 0};

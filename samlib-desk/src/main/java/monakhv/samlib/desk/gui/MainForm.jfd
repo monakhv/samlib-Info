@@ -54,9 +54,8 @@ new FormModel {
 				add( new FormContainer( "javax.swing.JScrollPane", new FormLayoutManager( class javax.swing.JScrollPane ) ) {
 					name: "bookScrolPanel"
 					"horizontalScrollBarPolicy": 31
-					"autoscrolls": true
-					"verticalScrollBarPolicy": 22
 					"doubleBuffered": true
+					"autoscrolls": true
 					add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.GridBagLayout ) {
 						"$columnSpecs": "0, 0"
 						"$rowSpecs": "0, 0, 0"
@@ -66,6 +65,7 @@ new FormModel {
 						"$alignTop": true
 					} ) {
 						name: "bookPanel"
+						"autoscrolls": true
 					} )
 				}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
 					"gridX": 3

@@ -39,28 +39,12 @@ public class BookList {
         panel.removeAll();
         panels.clear();
 
-//        GridBagLayout gbl = new GridBagLayout();
-//        panel.setLayout(gbl);
-//        GridBagConstraints c =  new GridBagConstraints();
-//
-//        c.gridx=0;
-//        c.gridy=GridBagConstraints.RELATIVE;
-//        c.weightx = 1.0;
-//        c.weighty = 0.0;
-//        c.gridheight=1;
-//        c.gridwidth=1;
-//        c.fill=GridBagConstraints.HORIZONTAL;
-//        c.anchor=GridBagConstraints.FIRST_LINE_START;
-
-
-
         panel.setLayout(new BoxLayout(panel,BoxLayout.PAGE_AXIS));
 
 
         for (Book book: books){
             JPanel row = new BookRow(book);
-            //gbl.setConstraints(row,c);
-            //row.setMaximumSize(row.getPreferredSize());
+
             Dimension preferredSize = row.getPreferredSize();
             Dimension maxSize = row.getMaximumSize();
             row.setMaximumSize(new Dimension( maxSize.width,preferredSize.height+10));

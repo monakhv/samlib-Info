@@ -17,12 +17,10 @@ import monakhv.samlib.db.entity.Book;
 public class BookRow extends JPanel {
     private final static ImageIcon GREEN_ICON = new ImageIcon(AuthorRenderer.class.getResource("/pics/16x16/bullet_green.png"));
     private final static ImageIcon BLACK_ICON = new ImageIcon(AuthorRenderer.class.getResource("/pics/16x16/bullet_black.png"));
-    public BookRow() {
-        initComponents();
-    }
 
     public BookRow(Book book) {
         initComponents();
+        scrollPane1.removeMouseWheelListener(scrollPane1.getMouseWheelListeners()[0]);
         load(book);
     }
 
@@ -111,6 +109,7 @@ public class BookRow extends JPanel {
                 scrollPane1.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
                 scrollPane1.setBorder(null);
                 scrollPane1.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER);
+                scrollPane1.setWheelScrollingEnabled(false);
 
                 //---- description ----
                 description.setContentType("text/html");
