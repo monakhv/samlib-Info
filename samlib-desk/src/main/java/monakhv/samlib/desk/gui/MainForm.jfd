@@ -14,7 +14,7 @@ new FormModel {
 				"minimumSize": new java.awt.Dimension( 800, 100 )
 				"border": sfield com.jgoodies.forms.factories.Borders DLU4_BORDER
 				add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.GridBagLayout ) {
-					"$columnSpecs": "0, 0, 0, 0, 0"
+					"$columnSpecs": "0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0"
 					"$rowSpecs": "0, 5"
 					"$hGap": 5
 					"$vGap": 5
@@ -31,6 +31,13 @@ new FormModel {
 					}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
 						"gridx": 1
 					} )
+					add( new FormComponent( "javax.swing.JButton" ) {
+						name: "reFresh"
+						"text": "Refresh"
+						addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "reFreshActionPerformed", true ) )
+					}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
+						"gridx": 24
+					} )
 				}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
 					"gridWidth": 3
 				} )
@@ -45,11 +52,20 @@ new FormModel {
 					"gridY": 2
 				} )
 				add( new FormContainer( "javax.swing.JScrollPane", new FormLayoutManager( class javax.swing.JScrollPane ) ) {
-					name: "scrollPane2"
+					name: "bookScrolPanel"
 					"horizontalScrollBarPolicy": 31
 					"autoscrolls": true
-					add( new FormComponent( "javax.swing.JList" ) {
-						name: "jBookList"
+					"verticalScrollBarPolicy": 22
+					"doubleBuffered": true
+					add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.GridBagLayout ) {
+						"$columnSpecs": "0, 0"
+						"$rowSpecs": "0, 0, 0"
+						"$hGap": 5
+						"$vGap": 5
+						"$alignLeft": true
+						"$alignTop": true
+					} ) {
+						name: "bookPanel"
 					} )
 				}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
 					"gridX": 3

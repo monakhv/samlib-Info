@@ -59,6 +59,7 @@ new FormModel {
 					add( new FormComponent( "javax.swing.JTextPane" ) {
 						name: "description"
 						"contentType": "text/html"
+						"editable": false
 					} )
 				}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
 					"gridy": 1

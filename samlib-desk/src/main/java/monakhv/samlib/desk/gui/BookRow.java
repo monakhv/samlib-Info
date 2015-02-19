@@ -21,13 +21,17 @@ public class BookRow extends JPanel {
         initComponents();
     }
 
+    public BookRow(Book book) {
+        initComponents();
+        load(book);
+    }
 
 
     public void load (Book book){
         title.setText("<html>"+book.getTitle()+"</html>");
         description.setContentType("text/html");
         try {
-            description.setText(book.getDescription());
+            description.setText("<html>"+book.getDescription()+"</html>");
         }
         catch (RuntimeException e ){
             description.setContentType("text/plain");
@@ -110,6 +114,7 @@ public class BookRow extends JPanel {
 
                 //---- description ----
                 description.setContentType("text/html");
+                description.setEditable(false);
                 scrollPane1.setViewportView(description);
             }
             panel1.add(scrollPane1, new GridBagConstraints(0, 1, 2, 1, 0.0, 0.0,

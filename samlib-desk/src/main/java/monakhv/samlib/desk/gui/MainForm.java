@@ -27,10 +27,11 @@ import monakhv.samlib.log.Log;
 public class MainForm extends JFrame {
     private static final String DEBUG_TAG="MainForm";
     private final DefaultListModel<Author> authorsModel;
-    private final DefaultListModel<Book> booksModel;
+    //private final DefaultListModel<Book> booksModel;
 
     private final SQLController sql;
     private Settings settings;
+    private BookList bkList;
 
     public MainForm( Settings settings ) {
         this.settings=settings;
@@ -44,7 +45,7 @@ public class MainForm extends JFrame {
         }
         sql = sql1;
         authorsModel = new DefaultListModel<>();
-        booksModel = new DefaultListModel<>();
+//        booksModel = new DefaultListModel<>();
         this.addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent e) {
@@ -60,9 +61,11 @@ public class MainForm extends JFrame {
         jAuthorList.setModel(authorsModel);
         jAuthorList.setCellRenderer(new AuthorRenderer());
         jAuthorList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        jBookList.setModel(booksModel);
-        jBookList.setCellRenderer(new BookRenderer());
-        jBookList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+//        jBookList.setModel(booksModel);
+//        jBookList.setCellRenderer(new BookRenderer());
+//        jBookList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+
+        bkList = new BookList(bookPanel);
 
         jAuthorList.addListSelectionListener(new ListSelectionListener() {
             @Override
@@ -86,7 +89,6 @@ public class MainForm extends JFrame {
         });
 
 
-        JTable jt= new JTable();
 
     }
 
@@ -102,18 +104,22 @@ public class MainForm extends JFrame {
     }
     private void loadBookList(Author a){
         BookController ctl = new BookController(sql);
-        booksModel.removeAllElements();
 
+        bkList.load(ctl.getAll(a,null));
+        this.getContentPane().validate();
+        this.getContentPane().repaint();
 
-        for (Book book : ctl.getAll(a,null) ){
-            booksModel.addElement(book);
-        }
 
     }
 
 
     private void menuItemExitActionPerformed(ActionEvent e) {
         Main.exit(0);
+    }
+
+    private void reFreshActionPerformed(ActionEvent e) {
+        bookPanel.revalidate();
+        this.repaint();
     }
 
     private void initComponents() {
@@ -126,10 +132,11 @@ public class MainForm extends JFrame {
         toolBar = new JPanel();
         button1 = new JButton();
         progressBar1 = new JProgressBar();
+        reFresh = new JButton();
         scrollPane1 = new JScrollPane();
         jAuthorList = new JList();
-        scrollPane2 = new JScrollPane();
-        jBookList = new JList();
+        bookScrolPanel = new JScrollPane();
+        bookPanel = new JPanel();
 
         //======== this ========
         setMinimumSize(new Dimension(20, 70));
@@ -172,9 +179,9 @@ public class MainForm extends JFrame {
             //======== toolBar ========
             {
                 toolBar.setLayout(new GridBagLayout());
-                ((GridBagLayout)toolBar.getLayout()).columnWidths = new int[] {0, 0, 0, 0, 0, 0};
+                ((GridBagLayout)toolBar.getLayout()).columnWidths = new int[] {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
                 ((GridBagLayout)toolBar.getLayout()).rowHeights = new int[] {0, 5, 0};
-                ((GridBagLayout)toolBar.getLayout()).columnWeights = new double[] {0.0, 0.0, 0.0, 0.0, 0.0, 1.0E-4};
+                ((GridBagLayout)toolBar.getLayout()).columnWeights = new double[] {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0E-4};
                 ((GridBagLayout)toolBar.getLayout()).rowWeights = new double[] {0.0, 0.0, 1.0E-4};
 
                 //---- button1 ----
@@ -185,6 +192,18 @@ public class MainForm extends JFrame {
                 toolBar.add(progressBar1, new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0,
                     GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                     new Insets(0, 0, 5, 5), 0, 0));
+
+                //---- reFresh ----
+                reFresh.setText("Refresh");
+                reFresh.addActionListener(new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        reFreshActionPerformed(e);
+                    }
+                });
+                toolBar.add(reFresh, new GridBagConstraints(24, 0, 1, 1, 0.0, 0.0,
+                    GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                    new Insets(0, 0, 5, 0), 0, 0));
             }
             panelMain.add(toolBar, CC.xywh(1, 1, 3, 1));
 
@@ -195,13 +214,24 @@ public class MainForm extends JFrame {
             }
             panelMain.add(scrollPane1, CC.xy(1, 2));
 
-            //======== scrollPane2 ========
+            //======== bookScrolPanel ========
             {
-                scrollPane2.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
-                scrollPane2.setAutoscrolls(true);
-                scrollPane2.setViewportView(jBookList);
+                bookScrolPanel.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+                bookScrolPanel.setAutoscrolls(true);
+                bookScrolPanel.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
+                bookScrolPanel.setDoubleBuffered(true);
+
+                //======== bookPanel ========
+                {
+                    bookPanel.setLayout(new GridBagLayout());
+                    ((GridBagLayout)bookPanel.getLayout()).columnWidths = new int[] {0, 0, 0};
+                    ((GridBagLayout)bookPanel.getLayout()).rowHeights = new int[] {0, 0, 0, 0};
+                    ((GridBagLayout)bookPanel.getLayout()).columnWeights = new double[] {0.0, 0.0, 1.0E-4};
+                    ((GridBagLayout)bookPanel.getLayout()).rowWeights = new double[] {0.0, 0.0, 0.0, 1.0E-4};
+                }
+                bookScrolPanel.setViewportView(bookPanel);
             }
-            panelMain.add(scrollPane2, CC.xy(3, 2));
+            panelMain.add(bookScrolPanel, CC.xy(3, 2));
         }
         contentPane.add(panelMain, BorderLayout.CENTER);
         pack();
@@ -218,9 +248,10 @@ public class MainForm extends JFrame {
     private JPanel toolBar;
     private JButton button1;
     private JProgressBar progressBar1;
+    private JButton reFresh;
     private JScrollPane scrollPane1;
     private JList jAuthorList;
-    private JScrollPane scrollPane2;
-    private JList jBookList;
+    private JScrollPane bookScrolPanel;
+    private JPanel bookPanel;
     // JFormDesigner - End of variables declaration  //GEN-END:variables
 }
