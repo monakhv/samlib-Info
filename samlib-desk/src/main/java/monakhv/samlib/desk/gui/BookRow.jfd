@@ -9,6 +9,7 @@ new FormModel {
 		} ) {
 			name: "this"
 			"border": new javax.swing.border.EtchedBorder( 0, null, null )
+			addEvent( new FormEvent( "java.awt.event.MouseListener", "mouseClicked", "thisMouseClicked", true ) )
 			add( new FormComponent( "javax.swing.JLabel" ) {
 				name: "newIcon"
 			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
@@ -61,6 +62,7 @@ new FormModel {
 						name: "description"
 						"contentType": "text/html"
 						"editable": false
+						addEvent( new FormEvent( "java.awt.event.MouseListener", "mouseClicked", "descriptionMouseClicked", true ) )
 					} )
 				}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
 					"gridy": 1

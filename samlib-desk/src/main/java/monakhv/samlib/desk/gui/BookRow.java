@@ -5,19 +5,23 @@
 package monakhv.samlib.desk.gui;
 
 import java.awt.*;
+import java.awt.event.*;
 import javax.swing.*;
 import javax.swing.border.*;
 import com.jgoodies.forms.factories.*;
 import com.jgoodies.forms.layout.*;
 import monakhv.samlib.db.entity.Book;
+import monakhv.samlib.log.Log;
 
 /**
  * @author Dmitry Monakhov
  */
 public class BookRow extends JPanel {
+    private static final String DEBUG_TAG = "BookRow";
     private final static ImageIcon GREEN_ICON = new ImageIcon(AuthorRenderer.class.getResource("/pics/16x16/bullet_green.png"));
     private final static ImageIcon BLACK_ICON = new ImageIcon(AuthorRenderer.class.getResource("/pics/16x16/bullet_black.png"));
 
+    private Book book;
     public BookRow(Book book) {
         initComponents();
         scrollPane1.removeMouseWheelListener(scrollPane1.getMouseWheelListeners()[0]);
@@ -25,7 +29,8 @@ public class BookRow extends JPanel {
     }
 
 
-    public void load (Book book){
+    private void load (Book book){
+        this.book = book;
         title.setText("<html>"+book.getTitle()+"</html>");
         description.setContentType("text/html");
         try {
@@ -47,6 +52,21 @@ public class BookRow extends JPanel {
 
 
     }
+
+    private void singleClick(MouseEvent e){
+
+        Log.i(DEBUG_TAG, "Clicked: " + e.getButton()+" - "+book.getTitle());
+    }
+
+    private void thisMouseClicked(MouseEvent e) {
+
+       singleClick(e);
+    }
+
+    private void descriptionMouseClicked(MouseEvent e) {
+        singleClick(e);
+
+    }
     private void initComponents() {
         // JFormDesigner - Component initialization - DO NOT MODIFY  //GEN-BEGIN:initComponents
         newIcon = new JLabel();
@@ -60,6 +80,12 @@ public class BookRow extends JPanel {
 
         //======== this ========
         setBorder(new EtchedBorder(EtchedBorder.RAISED));
+        addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                thisMouseClicked(e);
+            }
+        });
         setLayout(new FormLayout(
             "pref, $lcgap, [pref,250dlu]:grow",
             "top:pref:grow"));
@@ -114,6 +140,12 @@ public class BookRow extends JPanel {
                 //---- description ----
                 description.setContentType("text/html");
                 description.setEditable(false);
+                description.addMouseListener(new MouseAdapter() {
+                    @Override
+                    public void mouseClicked(MouseEvent e) {
+                        descriptionMouseClicked(e);
+                    }
+                });
                 scrollPane1.setViewportView(description);
             }
             panel1.add(scrollPane1, new GridBagConstraints(0, 1, 2, 1, 0.0, 0.0,
