@@ -82,13 +82,15 @@ limitations under the License.
             <TextView
                 android:id="@+id/bookUpdate"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"        
+                android:layout_height="wrap_content"
+                android:layout_gravity="right"
                 android:textSize="@dimen/text_size_small" >
             </TextView>
                 <TextView
                     android:id="@+id/bookForm"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_gravity="right"
                     android:textSize="@dimen/text_size_small" >
                 </TextView>
 
