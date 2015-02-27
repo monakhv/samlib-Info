@@ -105,7 +105,8 @@ public class MainForm extends JFrame {
     private void loadBookList(Author a){
         BookController ctl = new BookController(sql);
 
-        bkList.load(ctl.getAll(a,null));
+        bkList.load(ctl.getAll(a, null));
+        bookPanel.setComponentPopupMenu(bookPopup);
         this.getContentPane().validate();
         this.getContentPane().repaint();
 
@@ -139,6 +140,11 @@ public class MainForm extends JFrame {
         jAuthorList = new JList();
         bookScrolPanel = new JScrollPane();
         bookPanel = new JPanel();
+        bookPopup = new JPopupMenu();
+        menuItem3 = new JMenuItem();
+        menuItem4 = new JMenuItem();
+        menuItem5 = new JMenuItem();
+        menuItem6 = new JMenuItem();
 
         //======== this ========
         setMinimumSize(new Dimension(20, 70));
@@ -176,7 +182,7 @@ public class MainForm extends JFrame {
             panelMain.setBorder(Borders.DLU4);
             panelMain.setLayout(new FormLayout(
                 "[200dlu,default]:grow, 5dlu, [350dlu,default]:grow(0.8), default",
-                "default, fill:[400dlu,default]:grow"));
+                "default, fill:[400dlu,default]:grow, $lgap, default"));
 
             //======== toolBar ========
             {
@@ -212,6 +218,9 @@ public class MainForm extends JFrame {
             //======== scrollPane1 ========
             {
                 scrollPane1.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+
+                //---- jAuthorList ----
+                jAuthorList.setComponentPopupMenu(null);
                 scrollPane1.setViewportView(jAuthorList);
             }
             panelMain.add(scrollPane1, CC.xy(1, 2));
@@ -221,10 +230,12 @@ public class MainForm extends JFrame {
                 bookScrolPanel.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
                 bookScrolPanel.setDoubleBuffered(true);
                 bookScrolPanel.setAutoscrolls(true);
+                bookScrolPanel.setComponentPopupMenu(null);
 
                 //======== bookPanel ========
                 {
                     bookPanel.setAutoscrolls(true);
+                    bookPanel.setComponentPopupMenu(bookPopup);
                     bookPanel.setLayout(new GridBagLayout());
                     ((GridBagLayout)bookPanel.getLayout()).columnWidths = new int[] {0, 0, 0};
                     ((GridBagLayout)bookPanel.getLayout()).rowHeights = new int[] {0, 0, 0, 0};
@@ -238,6 +249,24 @@ public class MainForm extends JFrame {
         contentPane.add(panelMain, BorderLayout.CENTER);
         pack();
         setLocationRelativeTo(getOwner());
+
+        //======== bookPopup ========
+        {
+
+            //---- menuItem3 ----
+            menuItem3.setText("text");
+            bookPopup.add(menuItem3);
+
+            //---- menuItem4 ----
+            menuItem4.setText("text");
+            bookPopup.add(menuItem4);
+        }
+
+        //---- menuItem5 ----
+        menuItem5.setText("text");
+
+        //---- menuItem6 ----
+        menuItem6.setText("text");
         // JFormDesigner - End of component initialization  //GEN-END:initComponents
     }
 
@@ -255,5 +284,10 @@ public class MainForm extends JFrame {
     private JList jAuthorList;
     private JScrollPane bookScrolPanel;
     private JPanel bookPanel;
+    private JPopupMenu bookPopup;
+    private JMenuItem menuItem3;
+    private JMenuItem menuItem4;
+    private JMenuItem menuItem5;
+    private JMenuItem menuItem6;
     // JFormDesigner - End of variables declaration  //GEN-END:variables
 }

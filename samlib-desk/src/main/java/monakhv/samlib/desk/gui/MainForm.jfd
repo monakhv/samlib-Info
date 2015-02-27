@@ -8,7 +8,7 @@ new FormModel {
 			"minimumSize": new java.awt.Dimension( 20, 70 )
 			add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class com.jgoodies.forms.layout.FormLayout ) {
 				"$columnSpecs": "max(default;200dlu):grow, 5dlu, max(default;350dlu):grow(0.8), default"
-				"$rowSpecs": "default, fill:max(default;400dlu):grow"
+				"$rowSpecs": "default, fill:max(default;400dlu):grow, linegap, default"
 			} ) {
 				name: "panelMain"
 				"minimumSize": new java.awt.Dimension( 800, 100 )
@@ -46,6 +46,7 @@ new FormModel {
 					"horizontalScrollBarPolicy": 31
 					add( new FormComponent( "javax.swing.JList" ) {
 						name: "jAuthorList"
+						"componentPopupMenu": sfield com.jformdesigner.model.FormObject NULL_VALUE
 					} )
 				}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
 					"gridX": 1
@@ -56,6 +57,7 @@ new FormModel {
 					"horizontalScrollBarPolicy": 31
 					"doubleBuffered": true
 					"autoscrolls": true
+					"componentPopupMenu": sfield com.jformdesigner.model.FormObject NULL_VALUE
 					add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.GridBagLayout ) {
 						"$columnSpecs": "0, 0"
 						"$rowSpecs": "0, 0, 0"
@@ -66,6 +68,7 @@ new FormModel {
 					} ) {
 						name: "bookPanel"
 						"autoscrolls": true
+						"componentPopupMenu": new FormReference( "bookPopup" )
 					} )
 				}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
 					"gridX": 3
@@ -91,8 +94,33 @@ new FormModel {
 				} )
 			}
 		}, new FormLayoutConstraints( null ) {
-			"location": new java.awt.Point( 100, 15 )
+			"location": new java.awt.Point( 80, 0 )
 			"size": new java.awt.Dimension( 825, 720 )
+		} )
+		add( new FormContainer( "javax.swing.JPopupMenu", new FormLayoutManager( class javax.swing.JPopupMenu ) ) {
+			name: "bookPopup"
+			add( new FormComponent( "javax.swing.JMenuItem" ) {
+				name: "menuItem3"
+				"text": "text"
+			} )
+			add( new FormComponent( "javax.swing.JMenuItem" ) {
+				name: "menuItem4"
+				"text": "text"
+			} )
+		}, new FormLayoutConstraints( null ) {
+			"location": new java.awt.Point( 145, 730 )
+		} )
+		add( new FormComponent( "javax.swing.JMenuItem" ) {
+			name: "menuItem5"
+			"text": "text"
+		}, new FormLayoutConstraints( null ) {
+			"location": new java.awt.Point( 150, 770 )
+		} )
+		add( new FormComponent( "javax.swing.JMenuItem" ) {
+			name: "menuItem6"
+			"text": "text"
+		}, new FormLayoutConstraints( null ) {
+			"location": new java.awt.Point( 365, 755 )
 		} )
 	}
 }
