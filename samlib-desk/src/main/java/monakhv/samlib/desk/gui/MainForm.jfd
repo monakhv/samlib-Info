@@ -23,8 +23,9 @@ new FormModel {
 				} ) {
 					name: "toolBar"
 					add( new FormComponent( "javax.swing.JButton" ) {
-						name: "button1"
+						name: "buttonUpdate"
 						"text": "Update"
+						addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "buttonUpdateActionPerformed", true ) )
 					}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) )
 					add( new FormComponent( "javax.swing.JProgressBar" ) {
 						name: "progressBar1"
@@ -83,8 +84,9 @@ new FormModel {
 					name: "menu1"
 					"text": "File"
 					add( new FormComponent( "javax.swing.JMenuItem" ) {
-						name: "menuItem1"
+						name: "menuItemSettings"
 						"text": "Настройки"
+						addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "menuItemSettingsActionPerformed", true ) )
 					} )
 					add( new FormComponent( "javax.swing.JMenuItem" ) {
 						name: "menuItemExit"

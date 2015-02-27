@@ -84,6 +84,6 @@ public class Logger implements AbstractLogger {
 
     @Override
     public void error(String tag, String mes, Throwable ex) {
-        getLogger(tag).info(mes, ex);
+        getLogger(tag).error(mes, ex);
     }
 }

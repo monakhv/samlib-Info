@@ -6,6 +6,7 @@ package monakhv.samlib.desk.gui;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.io.IOException;
 import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
@@ -18,6 +19,8 @@ import monakhv.samlib.desk.Main;
 import monakhv.samlib.desk.data.Settings;
 import monakhv.samlib.desk.sql.AuthorController;
 import monakhv.samlib.desk.sql.BookController;
+import monakhv.samlib.exception.SamlibParseException;
+import monakhv.samlib.http.HttpClientController;
 import monakhv.samlib.log.Log;
 
 /**
@@ -31,6 +34,9 @@ public class MainForm extends JFrame {
     private final SQLController sql;
     private Settings settings;
     private BookList bkList;
+    private String selection=null;
+    private String sortOrder=SQLController.COL_NAME;
+    private Author selectedAuthor;
 
     public MainForm( Settings settings ) {
         this.settings=settings;
@@ -80,11 +86,9 @@ public class MainForm extends JFrame {
                     Log.i(DEBUG_TAG, "selection " + lsm.getMinSelectionIndex() + " - " + lsm.getMaxSelectionIndex());
                     return;
                 }
-                Author a =authorsModel.get(lsm.getMaxSelectionIndex());
-                Log.i(DEBUG_TAG, "selection " +a.getName()+"  "+e.getValueIsAdjusting());
-                loadBookList(a);
-
-
+                selectedAuthor=authorsModel.get(lsm.getMaxSelectionIndex());
+                Log.i(DEBUG_TAG, "selection " +selectedAuthor.getName()+"  "+e.getValueIsAdjusting());
+                loadBookList(selectedAuthor);
             }
         });
 
@@ -92,20 +96,32 @@ public class MainForm extends JFrame {
 
     }
 
+    /**
+     * Construct Author list
+     */
     private void addSortedAuthorList() {
         AuthorController ctl = new AuthorController(sql);
          authorsModel.removeAllElements();
 
 
-        for (Author a : ctl.getAll(null, SQLController.COL_NAME) ){
+        for (Author a : ctl.getAll(selection,sortOrder) ){
             authorsModel.addElement(a);
         }
 
     }
+
+    /**
+     * Construct Book List
+     * @param a
+     */
     private void loadBookList(Author a){
         BookController ctl = new BookController(sql);
 
-        bkList.load(ctl.getAll(a, null));
+        if (a != null){
+            bkList.load(ctl.getAll(a, null));
+        }
+
+
         bookPanel.setComponentPopupMenu(bookPopup);
         this.getContentPane().validate();
         this.getContentPane().repaint();
@@ -123,17 +139,27 @@ public class MainForm extends JFrame {
         this.repaint();
     }
 
+    private void buttonUpdateActionPerformed(ActionEvent e) {
+        buttonUpdate.setEnabled(false);
+        Update update = new Update();
+        update.execute();
+    }
+
+    private void menuItemSettingsActionPerformed(ActionEvent e) {
+        SettingsForm.show(this,settings);
+    }
+
 
 
     private void initComponents() {
         // JFormDesigner - Component initialization - DO NOT MODIFY  //GEN-BEGIN:initComponents
         menuBar1 = new JMenuBar();
         menu1 = new JMenu();
-        menuItem1 = new JMenuItem();
+        menuItemSettings = new JMenuItem();
         menuItemExit = new JMenuItem();
         panelMain = new JPanel();
         toolBar = new JPanel();
-        button1 = new JButton();
+        buttonUpdate = new JButton();
         progressBar1 = new JProgressBar();
         reFresh = new JButton();
         scrollPane1 = new JScrollPane();
@@ -158,9 +184,15 @@ public class MainForm extends JFrame {
             {
                 menu1.setText("File");
 
-                //---- menuItem1 ----
-                menuItem1.setText("\u041d\u0430\u0441\u0442\u0440\u043e\u0439\u043a\u0438");
-                menu1.add(menuItem1);
+                //---- menuItemSettings ----
+                menuItemSettings.setText("\u041d\u0430\u0441\u0442\u0440\u043e\u0439\u043a\u0438");
+                menuItemSettings.addActionListener(new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        menuItemSettingsActionPerformed(e);
+                    }
+                });
+                menu1.add(menuItemSettings);
 
                 //---- menuItemExit ----
                 menuItemExit.setText("Exit");
@@ -192,9 +224,15 @@ public class MainForm extends JFrame {
                 ((GridBagLayout)toolBar.getLayout()).columnWeights = new double[] {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0E-4};
                 ((GridBagLayout)toolBar.getLayout()).rowWeights = new double[] {0.0, 0.0, 1.0E-4};
 
-                //---- button1 ----
-                button1.setText("Update");
-                toolBar.add(button1, new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0,
+                //---- buttonUpdate ----
+                buttonUpdate.setText("Update");
+                buttonUpdate.addActionListener(new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        buttonUpdateActionPerformed(e);
+                    }
+                });
+                toolBar.add(buttonUpdate, new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0,
                     GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                     new Insets(0, 0, 5, 5), 0, 0));
                 toolBar.add(progressBar1, new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0,
@@ -273,11 +311,11 @@ public class MainForm extends JFrame {
     // JFormDesigner - Variables declaration - DO NOT MODIFY  //GEN-BEGIN:variables
     private JMenuBar menuBar1;
     private JMenu menu1;
-    private JMenuItem menuItem1;
+    private JMenuItem menuItemSettings;
     private JMenuItem menuItemExit;
     private JPanel panelMain;
     private JPanel toolBar;
-    private JButton button1;
+    private JButton buttonUpdate;
     private JProgressBar progressBar1;
     private JButton reFresh;
     private JScrollPane scrollPane1;
@@ -290,4 +328,53 @@ public class MainForm extends JFrame {
     private JMenuItem menuItem5;
     private JMenuItem menuItem6;
     // JFormDesigner - End of variables declaration  //GEN-END:variables
+
+
+    class Update extends SwingWorker<Void,Void>{
+
+        @Override
+        protected Void doInBackground() throws Exception {
+            AuthorController ctl = new AuthorController(sql);
+            HttpClientController http = HttpClientController.getInstance(settings);
+            for (Author a : ctl.getAll(selection,sortOrder) ){
+                String url = a.getUrl();
+
+                Author newA;
+
+
+                try {
+                    newA = http.getAuthorByURL(url);
+                }
+                catch (IOException ex ){
+                    Log.e(DEBUG_TAG, "Connection Error: "+url, ex);
+
+                    return null;
+
+                }
+                catch (SamlibParseException ex){
+                    Log.e(DEBUG_TAG, "Error parsing url: " + url + " skip update author ", ex);
+
+                    //++skippedAuthors;
+                    newA = a;
+                }
+
+                if (a.update(newA)) {//we have update for the author
+
+                    Log.i(DEBUG_TAG, "We need update author: " + a.getName());
+                    ctl.update(a);
+                }
+
+            }
+
+            return null;
+        }
+
+        @Override
+        protected void done() {
+            super.done();
+            buttonUpdate.setEnabled(true);
+            loadBookList(selectedAuthor);
+
+        }
+    }
 }
