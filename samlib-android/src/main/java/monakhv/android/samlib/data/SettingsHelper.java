@@ -440,6 +440,10 @@ public class SettingsHelper implements monakhv.samlib.data.SettingsHelper, Share
         if (! useProxy){
             return null;
         }
+        boolean wifiProxyFlag = prefs.getBoolean(context.getString(R.string.pref_key_use_proxy_wifi_flag), false);
+        if (wifiProxyFlag && !isWiFi(context)){
+            return null;//we have active flag but have not wifi, so do not use proxy
+        }
         String user = prefs.getString(context.getString(R.string.pref_key_proxy_user), "");
         String password = prefs.getString(context.getString(R.string.pref_key_proxy_password), "");
         String host = prefs.getString(context.getString(R.string.pref_key_proxy_host), "localhost");
@@ -484,18 +488,27 @@ public class SettingsHelper implements monakhv.samlib.data.SettingsHelper, Share
 
 
         if (helper.getWifiOnlyFlag()) {
-            ConnectivityManager conMan = (ConnectivityManager) ctx.getSystemService(Context.CONNECTIVITY_SERVICE);
-            NetworkInfo inf = conMan.getNetworkInfo(1);
-            State wifi;
-            if (inf != null) {
-                wifi = inf.getState();
-            } else {
-                return false;
-            }
-
-            return wifi == NetworkInfo.State.CONNECTED || wifi == NetworkInfo.State.CONNECTING;
+            return isWiFi(ctx);
         }
         return true;
+    }
+
+    /**
+     * Check if we have WIFI active or not
+     * @param ctx
+     * @return
+     */
+    private static boolean isWiFi(Context ctx){
+        ConnectivityManager conMan = (ConnectivityManager) ctx.getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo inf = conMan.getNetworkInfo(1);
+        State wifi;
+        if (inf != null) {
+            wifi = inf.getState();
+        } else {
+            return false;
+        }
+
+        return wifi == NetworkInfo.State.CONNECTED || wifi == NetworkInfo.State.CONNECTING;
     }
 
     /**
