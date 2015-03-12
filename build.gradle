@@ -34,8 +34,8 @@ project(":samlib-android") {
     apply plugin: "android"
     dependencies {
         compile project(":samlib-core")
-        compile 'com.android.support:appcompat-v7:21.0.+'
-        compile 'com.android.support:recyclerview-v7:21.0.+'
+        compile 'com.android.support:appcompat-v7:22.0.+'
+        compile 'com.android.support:recyclerview-v7:22.0.+'
         compile 'com.github.chrisbanes.actionbarpulltorefresh:extra-abc:0.9.9'
         compile 'com.google.android.gms:play-services:6.1.+'
 
