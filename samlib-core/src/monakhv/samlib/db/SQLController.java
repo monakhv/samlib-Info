@@ -29,6 +29,7 @@ import monakhv.samlib.db.entity.Author;
  * Version - 3: COL_BOOK_DATE into GMT
  * Version - 4: Tags for the authors
  * Version - 5: Remove samlib URL from the  Author url to use several mirrors
+ * Version - 6:add option column for Book table
  * 
  */
 public class SQLController {
@@ -45,7 +46,7 @@ public class SQLController {
     }
 
     public static final String DB_NAME   = "AUTHOR_DATA";
-    public static final int    DB_VERSION = 5;
+    public static final int    DB_VERSION = 6;
     
     public static final String COL_ID = "_id";
     public static final String COL_NAME = "NAME";
@@ -67,7 +68,7 @@ public class SQLController {
     public static final String COL_BOOK_MTIME                      ="MTIME";
     public static final String COL_BOOK_ISNEW                      ="ISNEW";
     public static final String COL_BOOK_GROUP_ID                ="GROUP_ID";
-    
+    public static final String COL_BOOK_OPT                ="OPTS";
     public static final String COL_TAG_NAME= "NAME";
     public static final String COL_TAG_UCNAME= "UCNAME";
     
@@ -114,6 +115,7 @@ public class SQLController {
             COL_BOOK_TITLE                     +" text,"+
             COL_BOOK_FORM                     +" text,"+
             COL_BOOK_SIZE                        +" INTEGER,"+
+            COL_BOOK_OPT                        +" INTEGER,"+
             COL_BOOK_GROUP_ID             +" INTEGER,"+
             COL_BOOK_DATE                      +" timestamp,"+//from the samlib
             COL_BOOK_DESCRIPTION        +" text,"+
@@ -147,6 +149,7 @@ public class SQLController {
     public static final String DB_IDX4 = "CREATE INDEX  if not exists tag_author     ON Tag2Author(TAG_ID,AUTHOR_ID);";
     ///public static final String ALTER2_1 = "ALTER TABLE  "+TABLE_AUTHOR+" DROP COLUMN "+COL_books+" ;";//Not Supported by SQLight
     public static final String ALTER2_2 = "UPDATE   "+TABLE_AUTHOR+" SET  "+COL_isnew+" =0;";
+    public static final String ALTER6_1="ALTER TABLE "+TABLE_BOOKS+" ADD COLUMN "+COL_BOOK_OPT+" INTEGER;";
 
     public static final String INSERT_AUTHOR ="INSERT INTO " + TABLE_AUTHOR +" ( "+
             COL_NAME +","+

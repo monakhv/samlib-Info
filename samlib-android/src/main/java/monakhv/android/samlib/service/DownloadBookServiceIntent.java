@@ -25,7 +25,6 @@ import android.util.Log;
 import monakhv.android.samlib.DownloadReceiver;
 
 import monakhv.android.samlib.R;
-import monakhv.android.samlib.data.DataExportImport;
 import monakhv.android.samlib.data.SettingsHelper;
 import monakhv.android.samlib.sql.AuthorController;
 import monakhv.samlib.db.entity.Book;
@@ -90,8 +89,8 @@ public class DownloadBookServiceIntent extends IntentService {
            return true;
 
         } catch (Exception ex) {
-            DataExportImport data = new DataExportImport(this);
-            data.cleanBookFile(book);//clean file on error
+
+            helper.cleanBookFile(book);//clean file on error
 
             Log.e(DEBUG_TAG, "Download book error: " + book.getUri(), ex);
             helper.log(DEBUG_TAG, "Download book error: " + book.getUri(), ex);

@@ -27,17 +27,26 @@ limitations under the License.
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"  >
         
-        
-        <ImageView
-            android:id="@+id/Staricon" 
-            android:layout_width="16sp"
-            android:layout_height="16sp"           
-            android:src="?attr/iconSelected" >
-        </ImageView>
+        <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content">
+
+            <ImageView
+                    android:id="@+id/Staricon"
+                    android:layout_width="16sp"
+                    android:layout_height="16sp"
+                    android:src="?attr/iconSelected" >
+            </ImageView>
+            <ImageView
+                    android:id="@+id/Lockicon"
+                    android:layout_width="16sp"
+                    android:layout_height="16sp"
+                    android:src="?attr/iconLock" >
+            </ImageView>
+        </LinearLayout>
         
         <include  android:id="@+id/twoButtons"  layout="@layout/buttons_flip"/>
-        
-        
         
         
     </LinearLayout>

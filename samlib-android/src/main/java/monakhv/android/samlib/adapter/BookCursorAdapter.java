@@ -78,6 +78,7 @@ public class BookCursorAdapter extends RecyclerCursorAdapter<BookCursorAdapter.V
         int idx_group_id = cursor.getColumnIndex(SQLController.COL_BOOK_GROUP_ID);
         int idx_author = cursor.getColumnIndex(SQLController.COL_BOOK_AUTHOR);
         final int book_id = cursor.getInt(cursor.getColumnIndex(SQLController.COL_ID));
+        int book_options = cursor.getInt(cursor.getColumnIndex(SQLController.COL_BOOK_OPT));
 
 
         holder.bookTitle.setText(Html.fromHtml(cursor.getString(idx_title)));
@@ -134,6 +135,15 @@ public class BookCursorAdapter extends RecyclerCursorAdapter<BookCursorAdapter.V
             holder.starIcon.setVisibility(View.GONE);
         }
 
+        if (Book.isPreserved(book_options)){
+            holder.lockIcon.setImageResource(settingsHelper.getLockIcon());
+            holder.lockIcon.setVisibility(View.VISIBLE);
+        }
+        else {
+            holder.lockIcon.setImageResource(R.drawable.rating_not_important);
+            holder.lockIcon.setVisibility(View.GONE);
+        }
+
 
     }
 
@@ -146,7 +156,7 @@ public class BookCursorAdapter extends RecyclerCursorAdapter<BookCursorAdapter.V
     public class ViewHolder extends RecyclerView.ViewHolder {
         // {R.id.bookTitle, R.id.bookUpdate, R.id.bookDesc, R.id.Bookicon,R.id.Staricon,R.id.bookAuthorName,R.id.bookForm};
         public TextView bookTitle, bookSize, bookDesc, bookAuthorName, bookForm;
-        public ImageView starIcon, closeBook, openBook;
+        public ImageView starIcon, closeBook, openBook,lockIcon;
         public Flip3D flip;
 
         public ViewHolder(View itemView) {
@@ -160,6 +170,7 @@ public class BookCursorAdapter extends RecyclerCursorAdapter<BookCursorAdapter.V
             closeBook = (ImageView) itemView.findViewById(R.id.bookClosed);
             openBook = (ImageView) itemView.findViewById(R.id.bookOpen);
             starIcon = (ImageView) itemView.findViewById(R.id.Staricon);
+            lockIcon = (ImageView) itemView.findViewById(R.id.Lockicon);
         }
     }
 

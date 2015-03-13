@@ -34,17 +34,15 @@ import java.util.Map;
 
 
 /**
- *
  * @author monakhv
- * Hide here all DB design
- * 
+ *         Hide here all DB design
  */
 public class AuthorDB extends SQLiteOpenHelper {
     public static final String ID = SQLController.COL_ID;
-    public static final String WHERE_URL=SQLController.COL_URL+" = ?";
-    public static final String WHERE_AUTHOR_ID=SQLController.COL_BOOK_AUTHOR_ID+" = ?";
-    
-    private final static String DEBUG_TAG="AuthorDB";
+    public static final String WHERE_URL = SQLController.COL_URL + " = ?";
+    public static final String WHERE_AUTHOR_ID = SQLController.COL_BOOK_AUTHOR_ID + " = ?";
+
+    private final static String DEBUG_TAG = "AuthorDB";
 
     public AuthorDB(Context context) {
         super(context, SQLController.DB_NAME, null, SQLController.DB_VERSION);
@@ -57,73 +55,78 @@ public class AuthorDB extends SQLiteOpenHelper {
         db.execSQL(SQLController.DB_IDX1);
         db.execSQL(SQLController.DB_IDX2);
         //upgradeSchema3To4(db);
-        
+
         db.execSQL(SQLController.DB_CREATE_TAGS);
         db.execSQL(SQLController.DB_CREATE_TAG_TO_AUTHOR);
         db.execSQL(SQLController.DB_CREATE_STATE);
-        
+
         db.execSQL(SQLController.DB_IDX3);
         db.execSQL(SQLController.DB_IDX4);
     }
 
     @Override
-    public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {      
-        
-        if (oldVersion ==1 && newVersion ==5){
+    public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+
+        if (oldVersion == 1 && newVersion == 6) {
             upgradeSchema1To2(db);
             upgradeSchema2To3(db);
             upgradeSchema3To4(db);
             upgradeSchema4To5(db);
-            
+            upgradeSchema5To6(db);
         }
-        if (oldVersion ==2 && newVersion ==5){           
+        if (oldVersion == 2 && newVersion == 6) {
             upgradeSchema2To3(db);
             upgradeSchema3To4(db);
             upgradeSchema4To5(db);
+            upgradeSchema5To6(db);
         }
-        if (oldVersion ==3 && newVersion ==5){                       
+        if (oldVersion == 3 && newVersion == 6) {
             upgradeSchema3To4(db);
             upgradeSchema4To5(db);
+            upgradeSchema5To6(db);
         }
-        if (oldVersion ==4 && newVersion ==5){                       
-           
+        if (oldVersion == 4 && newVersion == 6) {
             upgradeSchema4To5(db);
+            upgradeSchema5To6(db);
         }
+        if (oldVersion == 5 && newVersion == 6) {
+            upgradeSchema5To6(db);
         }
+    }
+
     private void upgradeSchema3To4(SQLiteDatabase db) {
         db.execSQL(SQLController.DB_CREATE_TAGS);
         db.execSQL(SQLController.DB_CREATE_TAG_TO_AUTHOR);
         db.execSQL(SQLController.DB_CREATE_STATE);
-        
+
         db.execSQL(SQLController.DB_IDX3);
         db.execSQL(SQLController.DB_IDX4);
         db.execSQL(SQLController.DB_ALTER_BOOK1);
-    }    
-    
+    }
+
     private void upgradeSchema1To2(SQLiteDatabase db) {
         db.execSQL(SQLController.DB_CREATE_BOOKS);
         db.execSQL(SQLController.DB_IDX1);
         db.execSQL(SQLController.DB_IDX2);
-        
-        String [] columns = {SQLController.COL_ID,SQLController.COL_books};
-        
+
+        String[] columns = {SQLController.COL_ID, SQLController.COL_books};
+
         Cursor cursor = db.query(SQLController.TABLE_AUTHOR, columns, null, null, null, null, null);
-        
-      
-        
-        while(cursor.moveToNext()){
-            byte [] data = cursor.getBlob(cursor.getColumnIndex(SQLController.COL_books));
-            int author_id  = cursor.getInt(cursor.getColumnIndex(SQLController.COL_ID));
+
+
+        while (cursor.moveToNext()) {
+            byte[] data = cursor.getBlob(cursor.getColumnIndex(SQLController.COL_books));
+            int author_id = cursor.getInt(cursor.getColumnIndex(SQLController.COL_ID));
             List<Book> books = null;
             try {
-                books = (List<Book>)deserializeObject(data);
+                books = (List<Book>) deserializeObject(data);
             } catch (IOException ex) {
-                Log.e(DEBUG_TAG, "deserialize error: ",ex);
+                Log.e(DEBUG_TAG, "deserialize error: ", ex);
             } catch (ClassNotFoundException ex) {
-                Log.e(DEBUG_TAG, "deserialize error: ",ex);
+                Log.e(DEBUG_TAG, "deserialize error: ", ex);
             }
-            
-            for (Book book : books){
+
+            for (Book book : books) {
                 ContentValues values = new ContentValues();
                 values.put(SQLController.COL_BOOK_TITLE, book.getTitle());
                 values.put(SQLController.COL_BOOK_AUTHOR, book.getAuthor());
@@ -133,77 +136,83 @@ public class AuthorDB extends SQLiteOpenHelper {
                 values.put(SQLController.COL_BOOK_AUTHOR_ID, author_id);
                 values.put(SQLController.COL_BOOK_MTIME, Calendar.getInstance().getTime().getTime());
                 db.insert(SQLController.TABLE_BOOKS, null, values);
-                
+
             }
-            
+
         }
         cursor.close();
         //db.execSQL(SQLController.ALTER2_1);
         db.execSQL(SQLController.ALTER2_2);
     }
+
+    private void upgradeSchema5To6(SQLiteDatabase db) {
+        db.execSQL(SQLController.ALTER6_1);
+    }
+
     /**
-     * Schema update to version 5 
+     * Schema update to version 5
      * Remove samlib URL
-     * 
-     * @param db 
+     *
+     * @param db
      */
-     private void upgradeSchema4To5(SQLiteDatabase db) {
+    private void upgradeSchema4To5(SQLiteDatabase db) {
         Log.d("upgradeSchema4To5", "Begin upgrade schema 4->5");
         String[] columns = {SQLController.COL_ID, SQLController.COL_URL};
         Map<Integer, String> data = new HashMap();
         Cursor cursor = db.query(SQLController.TABLE_AUTHOR, columns, null, null, null, null, null);
-         while(cursor.moveToNext()){
-             int    idx = cursor.getInt(cursor.getColumnIndex(SQLController.COL_ID));
-             String url = cursor.getString(cursor.getColumnIndex(SQLController.COL_URL));
-             Log.d("upgradeSchema4To5", "Change url: "+url);             
-             url = url.replaceAll("http://samlib.ru", "");
-             Log.d("upgradeSchema4To5", "To url: "+url);
-             data.put(idx, url);
-         }
-         cursor.close();
-         String where =SQLController.COL_ID +" = ?";
-          for (Integer idx : data.keySet() ){
-              ContentValues cv = new ContentValues();
-              cv.put(SQLController.COL_URL, data.get(idx));
-              db.update(SQLController.TABLE_AUTHOR, cv, where, new String [] {idx.toString()});
-          }
-          Log.d("upgradeSchema4To5", "End upgrade schema 4->5");
+        while (cursor.moveToNext()) {
+            int idx = cursor.getInt(cursor.getColumnIndex(SQLController.COL_ID));
+            String url = cursor.getString(cursor.getColumnIndex(SQLController.COL_URL));
+            Log.d("upgradeSchema4To5", "Change url: " + url);
+            url = url.replaceAll("http://samlib.ru", "");
+            Log.d("upgradeSchema4To5", "To url: " + url);
+            data.put(idx, url);
+        }
+        cursor.close();
+        String where = SQLController.COL_ID + " = ?";
+        for (Integer idx : data.keySet()) {
+            ContentValues cv = new ContentValues();
+            cv.put(SQLController.COL_URL, data.get(idx));
+            db.update(SQLController.TABLE_AUTHOR, cv, where, new String[]{idx.toString()});
+        }
+        Log.d("upgradeSchema4To5", "End upgrade schema 4->5");
     }
 
-    private void upgradeSchema2To3(SQLiteDatabase db){
-        String [] columns = {SQLController.COL_ID,SQLController.COL_BOOK_DATE};
-        Map<Integer,Long> data = new HashMap();
+    private void upgradeSchema2To3(SQLiteDatabase db) {
+        String[] columns = {SQLController.COL_ID, SQLController.COL_BOOK_DATE};
+        Map<Integer, Long> data = new HashMap();
         Cursor cursor = db.query(SQLController.TABLE_BOOKS, columns, null, null, null, null, null);
-        while(cursor.moveToNext()){
-            long dd= cursor.getLong(cursor.getColumnIndex(SQLController.COL_BOOK_DATE));
-            int    idx = cursor.getInt(cursor.getColumnIndex(SQLController.COL_ID));
+        while (cursor.moveToNext()) {
+            long dd = cursor.getLong(cursor.getColumnIndex(SQLController.COL_BOOK_DATE));
+            int idx = cursor.getInt(cursor.getColumnIndex(SQLController.COL_ID));
             Calendar cal = Calendar.getInstance();
             cal.setTimeInMillis(dd);
             dd += cal.getTimeZone().getOffset(dd);
             data.put(idx, dd);
-     }
+        }
         cursor.close();
-      
-        String where =SQLController.COL_ID +" = ?";
-        
-        for (Integer idx : data.keySet() ){
+
+        String where = SQLController.COL_ID + " = ?";
+
+        for (Integer idx : data.keySet()) {
             Long dd = data.get(idx);
             ContentValues cv = new ContentValues();
             cv.put(SQLController.COL_BOOK_DATE, dd);
-            db.update(SQLController.TABLE_BOOKS, cv, where, new String [] {idx.toString()});
+            db.update(SQLController.TABLE_BOOKS, cv, where, new String[]{idx.toString()});
         }
-        
+
     }
+
     private static Object deserializeObject(byte[] b) throws IOException, ClassNotFoundException {
 
         Object object;
         ObjectInputStream in = new ObjectInputStream(new ByteArrayInputStream(b));
-            object = in.readObject();
-        
+        object = in.readObject();
+
 
         return object;
 
     }
 
-    
+
 }

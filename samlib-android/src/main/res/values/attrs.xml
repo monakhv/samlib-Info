@@ -17,25 +17,26 @@
 <resources>
 
     <declare-styleable name="AppTheme">
-        <attr name="actionbarCompatTitleStyle" format="reference" />
-        <attr name="actionbarCompatItemStyle" format="reference" />
-        <attr name="actionbarCompatItemHomeStyle" format="reference" />
-        <attr name="actionbarCompatProgressIndicatorStyle" format="reference" />
+        <attr name="actionbarCompatTitleStyle" format="reference"/>
+        <attr name="actionbarCompatItemStyle" format="reference"/>
+        <attr name="actionbarCompatItemHomeStyle" format="reference"/>
+        <attr name="actionbarCompatProgressIndicatorStyle" format="reference"/>
     </declare-styleable>
 
     <declare-styleable name="BezelImageView">
-        <attr name="maskDrawable" format="reference" />
-        <attr name="borderDrawable" format="reference" />
+        <attr name="maskDrawable" format="reference"/>
+        <attr name="borderDrawable" format="reference"/>
     </declare-styleable>
 
     <declare-styleable name="customAttrs">
-    <attr name="iconSelected" format="reference" />
-     <attr name="iconTags" format="reference" />
-     <attr name="iconSearch" format="reference" />
-     <attr name="iconSort" format="reference" />
-     <attr name="iconRefresh" format="reference" />
-     <attr name="colorBg" format="reference" />
-     <attr name="colorText" format="reference" />
+        <attr name="iconSelected" format="reference"/>
+        <attr name="iconTags" format="reference"/>
+        <attr name="iconSearch" format="reference"/>
+        <attr name="iconSort" format="reference"/>
+        <attr name="iconRefresh" format="reference"/>
+        <attr name="iconLock" format="reference"/>
+        <attr name="colorBg" format="reference"/>
+        <attr name="colorText" format="reference"/>
 
-</declare-styleable>
+    </declare-styleable>
 </resources>

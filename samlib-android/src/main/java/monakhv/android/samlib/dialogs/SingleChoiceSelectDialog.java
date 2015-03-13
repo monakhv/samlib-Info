@@ -88,7 +88,7 @@ public class SingleChoiceSelectDialog extends DialogFragment {
         Bundle args = getArguments();
         data = args.getStringArray(EXTRA_DATA);
         title = args.getString(EXTRA_TITLE);
-        selected = args.getInt(EXTRA_SELECTED);
+        selected = args.getInt(EXTRA_SELECTED,-1);
     }
 
     @Override

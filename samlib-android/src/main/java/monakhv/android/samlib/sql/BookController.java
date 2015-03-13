@@ -163,6 +163,7 @@ public class BookController implements AbstractController<Book> {
         res.setIsNew(cursor.getInt(cursor.getColumnIndex(SQLController.COL_isnew)) == 1);
         res.setAuthorId(cursor.getInt(cursor.getColumnIndex(SQLController.COL_BOOK_AUTHOR_ID)));
         res.setGroup_id(cursor.getInt(cursor.getColumnIndex(SQLController.COL_BOOK_GROUP_ID)));
+        res.setOptions(cursor.getInt(cursor.getColumnIndex(SQLController.COL_BOOK_OPT)));
         return res;
     }
 
@@ -187,6 +188,7 @@ public class BookController implements AbstractController<Book> {
         cv.put(SQLController.COL_BOOK_TITLE, book.getTitle());
         cv.put(SQLController.COL_BOOK_AUTHOR_ID, book.getAuthorId());
         cv.put(SQLController.COL_BOOK_GROUP_ID, book.getGroup_id());
+        cv.put(SQLController.COL_BOOK_OPT,book.getOptions());
         return cv;
 
     }

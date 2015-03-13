@@ -73,18 +73,7 @@ public class DataExportImport {
     
 
 
-    /**
-     * Clean downloaded files of any types
-     */
-    public void cleanBookFile(Book book){
-        for (monakhv.samlib.data.SettingsHelper.FileType ft : monakhv.samlib.data.SettingsHelper.FileType.values()){
-            File ff = settingsHelper.getBookFile(book, ft);
 
-            if (ff.exists()) {
-                ff.delete();
-            }
-        }
-    }
     /**
      * Test whether file for the book is fresh enought
      *
@@ -93,17 +82,17 @@ public class DataExportImport {
      */
     public boolean needUpdateFile(Book book) {
 
-        File ff = settingsHelper.getBookFile(book, book.getFileType());
+        File ff = settingsHelper.getBookFile4Read(book, book.getFileType());
         switch (book.getFileType()){
             case HTML:
-                return !ff.exists() || ff.lastModified() < book.getModifyTime();
+                return ff==null || !ff.exists() || ff.lastModified() < book.getModifyTime();
             case FB2:
                 if (ff.exists()){
                     return  ff.lastModified() < book.getModifyTime();
                 }
                 else {
                     book.setFileType(SettingsHelper.FileType.HTML);
-                    ff = settingsHelper.getBookFile(book,book.getFileType());
+                    ff = settingsHelper.getBookFile4Read(book,book.getFileType());
                     return !ff.exists() || ff.lastModified() < book.getModifyTime();
                 }
             default:

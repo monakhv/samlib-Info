@@ -64,7 +64,9 @@ limitations under the License.
     <string name="menu_selected_go">Избранные книги</string>
     <string name="menu_reload">Перезагрузить</string>
 
-
+    <string name="menu_set_fixed">Хранить все версии</string>
+    <string name="menu_set_unfixed">Хранить одну версию</string>
+    <string name="menu_version_choose">Читать версию</string>
 
     <string name="sort_update_date">По времени обновления</string>
     <string name="sort_author_name">По имени автора</string>

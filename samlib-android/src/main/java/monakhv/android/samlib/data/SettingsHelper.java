@@ -39,9 +39,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.Map;
+import java.util.*;
 
 
 import monakhv.android.samlib.R;
@@ -65,6 +63,7 @@ public class SettingsHelper implements monakhv.samlib.data.SettingsHelper, Share
     private static final String DARK = "DARK";
     private static final String LIGHT = "LIGHT";
     private static final String DATE_FORMAT_DEBUG = "dd-MM-yyyy HH:mm:ss";
+    private static final String DATE_FORMAT_BOOK_FILE = "dd-MM-yyyy_HH-mm-ss";
     private static final String DEBUG_FILE = SQLController.DB_NAME + ".log";
 
     public SettingsHelper(Context context) {
@@ -411,7 +410,15 @@ public class SettingsHelper implements monakhv.samlib.data.SettingsHelper, Share
      */
     @Override
     public File getBookFile(Book book, FileType fileType) {
-        String ff=  DataExportImport.BOOKS_DIR +"/"+    book.getUri()    +      fileType.ext;
+        String ff;
+        if (book.isPreserve()){
+            SimpleDateFormat df = new SimpleDateFormat(DATE_FORMAT_BOOK_FILE);
+            ff=  DataExportImport.BOOKS_DIR +"/"+    book.getUri()    + "/" +   df.format(Calendar.getInstance().getTime())+ fileType.ext;
+        }
+        else {
+            ff=  DataExportImport.BOOKS_DIR +"/"+    book.getUri()    +      fileType.ext;
+        }
+
 
         File ss = new File(getDataDirectory(), ff);
         File pp = ss.getParentFile();
@@ -420,12 +427,108 @@ public class SettingsHelper implements monakhv.samlib.data.SettingsHelper, Share
         return ss;
 
     }
+
+    /**
+     * Create directory to store many versions for the book
+     * Move existing version into the directory
+     * @param book
+     */
+    public void makePreserved(Book book){
+        SimpleDateFormat df = new SimpleDateFormat(DATE_FORMAT_BOOK_FILE);
+
+        File dir =  new File(getDataDirectory(), DataExportImport.BOOKS_DIR +"/"+    book.getUri()    );
+        dir.mkdir();
+
+        File old = getBookFile(book,book.getFileType());
+        if (old.exists()){
+            Date lm = Calendar.getInstance().getTime();
+            lm.setTime(old.lastModified());
+            old.renameTo(new File(dir,df.format(lm)+book.getFileType().ext));
+        }
+
+    }
+
+    /**
+     * get All version for book files for read selection
+     * @param book
+     * @return
+     */
+    public  String[] getBookFileVersions(Book book){
+        File dir =  new File(getDataDirectory(), DataExportImport.BOOKS_DIR +"/"+    book.getUri()    );
+        List<String> files = new ArrayList<String>();
+        for (String fn : dir.list()){
+            if (fn.endsWith(book.getFileType().ext)){
+                files.add(fn);
+            }
+        }
+//        if (files.isEmpty()){
+//            return null;
+//        }
+        return files.toArray(new String[files.size()]);
+    }
+
+    /**
+     * get Book file to read it
+     * @param book
+     * @param fileType
+     * @return
+     */
+    public File getBookFile4Read(Book book,FileType fileType){
+        if (book.isPreserve()){//choose latest version to read
+            File dir =  new File(getDataDirectory(), DataExportImport.BOOKS_DIR +"/"+    book.getUri()    );
+            File res = null;
+            long lastmod=0L;
+            for (String fn : dir.list()){
+                if (fn.endsWith(fileType.ext)){
+                    File file = new File(dir,fn);
+                    Log.i(DEBUG_TAG,"test file "+fn+" - "+file.getAbsolutePath());
+                    if (file.lastModified()>lastmod){
+                        lastmod=file.lastModified();
+                        res=file;
+                    }
+                }
+            }//file cycle
+            return res;
+        }
+        else {
+            return getBookFile(book,fileType);//we have the only version just open it
+        }
+
+    }
     /**
      * Get URL to open book for offline reading
      * @return construct URL to start external program for offline reading
      */
     public String getBookFileURL(Book book) {
-        return "file://" + getBookFile(book, book.getFileType()).getAbsolutePath();
+        return "file://" + getBookFile4Read(book, book.getFileType()).getAbsolutePath();
+    }
+
+    /**
+     * Get URL to open book for offline reading
+     * To read  particular version of file
+     * @param book Book object
+     * @param file version file name
+     * @return file URL to READ
+     */
+    public String getBookFileURL(Book book,String file) {
+        File dir =  new File(getDataDirectory(), DataExportImport.BOOKS_DIR +"/"+    book.getUri()    );
+        File f=new File(dir,file);
+        return "file://" +f.getAbsolutePath();
+    }
+    /**
+     * Clean downloaded files of any types
+     * Find all book for read and delete them
+     *
+     * @param book  Book object
+     */
+    public void cleanBookFile(Book book){
+        for (monakhv.samlib.data.SettingsHelper.FileType ft : monakhv.samlib.data.SettingsHelper.FileType.values()){
+            File ff = getBookFile4Read(book, ft);
+
+            if (ff!=null && ff.exists()) {
+                ff.delete();
+            }
+        }
     }
 
     public void log(String tag, String msg) {
@@ -568,6 +671,11 @@ public class SettingsHelper implements monakhv.samlib.data.SettingsHelper, Share
         TypedArray a = context.getTheme().obtainStyledAttributes(getTheme(), new int[]{R.attr.iconSelected});
         return a.getResourceId(0, 0);
 
+    }
+
+    public int getLockIcon(){
+        TypedArray a = context.getTheme().obtainStyledAttributes(getTheme(), new int[]{R.attr.iconLock});
+        return a.getResourceId(0, 0);
     }
 
     public int getSortIcon() {

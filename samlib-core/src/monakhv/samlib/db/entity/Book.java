@@ -40,6 +40,8 @@ public class Book implements Serializable {
     private static final int BOOK_VOTE_RESULT = 6;
     private static final int BOOK_VOTE_COUNT = 7;
     private static final int BOOK_DESCRIPTION = 8;
+
+    private static final int OPT_PRESERVE=1<<1;
     protected String title;
     protected String authorName;
     protected String uri;
@@ -51,6 +53,7 @@ public class Book implements Serializable {
     protected boolean isNew;
     protected int id;
     protected int group_id;
+    private int options;
     private long authorId;
     private SettingsHelper.FileType fileType;
 
@@ -62,6 +65,7 @@ public class Book implements Serializable {
         updateDate = Calendar.getInstance().getTime().getTime();
         modifyTime = Calendar.getInstance().getTime().getTime();
         fileType= SettingsHelper.FileType.HTML;
+        options=0;
     }
 
     /**
@@ -197,6 +201,40 @@ public class Book implements Serializable {
         this.fileType = fileType;
     }
 
+    public int getOptions() {
+        return options;
+    }
+
+    public void setOptions(int options) {
+        this.options = options;
+    }
+
+    public boolean isPreserve(){
+      return Book.isPreserved(options);
+
+    }
+    public void setPreserve(boolean flag){
+        boolean cur = isPreserve();
+  if (flag){
+            if (!cur){
+                options |=OPT_PRESERVE;//add option
+                return;
+            }
+            else {
+                return;//do nothing just return
+            }
+        }
+        else {
+            if (cur){
+                options ^=OPT_PRESERVE;//remove option
+                return;
+            }
+            else {
+                return;//do nothing just return
+            }
+        }
+
+    }
     @Override
     public int hashCode() {
         int hash = 7;
@@ -280,5 +318,8 @@ public class Book implements Serializable {
 
 
         return cal;
+    }
+    public static boolean isPreserved(int options){
+        return (options & OPT_PRESERVE)==OPT_PRESERVE;
     }
 }

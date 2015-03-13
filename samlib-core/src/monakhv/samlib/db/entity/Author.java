@@ -171,9 +171,10 @@ public class Author  implements Serializable{
 
     /**
      * Test whether we need update Author information or not
+     *change new flag for new author books
      *
      * @param newA new just downloaded author
-     * @return true id we need update Author info into data base
+     * @return true if we need update Author info into data base
      */
     private boolean testUpdate(Author newA) {
         
