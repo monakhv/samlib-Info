@@ -67,6 +67,11 @@ public class AuthorDB extends SQLiteOpenHelper {
     }
 
     @Override
+    public void onDowngrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+        Log.i(DEBUG_TAG,"Downgrade in progress");
+    }
+
+    @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {      
         
         if (oldVersion ==1 && newVersion ==5){
