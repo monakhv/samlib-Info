@@ -123,7 +123,7 @@ public class BookCursorAdapter extends RecyclerCursorAdapter<BookCursorAdapter.V
             };
 
         }
-        flips.put(cursor.getPosition(), holder.flip);
+        flips.put(book_id, holder.flip);
         holder.itemView.setActivated(cursor.getPosition() == getSelectedPosition());
 
 
@@ -189,11 +189,13 @@ public class BookCursorAdapter extends RecyclerCursorAdapter<BookCursorAdapter.V
     public void makeSelectedRead(boolean animation) {
         Book book = getSelected();
         if (book == null) {
+            Log.e(DEBUG_TAG,"Book is null");
             return;
         }
         if (book.isIsNew()) {
-            Flip3D ff = flips.get(getSelectedPosition());
+            Flip3D ff = flips.get(book.getId());
             if (ff != null && animation) {
+                Log.i(DEBUG_TAG,"Making book flip animation at position: "+getSelectedPosition());
                 ff.makeFlip();
             } else {
                 sql.getBookController().markRead(book);

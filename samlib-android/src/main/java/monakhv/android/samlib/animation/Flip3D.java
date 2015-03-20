@@ -5,6 +5,7 @@ import android.view.animation.AccelerateInterpolator;
 import android.view.animation.Animation;
 import android.view.animation.DecelerateInterpolator;
 import android.widget.ImageView;
+import monakhv.samlib.log.Log;
 
 /*
  * Copyright 2014  Dmitry Monakhov
@@ -25,8 +26,9 @@ import android.widget.ImageView;
  */
  public abstract class Flip3D {
 
-    private ImageView image1;
-    private ImageView image2;
+    private static final String DEBUG_TAG = "Flip3D";
+    private final ImageView image1;
+    private final ImageView image2;
 
     private boolean isFirstImage = true;
     protected abstract void afterAnimationEnd() ;
@@ -55,11 +57,14 @@ import android.widget.ImageView;
     }
 
     public void makeFlip(){
+        Log.d(DEBUG_TAG,"making flip");
         if (isFirstImage) {
+            Log.d(DEBUG_TAG,"making flip 0 -> 90");
             applyRotation(0, 90);
             isFirstImage = !isFirstImage;
 
         } else {
+            Log.d(DEBUG_TAG,"making flip 0 -> -90");
             applyRotation(0, -90);
             isFirstImage = !isFirstImage;
         }
@@ -97,9 +102,11 @@ import android.widget.ImageView;
         }
 
         public void onAnimationStart(Animation animation) {
+            Log.d(DEBUG_TAG,"Animation start");
         }
 
         public void onAnimationEnd(Animation animation) {
+            Log.d(DEBUG_TAG,"Animation end - swap image");
             image1.post(new SwapViews(mCurrentView, image1, image2));
         }
 
@@ -143,11 +150,13 @@ import android.widget.ImageView;
                 rotation.setAnimationListener(new Animation.AnimationListener() {
                     @Override
                     public void onAnimationStart(Animation animation) {
+                        Log.d(DEBUG_TAG,"Second animation start");
 
                     }
 
                     @Override
                     public void onAnimationEnd(Animation animation) {
+                        Log.d(DEBUG_TAG,"Real animation end");
                         afterAnimationEnd();
                     }
 

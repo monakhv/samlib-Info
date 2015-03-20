@@ -219,6 +219,7 @@ public class BookFragment extends Fragment implements ListSwipeListener.SwipeCal
         book = adapter.getSelected();
 
         if (book == null) {
+            Log.e(DEBUG_TAG,"Book is null");
             return false;
         }
         adapter.makeSelectedRead(true);
