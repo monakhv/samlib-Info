@@ -26,6 +26,7 @@ import monakhv.samlib.log.Log;
  */
  public abstract class Flip3D {
 
+    private static final long ANIMATION_DURATION =500L;
     private static final String DEBUG_TAG = "Flip3D";
     private final ImageView image1;
     private final ImageView image2;
@@ -35,29 +36,37 @@ import monakhv.samlib.log.Log;
 
 
 
-    public Flip3D(ImageView image1, ImageView image2,boolean clickable) {
-        this.image1 = image1;
-        this.image2 = image2;
+    public Flip3D(ImageView img1, ImageView img2,boolean clickable) {
+        this.image1 = img1;
+        this.image2 = img2;
         image1.setVisibility(View.VISIBLE);
         image2.setVisibility(View.GONE);
+
+        image1.setClickable(clickable);
 
         if (clickable){
             image1.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View view) {
-                    makeFlip();
+                    _makeFlip();
                 }
             });
         }
 
     }
 
-    public Flip3D(ImageView image1, ImageView image2) {
+//    public ImageView getFrontImage(){
+//        return image1;
+//    }
+    public Flip3D(ImageView img1, ImageView img2) {
         //clickable by default
-        this(image1,image2,true);
+        this(img1,img2,true);
     }
 
     public void makeFlip(){
-        Log.d(DEBUG_TAG,"making flip");
+        _makeFlip();
+    }
+    public void _makeFlip(){
+
         if (isFirstImage) {
             Log.d(DEBUG_TAG,"making flip 0 -> 90");
             applyRotation(0, 90);
@@ -78,7 +87,7 @@ import monakhv.samlib.log.Log;
 // The animation listener is used to trigger the next animation
         final Flip3dAnimation rotation =
                 new Flip3dAnimation(start, end, centerX, centerY);
-        rotation.setDuration(500);
+        rotation.setDuration(ANIMATION_DURATION);
         rotation.setFillAfter(true);
         rotation.setInterpolator(new AccelerateInterpolator());
         rotation.setAnimationListener(new DisplayNextView(isFirstImage, image1, image2));
@@ -110,6 +119,7 @@ import monakhv.samlib.log.Log;
             image1.post(new SwapViews(mCurrentView, image1, image2));
         }
 
+        @Override
         public void onAnimationRepeat(Animation animation) {
         }
 
@@ -144,7 +154,7 @@ import monakhv.samlib.log.Log;
                     rotation = new Flip3dAnimation(90, 0, centerX, centerY);
                 }
 
-                rotation.setDuration(500);
+                rotation.setDuration(ANIMATION_DURATION);
                 rotation.setFillAfter(true);
                 rotation.setInterpolator(new DecelerateInterpolator());
                 rotation.setAnimationListener(new Animation.AnimationListener() {

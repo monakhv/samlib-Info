@@ -50,14 +50,14 @@ public class BookCursorAdapter extends RecyclerCursorAdapter<BookCursorAdapter.V
     private Context context;
     private SettingsHelper settingsHelper;
     private AuthorController sql;
-    private HashMap<Integer, Flip3D> flips;
+    private HashMap<Integer, ViewHolder> holders;
 
     public BookCursorAdapter(Context context, Cursor cursor) {
         super(context, cursor);
         this.context = context;
         settingsHelper = new SettingsHelper(context);
         sql = new AuthorController(context);
-        flips = new HashMap<>();
+        holders = new HashMap<>();
         setName(DEBUG_TAG);
 
     }
@@ -104,26 +104,8 @@ public class BookCursorAdapter extends RecyclerCursorAdapter<BookCursorAdapter.V
         holder.openBook.setImageResource(R.drawable.open);
         holder.closeBook.setImageResource(R.drawable.closed);
 
-        if (cursor.getInt(idx_isNew) == 1) {
-            holder.flip = new Flip3D(holder.openBook, holder.closeBook) {
-                @Override
-                protected void afterAnimationEnd() {
-                    Log.i(DEBUG_TAG, "Making book read!");
-                    AuthorEditorServiceIntent.markBookReadFlip(context,book_id);
-                }
-            };
 
-        } else {
-            holder.flip = new Flip3D(holder.closeBook, holder.openBook) {
-                @Override
-                protected void afterAnimationEnd() {
-                    Log.i(DEBUG_TAG, "Making book new!!");
-                    AuthorEditorServiceIntent.markBookReadFlip(context,book_id);
-                }
-            };
-
-        }
-        flips.put(book_id, holder.flip);
+        holder.flip=makeFlip(holder,cursor.getInt(idx_isNew)==1,book_id);
         holder.itemView.setActivated(cursor.getPosition() == getSelectedPosition());
 
 
@@ -145,6 +127,7 @@ public class BookCursorAdapter extends RecyclerCursorAdapter<BookCursorAdapter.V
         }
 
 
+        holders.put(cursor.getPosition(), holder);
     }
 
     @Override
@@ -193,7 +176,7 @@ public class BookCursorAdapter extends RecyclerCursorAdapter<BookCursorAdapter.V
             return;
         }
         if (book.isIsNew()) {
-            Flip3D ff = flips.get(book.getId());
+            Flip3D ff = makeFlip(holders.get(getSelectedPosition()),book.isIsNew(),book.getId());
             if (ff != null && animation) {
                 Log.i(DEBUG_TAG,"Making book flip animation at position: "+getSelectedPosition());
                 ff.makeFlip();
@@ -208,5 +191,28 @@ public class BookCursorAdapter extends RecyclerCursorAdapter<BookCursorAdapter.V
 
     public void update(Book book) {
         sql.getBookController().update(book);
+    }
+    private Flip3D makeFlip(ViewHolder holder,boolean isNew, final int book_id){
+        Flip3D res;
+        if (isNew) {
+            res = new Flip3D(holder.openBook, holder.closeBook) {
+                @Override
+                protected void afterAnimationEnd() {
+                    Log.i(DEBUG_TAG, "Making book read!");
+                    AuthorEditorServiceIntent.markBookReadFlip(context,book_id);
+                }
+            };
+
+        } else {
+            res = new Flip3D(holder.closeBook, holder.openBook) {
+                @Override
+                protected void afterAnimationEnd() {
+                    Log.i(DEBUG_TAG, "Making book new!!");
+                    AuthorEditorServiceIntent.markBookReadFlip(context,book_id);
+                }
+            };
+
+        }
+        return res;
     }
 }

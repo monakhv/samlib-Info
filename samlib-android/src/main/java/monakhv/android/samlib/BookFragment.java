@@ -198,7 +198,7 @@ public class BookFragment extends Fragment implements ListSwipeListener.SwipeCal
 
     @Override
     public boolean singleClick(MotionEvent e) {
-        int position = bookRV.getChildPosition(bookRV.findChildViewUnder(e.getX(), e.getY()));
+        int position = bookRV.getChildAdapterPosition(bookRV.findChildViewUnder(e.getX(), e.getY()));
         adapter.toggleSelection(position);
 
 
@@ -213,7 +213,7 @@ public class BookFragment extends Fragment implements ListSwipeListener.SwipeCal
 
     @Override
     public boolean swipeRight(MotionEvent e) {
-        int position = bookRV.getChildPosition(bookRV.findChildViewUnder(e.getX(), e.getY()));
+        int position = bookRV.getChildAdapterPosition(bookRV.findChildViewUnder(e.getX(), e.getY()));
         adapter.toggleSelection(position);
 
         book = adapter.getSelected();
@@ -228,7 +228,7 @@ public class BookFragment extends Fragment implements ListSwipeListener.SwipeCal
 
     @Override
     public boolean swipeLeft(MotionEvent e) {
-        int position = bookRV.getChildPosition(bookRV.findChildViewUnder(e.getX(), e.getY()));
+        int position = bookRV.getChildAdapterPosition(bookRV.findChildViewUnder(e.getX(), e.getY()));
         adapter.toggleSelection(position);
 
         book = adapter.getSelected();
@@ -250,7 +250,7 @@ public class BookFragment extends Fragment implements ListSwipeListener.SwipeCal
 
     @Override
     public void longPress(MotionEvent e) {
-        int position = bookRV.getChildPosition(bookRV.findChildViewUnder(e.getX(), e.getY()));
+        int position = bookRV.getChildAdapterPosition(bookRV.findChildViewUnder(e.getX(), e.getY()));
         adapter.toggleSelection(position);
 
         book = adapter.getSelected();

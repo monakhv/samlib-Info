@@ -36,6 +36,7 @@ public class Flip3dAnimation extends Animation {
     private Camera mCamera;
 
     public Flip3dAnimation(float fromDegrees, float toDegrees,   float centerX, float centerY) {
+        Log.i(DEBUG_TAG,"Begin rotate from "+fromDegrees+" to "+toDegrees);
         mFromDegrees = fromDegrees;
         mToDegrees = toDegrees;
         mCenterX = centerX;
