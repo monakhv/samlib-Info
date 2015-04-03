@@ -39,4 +39,9 @@
         <attr name="colorText" format="reference"/>
 
     </declare-styleable>
+    <declare-styleable name="FlipIcon">
+        <attr name="customImageFirst" format="reference" />
+        <attr name="customImageSecond" format="reference" />
+
+    </declare-styleable>
 </resources>
