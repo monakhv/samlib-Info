@@ -66,12 +66,12 @@ import monakhv.samlib.log.Log;
     public void makeFlip(){
 
         if (isFirstImage) {
-            Log.d(DEBUG_TAG,"making flip 0 -> 90");
+            //Log.d(DEBUG_TAG,"making flip 0 -> 90");
             applyRotation(0, 90);
             isFirstImage = !isFirstImage;
 
         } else {
-            Log.d(DEBUG_TAG,"making flip 0 -> -90");
+            //Log.d(DEBUG_TAG,"making flip 0 -> -90");
             applyRotation(0, -90);
             isFirstImage = !isFirstImage;
         }

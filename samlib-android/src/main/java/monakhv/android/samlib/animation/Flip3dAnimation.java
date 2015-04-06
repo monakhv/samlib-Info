@@ -36,7 +36,7 @@ public class Flip3dAnimation extends Animation {
     private Camera mCamera;
 
     public Flip3dAnimation(float fromDegrees, float toDegrees,   float centerX, float centerY) {
-        Log.i(DEBUG_TAG,"Begin rotate from "+fromDegrees+" to "+toDegrees);
+        //Log.i(DEBUG_TAG,"Begin rotate from "+fromDegrees+" to "+toDegrees);
         mFromDegrees = fromDegrees;
         mToDegrees = toDegrees;
         mCenterX = centerX;
@@ -64,7 +64,7 @@ public class Flip3dAnimation extends Animation {
     protected void applyTransformation(float interpolatedTime, Transformation t) {
         final float fromDegrees = mFromDegrees;
         float degrees = fromDegrees + ((mToDegrees - fromDegrees) * interpolatedTime);
-        Log.d(DEBUG_TAG, "time: "+interpolatedTime+"  rotate: " + degrees);
+        //Log.d(DEBUG_TAG, "time: "+interpolatedTime+"  rotate: " + degrees);
 
         final float centerX = mCenterX;
         final float centerY = mCenterY;
