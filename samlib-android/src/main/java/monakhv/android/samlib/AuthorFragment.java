@@ -269,7 +269,7 @@ public class AuthorFragment extends Fragment implements OnRefreshListener, ListS
     @Override
     public boolean swipeRight(MotionEvent e) {
         int position = authorRV.getChildPosition(authorRV.findChildViewUnder(e.getX(), e.getY()));
-        adapter.toggleSelection(position);
+        adapter.toggleSelection(position,false);
 
         author = adapter.getSelected();
 

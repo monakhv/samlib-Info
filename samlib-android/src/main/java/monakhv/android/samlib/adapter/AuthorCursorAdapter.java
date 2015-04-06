@@ -100,6 +100,7 @@ public class AuthorCursorAdapter extends RecyclerCursorAdapter<AuthorCursorAdapt
                 protected void afterAnimationEnd() {
                     Log.i(DEBUG_TAG, "Making Author read!");
                     AuthorEditorServiceIntent.markAuthorRead(context,id_author);
+                    cleanSelection();
                 }
             };
         } else {
@@ -186,9 +187,10 @@ public class AuthorCursorAdapter extends RecyclerCursorAdapter<AuthorCursorAdapt
                 ff.makeFlip();
             } else {
                 AuthorEditorServiceIntent.markAuthorRead(context,author.getId());
+                cleanSelection();
             }
         }
-        cleanSelection();
+
 
     }
 }
