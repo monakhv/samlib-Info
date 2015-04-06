@@ -114,6 +114,7 @@ public class BookCursorAdapter extends RecyclerCursorAdapter<BookCursorAdapter.V
                 public void onEnd() {
                     Log.i(DEBUG_TAG, "Making book read!");
                     AuthorEditorServiceIntent.markBookReadFlip(context,book_id);
+                    cleanSelection();
                 }
             };
             holder.flipIcon.setData(openBook,closeBook,listener,true);
@@ -124,6 +125,7 @@ public class BookCursorAdapter extends RecyclerCursorAdapter<BookCursorAdapter.V
                 public void onEnd() {
                     Log.i(DEBUG_TAG, "Making book new!!");
                     AuthorEditorServiceIntent.markBookReadFlip(context,book_id);
+                    cleanSelection();
                 }
             };
             holder.flipIcon.setData(closeBook,openBook,listener,true);
@@ -207,9 +209,9 @@ public class BookCursorAdapter extends RecyclerCursorAdapter<BookCursorAdapter.V
             } else {
                 sql.getBookController().markRead(book);
                 sql.testMarkRead(sql.getByBook(book));
+                cleanSelection();
             }
         }
-        cleanSelection();
 
     }
 

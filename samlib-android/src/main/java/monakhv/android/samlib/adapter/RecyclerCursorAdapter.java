@@ -213,16 +213,34 @@ public abstract class RecyclerCursorAdapter<VH
     public static final int NOT_SELECTED=-1;
     private int selected = NOT_SELECTED;
 
+    /**
+     * Change selection position
+     * make notification by default
+     * @param position new selected item position
+     */
     public void toggleSelection(int position){
+        toggleSelection(position,true);
+    }
 
-        int old_selection = selected;
-        selected = position;
-
-        if (old_selection!= NOT_SELECTED){
-            notifyItemChanged(old_selection);
+    /**
+     * Change selected element position
+     *
+     * @param position new selection position
+     * @param notified whether make change item notification or not
+     */
+    public void toggleSelection(int position,boolean notified){
+        if (position == selected){
+            return;//selection is not changed - ignore it
         }
-        if (selected != NOT_SELECTED){
-            notifyItemChanged(selected);
+
+        int old_selection = selected;//preserve old selection position
+        selected = position;//new position
+
+        if (old_selection!= NOT_SELECTED&&notified){
+            notifyItemChanged(old_selection);//clean up old selection
+        }
+        if (selected != NOT_SELECTED&&notified){
+            notifyItemChanged(selected);//make new selection
         }
     }
 

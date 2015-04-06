@@ -213,8 +213,9 @@ public class BookFragment extends Fragment implements ListSwipeListener.SwipeCal
 
     @Override
     public boolean swipeRight(MotionEvent e) {
+        Log.v(DEBUG_TAG,"making swipeRight");
         int position = bookRV.getChildAdapterPosition(bookRV.findChildViewUnder(e.getX(), e.getY()));
-        adapter.toggleSelection(position);
+        adapter.toggleSelection(position,false);
 
         book = adapter.getSelected();
 
