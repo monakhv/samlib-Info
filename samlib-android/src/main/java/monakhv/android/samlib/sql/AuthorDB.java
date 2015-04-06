@@ -67,29 +67,39 @@ public class AuthorDB extends SQLiteOpenHelper {
     }
 
     @Override
+    public void onDowngrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+        Log.i(DEBUG_TAG,"Downgrade in progress");
+    }
+    @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {      
         
-        if (oldVersion ==1 && newVersion ==5){
+        if (oldVersion == 1 && newVersion == 6) {
             upgradeSchema1To2(db);
             upgradeSchema2To3(db);
             upgradeSchema3To4(db);
             upgradeSchema4To5(db);
-            
+            upgradeSchema5To6(db);
         }
-        if (oldVersion ==2 && newVersion ==5){           
+        if (oldVersion ==2 && newVersion == 6){
             upgradeSchema2To3(db);
             upgradeSchema3To4(db);
             upgradeSchema4To5(db);
+            upgradeSchema5To6(db);
         }
-        if (oldVersion ==3 && newVersion ==5){                       
+        if (oldVersion == 3 && newVersion == 6) {
             upgradeSchema3To4(db);
             upgradeSchema4To5(db);
+            upgradeSchema5To6(db);
         }
-        if (oldVersion ==4 && newVersion ==5){                       
-           
+        if (oldVersion == 4 && newVersion == 6) {
             upgradeSchema4To5(db);
+            upgradeSchema5To6(db);
         }
+        if (oldVersion == 5 && newVersion == 6) {
+            upgradeSchema5To6(db);
         }
+    }
+
     private void upgradeSchema3To4(SQLiteDatabase db) {
         db.execSQL(SQLController.DB_CREATE_TAGS);
         db.execSQL(SQLController.DB_CREATE_TAG_TO_AUTHOR);
@@ -110,7 +120,6 @@ public class AuthorDB extends SQLiteOpenHelper {
         Cursor cursor = db.query(SQLController.TABLE_AUTHOR, columns, null, null, null, null, null);
         
       
-        
         while(cursor.moveToNext()){
             byte [] data = cursor.getBlob(cursor.getColumnIndex(SQLController.COL_books));
             int author_id  = cursor.getInt(cursor.getColumnIndex(SQLController.COL_ID));
@@ -141,6 +150,11 @@ public class AuthorDB extends SQLiteOpenHelper {
         //db.execSQL(SQLController.ALTER2_1);
         db.execSQL(SQLController.ALTER2_2);
     }
+
+    private void upgradeSchema5To6(SQLiteDatabase db) {
+        db.execSQL(SQLController.ALTER6_1);
+    }
+
     /**
      * Schema update to version 5 
      * Remove samlib URL
