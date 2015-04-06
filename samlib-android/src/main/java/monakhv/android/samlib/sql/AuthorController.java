@@ -116,9 +116,10 @@ public class AuthorController implements AbstractController<Author> {
                 bkCtr.insert(book);
             } else {//update                
                 if (book.isIsNew()) {//update
-                    //TODO: we need save some paramiters from the old book object
+                    //TODO: we need save some parameters from the old book object
                     book.setId(oldb.getId());
                     book.setGroup_id(oldb.getGroup_id());
+                    book.setOptions(oldb.getOptions());
                     bkCtr.update(book);
                 }
             }

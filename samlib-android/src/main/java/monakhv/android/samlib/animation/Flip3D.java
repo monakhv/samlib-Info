@@ -5,6 +5,7 @@ import android.view.animation.AccelerateInterpolator;
 import android.view.animation.Animation;
 import android.view.animation.DecelerateInterpolator;
 import android.widget.ImageView;
+import monakhv.samlib.log.Log;
 
 /*
  * Copyright 2014  Dmitry Monakhov
@@ -23,43 +24,54 @@ import android.widget.ImageView;
  *
  * 12/11/14.
  */
- public abstract class Flip3D {
+ public  class Flip3D {
+    public interface animationEndListener {
+        public void onEnd();
+    }
 
-    private ImageView image1;
-    private ImageView image2;
+    private static final long ANIMATION_DURATION =500L;
+    private static final String DEBUG_TAG = "Flip3D";
+    private final ImageView image1;
+    private final ImageView image2;
+    private animationEndListener end;
 
     private boolean isFirstImage = true;
-    protected abstract void afterAnimationEnd() ;
-
-
-
-    public Flip3D(ImageView image1, ImageView image2,boolean clickable) {
-        this.image1 = image1;
-        this.image2 = image2;
-        image1.setVisibility(View.VISIBLE);
-        image2.setVisibility(View.GONE);
-
-        if (clickable){
-            image1.setOnClickListener(new View.OnClickListener() {
-                public void onClick(View view) {
-                    makeFlip();
-                }
-            });
+    protected  void afterAnimationEnd() {
+        if (end != null){
+            end.onEnd();
         }
 
     }
 
-    public Flip3D(ImageView image1, ImageView image2) {
-        //clickable by default
-        this(image1,image2,true);
+    public Flip3D(ImageView img1, ImageView img2,animationEndListener e) {
+        this.image1 = img1;
+        this.image2 = img2;
+        image1.setVisibility(View.VISIBLE);
+        image2.setVisibility(View.GONE);
+
+       end=e;
+
+    }
+    public Flip3D(ImageView img1, ImageView img2) {
+        this(img1,img2,null);
     }
 
+
+//    public ImageView getFrontImage(){
+//        return image1;
+//    }
+
+
+
     public void makeFlip(){
+
         if (isFirstImage) {
+            //Log.d(DEBUG_TAG,"making flip 0 -> 90");
             applyRotation(0, 90);
             isFirstImage = !isFirstImage;
 
         } else {
+            //Log.d(DEBUG_TAG,"making flip 0 -> -90");
             applyRotation(0, -90);
             isFirstImage = !isFirstImage;
         }
@@ -73,7 +85,7 @@ import android.widget.ImageView;
 // The animation listener is used to trigger the next animation
         final Flip3dAnimation rotation =
                 new Flip3dAnimation(start, end, centerX, centerY);
-        rotation.setDuration(500);
+        rotation.setDuration(ANIMATION_DURATION);
         rotation.setFillAfter(true);
         rotation.setInterpolator(new AccelerateInterpolator());
         rotation.setAnimationListener(new DisplayNextView(isFirstImage, image1, image2));
@@ -97,12 +109,15 @@ import android.widget.ImageView;
         }
 
         public void onAnimationStart(Animation animation) {
+            Log.d(DEBUG_TAG,"Animation start");
         }
 
         public void onAnimationEnd(Animation animation) {
+            Log.d(DEBUG_TAG,"Animation end - swap image");
             image1.post(new SwapViews(mCurrentView, image1, image2));
         }
 
+        @Override
         public void onAnimationRepeat(Animation animation) {
         }
 
@@ -137,17 +152,19 @@ import android.widget.ImageView;
                     rotation = new Flip3dAnimation(90, 0, centerX, centerY);
                 }
 
-                rotation.setDuration(500);
+                rotation.setDuration(ANIMATION_DURATION);
                 rotation.setFillAfter(true);
                 rotation.setInterpolator(new DecelerateInterpolator());
                 rotation.setAnimationListener(new Animation.AnimationListener() {
                     @Override
                     public void onAnimationStart(Animation animation) {
+                        Log.d(DEBUG_TAG,"Second animation start");
 
                     }
 
                     @Override
                     public void onAnimationEnd(Animation animation) {
+                        Log.d(DEBUG_TAG,"Real animation end");
                         afterAnimationEnd();
                     }
 

@@ -2,6 +2,7 @@ package monakhv.android.samlib.animation;
 
 import android.graphics.Camera;
 import android.graphics.Matrix;
+import android.util.Log;
 import android.view.animation.Animation;
 import android.view.animation.Transformation;
 
@@ -27,14 +28,15 @@ import android.view.animation.Transformation;
  * Class is base on http://www.inter-fuser.com/2009/08/android-animations-3d-flip.html
  */
 public class Flip3dAnimation extends Animation {
+    private static final String DEBUG_TAG ="Flip3dAnimation" ;
     private final float mFromDegrees;
     private final float mToDegrees;
     private final float mCenterX;
     private final float mCenterY;
     private Camera mCamera;
 
-    public Flip3dAnimation(float fromDegrees, float toDegrees,
-                           float centerX, float centerY) {
+    public Flip3dAnimation(float fromDegrees, float toDegrees,   float centerX, float centerY) {
+        //Log.i(DEBUG_TAG,"Begin rotate from "+fromDegrees+" to "+toDegrees);
         mFromDegrees = fromDegrees;
         mToDegrees = toDegrees;
         mCenterX = centerX;
@@ -62,6 +64,7 @@ public class Flip3dAnimation extends Animation {
     protected void applyTransformation(float interpolatedTime, Transformation t) {
         final float fromDegrees = mFromDegrees;
         float degrees = fromDegrees + ((mToDegrees - fromDegrees) * interpolatedTime);
+        //Log.d(DEBUG_TAG, "time: "+interpolatedTime+"  rotate: " + degrees);
 
         final float centerX = mCenterX;
         final float centerY = mCenterY;

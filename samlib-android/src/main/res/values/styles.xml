@@ -13,6 +13,7 @@
         <item name="iconSearch">@drawable/action_search</item>
         <item name="iconSort">@drawable/collections_sort_by_size</item>
         <item name="iconRefresh">@drawable/navigation_refresh_d</item>
+        <item name="iconLock">@drawable/ic_https_white_18dp</item>
         <item name="colorBg">@color/BLACK</item>
         <item name="colorText">@color/WHITE</item>
 
@@ -24,6 +25,7 @@
         <item name="iconSearch">@drawable/action_search_l</item>
         <item name="iconSort">@drawable/collections_sort_by_size_l</item>
         <item name="iconRefresh">@drawable/navigation_refresh</item>
+        <item name="iconLock">@drawable/ic_https_grey600_18dp</item>
         <item name="colorBg">@color/WHITE</item>
         <item name="colorText">@color/BLACK</item>
 

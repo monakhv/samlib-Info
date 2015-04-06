@@ -67,7 +67,10 @@ limitations under the License.
         </LinearLayout>
     </LinearLayout>
 
-
-    <include  android:id="@+id/twoButtons"  layout="@layout/author_flip"/>
+    <monakhv.android.samlib.animation.FlipIcon
+            android:id="@+id/FlipIcon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+    </monakhv.android.samlib.animation.FlipIcon>
 
 </LinearLayout>

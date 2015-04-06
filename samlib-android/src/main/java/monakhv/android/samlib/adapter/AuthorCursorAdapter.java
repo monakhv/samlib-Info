@@ -8,7 +8,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.text.SimpleDateFormat;
@@ -19,6 +18,7 @@ import java.util.HashMap;
 
 import monakhv.android.samlib.R;
 import monakhv.android.samlib.animation.Flip3D;
+import monakhv.android.samlib.animation.FlipIcon;
 import monakhv.android.samlib.service.AuthorEditorServiceIntent;
 import monakhv.android.samlib.sql.AuthorController;
 
@@ -49,7 +49,7 @@ public class AuthorCursorAdapter extends RecyclerCursorAdapter<AuthorCursorAdapt
     private static long YEAR = 31556952000L;
     private AuthorController sql;
     private Context context;
-    private HashMap<Integer, Flip3D> flips;
+    private HashMap<Integer, FlipIcon> flips;
     private SimpleDateFormat df;
     private Calendar now;
 
@@ -87,34 +87,39 @@ public class AuthorCursorAdapter extends RecyclerCursorAdapter<AuthorCursorAdapt
         holder.updatedData.setText(df.format(update));
 
 
+        int oldBookResource;
         if (            (now.getTimeInMillis() -dd) < YEAR) {
-            holder.oldAuthor.setImageResource(R.drawable.author_old);
+            oldBookResource=(R.drawable.author_old);
         }
         else {
-            holder.oldAuthor.setImageResource(R.drawable.author_very_old);
+            oldBookResource=(R.drawable.author_very_old);
         }
+        Flip3D.animationEndListener listener;
         if (isNew) {
             holder.authorName.setTypeface(Typeface.DEFAULT_BOLD);
-            holder.flip = new Flip3D(holder.newAuthor, holder.oldAuthor,false) {
+            listener = new Flip3D.animationEndListener() {
                 @Override
-                protected void afterAnimationEnd() {
+                public void onEnd() {
                     Log.i(DEBUG_TAG, "Making Author read!");
                     AuthorEditorServiceIntent.markAuthorRead(context,id_author);
+                    cleanSelection();
                 }
             };
+            holder.flipIcon.setData(R.drawable.author_new,oldBookResource,listener,false);
         } else {
             holder.authorName.setTypeface(Typeface.DEFAULT);
-            holder.flip = new Flip3D(holder.oldAuthor, holder.newAuthor,false) {
+            listener = new  Flip3D.animationEndListener() {
                 @Override
-                protected void afterAnimationEnd() {
+                public void onEnd() {
                     Log.i(DEBUG_TAG, "Making Author new!!");
 //                    sql.getBookController().markUnRead(book);
 //                    Author a = sql.getByBook(book);
 //                    sql.testMarkRead(a);
                 }
             };
+            holder.flipIcon.setData(oldBookResource,R.drawable.author_new,listener,false);
         }
-        flips.put(cursor.getPosition(), holder.flip);
+        flips.put(cursor.getPosition(), holder.flipIcon);
         String tags = cursor.getString(idx_tags);
         if (tags != null) {
             holder.tgnames.setText(tags.replaceAll(",", ", "));
@@ -145,8 +150,8 @@ public class AuthorCursorAdapter extends RecyclerCursorAdapter<AuthorCursorAdapt
     public static class ViewHolder extends RecyclerView.ViewHolder  {
         //{R.id.authorName, R.id.updated, R.id.icon, R.id.tgnames, R.id.authorURL};
         public TextView authorName, updatedData, tgnames, authorURL;
-        public ImageView newAuthor, oldAuthor;
-        public Flip3D flip;
+        public FlipIcon flipIcon;
+
 
         public ViewHolder(View itemView) {
             super(itemView);
@@ -156,10 +161,8 @@ public class AuthorCursorAdapter extends RecyclerCursorAdapter<AuthorCursorAdapt
             tgnames = (TextView) itemView.findViewById(R.id.tgnames);
             authorURL = (TextView) itemView.findViewById(R.id.authorURL);
 
-            newAuthor = (ImageView) itemView.findViewById(R.id.authorNew);
-            oldAuthor = (ImageView) itemView.findViewById(R.id.authorOld);
-           newAuthor.setImageResource(R.drawable.author_new);
-           // oldAuthor.setImageResource(R.drawable.author_old);
+            flipIcon= (FlipIcon) itemView.findViewById(R.id.FlipIcon);
+
         }
 
     }
@@ -181,14 +184,15 @@ public class AuthorCursorAdapter extends RecyclerCursorAdapter<AuthorCursorAdapt
             return;
         }
         if (author.isIsNew()) {
-            Flip3D ff = flips.get(getSelectedPosition());
+            FlipIcon ff = flips.get(getSelectedPosition());
             if (ff != null) {
                 ff.makeFlip();
             } else {
                 AuthorEditorServiceIntent.markAuthorRead(context,author.getId());
+                cleanSelection();
             }
         }
-        cleanSelection();
+
 
     }
 }

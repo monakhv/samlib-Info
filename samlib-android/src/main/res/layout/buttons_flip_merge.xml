@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<merge xmlns:android="http://schemas.android.com/apk/res/android"
+       android:layout_width="match_parent"
+       android:layout_height="match_parent">
+    <ImageView
+            android:id="@+id/bookOpen"
+            android:layout_width="40sp"
+            android:layout_height="40sp"
+            android:layout_marginLeft="4sp"
+            android:layout_marginRight="10sp"
+            android:layout_marginTop="4sp"
+            android:src="@drawable/open" >
+    </ImageView>
+    <ImageView
+            android:id="@+id/bookClosed"
+            android:layout_width="40sp"
+            android:layout_height="40sp"
+            android:layout_marginLeft="4sp"
+            android:layout_marginRight="10sp"
+            android:layout_marginTop="4sp"
+            android:src="@drawable/closed" >
+    </ImageView>
+</merge>

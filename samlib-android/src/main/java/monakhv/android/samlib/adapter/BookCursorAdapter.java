@@ -18,6 +18,7 @@ import java.util.HashMap;
 import monakhv.android.samlib.R;
 import monakhv.android.samlib.animation.Flip3D;
 
+import monakhv.android.samlib.animation.FlipIcon;
 import monakhv.android.samlib.data.SettingsHelper;
 import monakhv.android.samlib.service.AuthorEditorServiceIntent;
 import monakhv.android.samlib.sql.AuthorController;
@@ -50,14 +51,15 @@ public class BookCursorAdapter extends RecyclerCursorAdapter<BookCursorAdapter.V
     private Context context;
     private SettingsHelper settingsHelper;
     private AuthorController sql;
-    private HashMap<Integer, Flip3D> flips;
+    private HashMap<Integer,FlipIcon> flips;
 
     public BookCursorAdapter(Context context, Cursor cursor) {
         super(context, cursor);
         this.context = context;
         settingsHelper = new SettingsHelper(context);
         sql = new AuthorController(context);
-        flips = new HashMap<>();
+        flips=new HashMap<>();
+
         setName(DEBUG_TAG);
 
     }
@@ -78,6 +80,7 @@ public class BookCursorAdapter extends RecyclerCursorAdapter<BookCursorAdapter.V
         int idx_group_id = cursor.getColumnIndex(SQLController.COL_BOOK_GROUP_ID);
         int idx_author = cursor.getColumnIndex(SQLController.COL_BOOK_AUTHOR);
         final int book_id = cursor.getInt(cursor.getColumnIndex(SQLController.COL_ID));
+        int book_options = cursor.getInt(cursor.getColumnIndex(SQLController.COL_BOOK_OPT));
 
 
         holder.bookTitle.setText(Html.fromHtml(cursor.getString(idx_title)));
@@ -100,29 +103,34 @@ public class BookCursorAdapter extends RecyclerCursorAdapter<BookCursorAdapter.V
         holder.bookSize.setText(cursor.getString(idx_size) + "K");
         holder.bookForm.setText(cursor.getString(idx_form));
 
-        holder.openBook.setImageResource(R.drawable.open);
-        holder.closeBook.setImageResource(R.drawable.closed);
+        final  int openBook = (R.drawable.open);
+        final int closeBook = (R.drawable.closed);
+        Flip3D.animationEndListener listener;
 
-        if (cursor.getInt(idx_isNew) == 1) {
-            holder.flip = new Flip3D(holder.openBook, holder.closeBook) {
+
+        if (cursor.getInt(idx_isNew)==1) {
+            listener = new Flip3D.animationEndListener() {
                 @Override
-                protected void afterAnimationEnd() {
+                public void onEnd() {
                     Log.i(DEBUG_TAG, "Making book read!");
                     AuthorEditorServiceIntent.markBookReadFlip(context,book_id);
+                    cleanSelection();
                 }
             };
+            holder.flipIcon.setData(openBook,closeBook,listener,true);
 
         } else {
-            holder.flip = new Flip3D(holder.closeBook, holder.openBook) {
+            listener = new Flip3D.animationEndListener() {
                 @Override
-                protected void afterAnimationEnd() {
+                public void onEnd() {
                     Log.i(DEBUG_TAG, "Making book new!!");
                     AuthorEditorServiceIntent.markBookReadFlip(context,book_id);
+                    cleanSelection();
                 }
             };
+            holder.flipIcon.setData(closeBook,openBook,listener,true);
 
         }
-        flips.put(cursor.getPosition(), holder.flip);
         holder.itemView.setActivated(cursor.getPosition() == getSelectedPosition());
 
 
@@ -134,7 +142,17 @@ public class BookCursorAdapter extends RecyclerCursorAdapter<BookCursorAdapter.V
             holder.starIcon.setVisibility(View.GONE);
         }
 
+        if (Book.isPreserved(book_options)){
+            holder.lockIcon.setImageResource(settingsHelper.getLockIcon());
+            holder.lockIcon.setVisibility(View.VISIBLE);
+        }
+        else {
+            holder.lockIcon.setImageResource(R.drawable.rating_not_important);
+            holder.lockIcon.setVisibility(View.GONE);
+        }
 
+
+        flips.put(cursor.getPosition(), holder.flipIcon);
     }
 
     @Override
@@ -146,8 +164,9 @@ public class BookCursorAdapter extends RecyclerCursorAdapter<BookCursorAdapter.V
     public class ViewHolder extends RecyclerView.ViewHolder {
         // {R.id.bookTitle, R.id.bookUpdate, R.id.bookDesc, R.id.Bookicon,R.id.Staricon,R.id.bookAuthorName,R.id.bookForm};
         public TextView bookTitle, bookSize, bookDesc, bookAuthorName, bookForm;
-        public ImageView starIcon, closeBook, openBook;
-        public Flip3D flip;
+        public ImageView starIcon, lockIcon;
+        public FlipIcon flipIcon;
+
 
         public ViewHolder(View itemView) {
             super(itemView);
@@ -157,9 +176,9 @@ public class BookCursorAdapter extends RecyclerCursorAdapter<BookCursorAdapter.V
             bookAuthorName = (TextView) itemView.findViewById(R.id.bookAuthorName);
             bookForm = (TextView) itemView.findViewById(R.id.bookForm);
 
-            closeBook = (ImageView) itemView.findViewById(R.id.bookClosed);
-            openBook = (ImageView) itemView.findViewById(R.id.bookOpen);
+            flipIcon= (FlipIcon) itemView.findViewById(R.id.FlipIcon);
             starIcon = (ImageView) itemView.findViewById(R.id.Staricon);
+            lockIcon = (ImageView) itemView.findViewById(R.id.Lockicon);
         }
     }
 
@@ -178,22 +197,26 @@ public class BookCursorAdapter extends RecyclerCursorAdapter<BookCursorAdapter.V
     public void makeSelectedRead(boolean animation) {
         Book book = getSelected();
         if (book == null) {
+            Log.e(DEBUG_TAG,"Book is null");
             return;
         }
         if (book.isIsNew()) {
-            Flip3D ff = flips.get(getSelectedPosition());
-            if (ff != null && animation) {
-                ff.makeFlip();
+
+            if ( animation) {
+                flips.get(getSelectedPosition()).makeFlip();
+                Log.i(DEBUG_TAG,"Making book flip animation at position: "+getSelectedPosition());
+
             } else {
                 sql.getBookController().markRead(book);
                 sql.testMarkRead(sql.getByBook(book));
+                cleanSelection();
             }
         }
-        cleanSelection();
 
     }
 
     public void update(Book book) {
         sql.getBookController().update(book);
     }
+
 }
