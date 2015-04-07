@@ -15,16 +15,27 @@ See the License for the specific language governing permissions and
 limitations under the License.
 -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              xmlns:tools="http://schemas.android.com/tools"
               android:orientation="vertical"
               android:layout_width="match_parent"
-              android:layout_height="match_parent">
-    
-    
+              android:layout_height="match_parent"
+              tools:context=".MainActivity">
+    <android.support.v7.widget.Toolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="?attr/colorPrimary"
+            android:elevation="4dp"
+            android:minHeight="?attr/actionBarSize"
+            android:paddingTop="@dimen/tool_bar_top_padding"
+            android:transitionName="actionBar"/>
+
+
     <fragment
-        android:id="@+id/listBooksFragment"
-        android:name="monakhv.android.samlib.BookFragment"
-        android:layout_weight="1"
-        android:layout_width="match_parent"
-        android:layout_height="0dp">
+            android:id="@+id/listBooksFragment"
+            android:name="monakhv.android.samlib.BookFragment"
+            android:layout_weight="1"
+            android:layout_width="match_parent"
+            android:layout_height="0dp">
     </fragment>
 </LinearLayout>

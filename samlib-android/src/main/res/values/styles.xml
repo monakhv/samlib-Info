@@ -3,7 +3,7 @@
     <!--
     See also value-v11 style file
     -->
-    <style name="MyTheme" parent="Theme.AppCompat">
+    <style name="MyTheme" parent="MaterialDrawerTheme">
 
         <item name="colorPrimary">@color/action_bar</item>
         <item name="colorPrimaryDark">@color/action_bar</item>
@@ -19,7 +19,7 @@
 
         <item name="ptrHeaderStyle">@style/Widget.Custom.PtrHeader</item>
     </style>
-    <style name="MyThemeLight" parent="Theme.AppCompat.Light">
+    <style name="MyThemeLight" parent="MaterialDrawerTheme.Light">
         <item name="iconSelected">@drawable/rating_important_l</item>
         <item name="iconTags">@drawable/navigation_accept</item>
         <item name="iconSearch">@drawable/action_search_l</item>

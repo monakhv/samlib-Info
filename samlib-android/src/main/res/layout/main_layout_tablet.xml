@@ -1,24 +1,42 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/two_pain"
-    android:orientation="horizontal"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent">
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" xmlns:tools="http://schemas.android.com/tools"
+              android:orientation="vertical"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              tools:context=".MainActivity">
+        <android.support.v7.widget.Toolbar
+                android:id="@+id/toolbar"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="?attr/colorPrimary"
+                android:elevation="4dp"
+                android:minHeight="?attr/actionBarSize"
+                android:paddingTop="@dimen/tool_bar_top_padding"
+                android:transitionName="actionBar"/>
+
+<LinearLayout
+        android:id="@+id/two_pain"
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        >
+
 
     <fragment
-        android:id="@+id/authorFragment"
-        android:name="monakhv.android.samlib.AuthorFragment"
-        android:layout_weight="33"
-        android:layout_width="0dp"
-        android:layout_height="match_parent"/>
+            android:id="@+id/authorFragment"
+            android:name="monakhv.android.samlib.AuthorFragment"
+            android:layout_weight="33"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"/>
 
 
     <fragment
-        android:id="@+id/listBooksFragment"
-        android:name="monakhv.android.samlib.BookFragment"
-        android:layout_weight="66"
-        android:layout_width="0dp"
-        android:layout_height="match_parent">
+            android:id="@+id/listBooksFragment"
+            android:name="monakhv.android.samlib.BookFragment"
+            android:layout_weight="66"
+            android:layout_width="0dp"
+            android:layout_height="match_parent">
     </fragment>
 
+</LinearLayout>
 </LinearLayout>

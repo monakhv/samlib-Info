@@ -415,7 +415,7 @@ public class BookFragment extends Fragment implements ListSwipeListener.SwipeCal
         sortDialog.show(getActivity().getSupportFragmentManager(), "DoBookSortDialog");
     }
 
-    private void setSortOrder(SortOrder so) {
+    void setSortOrder(SortOrder so) {
         order = so;
         updateAdapter();
     }

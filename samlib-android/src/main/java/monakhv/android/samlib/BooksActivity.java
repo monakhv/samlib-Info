@@ -21,6 +21,7 @@ import android.content.IntentFilter;
 import android.os.Bundle;
 
 
+import android.support.v7.widget.Toolbar;
 import monakhv.android.samlib.sql.AuthorController;
 import monakhv.samlib.db.entity.Author;
 import monakhv.samlib.db.entity.SamLibConfig;
@@ -39,11 +40,16 @@ public class BooksActivity extends MyAbstractActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.books);
+
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         
         author_id = getIntent().getExtras().getLong(BookFragment.AUTHOR_ID);
         listFragment = (BookFragment) getSupportFragmentManager().findFragmentById(R.id.listBooksFragment);
         listFragment.setHasOptionsMenu(true);
-        
+
+
     }
     
     @Override

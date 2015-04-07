@@ -17,6 +17,7 @@ package monakhv.android.samlib;
 
 
 
+import android.support.v7.widget.Toolbar;
 import monakhv.android.samlib.data.DataExportImport;
 import monakhv.android.samlib.data.GoogleDiskOperation;
 import monakhv.android.samlib.data.SettingsHelper;
@@ -69,6 +70,10 @@ public class ArchiveActivity extends ActionBarActivity {
         setTheme(setting.getTheme());
         super.onCreate(savedInstanceState);
         setContentView(R.layout.archive);
+
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
     }
 

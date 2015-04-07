@@ -4,25 +4,36 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
+import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.Toast;
 
 
-
+import com.mikepenz.iconics.typeface.FontAwesome;
+import com.mikepenz.materialdrawer.Drawer;
+import com.mikepenz.materialdrawer.model.PrimaryDrawerItem;
+import com.mikepenz.materialdrawer.model.SecondaryDrawerItem;
+import com.mikepenz.materialdrawer.model.SectionDrawerItem;
+import com.mikepenz.materialdrawer.model.interfaces.IDrawerItem;
 import monakhv.android.samlib.data.SettingsHelper;
 import monakhv.android.samlib.search.SearchAuthorActivity;
 import monakhv.android.samlib.search.SearchAuthorsListFragment;
 import monakhv.android.samlib.service.AuthorEditorServiceIntent;
 import monakhv.android.samlib.service.CleanNotificationData;
+import monakhv.android.samlib.sql.AuthorProvider;
+import monakhv.samlib.db.SQLController;
 import monakhv.samlib.db.entity.SamLibConfig;
 
+import java.util.ArrayList;
 
 
 /*
@@ -45,20 +56,28 @@ import monakhv.samlib.db.entity.SamLibConfig;
 public class MainActivity extends ActionBarActivity implements AuthorFragment.Callbacks {
 
     private static final String DEBUG_TAG = "MainActivity";
-//    private static final String STATE_SELECTION = "STATE_SELECTION";
+    //    private static final String STATE_SELECTION = "STATE_SELECTION";
 //    private static final String STATE_AUTHOR_POS = "STATE_AUTHOR_ID";
     public static final int ARCHIVE_ACTIVITY = 1;
-    public static final int SEARCH_ACTIVITY  = 2;
-    public static final int PREFS_ACTIVITY  = 3;
-    public static final  String CLEAN_NOTIFICATION = "CLEAN_NOTIFICATION";
+    public static final int SEARCH_ACTIVITY = 2;
+    public static final int PREFS_ACTIVITY = 3;
+    public static final String CLEAN_NOTIFICATION = "CLEAN_NOTIFICATION";
     private UpdateActivityReceiver updateReceiver;
     private AuthorFragment authorFragment;
     private BookFragment bookFragment;
     private SettingsHelper settingsHelper;
     private DownloadReceiver downloadReceiver;
-    private  AuthorEditReceiver authorReceiver;
+    private AuthorEditReceiver authorReceiver;
     private boolean twoPain;
 
+
+    private Drawer.Result drResult;
+    private int menu_add_search = 1;
+    private int menu_settings = 3;
+    private int menu_data = 5;
+    private int menu_sort_author = 7;
+    private int menu_sort_books = 9;
+    private int tagsShift = 100;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -80,34 +99,129 @@ public class MainActivity extends ActionBarActivity implements AuthorFragment.Ca
         authorFragment = (AuthorFragment) getSupportFragmentManager().findFragmentById(R.id.authorFragment);
         authorFragment.setHasOptionsMenu(true);
 
+
 //        if (bundle != null) {
 //            Log.i(DEBUG_TAG, "Restore state");
 //            onRestoreInstanceState(bundle);
 //        }
 
-        twoPain=findViewById(R.id.two_pain)!= null;
-        if (twoPain){
-            Log.i(DEBUG_TAG,"onCreate: two pane");
-        }
-        else {
-            Log.i(DEBUG_TAG,"onCreate: one pane");
-        }
-    }
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
+        twoPain = findViewById(R.id.two_pain) != null;
+        if (twoPain) {
+            Log.i(DEBUG_TAG, "onCreate: two pane");
+        } else {
+            Log.i(DEBUG_TAG, "onCreate: one pane");
+        }
+
+
+        ArrayList<IDrawerItem> items = new ArrayList<>();
+
+        items.add(new PrimaryDrawerItem().withName(R.string.menu_search).withIcon(FontAwesome.Icon.faw_search_plus).withIdentifier(menu_add_search) );
+        items.add(new PrimaryDrawerItem().withName(R.string.menu_settings).withIcon(FontAwesome.Icon.faw_cog).withIdentifier(menu_settings));
+        items.add(new PrimaryDrawerItem().withName(R.string.menu_archive).withIcon(FontAwesome.Icon.faw_archive).withIdentifier(menu_data));
+
+
+        items.add(new SectionDrawerItem().withName(R.string.dialog_title_sort_author));
+        items.add(new SecondaryDrawerItem().withName(R.string.sort_author_name).withTag(AuthorFragment.SortOrder.AuthorName)
+        .withIdentifier(menu_sort_author));
+        items.add(new SecondaryDrawerItem().withName(R.string.sort_update_date).withTag(AuthorFragment.SortOrder.DateUpdate)
+        .withIdentifier(menu_sort_author));
+
+        if (twoPain) {
+            items.add(new SectionDrawerItem().withName(R.string.dialog_title_sort_book));
+            items.add(new SecondaryDrawerItem().withName(R.string.sort_book_date).withTag(BookFragment.SortOrder.BookDate)
+                    .withIdentifier(menu_sort_books));
+            items.add(new SecondaryDrawerItem().withName(R.string.sort_book_mtime).withTag(BookFragment.SortOrder.DateUpdate)
+                    .withIdentifier(menu_sort_books));
+            items.add(new SecondaryDrawerItem().withName(R.string.sort_book_title).withTag(BookFragment.SortOrder.BookName)
+                    .withIdentifier(menu_sort_books));
+            items.add(new SecondaryDrawerItem().withName(R.string.sort_book_size).withTag(BookFragment.SortOrder.BookSize)
+                    .withIdentifier(menu_sort_books));
+
+        }
+
+
+        //Begin author group
+        items.add(new SectionDrawerItem().withName(R.string.menu_tags));
+        items.add(new SecondaryDrawerItem().withName(R.string.filter_all).withIdentifier(SamLibConfig.TAG_AUTHOR_ALL + tagsShift)
+        .withTag(getString(R.string.filter_all)));
+        items.add(new SecondaryDrawerItem().withName(R.string.filter_new).withIdentifier(SamLibConfig.TAG_AUTHOR_NEW + tagsShift)
+        .withTag(getString(R.string.filter_new)));
+
+        Cursor tags = getContentResolver().query(AuthorProvider.TAG_URI, null, null, null, SQLController.COL_TAG_NAME);
+
+        while (tags.moveToNext()) {
+            items.add(new SecondaryDrawerItem().withName(tags.getString(tags.getColumnIndex(SQLController.COL_TAG_NAME)))
+                    .withIdentifier( tagsShift + tags.getInt(tags.getColumnIndex(SQLController.COL_ID)))
+                    .withTag(tags.getString(tags.getColumnIndex(SQLController.COL_TAG_NAME))));
+        }
+        //end author group
+
+        drResult = new Drawer()
+                .withActivity(this)
+                .withToolbar(toolbar)
+                .withActionBarDrawerToggle(true)
+                .withActionBarDrawerToggleAnimated(true)
+                .withHeader(R.layout.drawer_header)
+                .addDrawerItems(items.toArray(new IDrawerItem[1]) )
+                .withOnDrawerItemClickListener(new Drawer.OnDrawerItemClickListener() {
+                    @Override
+                    public void onItemClick(AdapterView<?> adapterView, View view, int i, long l, IDrawerItem iDrawerItem) {
+                        int ident =iDrawerItem.getIdentifier();
+                        Log.i(DEBUG_TAG,"Identifier: "+ident);
+                        if (ident > 90){//tag selection section
+                            int tag_id=ident - tagsShift;
+                            authorFragment.selectTag(tag_id, (String) iDrawerItem.getTag());
+                        }
+                        if (ident == menu_settings){
+                            Log.d(DEBUG_TAG, "go to Settings");
+                            Intent prefsIntent = new Intent(getApplicationContext(),
+                                    SamlibPreferencesActivity.class);
+                            //prefsIntent.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
+                            startActivityForResult(prefsIntent, MainActivity.PREFS_ACTIVITY);
+                        }
+                        if (ident == menu_data){
+                            Log.d(DEBUG_TAG, "go to Archive");
+                            Intent prefsIntent = new Intent(getApplicationContext(),
+                                    ArchiveActivity.class);
+                            startActivityForResult(prefsIntent, MainActivity.ARCHIVE_ACTIVITY);
+                        }
+                        if (ident == menu_add_search){
+                            authorFragment.searchOrAdd();
+                        }
+                        if (ident == menu_sort_author){
+                            AuthorFragment.SortOrder so =  (AuthorFragment.SortOrder) iDrawerItem.getTag();
+                            authorFragment.setSortOrder(so);
+                        }
+                        if (ident == menu_sort_books){
+                            BookFragment.SortOrder so = (BookFragment.SortOrder) iDrawerItem.getTag();
+                            bookFragment.setSortOrder(so);
+                        }
+
+                    }
+                }).build();
+        tags.close();
+
+
+    }
     @Override
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
-        if (intent == null){
+        if (intent == null) {
             return;
         }
-        Bundle bundle= intent.getExtras();
-        if (bundle != null){
+        Bundle bundle = intent.getExtras();
+        if (bundle != null) {
             String clean = bundle.getString(CLEAN_NOTIFICATION);
             if (clean != null) {
                 CleanNotificationData.start(this);
             }
         }
     }
+
     @Override
     protected void onResume() {
         super.onResume();
@@ -127,25 +241,29 @@ public class MainActivity extends ActionBarActivity implements AuthorFragment.Ca
         registerReceiver(updateReceiver, updateFilter);
         registerReceiver(authorReceiver, authorFilter);
 
-        if (twoPain){
-            bookFragment= (BookFragment) getSupportFragmentManager().findFragmentById(R.id.listBooksFragment);
-            if (bookFragment == null){
-                Log.e(DEBUG_TAG,"Fragment is NULL for two pane layout!!");
+        if (twoPain) {
+            bookFragment = (BookFragment) getSupportFragmentManager().findFragmentById(R.id.listBooksFragment);
+            if (bookFragment == null) {
+                Log.e(DEBUG_TAG, "Fragment is NULL for two pane layout!!");
             }
             downloadReceiver = new DownloadReceiver(bookFragment);
             IntentFilter filter = new IntentFilter(DownloadReceiver.ACTION_RESP);
             filter.addCategory(Intent.CATEGORY_DEFAULT);
             registerReceiver(downloadReceiver, filter);
         }
+        getSupportActionBar().setTitle(R.string.app_name);
+        authorFragment.refresh(null, null);
+        drResult.setSelectionByIdentifier(SamLibConfig.TAG_AUTHOR_ALL + tagsShift);
 
 
     }
+
     @Override
     protected void onPause() {
         super.onPause();
         unregisterReceiver(updateReceiver);
         unregisterReceiver(authorReceiver);
-        if (twoPain){
+        if (twoPain) {
             unregisterReceiver(downloadReceiver);
         }
 
@@ -182,8 +300,8 @@ public class MainActivity extends ActionBarActivity implements AuthorFragment.Ca
      * Return from ArchiveActivity or SearchActivity
      *
      * @param requestCode request code
-     * @param resultCode result code
-     * @param data Intent data
+     * @param resultCode  result code
+     * @param data        Intent data
      */
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -202,11 +320,11 @@ public class MainActivity extends ActionBarActivity implements AuthorFragment.Ca
             }
         }
         if (requestCode == SEARCH_ACTIVITY) {
-            Log.v(DEBUG_TAG,"Start add Author");
+            Log.v(DEBUG_TAG, "Start add Author");
 
-            AuthorEditorServiceIntent.addAuthor(getApplicationContext(),data.getStringExtra(SearchAuthorsListFragment.AUTHOR_URL));
+            AuthorEditorServiceIntent.addAuthor(getApplicationContext(), data.getStringExtra(SearchAuthorsListFragment.AUTHOR_URL));
         }
-        if (requestCode == PREFS_ACTIVITY){
+        if (requestCode == PREFS_ACTIVITY) {
             finish();
         }
     }
@@ -214,19 +332,17 @@ public class MainActivity extends ActionBarActivity implements AuthorFragment.Ca
     @Override
     public void onAuthorSelected(long id) {
         Log.d(DEBUG_TAG, "onAuthorSelected: go to Books");
-        if (twoPain){
-            Log.i(DEBUG_TAG, "Two fragments Layout - set author_id: "+id);
+        if (twoPain) {
+            Log.i(DEBUG_TAG, "Two fragments Layout - set author_id: " + id);
             bookFragment.setAuthorId(id);
-        }
-        else {
-            Log.i(DEBUG_TAG, "One fragment Layout - set author_id: "+id);
-            Intent intent = new Intent(this,BooksActivity.class);
-            intent.putExtra(BookFragment.AUTHOR_ID,id);
+        } else {
+            Log.i(DEBUG_TAG, "One fragment Layout - set author_id: " + id);
+            Intent intent = new Intent(this, BooksActivity.class);
+            intent.putExtra(BookFragment.AUTHOR_ID, id);
 
             startActivity(intent);
         }
 
-        
 
     }
 
@@ -237,21 +353,21 @@ public class MainActivity extends ActionBarActivity implements AuthorFragment.Ca
 
     @Override
     public void onTitleChange(String lTitle) {
-        Log.d(DEBUG_TAG, "set title: "+lTitle);
+        Log.d(DEBUG_TAG, "set title: " + lTitle);
 
         getSupportActionBar().setTitle(lTitle);
-        if (authorFragment.getSelection() == null){
-            getSupportActionBar().setDisplayOptions(0, ActionBar.DISPLAY_HOME_AS_UP);
-        }
-        else {
-            getSupportActionBar().setDisplayOptions(ActionBar.DISPLAY_HOME_AS_UP, ActionBar.DISPLAY_HOME_AS_UP);
-        }
+//        if (authorFragment.getSelection() == null){
+//            getSupportActionBar().setDisplayOptions(0, ActionBar.DISPLAY_HOME_AS_UP);
+//        }
+//        else {
+//            getSupportActionBar().setDisplayOptions(ActionBar.DISPLAY_HOME_AS_UP, ActionBar.DISPLAY_HOME_AS_UP);
+//        }
 
     }
 
     @Override
     public void cleanBookSelection() {
-        if (twoPain){
+        if (twoPain) {
             bookFragment.setAuthorId(0);//empty selection
         }
     }
@@ -269,13 +385,13 @@ public class MainActivity extends ActionBarActivity implements AuthorFragment.Ca
     }
 
 
-    public void addAuthorFromText(){
+    public void addAuthorFromText() {
         EditText editText = (EditText) findViewById(R.id.addUrlText);
 
-        if (editText == null){
+        if (editText == null) {
             return;
         }
-        if (editText.getText() == null){
+        if (editText.getText() == null) {
             return;
         }
         String text = editText.getText().toString();
@@ -286,11 +402,10 @@ public class MainActivity extends ActionBarActivity implements AuthorFragment.Ca
         v.setVisibility(View.GONE);
 
         String url = SamLibConfig.getParsedUrl(text);
-        if (url != null){//add  Author by URL
-            AuthorEditorServiceIntent.addAuthor(getApplicationContext(),url);
+        if (url != null) {//add  Author by URL
+            AuthorEditorServiceIntent.addAuthor(getApplicationContext(), url);
 
-        }
-        else {
+        } else {
             if (TextUtils.isEmpty(text)) {
                 return;
             }
@@ -320,30 +435,32 @@ public class MainActivity extends ActionBarActivity implements AuthorFragment.Ca
         }
         return super.onKeyDown(keyCode, event);
     }
+
     public class AuthorEditReceiver extends BroadcastReceiver {
 
         @Override
         public void onReceive(Context context, Intent intent) {
             int duration = Toast.LENGTH_SHORT;
             CharSequence msg = intent.getCharSequenceExtra(AuthorEditorServiceIntent.RESULT_MESSAGE);
-            Toast toast =Toast.makeText(context,msg,duration);
+            Toast toast = Toast.makeText(context, msg, duration);
 
-            if (intent.getStringExtra(AuthorEditorServiceIntent.EXTRA_ACTION_TYPE).equals(AuthorEditorServiceIntent.ACTION_ADD)){
-                Log.d(DEBUG_TAG,"onReceive: author add");
-                long id = intent.getLongExtra(AuthorEditorServiceIntent.RESULT_AUTHOR_ID,0);
+            if (intent.getStringExtra(AuthorEditorServiceIntent.EXTRA_ACTION_TYPE).equals(AuthorEditorServiceIntent.ACTION_ADD)) {
+                Log.d(DEBUG_TAG, "onReceive: author add");
+                long id = intent.getLongExtra(AuthorEditorServiceIntent.RESULT_AUTHOR_ID, 0);
 
                 authorFragment.selectAuthor(id);
                 toast.show();
                 onAuthorSelected(id);
 
             }
-            if (intent.getStringExtra(AuthorEditorServiceIntent.EXTRA_ACTION_TYPE).equals(AuthorEditorServiceIntent.ACTION_DELETE)){
-                Log.d(DEBUG_TAG,"onReceive: author del");
+            if (intent.getStringExtra(AuthorEditorServiceIntent.EXTRA_ACTION_TYPE).equals(AuthorEditorServiceIntent.ACTION_DELETE)) {
+                Log.d(DEBUG_TAG, "onReceive: author del");
                 toast.show();
             }
 
         }
     }
+
     /**
      * Receive updates from Update Service
      */

@@ -14,16 +14,33 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 -->
-<ScrollView
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_height="fill_parent"
-    android:layout_width="fill_parent"
-    >
+
 
     <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
-        android:orientation="vertical" android:gravity="center_horizontal" android:paddingTop="30dp">
+        android:orientation="vertical" >
+    <android.support.v7.widget.Toolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="?attr/colorPrimary"
+            android:elevation="4dp"
+            android:minHeight="?attr/actionBarSize"
+            android:paddingTop="@dimen/tool_bar_top_padding"
+            android:transitionName="actionBar"/>
+    <ScrollView
+            xmlns:android="http://schemas.android.com/apk/res/android"
+            android:layout_height="fill_parent"
+            android:layout_width="fill_parent"
+            >
+        <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:gravity="center_horizontal" android:paddingTop="30dp">
+
+
         <TextView
             android:id="@+id/arc_title1"
             android:layout_width="fill_parent"
@@ -165,8 +182,8 @@ limitations under the License.
                 android:onClick="importGoogle"/>
 
         </LinearLayout>
-
+        </LinearLayout>
+    </ScrollView>
     </LinearLayout>
 
 
-</ScrollView>

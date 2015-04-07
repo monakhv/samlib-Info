@@ -4,6 +4,7 @@ package monakhv.android.samlib;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 
+import android.support.v7.widget.Toolbar;
 import monakhv.android.samlib.data.SettingsHelper;
 
 
@@ -32,12 +33,16 @@ public class SamlibPreferencesActivity  extends ActionBarActivity{
         SettingsHelper helper = new SettingsHelper(this);
         setTheme(helper.getTheme());
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.preference_layout);
 
-        prefs = new SamlibPreferencesFragment();
-        // Display the fragment as the main content.
-        getFragmentManager().beginTransaction()
-                .replace(android.R.id.content, prefs)
-                .commit();
+
+        prefs = (SamlibPreferencesFragment) getFragmentManager().findFragmentById(R.id.prefsFragment);
+
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
+
 
         String title = getString(R.string.app_name) + " - " + helper.getVersionName();
 

@@ -21,6 +21,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
@@ -51,7 +52,7 @@ public class SearchAuthorActivity extends ActionBarActivity {
     public static final String EXTRA_PATTERN = "EXTRA_PATTERN";
     private SearchReceiver receiver;
     private SearchAuthorsListFragment listFragment;
-    private View searchPannel;
+    private View searchPanel;
     private SettingsHelper settings;
     
     @Override
@@ -61,6 +62,9 @@ public class SearchAuthorActivity extends ActionBarActivity {
         super.onCreate(savedInstanceState);
         
         setContentView(R.layout.search_authors);
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         EditText editText = (EditText) findViewById(R.id.searchAuthorText_sa);
         editText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
@@ -83,7 +87,7 @@ public class SearchAuthorActivity extends ActionBarActivity {
         filter.addCategory(Intent.CATEGORY_DEFAULT);
         registerReceiver(receiver, filter);
         listFragment = (SearchAuthorsListFragment) getSupportFragmentManager().findFragmentById(R.id.listAuthorSearchFragment);
-        searchPannel = findViewById(R.id.search_author_panel_sa);
+        searchPanel = findViewById(R.id.search_author_panel_sa);
     }
     
     @Override
@@ -116,10 +120,10 @@ public class SearchAuthorActivity extends ActionBarActivity {
     }
     
     private void flipPannel() {
-        if (searchPannel.getVisibility() == View.GONE) {
-            searchPannel.setVisibility(View.VISIBLE);
+        if (searchPanel.getVisibility() == View.GONE) {
+            searchPanel.setVisibility(View.VISIBLE);
         } else {
-            searchPannel.setVisibility(View.GONE);
+            searchPanel.setVisibility(View.GONE);
         }
     }
     
