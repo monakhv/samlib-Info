@@ -5,6 +5,7 @@
     -->
     <style name="MyTheme" parent="MaterialDrawerTheme">
 
+        <item name="colorAccent">@color/pressed_color</item>
         <item name="colorPrimary">@color/action_bar</item>
         <item name="colorPrimaryDark">@color/action_bar</item>
 
@@ -21,8 +22,10 @@
     </style>
     <style name="MyThemeLight" parent="MaterialDrawerTheme.Light">
 
+        <item name="colorAccent">@color/pressed_color</item>
+
         <item name="colorPrimary">@color/action_bar_light</item>
-        <item name="colorPrimaryDark">@color/action_bar_light </item>
+        <item name="colorPrimaryDark">@color/action_bar_light</item>
 
         <item name="iconSelected">@drawable/rating_important_l</item>
         <item name="iconTags">@drawable/navigation_accept</item>
