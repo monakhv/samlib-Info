@@ -20,6 +20,10 @@
         <item name="ptrHeaderStyle">@style/Widget.Custom.PtrHeader</item>
     </style>
     <style name="MyThemeLight" parent="MaterialDrawerTheme.Light">
+
+        <item name="colorPrimary">@color/action_bar_light</item>
+        <item name="colorPrimaryDark">@color/action_bar_light </item>
+
         <item name="iconSelected">@drawable/rating_important_l</item>
         <item name="iconTags">@drawable/navigation_accept</item>
         <item name="iconSearch">@drawable/action_search_l</item>

@@ -26,5 +26,6 @@
     <color name="default_color">#000000</color>
     <color name="BLACK">#FF000000</color>
     <color name="WHITE">#FFFFFFFF</color>
+    <color name="action_bar_light">#ffbdbdbd</color>
 
 </resources>
