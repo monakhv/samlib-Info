@@ -19,5 +19,5 @@ limitations under the License.
 <resources>
     <item name="main_layout" type="layout">@layout/main_layout_tablet</item>
 
-    <item name="options_menu" type="menu">@menu/options_menu_tablet</item>
+
 </resources>

@@ -7,8 +7,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
-import android.database.MatrixCursor;
-import android.database.MergeCursor;
+
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -18,9 +17,6 @@ import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.GestureDetector;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.SoundEffectConstants;
 import android.view.View;
@@ -35,9 +31,9 @@ import monakhv.android.samlib.adapter.AuthorCursorAdapter;
 import monakhv.android.samlib.data.SettingsHelper;
 import monakhv.android.samlib.dialogs.ContextMenuDialog;
 import monakhv.android.samlib.dialogs.EnterStringDialog;
-import monakhv.android.samlib.dialogs.FilterSelectDialog;
+
 import monakhv.android.samlib.dialogs.MyMenuData;
-import monakhv.android.samlib.dialogs.SingleChoiceSelectDialog;
+
 import monakhv.android.samlib.recyclerview.DividerItemDecoration;
 import monakhv.android.samlib.recyclerview.RecyclerViewDelegate;
 import monakhv.android.samlib.service.AuthorEditorServiceIntent;
@@ -87,8 +83,7 @@ public class AuthorFragment extends Fragment implements OnRefreshListener, ListS
     private Author author = null;//for context menu selection
     private TextView updateTextView;
     private ContextMenuDialog contextMenu;
-    private SingleChoiceSelectDialog sortDialog;
-    private FilterSelectDialog filterDialog;
+
     private View empty;
     private boolean canUpdate;
     private SettingsHelper settingsHelper;
@@ -377,7 +372,7 @@ public class AuthorFragment extends Fragment implements OnRefreshListener, ListS
 
     }
 
-    private void startRefresh() {
+    void startRefresh() {
         mPullToRefreshLayout.setRefreshing(true);
         onRefreshStarted(null);
     }
@@ -430,41 +425,6 @@ public class AuthorFragment extends Fragment implements OnRefreshListener, ListS
 
         }
     };
-
-    @Override
-    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-
-        inflater.inflate(R.menu.options_menu, menu);
-        super.onCreateOptionsMenu(menu, inflater);
-
-    }
-
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        int sel = item.getItemId();
-        if (sel == android.R.id.home) {
-            if (getSelection() != null) {
-                refresh(null, null);
-                mCallbacks.onTitleChange(getString(R.string.app_name));
-            } else {
-                getActivity().finish();
-            }
-        }
-        if (sel == R.id.menu_refresh) {
-            startRefresh();
-
-        }
-
-        if (sel == R.id.selected_option_item) {
-            Log.d(DEBUG_TAG, "go to Selected");
-            cleanSelection();
-            mCallbacks.onAuthorSelected(SamLibConfig.SELECTED_BOOK_ID);
-        }
-
-        return super.onOptionsItemSelected(item);
-
-    }
     public void searchOrAdd(){
         View v = getActivity().findViewById(R.id.add_author_panel);
 
@@ -543,7 +503,7 @@ public class AuthorFragment extends Fragment implements OnRefreshListener, ListS
             Log.e(DEBUG_TAG,"selectAuthor: id not found - "+id);
         }
     }
-    private void cleanSelection() {
+    void cleanSelection() {
         adapter.cleanSelection();
     }
 
