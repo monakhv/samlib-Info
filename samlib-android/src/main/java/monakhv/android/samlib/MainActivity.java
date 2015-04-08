@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.database.Cursor;
+import android.graphics.Typeface;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
@@ -195,10 +196,16 @@ public class MainActivity extends ActionBarActivity implements AuthorFragment.Ca
                         if (ident == menu_sort_author){
                             AuthorFragment.SortOrder so =  (AuthorFragment.SortOrder) iDrawerItem.getTag();
                             authorFragment.setSortOrder(so);
+                            drResult.setSelectionByIdentifier(SamLibConfig.TAG_AUTHOR_ALL + tagsShift);
+                            SecondaryDrawerItem se = (SecondaryDrawerItem) iDrawerItem;
+                            se.setBadge("+");
+
                         }
                         if (ident == menu_sort_books){
                             BookFragment.SortOrder so = (BookFragment.SortOrder) iDrawerItem.getTag();
+
                             bookFragment.setSortOrder(so);
+                            drResult.setSelectionByIdentifier(SamLibConfig.TAG_AUTHOR_ALL + tagsShift);
                         }
 
                     }
@@ -423,6 +430,11 @@ public class MainActivity extends ActionBarActivity implements AuthorFragment.Ca
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if ((keyCode == KeyEvent.KEYCODE_BACK)) { //Back key pressed
+
+            if (drResult.isDrawerOpen()){
+                drResult.closeDrawer();
+                return true;
+            }
 
             if (authorFragment.getSelection() != null) {
                 authorFragment.refresh(null, null);
