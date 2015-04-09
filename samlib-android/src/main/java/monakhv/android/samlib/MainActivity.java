@@ -241,7 +241,7 @@ public class MainActivity extends ActionBarActivity
                 ft.addToBackStack(null);
                 ft.commit();
                 isTagShow=true;
-                //TODO: show tags
+
             }
         }
         return super.onOptionsItemSelected(item);
@@ -547,7 +547,7 @@ public class MainActivity extends ActionBarActivity
 
     @Override
     public void onFinish(long id) {
-        //TODO: put booksFragment
+
         Log.d(DEBUG_TAG, "go to Tags");
         final FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
         ft.replace(R.id.listBooksFragment, bookFragment, "BookFragment");
