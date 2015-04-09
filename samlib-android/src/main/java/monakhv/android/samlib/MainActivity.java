@@ -120,6 +120,7 @@ public class MainActivity extends ActionBarActivity implements AuthorFragment.Ca
         twoPain = findViewById(R.id.two_pain) != null;
         if (twoPain) {
             Log.i(DEBUG_TAG, "onCreate: two pane");
+            bookFragment = (BookFragment) getSupportFragmentManager().findFragmentById(R.id.listBooksFragment);
         } else {
             Log.i(DEBUG_TAG, "onCreate: one pane");
         }
@@ -335,7 +336,7 @@ public class MainActivity extends ActionBarActivity implements AuthorFragment.Ca
         registerReceiver(authorReceiver, authorFilter);
 
         if (twoPain) {
-            bookFragment = (BookFragment) getSupportFragmentManager().findFragmentById(R.id.listBooksFragment);
+
             if (bookFragment == null) {
                 Log.e(DEBUG_TAG, "Fragment is NULL for two pane layout!!");
             }
