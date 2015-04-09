@@ -269,12 +269,14 @@ public class MainActivity extends ActionBarActivity
         if (ident==menu_selected){
             authorFragment.cleanSelection();
             onAuthorSelected(SamLibConfig.SELECTED_BOOK_ID);
+            restoreTagSelection();
         }
         if (ident == menu_settings){
             Log.d(DEBUG_TAG, "go to Settings");
             Intent prefsIntent = new Intent(getApplicationContext(),
                     SamlibPreferencesActivity.class);
             //prefsIntent.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
+            restoreTagSelection();
             drResult.closeDrawer();
             startActivityForResult(prefsIntent, MainActivity.PREFS_ACTIVITY);
         }
@@ -282,6 +284,7 @@ public class MainActivity extends ActionBarActivity
             Log.d(DEBUG_TAG, "go to Archive");
             Intent prefsIntent = new Intent(getApplicationContext(),
                     ArchiveActivity.class);
+            restoreTagSelection();
             drResult.closeDrawer();
             startActivityForResult(prefsIntent, MainActivity.ARCHIVE_ACTIVITY);
         }
