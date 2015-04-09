@@ -13,9 +13,6 @@ import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.GestureDetector;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.SoundEffectConstants;
 import android.view.View;
@@ -33,6 +30,7 @@ import monakhv.android.samlib.dialogs.MyMenuData;
 import monakhv.android.samlib.dialogs.SingleChoiceSelectDialog;
 import monakhv.android.samlib.recyclerview.DividerItemDecoration;
 import monakhv.android.samlib.service.DownloadBookServiceIntent;
+import monakhv.android.samlib.sortorder.BookSortOrder;
 import monakhv.android.samlib.sql.AuthorProvider;
 
 import monakhv.samlib.db.SQLController;
@@ -63,7 +61,7 @@ public class BookFragment extends Fragment implements ListSwipeListener.SwipeCal
     private long author_id;
     private BookCursorAdapter adapter;
     private Book book = null;//for context menu
-    private SortOrder order;
+    private BookSortOrder order;
     private GestureDetector detector;
     private SettingsHelper settings;
     ProgressDialog progress;
@@ -88,7 +86,7 @@ public class BookFragment extends Fragment implements ListSwipeListener.SwipeCal
         detector = new GestureDetector(getActivity(), new ListSwipeListener(this));
 
         settings = new SettingsHelper(getActivity().getApplicationContext());
-        order = SortOrder.valueOf(settings.getBookSortOrderString());
+        order = BookSortOrder.valueOf(settings.getBookSortOrderString());
         dataExportImport = new DataExportImport(getActivity().getApplicationContext());
     }
 
@@ -177,7 +175,7 @@ public class BookFragment extends Fragment implements ListSwipeListener.SwipeCal
                 Log.e(DEBUG_TAG, "Context is NULL");
             }
             settings = new SettingsHelper(ctx);
-            order = SortOrder.valueOf(settings.getBookSortOrderString());
+            order = BookSortOrder.valueOf(settings.getBookSortOrderString());
         }
         String so = order.getOrder();
         adapter.changeCursor(getActivity().getContentResolver().query(AuthorProvider.BOOKS_URI, null, selection, null, so));
@@ -383,22 +381,22 @@ public class BookFragment extends Fragment implements ListSwipeListener.SwipeCal
         AdapterView.OnItemClickListener listener = new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                SortOrder so = SortOrder.values()[position];
+                BookSortOrder so = BookSortOrder.values()[position];
                 setSortOrder(so);
                 sortDialog.dismiss();
 
             }
         };
-        sortDialog = SingleChoiceSelectDialog.getInstance(SortOrder.getTitles(getActivity()), listener, this.getString(R.string.dialog_title_sort_book), getSortOrder().ordinal());
+        sortDialog = SingleChoiceSelectDialog.getInstance(BookSortOrder.getTitles(getActivity()), listener, this.getString(R.string.dialog_title_sort_book), getSortOrder().ordinal());
         sortDialog.show(getActivity().getSupportFragmentManager(), "DoBookSortDialog");
     }
 
-    void setSortOrder(SortOrder so) {
+    void setSortOrder(BookSortOrder so) {
         order = so;
         updateAdapter();
     }
 
-    private SortOrder getSortOrder() {
+    BookSortOrder getSortOrder() {
         return order;
     }
 
@@ -457,36 +455,6 @@ public class BookFragment extends Fragment implements ListSwipeListener.SwipeCal
             adapter.makeSelectedRead(false);
         }
         startActivity(launchBrowser);
-    }
-
-    public enum SortOrder {
-
-        DateUpdate(R.string.sort_book_mtime, SQLController.COL_BOOK_MTIME + " DESC"),
-        BookName(R.string.sort_book_title, SQLController.COL_BOOK_ISNEW + " DESC, " + SQLController.COL_BOOK_TITLE),
-        BookDate(R.string.sort_book_date, SQLController.COL_BOOK_ISNEW + " DESC, " + SQLController.COL_BOOK_DATE + " DESC"),
-        BookSize(R.string.sort_book_size, SQLController.COL_BOOK_ISNEW + " DESC, " + SQLController.COL_BOOK_SIZE + " DESC");
-
-        private final int name;
-        private final String order;
-
-        private SortOrder(int name, String order) {
-            this.name = name;
-            this.order = order;
-        }
-
-        public String getOrder() {
-            return order;
-        }
-
-        public static String[] getTitles(Context ctx) {
-            String[] res = new String[values().length];
-            int i = 0;
-            for (SortOrder so : values()) {
-                res[i] = ctx.getString(so.name);
-                ++i;
-            }
-            return res;
-        }
     }
 
     @Override

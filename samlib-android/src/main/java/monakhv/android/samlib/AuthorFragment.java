@@ -3,7 +3,6 @@ package monakhv.android.samlib;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
@@ -38,6 +37,7 @@ import monakhv.android.samlib.recyclerview.DividerItemDecoration;
 import monakhv.android.samlib.recyclerview.RecyclerViewDelegate;
 import monakhv.android.samlib.service.AuthorEditorServiceIntent;
 import monakhv.android.samlib.service.UpdateServiceIntent;
+import monakhv.android.samlib.sortorder.AuthorSortOrder;
 import monakhv.android.samlib.sql.AuthorProvider;
 
 import monakhv.samlib.db.SQLController;
@@ -76,7 +76,7 @@ public class AuthorFragment extends Fragment implements OnRefreshListener, ListS
     private AuthorCursorAdapter adapter;
 
     private String selection = null;
-    private SortOrder order;
+    private AuthorSortOrder order;
     private PullToRefreshLayout mPullToRefreshLayout;
     private GestureDetector detector;
     private boolean updateAuthor = false;//true update the only selected author
@@ -105,7 +105,7 @@ public class AuthorFragment extends Fragment implements OnRefreshListener, ListS
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         settingsHelper= new SettingsHelper(getActivity().getApplicationContext());
-        order = SortOrder.valueOf(settingsHelper.getAuthorSortOrderString());
+        order = AuthorSortOrder.valueOf(settingsHelper.getAuthorSortOrderString());
         detector = new GestureDetector(getActivity(), new ListSwipeListener(this));
         Log.d(DEBUG_TAG,"onCreate");
     }
@@ -507,7 +507,7 @@ public class AuthorFragment extends Fragment implements OnRefreshListener, ListS
      * @param selection selection string
      * @param so        sort order string
      */
-    public void refresh(String selection, SortOrder so) {
+    public void refresh(String selection, AuthorSortOrder so) {
         Log.d(DEBUG_TAG, "set Selection: " + selection);
         cleanSelection();
         this.selection = selection;
@@ -524,41 +524,14 @@ public class AuthorFragment extends Fragment implements OnRefreshListener, ListS
      *
      * @param so new sort order
      */
-    public void setSortOrder(SortOrder so) {
+    public void setSortOrder(AuthorSortOrder so) {
         cleanSelection();
         order = so;
         updateAdapter();
     }
 
-    public SortOrder getSortOrder() {
+    public AuthorSortOrder getSortOrder() {
         return order;
-    }
-
-    public enum SortOrder {
-
-        DateUpdate(R.string.sort_update_date, SQLController.COL_mtime + " DESC"),
-        AuthorName(R.string.sort_author_name, SQLController.COL_isnew + " DESC, " + SQLController.COL_NAME);
-        private final int name;
-        private final String order;
-
-        private SortOrder(int name, String order) {
-            this.name = name;
-            this.order = order;
-        }
-
-        public String getOrder() {
-            return order;
-        }
-
-        public static String[] getTitles(Context ctx) {
-            String[] res = new String[values().length];
-            int i = 0;
-            for (SortOrder so : values()) {
-                res[i] = ctx.getString(so.name);
-                ++i;
-            }
-            return res;
-        }
     }
 
     @Override

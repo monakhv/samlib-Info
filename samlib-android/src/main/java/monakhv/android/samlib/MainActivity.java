@@ -31,9 +31,13 @@ import monakhv.android.samlib.search.SearchAuthorActivity;
 import monakhv.android.samlib.search.SearchAuthorsListFragment;
 import monakhv.android.samlib.service.AuthorEditorServiceIntent;
 import monakhv.android.samlib.service.CleanNotificationData;
+import monakhv.android.samlib.sortorder.AuthorSortOrder;
+import monakhv.android.samlib.sortorder.BookSortOrder;
+import monakhv.android.samlib.sortorder.RadioItems;
 import monakhv.android.samlib.sql.AuthorProvider;
 import monakhv.samlib.db.SQLController;
 import monakhv.samlib.db.entity.SamLibConfig;
+import monakhv.samlib.sql.entity.Book;
 
 import java.util.ArrayList;
 
@@ -82,7 +86,8 @@ public class MainActivity extends ActionBarActivity implements AuthorFragment.Ca
     private int menu_selected = 11;
     private int tagsShift = 100;
 
-    private SwitchDrawerItem SDAuthorName,SDDateUpdate;
+    private    RadioItems authorSort,bookSort;
+    private int selectedTagId=SamLibConfig.TAG_AUTHOR_ALL;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -105,10 +110,6 @@ public class MainActivity extends ActionBarActivity implements AuthorFragment.Ca
 
 
 
-//        if (bundle != null) {
-//            Log.i(DEBUG_TAG, "Restore state");
-//            onRestoreInstanceState(bundle);
-//        }
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -145,31 +146,16 @@ public class MainActivity extends ActionBarActivity implements AuthorFragment.Ca
 
         items.add(new SectionDrawerItem().withName(R.string.dialog_title_sort_author));
 
-        SDAuthorName=new SwitchDrawerItem().withName(R.string.sort_author_name)
-                .withTag(AuthorFragment.SortOrder.AuthorName.name())
-                .withIdentifier(menu_sort_author)
-                .withOnCheckedChangeListener(this)
-        .withChecked(true).withCheckable(false) .setEnabled(false);
-        SDDateUpdate=new SwitchDrawerItem().withName(R.string.sort_update_date)
-                .withTag(AuthorFragment.SortOrder.DateUpdate.name())
-                .withIdentifier(menu_sort_author)
-                .withOnCheckedChangeListener(this) ;
+        authorSort = new RadioItems(this,menu_sort_author,AuthorSortOrder.values()
+                ,authorFragment.getSortOrder().name());
 
-
-        items.add(SDAuthorName);
-        items.add(SDDateUpdate);
+     items.addAll(authorSort.getItems());
 
 
         if (twoPain) {
             items.add(new SectionDrawerItem().withName(R.string.dialog_title_sort_book));
-            items.add(new SecondaryDrawerItem().withName(R.string.sort_book_date).withTag(BookFragment.SortOrder.BookDate)
-                    .withIdentifier(menu_sort_books));
-            items.add(new SecondaryDrawerItem().withName(R.string.sort_book_mtime).withTag(BookFragment.SortOrder.DateUpdate)
-                    .withIdentifier(menu_sort_books));
-            items.add(new SecondaryDrawerItem().withName(R.string.sort_book_title).withTag(BookFragment.SortOrder.BookName)
-                    .withIdentifier(menu_sort_books));
-            items.add(new SecondaryDrawerItem().withName(R.string.sort_book_size).withTag(BookFragment.SortOrder.BookSize)
-                    .withIdentifier(menu_sort_books));
+            bookSort = new RadioItems(this,menu_sort_books, BookSortOrder.values()
+                    ,bookFragment.getSortOrder().name());
 
         }
 
@@ -191,6 +177,8 @@ public class MainActivity extends ActionBarActivity implements AuthorFragment.Ca
                 .withOnDrawerItemClickListener(this)
                 .build();
         tags.close();
+        restoreTagSelection();
+
 
 
     }
@@ -232,38 +220,6 @@ public class MainActivity extends ActionBarActivity implements AuthorFragment.Ca
         int iDent = iDrawerItem.getIdentifier();
         Log.i(DEBUG_TAG,"Check change: tag - "+sTag+" - "+iDent+" - "+b);
 
-//        SwitchDrawerItem SDD=null;
-//        SwitchDrawerItem        SDA=null;
-//        for (  IDrawerItem item :  drResult.getDrawerItems()){
-//            if (item.getIdentifier() == menu_sort_author){
-//                String st = (String) item.getTag();
-//                if (st.equals("AuthorName")){
-//                    SDA= (SwitchDrawerItem) item;
-//
-//                }
-//                if (st.equals("DateUpdate")){
-//                    SDD= (SwitchDrawerItem) item;
-//                }
-//            }
-//        }
-
-        if (b && sTag.equals("AuthorName")){
-
-            Log.i(DEBUG_TAG, "Clean DateUpdate");
-
-
-            SDAuthorName.setChecked(true);
-            SDDateUpdate.setChecked(false);
-            drResult.getAdapter().notifyDataSetChanged();
-        }
-        if (b && sTag.equals("DateUpdate")){
-            Log.i(DEBUG_TAG,"Clean AuthorName");
-            SDDateUpdate.setChecked(true);
-            SDAuthorName.setChecked(false);
-            drResult.getAdapter().notifyDataSetChanged();
-        }
-
-
 
     }
 
@@ -273,8 +229,8 @@ public class MainActivity extends ActionBarActivity implements AuthorFragment.Ca
         int ident =iDrawerItem.getIdentifier();
         Log.i(DEBUG_TAG,"Identifier: "+ident);
         if (ident > 90){//tag selection section
-            int tag_id=ident - tagsShift;
-            authorFragment.selectTag(tag_id, (String) iDrawerItem.getTag());
+            selectedTagId=ident - tagsShift;
+            authorFragment.selectTag(selectedTagId, (String) iDrawerItem.getTag());
         }
         if (ident==menu_selected){
             authorFragment.cleanSelection();
@@ -298,20 +254,39 @@ public class MainActivity extends ActionBarActivity implements AuthorFragment.Ca
             authorFragment.searchOrAdd();
         }
         if (ident == menu_sort_author){
-            AuthorFragment.SortOrder so =  (AuthorFragment.SortOrder) iDrawerItem.getTag();
-            authorFragment.setSortOrder(so);
-            drResult.setSelectionByIdentifier(SamLibConfig.TAG_AUTHOR_ALL + tagsShift);
-            SecondaryDrawerItem se = (SecondaryDrawerItem) iDrawerItem;
-            se.setBadge("+");
+            SecondaryDrawerItem sItem = (SecondaryDrawerItem) iDrawerItem;
+            if (sItem.getBadge()!= null && sItem.getBadge().equals(RadioItems.SELECT_BADGE)){//do nothing just select all and close
+                restoreTagSelection();
+                drResult.closeDrawer();
+            }
+            else {
+                String sTag = (String) sItem.getTag();
+                authorSort.selectItem(sTag);
+                authorFragment.setSortOrder(AuthorSortOrder.valueOf(sTag));
+                restoreTagSelection();
+                drResult.getAdapter().notifyDataSetChanged();
+            }
 
         }
         if (ident == menu_sort_books){
-            BookFragment.SortOrder so = (BookFragment.SortOrder) iDrawerItem.getTag();
+            SecondaryDrawerItem sItem = (SecondaryDrawerItem) iDrawerItem;
+            if (sItem.getBadge()!= null && sItem.getBadge().equals(RadioItems.SELECT_BADGE)){//do nothing just select all and close
+                restoreTagSelection();
+                drResult.closeDrawer();
+            }
+            else {
+                String sTag = (String) sItem.getTag();
+                bookSort.selectItem(sTag);
+                bookFragment.setSortOrder(BookSortOrder.valueOf(sTag));
+                restoreTagSelection();
+                drResult.getAdapter().notifyDataSetChanged();
+            }
 
-            bookFragment.setSortOrder(so);
-            drResult.setSelectionByIdentifier(SamLibConfig.TAG_AUTHOR_ALL + tagsShift);
         }
 
+    }
+    private void restoreTagSelection(){
+        drResult.setSelectionByIdentifier(selectedTagId + tagsShift);
     }
     @Override
     protected void onNewIntent(Intent intent) {
