@@ -7,6 +7,7 @@ import android.content.IntentFilter;
 import android.database.Cursor;
 
 import android.os.Bundle;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
@@ -59,7 +60,9 @@ import java.util.ArrayList;
  *
  * 12/5/14.
  */
-public class MainActivity extends ActionBarActivity implements AuthorFragment.Callbacks, Drawer.OnDrawerItemClickListener, OnCheckedChangeListener {
+public class MainActivity extends ActionBarActivity
+        implements AuthorFragment.Callbacks, Drawer.OnDrawerItemClickListener, OnCheckedChangeListener,
+        AuthorTagFragment.AuthorTagCallback{
 
     private static final String DEBUG_TAG = "MainActivity";
     //    private static final String STATE_SELECTION = "STATE_SELECTION";
@@ -71,11 +74,13 @@ public class MainActivity extends ActionBarActivity implements AuthorFragment.Ca
     private UpdateActivityReceiver updateReceiver;
     private AuthorFragment authorFragment;
     private BookFragment bookFragment;
+    private AuthorTagFragment tagFragment;
     private SettingsHelper settingsHelper;
     private DownloadReceiver downloadReceiver;
     private AuthorEditReceiver authorReceiver;
     private boolean twoPain;
     private Toolbar toolbar;
+    private boolean isTagShow=false;
 
 
     private Drawer.Result drResult;
@@ -120,7 +125,12 @@ public class MainActivity extends ActionBarActivity implements AuthorFragment.Ca
         twoPain = findViewById(R.id.two_pain) != null;
         if (twoPain) {
             Log.i(DEBUG_TAG, "onCreate: two pane");
-            bookFragment = (BookFragment) getSupportFragmentManager().findFragmentById(R.id.listBooksFragment);
+            bookFragment= new BookFragment();
+            final FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+            ft.add(R.id.listBooksFragment, bookFragment);
+
+            ft.commit();
+
         } else {
             Log.i(DEBUG_TAG, "onCreate: one pane");
         }
@@ -164,7 +174,7 @@ public class MainActivity extends ActionBarActivity implements AuthorFragment.Ca
         if (twoPain) {
             items.add(new SectionDrawerItem().withName(R.string.dialog_title_sort_book));
             bookSort = new RadioItems(this,menu_sort_books, BookSortOrder.values()
-                    ,bookFragment.getSortOrder().name());
+                    ,settingsHelper.getBookSortOrderString());
             items.addAll(bookSort.getItems());
 
         }
@@ -217,8 +227,21 @@ public class MainActivity extends ActionBarActivity implements AuthorFragment.Ca
             onAuthorSelected(SamLibConfig.SELECTED_BOOK_ID);
         }
         if (sel == R.id.tags_option_item){
-            if (author_id!=0){
+            if (author_id!=0 && !isTagShow){
                 Log.d(DEBUG_TAG, "go to Tags");
+
+                if (tagFragment == null){
+                    Log.d(DEBUG_TAG, "Making fragment");
+                    tagFragment =new AuthorTagFragment();
+
+                }
+                tagFragment.setAuthor_id(author_id);
+                final FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+                ft.replace(R.id.listBooksFragment,tagFragment);
+                ft.addToBackStack(null);
+                ft.commit();
+                isTagShow=true;
+                //TODO: show tags
             }
         }
         return super.onOptionsItemSelected(item);
@@ -407,6 +430,10 @@ public class MainActivity extends ActionBarActivity implements AuthorFragment.Ca
         if (twoPain) {
             Log.i(DEBUG_TAG, "Two fragments Layout - set author_id: " + id);
             bookFragment.setAuthorId(id);
+            if (tagFragment != null){
+                tagFragment.setAuthor_id(id);
+                tagFragment.loadTagData();
+            }
         } else {
             Log.i(DEBUG_TAG, "One fragment Layout - set author_id: " + id);
             Intent intent = new Intent(this, BooksActivity.class);
@@ -515,7 +542,15 @@ public class MainActivity extends ActionBarActivity implements AuthorFragment.Ca
         return super.onKeyDown(keyCode, event);
     }
 
-
+    @Override
+    public void onFinish(long id) {
+        //TODO: put booksFragment
+        Log.d(DEBUG_TAG, "go to Tags");
+        final FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+        ft.replace(R.id.listBooksFragment, bookFragment, "BookFragment");
+        ft.commit();
+        isTagShow=false;
+    }
 
 
     public class AuthorEditReceiver extends BroadcastReceiver {

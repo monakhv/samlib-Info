@@ -30,13 +30,13 @@
             android:layout_height="match_parent"/>
 
 
-    <fragment
+    <FrameLayout
             android:id="@+id/listBooksFragment"
-            android:name="monakhv.android.samlib.BookFragment"
+
             android:layout_weight="66"
             android:layout_width="0dp"
             android:layout_height="match_parent">
-    </fragment>
+    </FrameLayout>
 
 </LinearLayout>
 </LinearLayout>

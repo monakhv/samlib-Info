@@ -66,7 +66,11 @@ public class AuthorTagFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         helper = new SettingsHelper(getActivity());
-        author_id =getActivity(). getIntent().getExtras().getLong(AuthorTagsActivity.AUTHOR_ID);
+        Bundle extra =getActivity(). getIntent().getExtras();
+        if (extra != null){
+            author_id =extra.getLong(AuthorTagsActivity.AUTHOR_ID);
+        }
+
 
 
         String[] from = {SQLController.COL_TAG_NAME};
@@ -231,6 +235,10 @@ public class AuthorTagFragment extends Fragment {
         cancelClick();
     }
 
+    public void setAuthor_id(long author_id) {
+        this.author_id = author_id;
+    }
+
     /**
      * Get selected TAGs to display in the ListView
      *
@@ -294,7 +302,10 @@ public class AuthorTagFragment extends Fragment {
         adapter.swapCursor(getCursor());
     }
 
-    private void loadTagData() {
+    /**
+     * Mark selected tags for the author
+     */
+    void loadTagData() {
         int size =listView.getAdapter().getCount();
         AuthorController sql = new AuthorController(getActivity());
         Author a = sql.getById(author_id);
@@ -302,9 +313,8 @@ public class AuthorTagFragment extends Fragment {
             Cursor cur = (Cursor) listView.getAdapter().getItem(i);
             int tag_id = cur.getInt(cur.getColumnIndex(SQLController.COL_ID));
 
-            if (a.getTags_id().contains(tag_id)) {
-                listView.setItemChecked(i, true);
-            }
+            listView.setItemChecked(i, a.getTags_id().contains(tag_id));
+
         }
 
     }
