@@ -37,7 +37,7 @@ import monakhv.android.samlib.sortorder.RadioItems;
 import monakhv.android.samlib.sql.AuthorProvider;
 import monakhv.samlib.db.SQLController;
 import monakhv.samlib.db.entity.SamLibConfig;
-import monakhv.samlib.sql.entity.Book;
+
 
 import java.util.ArrayList;
 
@@ -75,6 +75,7 @@ public class MainActivity extends ActionBarActivity implements AuthorFragment.Ca
     private DownloadReceiver downloadReceiver;
     private AuthorEditReceiver authorReceiver;
     private boolean twoPain;
+    private Toolbar toolbar;
 
 
     private Drawer.Result drResult;
@@ -111,7 +112,7 @@ public class MainActivity extends ActionBarActivity implements AuthorFragment.Ca
 
 
 
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
@@ -122,7 +123,12 @@ public class MainActivity extends ActionBarActivity implements AuthorFragment.Ca
             Log.i(DEBUG_TAG, "onCreate: one pane");
         }
 
+    }
 
+    /**
+     * Create MaterialDrawer
+     */
+    private void createDrawer(){
         ArrayList<IDrawerItem> items = new ArrayList<>();
 
         items.add(new PrimaryDrawerItem().withName(R.string.menu_search).withIcon(FontAwesome.Icon.faw_search_plus).withIdentifier(menu_add_search) );
@@ -149,13 +155,14 @@ public class MainActivity extends ActionBarActivity implements AuthorFragment.Ca
         authorSort = new RadioItems(this,menu_sort_author,AuthorSortOrder.values()
                 ,authorFragment.getSortOrder().name());
 
-     items.addAll(authorSort.getItems());
+        items.addAll(authorSort.getItems());
 
 
         if (twoPain) {
             items.add(new SectionDrawerItem().withName(R.string.dialog_title_sort_book));
             bookSort = new RadioItems(this,menu_sort_books, BookSortOrder.values()
                     ,bookFragment.getSortOrder().name());
+            items.addAll(bookSort.getItems());
 
         }
 
@@ -178,8 +185,6 @@ public class MainActivity extends ActionBarActivity implements AuthorFragment.Ca
                 .build();
         tags.close();
         restoreTagSelection();
-
-
 
     }
 
@@ -336,7 +341,7 @@ public class MainActivity extends ActionBarActivity implements AuthorFragment.Ca
         }
         getSupportActionBar().setTitle(R.string.app_name);
         authorFragment.refresh(null, null);
-        drResult.setSelectionByIdentifier(SamLibConfig.TAG_AUTHOR_ALL + tagsShift);
+       createDrawer();
 
 
     }
@@ -492,6 +497,8 @@ public class MainActivity extends ActionBarActivity implements AuthorFragment.Ca
             if (authorFragment.getSelection() != null) {
                 authorFragment.refresh(null, null);
                 onTitleChange(getString(R.string.app_name));
+                selectedTagId=SamLibConfig.TAG_AUTHOR_ALL;
+                restoreTagSelection();
             } else {
                 finish();
             }
