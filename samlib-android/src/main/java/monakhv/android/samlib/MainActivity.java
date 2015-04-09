@@ -197,7 +197,13 @@ public class MainActivity extends ActionBarActivity implements AuthorFragment.Ca
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.options_menu, menu);
+        if (twoPain){
+            getMenuInflater().inflate(R.menu.options_menu_tablet, menu);
+        }
+        else {
+            getMenuInflater().inflate(R.menu.options_menu, menu);
+        }
+
         return super.onCreateOptionsMenu(menu);
     }
 
@@ -213,6 +219,9 @@ public class MainActivity extends ActionBarActivity implements AuthorFragment.Ca
             Log.d(DEBUG_TAG, "go to Selected");
             authorFragment.cleanSelection();
             onAuthorSelected(SamLibConfig.SELECTED_BOOK_ID);
+        }
+        if (sel == R.id.tags_option_item){
+            Log.d(DEBUG_TAG, "go to Tags");
         }
         return super.onOptionsItemSelected(item);
     }
@@ -369,29 +378,6 @@ public class MainActivity extends ActionBarActivity implements AuthorFragment.Ca
         //getActionBarHelper().setRefreshActionItemState(refreshStatus);
     }
 
-//    @Override
-//    public void onSaveInstanceState(Bundle bundle) {
-//        super.onSaveInstanceState(bundle);
-//        bundle.putString(STATE_SELECTION, authorFragment.getSelection());
-//        bundle.putInt(STATE_AUTHOR_POS, authorFragment.getSelectedAuthorPosition());
-//
-//    }
-//    @Override
-//    public void onRestoreInstanceState(Bundle bundle) {
-//        super.onRestoreInstanceState(bundle);
-//        if (bundle == null) {
-//            return;
-//        }
-//        Log.i(DEBUG_TAG,"onRestoreInstanceState");
-//
-//
-//        authorFragment.refresh(bundle.getString(STATE_SELECTION), null);
-//        authorFragment.restoreSelection(bundle.getInt(STATE_AUTHOR_POS));
-//        if (bookFragment != null){
-//            bookFragment.setAuthorId(authorFragment.getSelectedAuthorId());
-//        }
-//
-//    }
 
     /**
      * Return from ArchiveActivity or SearchActivity

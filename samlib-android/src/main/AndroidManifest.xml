@@ -71,10 +71,10 @@ limitations under the License.
 
         <activity
             android:name=".AuthorTagsActivity" 
-            android:parentActivityName="monakhv.android.samlib.MainActivity" >
+            android:parentActivityName="monakhv.android.samlib.BooksActivity" >
             <meta-data 
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="monakhv.android.samlib.MainActivity"/>
+                android:value="monakhv.android.samlib.BooksActivity"/>
         </activity>
         <activity
             android:name=".search.SearchAuthorActivity" 

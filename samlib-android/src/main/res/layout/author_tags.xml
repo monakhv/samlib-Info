@@ -18,20 +18,16 @@ limitations under the License.
               android:orientation="vertical"
               android:layout_width="match_parent"
               android:layout_height="match_parent">
-    <TextView
-            android:id="@+id/tagAuthorTitle"
+    <android.support.v7.widget.Toolbar
+            android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-        
-            android:textSize="@dimen/text_size_head" >
-        </TextView>
-        <TextView
-        android:layout_width="wrap_content"        
-        android:id="@+id/tagTagNAme"       
-        android:layout_height="wrap_content"
-        android:text="@+id/tgnames"
-        android:textSize="@dimen/text_size_small" >
-    </TextView>
+            android:background="?attr/colorPrimary"
+            android:elevation="4dp"
+            android:minHeight="?attr/actionBarSize"
+            android:paddingTop="@dimen/tool_bar_top_padding"
+            android:transitionName="actionBar"/>
+
         
         <LinearLayout 
         android:id="@+id/add_tag_panel"

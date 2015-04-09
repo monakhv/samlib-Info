@@ -294,7 +294,7 @@ public class AuthorFragment extends Fragment implements OnRefreshListener, ListS
     }
 
     private final int read_option_item = 21;
-    private final int tags_option_item = 22;
+
     private final int browser_option_item = 23;
     private final int edit_author_option_item = 24;
     private final int delete_option_item = 25;
@@ -315,7 +315,7 @@ public class AuthorFragment extends Fragment implements OnRefreshListener, ListS
         if (author.isIsNew()) {
             menu.add(read_option_item, getString(R.string.menu_read));
         }
-        menu.add(tags_option_item, getString(R.string.menu_tags));
+
         menu.add(browser_option_item, getString(R.string.menu_open_web));
         menu.add(edit_author_option_item, getString(R.string.menu_edit));
         menu.add(delete_option_item, getString(R.string.menu_delete));
@@ -345,13 +345,7 @@ public class AuthorFragment extends Fragment implements OnRefreshListener, ListS
         if (item == read_option_item) {
             adapter.makeSelectedRead();
         }
-        if (item == tags_option_item) {
-            Intent intent = new Intent(getActivity(), AuthorTagsActivity.class);
-            intent.putExtra(AuthorTagsActivity.AUTHOR_ID, author.getId());
-            intent.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
-            startActivity(intent);
 
-        }
         if (item == browser_option_item) {
             launchBrowser(author);
         }

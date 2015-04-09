@@ -372,31 +372,9 @@ public class BookFragment extends Fragment implements ListSwipeListener.SwipeCal
         startActivity(launchBrowser);
     }
 
-    private int id_menu_sort = 31;
+
     private SingleChoiceSelectDialog sortDialog;
 
-    public void onCreateOptionsMenu(Menu menu, MenuInflater menuInflater) {
-
-        menu.add(100, id_menu_sort, 100, getString(R.string.menu_sort));
-        menu.findItem(id_menu_sort).setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
-        menu.findItem(id_menu_sort).setIcon(settings.getSortIcon());
-        super.onCreateOptionsMenu(menu, menuInflater);
-
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        int sel = item.getItemId();
-        //TODO: make tablet variant for two fragment activity
-        if (sel == android.R.id.home) {
-            getActivity().finish();
-        }
-        if (sel == id_menu_sort) {
-            selectSortOrder();
-
-        }
-        return super.onOptionsItemSelected(item);
-    }
 
     /**
      * Show Dialog to select sort order for Book list

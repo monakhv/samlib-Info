@@ -17,6 +17,8 @@ package monakhv.android.samlib;
 
 
 
+import android.content.Intent;
+import android.support.v7.widget.Toolbar;
 import monakhv.android.samlib.data.SettingsHelper;
 import monakhv.android.samlib.dialogs.EnterStringDialog;
 import android.app.AlertDialog;
@@ -85,6 +87,11 @@ public class AuthorTagsActivity extends ActionBarActivity {
         setTheme(helper.getTheme());
         super.onCreate(savedInstanceState);
         setContentView(R.layout.author_tags);
+
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
         author_id = getIntent().getExtras().getInt(AuthorTagsActivity.AUTHOR_ID);
         ListView listView = getListView();
 
@@ -194,11 +201,16 @@ public class AuthorTagsActivity extends ActionBarActivity {
         super.onResume();
         AuthorController sql = new AuthorController(this);
         Author a = sql.getById(author_id);
-        TextView tv = (TextView) this.findViewById(R.id.tagAuthorTitle);
-        tv.setText(a.getName());
 
-        tv = (TextView) this.findViewById(R.id.tagTagNAme);
-        tv.setText(join(a.getTags_name(), ", "));
+        if (a.getTags_name().isEmpty()){
+            getSupportActionBar().setTitle(a.getName() + ": NO TAGS" );
+        }
+        else {
+            getSupportActionBar().setTitle(a.getName() + ": " + join(a.getTags_name(), ", "));
+        }
+
+
+
 
     }
 
@@ -228,6 +240,10 @@ public class AuthorTagsActivity extends ActionBarActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int sel = item.getItemId();
+        if (sel == android.R.id.home ){
+            cancelClick(null);
+            return true;
+        }
 
         if (sel == R.id.add_option_item) {
             addVisible = !addVisible;
@@ -238,6 +254,7 @@ public class AuthorTagsActivity extends ActionBarActivity {
             } else {
                 v.setVisibility(View.GONE);
             }
+            return true;
 
         }
         return super.onOptionsItemSelected(item);
@@ -285,6 +302,9 @@ public class AuthorTagsActivity extends ActionBarActivity {
      * @param view view
      */
     public void cancelClick(View view) {
+        Intent intent=new Intent(getApplicationContext(),BooksActivity.class);
+        intent.putExtra(BookFragment.AUTHOR_ID,(long)author_id);
+        setResult(RESULT_OK, intent);
         finish();
 
     }
@@ -310,7 +330,7 @@ public class AuthorTagsActivity extends ActionBarActivity {
         Author a = sql.getById(author_id);
         sql.syncTags(a, tags);
         helper.requestBackup();
-        finish();
+        cancelClick(null);
     }
 
     private void loadTagData() {
