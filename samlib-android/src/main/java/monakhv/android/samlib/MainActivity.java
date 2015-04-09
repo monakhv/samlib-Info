@@ -89,6 +89,7 @@ public class MainActivity extends ActionBarActivity implements AuthorFragment.Ca
 
     private    RadioItems authorSort,bookSort;
     private int selectedTagId=SamLibConfig.TAG_AUTHOR_ALL;
+    private long author_id=0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -123,6 +124,7 @@ public class MainActivity extends ActionBarActivity implements AuthorFragment.Ca
             Log.i(DEBUG_TAG, "onCreate: one pane");
         }
 
+        createDrawer();
     }
 
     /**
@@ -214,7 +216,9 @@ public class MainActivity extends ActionBarActivity implements AuthorFragment.Ca
             onAuthorSelected(SamLibConfig.SELECTED_BOOK_ID);
         }
         if (sel == R.id.tags_option_item){
-            Log.d(DEBUG_TAG, "go to Tags");
+            if (author_id!=0){
+                Log.d(DEBUG_TAG, "go to Tags");
+            }
         }
         return super.onOptionsItemSelected(item);
     }
@@ -223,7 +227,8 @@ public class MainActivity extends ActionBarActivity implements AuthorFragment.Ca
     public void onCheckedChanged(IDrawerItem iDrawerItem, CompoundButton compoundButton, boolean b) {
         String sTag = (String) iDrawerItem.getTag();
         int iDent = iDrawerItem.getIdentifier();
-        Log.i(DEBUG_TAG,"Check change: tag - "+sTag+" - "+iDent+" - "+b);
+        Log.i(DEBUG_TAG, "Check change: tag - " + sTag + " - "+iDent+" - "+b);
+
 
 
     }
@@ -341,7 +346,7 @@ public class MainActivity extends ActionBarActivity implements AuthorFragment.Ca
         }
         getSupportActionBar().setTitle(R.string.app_name);
         authorFragment.refresh(null, null);
-       createDrawer();
+
 
 
     }
@@ -396,6 +401,7 @@ public class MainActivity extends ActionBarActivity implements AuthorFragment.Ca
 
     @Override
     public void onAuthorSelected(long id) {
+        author_id=id;
         Log.d(DEBUG_TAG, "onAuthorSelected: go to Books");
         if (twoPain) {
             Log.i(DEBUG_TAG, "Two fragments Layout - set author_id: " + id);
@@ -489,7 +495,7 @@ public class MainActivity extends ActionBarActivity implements AuthorFragment.Ca
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if ((keyCode == KeyEvent.KEYCODE_BACK)) { //Back key pressed
 
-            if (drResult.isDrawerOpen()){
+            if (drResult!= null && drResult.isDrawerOpen()){
                 drResult.closeDrawer();
                 return true;
             }

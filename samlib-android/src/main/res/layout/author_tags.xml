@@ -27,61 +27,15 @@ limitations under the License.
             android:minHeight="?attr/actionBarSize"
             android:paddingTop="@dimen/tool_bar_top_padding"
             android:transitionName="actionBar"/>
+    <fragment
+            android:id="@+id/tagsFragment"
+            android:name="monakhv.android.samlib.AuthorTagFragment"
+            android:layout_weight="1"
+            android:layout_width="match_parent"
+            android:layout_height="0dp">
+    </fragment>
 
         
-        <LinearLayout 
-        android:id="@+id/add_tag_panel"
-        android:orientation="horizontal"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:visibility="gone"> 
-        <EditText 
-            android:id="@+id/addTagText"
-            android:layout_weight="1"
-            android:width="0dp"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:hint="@string/author_tag"
-        />
-        <Button
-            android:id="@+id/addTagBt"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/button_addonly" 
-            android:onClick="addTag"/>
-    
-    </LinearLayout>
-    
-    <ListView
-        android:id="@+id/listTags"        
-        android:layout_weight="1"
-        android:layout_width="match_parent"
-        android:layout_height="0dp">
-    </ListView>
-        
-         <LinearLayout 
-        android:id="@+id/ok_cancel_panel"
-        android:orientation="horizontal"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"        > 
-             <Button
-            android:id="@+id/cancelTags"
-            android:layout_weight="1"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/Cancel" 
-            android:onClick="cancelClick"/>
-             
-             
-        
-        <Button
-            android:id="@+id/okTags"
-            android:layout_weight="1"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/Yes" 
-            android:onClick="okClick"/>
-    
-    </LinearLayout>
+
 
 </LinearLayout>

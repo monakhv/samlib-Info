@@ -96,7 +96,7 @@ public class BooksActivity extends MyAbstractActivity {
         int sel = item.getItemId();
         if (sel == R.id.menu_books_tags) {
             Intent intent = new Intent(this, AuthorTagsActivity.class);
-            intent.putExtra(AuthorTagsActivity.AUTHOR_ID, (int) author_id);
+            intent.putExtra(AuthorTagsActivity.AUTHOR_ID,author_id);
             //intent.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
             startActivityForResult(intent, TAGS_ACTIVITY);
         }

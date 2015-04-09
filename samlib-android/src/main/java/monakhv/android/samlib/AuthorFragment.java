@@ -246,11 +246,12 @@ public class AuthorFragment extends Fragment implements OnRefreshListener, ListS
 
     @Override
     public boolean singleClick(MotionEvent e) {
-        int position = authorRV.getChildPosition(authorRV.findChildViewUnder(e.getX(), e.getY()));
+        int position = authorRV.getChildAdapterPosition(authorRV.findChildViewUnder(e.getX(), e.getY()));
 //        Author a = sql.getById(adapter.getItemId(position));
 //        makeToast(a.getName());
         Log.d(DEBUG_TAG,"Selected position: "+position);
         if (position<0){
+            Log.d(DEBUG_TAG,"Coordinates: "+e.getX()+" - "+e.getY());
             return false;
         }
         adapter.toggleSelection(position);
