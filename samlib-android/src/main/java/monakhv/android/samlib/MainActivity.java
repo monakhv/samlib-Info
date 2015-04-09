@@ -241,12 +241,14 @@ public class MainActivity extends ActionBarActivity implements AuthorFragment.Ca
             Intent prefsIntent = new Intent(getApplicationContext(),
                     SamlibPreferencesActivity.class);
             //prefsIntent.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
+            drResult.closeDrawer();
             startActivityForResult(prefsIntent, MainActivity.PREFS_ACTIVITY);
         }
         if (ident == menu_data){
             Log.d(DEBUG_TAG, "go to Archive");
             Intent prefsIntent = new Intent(getApplicationContext(),
                     ArchiveActivity.class);
+            drResult.closeDrawer();
             startActivityForResult(prefsIntent, MainActivity.ARCHIVE_ACTIVITY);
         }
         if (ident == menu_add_search){
