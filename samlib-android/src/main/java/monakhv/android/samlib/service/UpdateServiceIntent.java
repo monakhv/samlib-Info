@@ -23,6 +23,7 @@ import android.os.PowerManager;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 
 import monakhv.android.samlib.MainActivity.UpdateActivityReceiver;
@@ -48,7 +49,7 @@ import monakhv.samlib.log.Log;
  * @author monakhv
  */
 public class UpdateServiceIntent extends IntentService {
-
+    public static final long SLEEP_INTERVAL_SECONDS=1;
     public static final String CALLER_TYPE = "CALLER_TYPE";
     public static final String SELECT_STRING = "SELECT_STRING";
     public static final int CALLER_IS_ACTIVITY = 1;
@@ -161,6 +162,12 @@ public class UpdateServiceIntent extends IntentService {
                 }
             }
 
+            try {
+
+                TimeUnit.SECONDS.sleep(SLEEP_INTERVAL_SECONDS);
+            } catch (InterruptedException e) {
+                Log.e(DEBUG_TAG,"Sleep interrupted",e);
+            }
         }//main author cycle END
         if (authors.size() == skippedAuthors){
             finish(false);//all authors skipped - this is the error
