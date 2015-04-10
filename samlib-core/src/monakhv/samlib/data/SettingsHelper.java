@@ -25,8 +25,8 @@ import java.io.File;
 public interface SettingsHelper {
     String getFirstMirror();
     Proxy getProxy();
-    void log(String debugTag, String s);
-    void log(String debugTag, String s, Exception e);
+    void log(String debugTag, String s);//special logging for debug
+    void log(String debugTag, String s, Exception e);//special logging for debug
     public File getBookFile(Book book,FileType fileType);
     public String getDataDirectoryPath();
 

@@ -18,8 +18,9 @@ package monakhv.android.samlib.receiver;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.util.Log;
+
 import monakhv.android.samlib.data.SettingsHelper;
+import monakhv.samlib.log.Log;
 
 
 /**
@@ -34,7 +35,7 @@ public class AutoStartUp extends BroadcastReceiver {
         Log.d(DEBUG_TAG, "Autostart service");
         SettingsHelper helper = new SettingsHelper(context.getApplicationContext());
         
-        helper.log(DEBUG_TAG, "Autostart service");        
+
         helper.updateServiceForce();
         
     }

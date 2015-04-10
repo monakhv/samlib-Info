@@ -69,7 +69,7 @@ public class SettingsHelper implements monakhv.samlib.data.SettingsHelper, Share
     public SettingsHelper(Context context) {
         this.context = context;
         this.prefs = context.getSharedPreferences(PREFS_NAME, 0);
-        monakhv.samlib.log.Log.checkInit(new Logger());
+        monakhv.samlib.log.Log.checkInit(new Logger(),this);
 
     }
 

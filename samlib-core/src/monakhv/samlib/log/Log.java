@@ -1,5 +1,7 @@
 package monakhv.samlib.log;
 
+import monakhv.samlib.data.SettingsHelper;
+
 /*
  * Copyright 2015  Dmitry Monakhov
  *
@@ -19,10 +21,12 @@ package monakhv.samlib.log;
  */
 public class Log {
     protected static AbstractLogger logger;
+    protected static  SettingsHelper settingsHelper;
 
-    public static void  checkInit(AbstractLogger log){
-        if (logger == null){
+    public static void  checkInit(AbstractLogger log,SettingsHelper sh){
+        if (logger == null || settingsHelper == null){
             logger=log;
+            settingsHelper=sh;
         }
     }
 
@@ -30,39 +34,37 @@ public class Log {
         logger.verbose(tag,msg);
     }
     public static void d (String tag, String msg) {
-
         logger.debug(tag, msg);
     }
     public static void i (String tag, String msg) {
         logger.info(tag, msg);
-
+        settingsHelper.log(tag,msg);
     }
     public static void w (String tag, String msg) {
         logger.warn(tag, msg);
-
+        settingsHelper.log(tag, msg);
     }
     public static void e (String tag, String msg) {
         logger.error(tag, msg);
-
+        settingsHelper.log(tag, msg);
     }
 
     public static void v (String tag, String msg,Throwable ex) {
         logger.verbose(tag,msg,ex);
     }
     public static void d (String tag, String msg,Throwable ex) {
-
         logger.debug(tag,msg,ex);
     }
     public static void i (String tag, String msg,Throwable ex) {
         logger.info(tag,msg,ex);
-
+        settingsHelper.log(tag, msg);
     }
     public static void w (String tag, String msg,Throwable ex) {
         logger.warn(tag,msg,ex);
-
+        settingsHelper.log(tag, msg);
     }
     public static void e (String tag, String msg,Throwable ex) {
         logger.error(tag,msg,ex);
-
+        settingsHelper.log(tag,msg);
     }
 }

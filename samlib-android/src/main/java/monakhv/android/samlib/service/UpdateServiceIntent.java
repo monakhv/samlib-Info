@@ -19,7 +19,7 @@ import android.app.IntentService;
 import android.content.Context;
 import android.content.Intent;
 import android.os.PowerManager;
-import android.util.Log;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -39,6 +39,7 @@ import monakhv.samlib.db.entity.SamLibConfig;
 import monakhv.samlib.http.HttpClientController;
 import monakhv.samlib.db.entity.Author;
 import monakhv.samlib.db.entity.Book;
+import monakhv.samlib.log.Log;
 
 /**
  * Service to making check for author updates Can be called from activity or
@@ -78,7 +79,7 @@ public class UpdateServiceIntent extends IntentService {
         settings.requestFirstBackup();
         if (currentCaller == 0) {
             Log.e(DEBUG_TAG, "Wrong Caller type");
-            settings.log(DEBUG_TAG, "Wrong Caller type");
+
             return;
         }
 
@@ -94,14 +95,14 @@ public class UpdateServiceIntent extends IntentService {
             }
             if (!SettingsHelper.haveInternetWIFI(context)) {
                 Log.d(DEBUG_TAG, "Ignore update task - we have no internet connection");
-                settings.log(DEBUG_TAG, "Ignore update task - we have no internet connection");
+
                 return;
             }
         }
         if (currentCaller == CALLER_IS_ACTIVITY) {
             if (!SettingsHelper.haveInternet(context)) {
                 Log.e(DEBUG_TAG, "Ignore update - we have no internet connection");
-                settings.log(DEBUG_TAG, "Ignore update  - we have no internet connection");
+
                 finish(false);
                 return;
             }
@@ -132,7 +133,7 @@ public class UpdateServiceIntent extends IntentService {
                 newA = http.getAuthorByURL(url);
             } catch (IOException ex) {//here we abort cycle author and total update
                 Log.i(DEBUG_TAG, "Connection Error: "+url, ex);
-                settings.log(DEBUG_TAG, "Connection Error: "+url, ex);
+
 
                 finish(false);
                 wl.release();
@@ -140,7 +141,7 @@ public class UpdateServiceIntent extends IntentService {
 
             } catch (SamlibParseException ex) {//skip update for given author
                 Log.e(DEBUG_TAG, "Error parsing url: " + url + " skip update author ", ex);
-                settings.log(DEBUG_TAG, "Error parsing url: " + url + " skip update author ", ex);
+
                 ++skippedAuthors;
                 newA = a;
             }

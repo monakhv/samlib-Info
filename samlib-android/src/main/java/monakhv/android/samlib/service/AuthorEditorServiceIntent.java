@@ -4,7 +4,7 @@ import android.app.IntentService;
 import android.content.Context;
 import android.content.Intent;
 import android.os.PowerManager;
-import android.util.Log;
+
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -18,6 +18,7 @@ import monakhv.samlib.db.entity.Author;
 import monakhv.samlib.db.entity.Book;
 import monakhv.samlib.db.entity.SamLibConfig;
 import monakhv.samlib.http.HttpClientController;
+import monakhv.samlib.log.Log;
 
 /*
  * Copyright 2014  Dmitry Monakhov
@@ -217,15 +218,15 @@ public class AuthorEditorServiceIntent extends IntentService {
 
         text = testURL(url);
         if (text == null){
-            Log.e(DEBUG_TAG, "URL syntax error: "+url);
-            settings.log(DEBUG_TAG, "URL syntax error: "+url);
+            Log.e(DEBUG_TAG, "URL syntax error: " + url);
+
             return null;
         }
 
         Author ta = sql.getByUrl(text);
         if (ta != null) {
             Log.i(DEBUG_TAG, "Ignore Double entries: "+text);
-            settings.log(DEBUG_TAG, "Ignore Double entries: "+text);
+
             ++doubleAdd;
             return null;
         }
@@ -233,16 +234,16 @@ public class AuthorEditorServiceIntent extends IntentService {
             a = http.addAuthor(text);
         } catch (IOException ex) {
             Log.e(DEBUG_TAG, "DownLoad Error for URL: " + text, ex);
-            settings.log(DEBUG_TAG, "DownLoad Error for URL: " + text, ex);
+
             return null;
 
         } catch (SamlibParseException ex) {
             Log.e(DEBUG_TAG, "Author parsing Error: " + text, ex);
-            settings.log(DEBUG_TAG, "Author parsing Error: " + text, ex);
+
             return null;
         } catch (IllegalArgumentException ex) {
             Log.e(DEBUG_TAG, "URL Parsing exception: " + text, ex);
-            settings.log(DEBUG_TAG, "URL Parsing exception: " + text, ex);
+
             return null;
         }
 

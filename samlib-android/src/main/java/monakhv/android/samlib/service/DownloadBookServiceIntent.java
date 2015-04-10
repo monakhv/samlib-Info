@@ -18,7 +18,7 @@ package monakhv.android.samlib.service;
 import android.app.IntentService;
 import android.content.Context;
 import android.content.Intent;
-import android.util.Log;
+
 
 
 
@@ -29,6 +29,7 @@ import monakhv.android.samlib.data.SettingsHelper;
 import monakhv.android.samlib.sql.AuthorController;
 import monakhv.samlib.db.entity.Book;
 import monakhv.samlib.http.HttpClientController;
+import monakhv.samlib.log.Log;
 
 /**
  * Service to download book file
@@ -60,10 +61,10 @@ public class DownloadBookServiceIntent extends IntentService {
 
 
         helper = new SettingsHelper(this);
-        helper.log(DEBUG_TAG,"Got intent");
+
         SettingsHelper.FileType ft = helper.getFileType();
         Log.d(DEBUG_TAG, "default type is  " + ft.toString());
-        helper.log(DEBUG_TAG, "default type is  " + ft.toString());
+
         switch (ft){
             case HTML:
                 finish(getBook(book, SettingsHelper.FileType.HTML),SettingsHelper.FileType.HTML);
@@ -93,7 +94,7 @@ public class DownloadBookServiceIntent extends IntentService {
             helper.cleanBookFile(book);//clean file on error
 
             Log.e(DEBUG_TAG, "Download book error: " + book.getUri(), ex);
-            helper.log(DEBUG_TAG, "Download book error: " + book.getUri(), ex);
+
             return false;
         }
     }

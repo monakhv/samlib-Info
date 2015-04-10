@@ -82,7 +82,7 @@ public class Settings implements SettingsHelper  {
         return instance ;
     }
     private Settings(){
-        Log.checkInit(new Logger());
+        Log.checkInit(new Logger(),this);
 
         config_dir=new File(home+sep+CONFIG_DIR);
         if (! config_dir.isDirectory()){
