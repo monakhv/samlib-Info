@@ -7,6 +7,7 @@ import android.content.IntentFilter;
 import android.database.Cursor;
 
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.Toolbar;
@@ -124,13 +125,34 @@ public class MainActivity extends ActionBarActivity
 
         twoPain = findViewById(R.id.two_pain) != null;
         if (twoPain) {
-            Log.i(DEBUG_TAG, "onCreate: two pane");
-            bookFragment= (BookFragment) getSupportFragmentManager().findFragmentById(R.id.listBooksFragment);
-            if (bookFragment == null){
+            Log.d(DEBUG_TAG, "onCreate: two pane");
+            isTagShow=false;
+            Fragment fragment = getSupportFragmentManager().findFragmentById(R.id.listBooksFragment);
+            if (fragment == null){
+                Log.d(DEBUG_TAG, "Initial construction: add BookFragment");
                 bookFragment= new BookFragment();
                 final FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
                 ft.add(R.id.listBooksFragment, bookFragment);
                 ft.commit();
+                tagFragment = new AuthorTagFragment();
+            }
+            else {
+                if (fragment instanceof AuthorTagFragment){
+                    Log.d(DEBUG_TAG, "Secondary construction: create BookFragment");
+                    isTagShow = true;
+                    tagFragment = (AuthorTagFragment) fragment;
+                    bookFragment= new BookFragment();
+                    final FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+                    ft.replace(R.id.listBooksFragment, bookFragment);
+                    ft.commit();
+                }
+                else {
+                    Log.d(DEBUG_TAG, "Secondary construction: create AuthorTagFragment");
+                    tagFragment = new AuthorTagFragment();
+                    bookFragment = (BookFragment) fragment;
+
+                }
+
             }
 
 
@@ -557,7 +579,7 @@ public class MainActivity extends ActionBarActivity
 
         Log.d(DEBUG_TAG, "Return to Books");
         final FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-        ft.replace(R.id.listBooksFragment, bookFragment, "BookFragment");
+        ft.replace(R.id.listBooksFragment, bookFragment);
         ft.commit();
         isTagShow=false;
     }

@@ -309,6 +309,9 @@ public class AuthorTagFragment extends Fragment {
         int size =listView.getAdapter().getCount();
         AuthorController sql = new AuthorController(getActivity());
         Author a = sql.getById(author_id);
+        if (a==null){
+            return;
+        }
         for (int i = 0; i < size; i++) {
             Cursor cur = (Cursor) listView.getAdapter().getItem(i);
             int tag_id = cur.getInt(cur.getColumnIndex(SQLController.COL_ID));
