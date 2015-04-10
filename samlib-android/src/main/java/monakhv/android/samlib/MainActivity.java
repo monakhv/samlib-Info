@@ -84,13 +84,13 @@ public class MainActivity extends ActionBarActivity
 
 
     private Drawer.Result drResult;
-    private int menu_add_search = 1;
-    private int menu_settings = 3;
-    private int menu_data = 5;
-    private int menu_sort_author = 7;
-    private int menu_sort_books = 9;
-    private int menu_selected = 11;
-    private int tagsShift = 100;
+    private final int menu_add_search = 1;
+    private final int menu_settings = 3;
+    private final int menu_data = 5;
+    private final int menu_sort_author = 7;
+    private final int menu_sort_books = 9;
+    private final int menu_selected = 11;
+    private final int tagsShift = 100;
 
     private    RadioItems authorSort,bookSort;
     private int selectedTagId=SamLibConfig.TAG_AUTHOR_ALL;
@@ -181,8 +181,9 @@ public class MainActivity extends ActionBarActivity
 
         items.add(new DividerDrawerItem());
 
-        items.add(new PrimaryDrawerItem().withName(R.string.menu_settings).withIcon(FontAwesome.Icon.faw_cog).withIdentifier(menu_settings));
+
         items.add(new PrimaryDrawerItem().withName(R.string.menu_archive).withIcon(FontAwesome.Icon.faw_archive).withIdentifier(menu_data));
+        items.add(new PrimaryDrawerItem().withName(R.string.menu_settings).withIcon(FontAwesome.Icon.faw_cog).withIdentifier(menu_settings));
 
 
 
