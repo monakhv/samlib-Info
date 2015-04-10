@@ -125,11 +125,14 @@ public class MainActivity extends ActionBarActivity
         twoPain = findViewById(R.id.two_pain) != null;
         if (twoPain) {
             Log.i(DEBUG_TAG, "onCreate: two pane");
-            bookFragment= new BookFragment();
-            final FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-            ft.add(R.id.listBooksFragment, bookFragment);
+            bookFragment= (BookFragment) getSupportFragmentManager().findFragmentById(R.id.listBooksFragment);
+            if (bookFragment == null){
+                bookFragment= new BookFragment();
+                final FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+                ft.add(R.id.listBooksFragment, bookFragment);
+                ft.commit();
+            }
 
-            ft.commit();
 
         } else {
             Log.i(DEBUG_TAG, "onCreate: one pane");
