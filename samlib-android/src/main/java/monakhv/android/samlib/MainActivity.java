@@ -139,7 +139,6 @@ public class MainActivity extends ActionBarActivity
             else {
                 if (fragment instanceof AuthorTagFragment){
                     Log.d(DEBUG_TAG, "Secondary construction: create BookFragment");
-                    isTagShow = true;
                     tagFragment = (AuthorTagFragment) fragment;
                     bookFragment= new BookFragment();
                     final FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
