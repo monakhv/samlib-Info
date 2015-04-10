@@ -223,6 +223,9 @@ public class MainActivity extends ActionBarActivity
         }
 
         if (sel == R.id.selected_option_item) {
+            if (isTagShow){
+                onFinish(author_id);
+            }
             Log.d(DEBUG_TAG, "go to Selected");
             authorFragment.cleanSelection();
             onAuthorSelected(SamLibConfig.SELECTED_BOOK_ID);
@@ -434,7 +437,7 @@ public class MainActivity extends ActionBarActivity
         if (twoPain) {
             Log.i(DEBUG_TAG, "Two fragments Layout - set author_id: " + id);
             bookFragment.setAuthorId(id);
-            if (tagFragment != null){
+            if (isTagShow){
                 tagFragment.setAuthor_id(id);
                 tagFragment.loadTagData();
             }
@@ -549,7 +552,7 @@ public class MainActivity extends ActionBarActivity
     @Override
     public void onFinish(long id) {
 
-        Log.d(DEBUG_TAG, "go to Tags");
+        Log.d(DEBUG_TAG, "Return to Books");
         final FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
         ft.replace(R.id.listBooksFragment, bookFragment, "BookFragment");
         ft.commit();
