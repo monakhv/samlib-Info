@@ -223,15 +223,15 @@ public class MainActivity extends ActionBarActivity
         }
 
         if (sel == R.id.selected_option_item) {
-            if (isTagShow){
-                onFinish(author_id);
+            if (isTagShow){//if tags
+                onFinish(author_id);//go to books
             }
             Log.d(DEBUG_TAG, "go to Selected");
             authorFragment.cleanSelection();
             onAuthorSelected(SamLibConfig.SELECTED_BOOK_ID);
         }
         if (sel == R.id.tags_option_item){
-            if (author_id!=0 && !isTagShow){
+            if (author_id >0 && !isTagShow){
                 Log.d(DEBUG_TAG, "go to Tags");
 
                 if (tagFragment == null){
