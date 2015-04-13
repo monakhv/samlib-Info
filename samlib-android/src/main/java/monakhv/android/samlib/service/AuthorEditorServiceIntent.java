@@ -68,7 +68,6 @@ public class AuthorEditorServiceIntent extends IntentService {
 
     public AuthorEditorServiceIntent() {
         super(DEBUG_TAG);
-        settings=new SettingsHelper(context);
     }
 
     @Override
@@ -77,7 +76,7 @@ public class AuthorEditorServiceIntent extends IntentService {
 
         action = intent.getStringExtra(EXTRA_ACTION_TYPE);
         context = this.getApplicationContext();
-
+        settings=new SettingsHelper(context);
         numberOfAdded=0;
         doubleAdd=0;
         numberOfDeleted=0;

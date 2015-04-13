@@ -34,9 +34,9 @@ public class UpdateReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        SettingsHelper settings = new SettingsHelper(context);
-        Log.d(DEBUG_TAG, "Recurring alarm; requesting update service.");
 
+        Log.d(DEBUG_TAG, "Recurring alarm; requesting update service.");
+        SettingsHelper settings = new SettingsHelper(context);
 
 //        Intent updater = new Intent(context, UpdaterService.class);
 //        context.startService(updater);

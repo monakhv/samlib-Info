@@ -47,7 +47,6 @@ public class DownloadBookServiceIntent extends IntentService {
 
     public DownloadBookServiceIntent() {
         super("DownloadBookServiceIntent");
-        helper = new SettingsHelper(this);
     }
 
     @Override
@@ -61,7 +60,7 @@ public class DownloadBookServiceIntent extends IntentService {
        
 
 
-
+        helper = new SettingsHelper(this);
 
         SettingsHelper.FileType ft = helper.getFileType();
         Log.d(DEBUG_TAG, "default type is  " + ft.toString());
