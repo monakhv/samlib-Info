@@ -32,9 +32,8 @@ public class AutoStartUp extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        Log.d(DEBUG_TAG, "Autostart service");
         SettingsHelper helper = new SettingsHelper(context.getApplicationContext());
-        
+        Log.d(DEBUG_TAG, "Autostart service");
 
         helper.updateServiceForce();
         
