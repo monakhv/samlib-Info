@@ -51,6 +51,7 @@ public class DownloadBookServiceIntent extends IntentService {
 
     @Override
     protected void onHandleIntent(Intent intent) {
+        helper = new SettingsHelper(this);
         Log.d(DEBUG_TAG, "Got intent");
         book_id = intent.getLongExtra(BOOK_ID, 0);
         sendResult = intent.getBooleanExtra(SEND_UPDATE, false);//do not send update by default
@@ -60,7 +61,7 @@ public class DownloadBookServiceIntent extends IntentService {
        
 
 
-        helper = new SettingsHelper(this);
+
 
         SettingsHelper.FileType ft = helper.getFileType();
         Log.d(DEBUG_TAG, "default type is  " + ft.toString());

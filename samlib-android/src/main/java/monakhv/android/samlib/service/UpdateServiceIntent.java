@@ -64,16 +64,16 @@ public class UpdateServiceIntent extends IntentService {
     public UpdateServiceIntent() {
         super("UpdateServiceIntent");
         updatedAuthors = new ArrayList<Author>();
-        Log.d(DEBUG_TAG, "Constructor Call");
+       // Log.d(DEBUG_TAG, "Constructor Call");
     }
 
     @Override
     protected void onHandleIntent(Intent intent) {
         int skippedAuthors = 0;
-        Log.d(DEBUG_TAG, "Got intent");
         context = this.getApplicationContext();
         updatedAuthors.clear();
         settings = new SettingsHelper(context);
+        Log.d(DEBUG_TAG, "Got intent");
         dataExportImport = new DataExportImport(context);
         currentCaller = intent.getIntExtra(CALLER_TYPE, 0);
         String selection = intent.getStringExtra(SELECT_STRING);

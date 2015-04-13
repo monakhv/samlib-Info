@@ -72,11 +72,11 @@ public class AuthorEditorServiceIntent extends IntentService {
 
     @Override
     protected void onHandleIntent(Intent intent) {
-        Log.d(DEBUG_TAG, "Got intent");
 
         action = intent.getStringExtra(EXTRA_ACTION_TYPE);
         context = this.getApplicationContext();
         settings=new SettingsHelper(context);
+        Log.d(DEBUG_TAG, "Got intent");
         numberOfAdded=0;
         doubleAdd=0;
         numberOfDeleted=0;
