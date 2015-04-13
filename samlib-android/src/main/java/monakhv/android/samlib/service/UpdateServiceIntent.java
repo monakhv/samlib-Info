@@ -64,7 +64,6 @@ public class UpdateServiceIntent extends IntentService {
     public UpdateServiceIntent() {
         super("UpdateServiceIntent");
         updatedAuthors = new ArrayList<Author>();
-        context = this.getApplicationContext();
         settings = new SettingsHelper(context);
         Log.d(DEBUG_TAG, "Constructor Call");
     }
@@ -73,7 +72,7 @@ public class UpdateServiceIntent extends IntentService {
     protected void onHandleIntent(Intent intent) {
         int skippedAuthors = 0;
         Log.d(DEBUG_TAG, "Got intent");
-
+        context = this.getApplicationContext();
         updatedAuthors.clear();
 
         dataExportImport = new DataExportImport(context);
