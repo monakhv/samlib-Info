@@ -22,7 +22,7 @@ limitations under the License.
     
     <fragment
         android:id="@+id/listBooksFragment"
-        android:name="monakhv.android.samlib.BookListFragment"
+        android:name="monakhv.android.samlib.BookFragment"
         android:layout_weight="1"
         android:layout_width="match_parent"
         android:layout_height="0dp">

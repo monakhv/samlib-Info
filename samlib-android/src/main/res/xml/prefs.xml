@@ -1,0 +1,205 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+Copyright 2013 Dmitry Monakhov.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+     http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+-->
+<PreferenceScreen
+    xmlns:android="http://schemas.android.com/apk/res/android">
+    <PreferenceCategory
+        android:title="@string/pref_interface_title">
+        <CheckBoxPreference 
+            android:title="@string/pref_interface_autmark_title"
+            android:key="@string/pref_key_flag_automark" 
+            android:summary="@string/pref_interface_autmark_desc"
+            android:defaultValue="@bool/pref_key_flag_automark"/>
+        <ListPreference 
+            
+            android:key="@string/pref_key_author_order"
+            android:title="@string/pref_title_author_order"
+            android:entries="@array/sortAuthorTitles"
+            android:entryValues="@array/sortAuthorValues"
+            android:defaultValue="@string/pref_default_author_order"/>
+        <ListPreference
+
+            android:key="@string/pref_key_book_order"
+            android:title="@string/pref_title_book_order"
+            android:entries="@array/sortBookTitles"
+            android:entryValues="@array/sortBookValues"
+            android:defaultValue="@string/pref_default_book_order"/>
+
+        <ListPreference
+
+            android:key="@string/pref_key_file_format"
+            android:title="@string/pref_title_file_format"
+            android:entries="@array/fileFormatTitles"
+            android:entryValues="@array/fileFormatValues"
+            android:defaultValue="@string/pref_default_file_format"/>
+
+        <ListPreference
+
+            android:key="@string/pref_key_theme"
+            android:title="@string/pref_title_theme"
+            android:entries="@array/themeTitles"
+            android:entryValues="@array/themeValues"
+            android:defaultValue="@string/pref_default_theme"/>
+
+        <Preference
+            android:key="@string/pref_key_google_account"
+            android:title="@string/pref_title_google_account"
+
+            />
+
+        
+    </PreferenceCategory>
+
+    
+    <PreferenceCategory
+        android:title="@string/pref_title_background_update_flag">
+        <CheckBoxPreference 
+            android:title="@string/pref_summary_background_update_flag"
+            android:key="@string/pref_key_flag_background_update" 
+            android:defaultValue="@bool/pref_key_flag_background_update"/>
+
+        <ListPreference
+
+            android:key="@string/pref_key_mirror"
+            android:title="@string/pref_title_mirror"
+            android:entries="@array/mirrorTitles"
+            android:entryValues="@array/mirrorValues"
+            android:defaultValue="@string/pref_default_mirror"/>
+
+        <ListPreference
+            android:dependency="pref_key_flag_background_update"
+            android:key="@string/pref_key_update_tag"
+            android:title="@string/pref_title_update_tag"
+           />
+    
+        <ListPreference 
+            android:dependency="pref_key_flag_background_update"
+            android:key="@string/pref_key_update_Period"
+            android:title="@string/pref_title_update_Period"
+            android:entries="@array/UpdateFreqTitle"
+            android:entryValues="@array/UpdateFreqValues"
+            android:defaultValue="@string/pref_default_update_Period"/>
+        <RingtonePreference 
+            android:showDefault="true"
+            android:showSilent="true"
+            android:key="@string/pref_key_notification_ringtone" 
+            android:title="@string/pref_title_notification_ringtone"
+            android:defaultValue="@string/pref_default_notification_ringtone"
+            android:ringtoneType="notification">
+        </RingtonePreference>
+        <CheckBoxPreference 
+            android:dependency="pref_key_flag_background_update"
+            android:title="@string/pref_title_wihi_only"
+            android:key="@string/pref_key_flag_wihi_only" 
+            android:defaultValue="@bool/pref_key_flag_wihi_only"/>
+        <CheckBoxPreference
+            android:dependency="pref_key_flag_background_update"
+            android:title="@string/pref_title_roaming_work"
+            android:key="@string/pref_key_flag_roaming_work"
+            android:defaultValue="@bool/pref_key_flag_roaming_work"/>
+
+        <CheckBoxPreference 
+            android:dependency="pref_key_flag_background_update"
+            android:title="@string/pref_title_ignore_con_err"
+            android:summary="@string/pref_summary_ignore_con_err"
+            android:key="@string/pref_key_ignore_connect_error" 
+            android:defaultValue="@bool/pref_key_ignore_connect_error"/>
+        
+        <CheckBoxPreference 
+            android:dependency="pref_key_flag_background_update"
+            android:title="@string/pref_background_update_autoload_flag"
+            android:key="@string/pref_key_flag_background_update_autoload" 
+            android:summary="@string/pref_background_update_autoload_flag_summ"
+            android:defaultValue="@bool/pref_key_flag_background_update_autoload"/>
+    
+        <ListPreference 
+            android:dependency="pref_key_flag_background_update_autoload"
+            android:key="@string/pref_key_update_autoload_limit"
+            android:title="@string/pref_title_update_autoload_limit"
+            android:entries="@array/UpdateAutoloadLimitTitles"
+            android:entryValues="@array/UpdateAutoloadLimitValues"
+            android:defaultValue="@string/pref_default_update_atutoload_limit"/> 
+        
+        <CheckBoxPreference 
+            android:dependency="pref_key_flag_background_update"
+            android:title="@string/pref_title_limit_booke_lifetime"
+            android:key="@string/pref_key_flag_limit_booke_lifetime" 
+            android:summary="@string/pref_limit_booke_lifetime_summ"
+            android:defaultValue="@bool/pref_key_flag_default_limit_booke_lifetime"/>
+    
+        <ListPreference 
+            android:dependency="pref_key_flag_limit_booke_lifetime"
+            android:key="@string/pref_key_book_lifetime"
+            android:title="@string/pref_title_book_lifetime"
+            android:entries="@array/BooksLifeTimeTitle"
+            android:entryValues="@array/BooksLifeTimeValues"
+            android:defaultValue="@string/pref_default_book_lifetime"/>
+        <EditTextPreference
+            android:key="@string/pref_key_directory"
+            android:title="@string/pref_title_directory"
+            android:defaultValue=""/>
+               
+    </PreferenceCategory>
+    
+    <PreferenceCategory
+        android:title="@string/pref_title_proxy">
+        <CheckBoxPreference 
+            android:title="@string/pref_title_use_proxy"
+            android:key="@string/pref_key_use_proxy_flag" 
+            android:defaultValue="@bool/pref_key_use_proxy_flag" />
+        <CheckBoxPreference
+                android:title="@string/pref_title_use_proxy_wifi"
+                android:key="@string/pref_key_use_proxy_wifi_flag"
+                android:defaultValue="@bool/pref_key_use_proxy_wifi_flag"
+                android:dependency="pref_key_use_proxy_flag"
+                />
+        <EditTextPreference
+            android:dependency="pref_key_use_proxy_flag"
+            android:key="@string/pref_key_proxy_user"                
+            android:title="Username"
+            android:defaultValue=""/>
+        <EditTextPreference
+            android:dependency="pref_key_use_proxy_flag"
+            android:key="@string/pref_key_proxy_password"                
+            android:title="Password" 
+            android:defaultValue=""
+            android:inputType="textPassword"/>
+        <EditTextPreference
+            android:dependency="pref_key_use_proxy_flag"
+            android:key="@string/pref_key_proxy_host"                
+            android:title="Host"
+            android:defaultValue=""/>
+        <EditTextPreference
+            android:dependency="pref_key_use_proxy_flag"
+            android:key="@string/pref_key_proxy_port"                
+            android:title="Port"
+            android:numeric="integer"
+            android:maxLength="5"
+            android:defaultValue="3128"/>
+        
+    </PreferenceCategory>
+    
+    
+    <PreferenceCategory
+        android:title="@string/pref_title_Debug_Option">
+        <CheckBoxPreference 
+            android:summary="@string/pref_summary_debug_flag"
+            android:key="@string/pref_key_debug_options" 
+            android:defaultValue="@bool/pref_key_debug_options" />
+    </PreferenceCategory>
+     
+    
+</PreferenceScreen>

@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!--
+    See also value-v11 style file
+    -->
+    <style name="MyTheme" parent="MaterialDrawerTheme">
+
+        <item name="colorAccent">@color/pressed_color</item>
+        <item name="colorPrimary">@color/action_bar</item>
+        <item name="colorPrimaryDark">@color/action_bar</item>
+
+        <item name="iconSelected">@drawable/rating_important</item>
+        <item name="iconTags">@drawable/ic_action_done</item>
+        <item name="iconSearch">@drawable/action_search</item>
+        <item name="iconSort">@drawable/collections_sort_by_size</item>
+        <item name="iconRefresh">@drawable/navigation_refresh_d</item>
+        <item name="iconLock">@drawable/ic_https_white_18dp</item>
+        <item name="colorBg">@color/BLACK</item>
+        <item name="colorText">@color/WHITE</item>
+
+        <item name="ptrHeaderStyle">@style/Widget.Custom.PtrHeader</item>
+    </style>
+    <style name="MyThemeLight" parent="MaterialDrawerTheme.Light">
+
+        <item name="colorAccent">@color/pressed_color</item>
+
+        <item name="colorPrimary">@color/action_bar_light</item>
+        <item name="colorPrimaryDark">@color/action_bar_light</item>
+
+        <item name="iconSelected">@drawable/rating_important_l</item>
+        <item name="iconTags">@drawable/navigation_accept</item>
+        <item name="iconSearch">@drawable/action_search_l</item>
+        <item name="iconSort">@drawable/collections_sort_by_size_l</item>
+        <item name="iconRefresh">@drawable/navigation_refresh</item>
+        <item name="iconLock">@drawable/ic_https_grey600_18dp</item>
+        <item name="colorBg">@color/WHITE</item>
+        <item name="colorText">@color/BLACK</item>
+
+        <item name="ptrHeaderStyle">@style/Widget.Custom.PtrHeader.Light</item>
+    </style>
+
+    <style name="Widget.Custom.PtrHeader" parent="android:Widget">
+        <item name="ptrHeaderBackground">@color/action_bar</item>
+        <item name="ptrPullText">@string/pull_to_refresh_pull_label</item>
+        <item name="ptrRefreshingText">@string/pull_to_refresh_refreshing_label</item>
+        <item name="ptrReleaseText">@string/pull_to_refresh_release_label</item>
+
+
+
+        <!--
+      <item name="ptrHeaderHeight">20dp</item>
+-->
+
+    </style>
+
+    <style name="Widget.Custom.PtrHeader.Light" parent="android:Widget">
+        <item name="ptrHeaderBackground">@color/primary_material_light</item>
+        <item name="ptrPullText">@string/pull_to_refresh_pull_label</item>
+        <item name="ptrRefreshingText">@string/pull_to_refresh_refreshing_label</item>
+        <item name="ptrReleaseText">@string/pull_to_refresh_release_label</item>
+
+
+
+    </style>
+
+
+    <!--
+
+    <style name="MyActionBar" parent="ThemeOverlay.AppCompat.ActionBar">
+
+        <item name="android:background">@drawable/action_bar_image</item>
+        <item name="background">@drawable/action_bar_image</item>
+
+
+
+        <item name="android:background">@color/action_bar</item>
+        <item name="background">@color/action_bar</item>
+
+    </style>
+
+
+    <style name="dialog_title_style" parent="android:Widget.TextView">
+        <item name="android:background">@drawable/action_bar_image</item>
+        <item name="background">@drawable/action_bar_image</item>
+    </style>
+    -->
+
+</resources>

@@ -1,0 +1,287 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+Copyright 2013 Dmitry Monakhov.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+     http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+-->
+<resources>
+    <string name="app_name">SamLib Инфо</string>
+    <string name="app_nm">SamLib: </string>
+    <string name="author_url">фамилия или http://samlib.ru/&#8230;</string>
+    <string name="author_name">Фамилия автора</string>
+    <string name="author_tag">Новый тэг</string>
+    <string name="author_add_desc">Для добавления автора введите его фамилию или полный URL его страницы самиздата</string>
+    
+    <string name="update_update">Обновление</string>    
+    
+    <string name="dialog_title_filtr">Категория авторов</string>    
+    <string name="dialog_title_file">Выбор файла</string>
+    <string name="dialog_title_edit_author">Имя автора</string>    
+    
+    <string name="dialog_title_sort_author">Сортировка Авторов</string>
+    <string name="dialog_title_sort_book">Сортировка Книг</string>
+
+    <string name="button_add">Искать/Добавить</string>
+    <string name="button_addonly">Добавить</string>
+    <string name="button_search">Искать</string>
+
+
+    <string name="SamLib">SamLib</string>
+    <string name="ZhurnalLib">ZhurnalLib</string>
+    <string name="BudClub">BudClub</string>
+
+    <!--      This URL for settings decoration only!!!
+     Real URLs are defined into SamLibConfig.SamIzdat      class                 -->
+    <string name="SamLibUrl">http://samlib.ru</string>
+    <string name="ZhurnalLibUrl">http://zhurnal.lib.ru</string>
+    <string name="BudClubUrl">http://budclub.ru</string>
+    
+    
+    <string name="menu_read">Отметить как прочитаное</string>
+    <string name="menu_open_web">Открыть в браузере</string>
+    <string name="menu_delete">Удалить</string>
+    <string name="menu_refresh">Обновить</string>
+    <string name="menu_add">Добавить</string>
+    <string name="menu_search">Искать/Добавить</string>
+    <string name="menu_sort">Сортировка</string>
+    <string name="menu_settings">Настройки</string>
+    <string name="menu_archive">Данные</string>
+    <string name="menu_tags">Группы авторов</string>
+    <string name="menu_filter">Фильтр</string>
+    <string name="menu_edit">Изменить</string>
+    <string name="menu_selected">Добавить в избранное</string>
+    <string name="menu_deselected">Исключить из избранного</string>
+    <string name="menu_selected_go">Избранные книги</string>
+    <string name="menu_reload">Перезагрузить</string>
+
+    <string name="menu_set_fixed">Хранить все версии</string>
+    <string name="menu_set_unfixed">Хранить одну версию</string>
+    <string name="menu_version_choose">Читать версию</string>
+
+    <string name="sort_update_date">По времени обновления</string>
+    <string name="sort_author_name">По имени автора</string>
+    <string name="sort_book_mtime">По времени обновления</string>
+    <string name="sort_book_title">По названию книги</string>
+    <string name="sort_book_date">По дате</string>
+    <string name="sort_book_size">По объему</string>
+    
+    <string name="filter_new">Только новые</string>
+    <string name="filter_all">Все</string>
+    <string name="tag_edit_title">Изменение названия тэга</string>
+    
+    
+    <string name="add_success">Автор добавлен</string>
+    <string name="add_success_multi">Добавлено авторов:</string>
+    <string name="add_error">Ошибка добавления автора</string>
+    <string name="add_error_double">Этот автор уже есть в базе!</string>
+    <string name="add_author_title">Добавить URL автора</string>
+    <string name="add_success_double">Повторов авторов:</string>
+    <string name="import_author_result">Результат иморта авторов</string>
+
+
+    <string name="del_success">Автор удалён</string>
+    <string name="del_error">Ошибка удаления автора</string>
+
+    
+    <string name="author_search_error">Ошибка поиска</string>
+    <string name="author_search_empty">Ничего не найдено</string>
+    <string name="author_search_limit">Превышен лимит результата поиска</string>
+    
+    <string name="Cancel">Отмена</string>
+    <string name="Yes">Да</string>
+    <string name="No">Нет</string>
+    <string name="Attention">Внимание!</string>
+    
+    <string name="alert_import">Вы уверены? Все данные будут полностью заменены данными из файла __!</string>
+    <string name="alert_delete_author">Вы уверены? Все данные об авторе \"__\" будут удалены!</string>
+    <string name="alert_tag_delete">Вы уверены? Тэги \"__\" у все авторов будут удалены!</string>
+    <string name="alert_add_author">Вы уверены, что хотите добавить автора  \"__\" в базу?</string>
+    
+    <string name="notification_updates">Обновления на самиздате</string>
+    <string name="notification_error">Ошибка обновления SamLib</string>
+    <string name="notification_update_error_detais">Произошла ошибка соединения с SamLib!</string>
+    
+    <string name="author_update">Обновление у автора: </string>
+    <string name="author_update_number">Количество обновлений:</string>
+    
+    <string name="toast_update_good_empty">Нет свежих обновлений.</string>
+    <string name="toast_update_good_good">Есть обновления!</string>
+    <string name="toast_update_error">Ошибка обновления</string>
+    
+    <string name="pref_key_flag_background_update">pref_key_flag_background_update</string>
+    <string name="pref_title_background_update_flag">Aвтоматическое обновление</string>
+    <string name="pref_summary_background_update_flag">Включить</string>    
+    
+    
+    <string name="pref_key_update_Period">pref_key_update_Period</string>
+    <string name="pref_title_update_Period">Частота обновлений</string>
+    <string name="pref_default_update_Period">3HOUR</string>
+    
+    
+     <string name="pref_background_update_autoload_flag">Автозагрузка</string>
+     <string name="pref_background_update_autoload_flag_summ">Загрузка обновлений при проверке</string>
+     <string name="pref_key_flag_background_update_autoload">pref_key_flag_background_update_autoload</string>
+     
+     <string name="pref_key_update_autoload_limit">pref_key_update_autoload_limit</string>
+     <string name="pref_title_update_autoload_limit">Ограничить загрузку</string>
+     <string name="pref_default_update_atutoload_limit">40</string>
+     
+    <string name="pref_key_flag_wihi_only">pref_key_flag_wihi_only</string>
+    <string name="pref_title_wihi_only">Только по Wifi</string>
+
+    <string name="pref_key_update_tag">pref_key_update_tag</string>
+    <string name="pref_title_update_tag">Проверяем авторов с тэгом ...</string>
+
+
+    <string name="pref_update_all_title">Всё</string>
+
+
+    <string name="pref_key_flag_roaming_work">pref_key_flag_roaming_work</string>
+    <string name="pref_title_roaming_work">Работать в роуминге</string>
+
+    <string name="pref_key_directory">pref_key_directory</string>
+    <string name="pref_title_directory">Папка данных</string>
+
+    
+    <string name="pref_key_ignore_connect_error">pref_key_ignore_connect_error</string>
+    <string name="pref_title_ignore_con_err">Не информировать об ошибках</string>
+    <string name="pref_summary_ignore_con_err">Обычно вызваны плохой связью</string>
+
+
+    <string name="pref_key_use_proxy_wifi_flag">pref_key_use_proxy_wifi_flag</string>
+    <string name="pref_title_use_proxy_wifi">Только для WIFI</string>
+
+    <string name="pref_key_use_proxy_flag">pref_key_use_proxy_flag</string>
+    <string name="pref_title_proxy">Настройки прокси</string>
+    <string name="pref_title_use_proxy">Использовать Proxy</string>
+    <string name="pref_key_proxy_user">pref_key_proxy_user</string>
+    <string name="pref_key_proxy_password">pref_key_proxy_password</string>
+    <string name="pref_key_proxy_host">pref_key_proxy_host</string>
+    <string name="pref_key_proxy_port">pref_key_proxy_port</string>
+    
+    
+    
+    <string name="pref_interface_title">Интерфейс</string>
+    <string name="pref_interface_autmark_title">Автометка</string>
+    <string name="pref_interface_autmark_desc">Снимает метку обновления при открытии закладки</string>
+    <string name="pref_key_flag_automark">pref_key_flag_automark</string>
+    
+    
+    <string name="pref_key_debug_options">pref_key_debug_options</string>
+    <string name="pref_title_Debug_Option">Режим отладки</string>
+    <string name="pref_summary_debug_flag">Включает вывод дополнительной информации для отладки</string>
+    
+    <string name="pref_title_limit_booke_lifetime">Ограничить время жизни книг</string>
+    <string name="pref_key_flag_limit_booke_lifetime">pref_key_flag_limit_booke_lifetime</string>
+    <string name="pref_limit_booke_lifetime_summ">Книги будут удаляться после истечения срока</string>
+    
+    <string name="pref_key_book_lifetime">pref_key_book_lifetime</string>
+    <string name="pref_title_book_lifetime">Время жизни книг</string>
+    <string name="pref_default_book_lifetime">30</string>
+    
+    <string name="pref_key_author_order">pref_key_author_order</string>
+    <string name="pref_title_author_order">Сортировка авторов</string>
+    <string name="pref_default_author_order">AuthorName</string>
+
+    <string name="pref_key_book_order">pref_key_book_order</string>
+    <string name="pref_title_book_order">Сортировка книг</string>
+    <string name="pref_default_book_order">BookDate</string>
+
+    <string name="pref_key_google_account">pref_key_google_account</string>
+    <string name="pref_title_google_account">Google Account</string>
+
+    
+    <string name="pref_key_notification_ringtone">pref_key_notification_ringtone</string>
+    <string name="pref_title_notification_ringtone">Звук оповещения</string>
+    <string name="pref_default_notification_ringtone">content://settings/system/notification_sound</string>
+
+    <string name="pref_key_file_format">pref_key_file_format</string>
+    <string name="pref_title_file_format">Формат файла</string>
+    <string name="pref_default_file_format">HTML</string>
+
+    <string name="pref_key_theme">pref_key_theme</string>
+    <string name="pref_title_theme">Тема</string>
+    <string name="pref_default_theme">DARK</string>
+
+    <string name="pref_key_mirror">pref_key_mirror</string>
+    <string name="pref_title_mirror">Первое зеркало</string>
+    <string name="pref_default_mirror">SamLib</string>
+
+    <string name="change_theme_alert">Смена темы произойдет после нового запуска.  Выйти из приложения сейчас?</string>
+
+
+    <string name="pref_key_version_name">pref_key_version_name</string>
+
+    <string name="pref_no_sound">Без звука</string>
+    
+    <string name="bt_close">Закрыть</string>
+    
+    
+    <string name="arc_title1_db">Backup/Restore</string>
+    <string name="bt_export">Сохранить</string>
+    <string name="bt_import">Загрузить</string>
+    
+    <string name="arc_export_db_text">Создать копию базы</string>
+    <string name="arc_import_db_text">Восстановить базу из копии</string>
+    
+    <string name="res_import_db_good">База данных загружена</string>
+    <string name="res_import_db_bad">Ошибка загрузки данных</string>
+    
+    <string name="res_export_db_good">База данных записана в файл</string>
+    <string name="res_export_db_bad">Ошибка архивации данных</string>
+
+    <string name="res_export_google_good">База успешно экспортирована</string>
+    <string name="res_export_google_delayed">Экспорт базы отложен до восстановления сети</string>
+    <string name="res_export_google_bad">Ошибка экспорта базы</string>
+    <string name="res_import_google_bad">Ошибка импорта базы</string>
+    
+    
+    <string name="arc_title2_db">Текст/HTML URL Export/Import</string>
+    
+    <string name="arc_export_text_text">Выгрузить список авторов</string>
+    <string name="arc_import_text_text">Загрузить список авторов.  Для успешной работы необходима устойчивая связь с сайтом самизата!</string>
+    <string name="arc_import_text_title">Загрузка авторов</string>
+
+    <string name="arc_title_google">Google Disk Export/Import</string>
+
+    <string name="arc_export_google">Выгрузить базу</string>
+    <string name="arc_import_google">Загрузить базу</string>
+    <string name="arc_google_file">SamLib-Info.db на Google Drive</string>
+
+    <string name="arc_msg_export">Выгрузка…</string>
+    <string name="arc_msg_import">Загрузка…</string>
+
+
+    <string name="res_export_txt_good">Список авторов записан в файл</string>
+    <string name="res_export_txt_bad">Ошибка экспорта данных</string>
+    
+    <string name="res_import_txt_good">Список авторов загружен</string>
+    <string name="res_import_txt_bad">Ошибка загрузки данных</string>
+    
+    
+    <string name="no_new_books">Автор не выбран</string>
+    <string name="no_selected_books">Нет избранных книг</string>
+    
+    <string name="no_authors">Список авторов отсутствует</string>
+    <string name="no_authors_tag">Нет авторов в указанной категории</string>
+    
+    <string name="download_book_success">Книга успешно загружена</string>
+    <string name="download_book_error">Ошибка загрузки книги</string>
+    <string name="download_Loading">Загрузка&#8230;</string>
+    <string name="search_Loading">Идет поиск&#8230;</string>
+    
+    <string name="pull_to_refresh_pull_label">Потяните, чтобы обновить&#8230;</string>
+    <string name="pull_to_refresh_release_label">Отпустите для обновления&#8230;</string>
+    <string name="pull_to_refresh_refreshing_label">Загрузка&#8230;</string>
+    
+</resources>

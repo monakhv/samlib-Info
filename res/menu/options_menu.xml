@@ -22,7 +22,7 @@ limitations under the License.
         android:id="@+id/menu_refresh"
         android:icon="?attr/iconRefresh"
         android:title="@string/menu_refresh"
-        android:showAsAction="always"
+        app:showAsAction="always"
         android:orderInCategory="100">
     </item>
     
@@ -30,7 +30,7 @@ limitations under the License.
         android:id="@+id/selected_option_item"
         android:icon="?attr/iconSelected"
         android:title="@string/menu_selected_go"
-        android:showAsAction="ifRoom"
+        app:showAsAction="ifRoom"
         android:orderInCategory="5">
     </item>
     
@@ -38,7 +38,7 @@ limitations under the License.
         android:id="@+id/menu_filter"
         android:icon="?attr/iconTags"
         android:title="@string/menu_tags"
-        android:showAsAction="ifRoom"
+        app:showAsAction="ifRoom"
         android:orderInCategory="10">
     </item>
     
@@ -47,7 +47,7 @@ limitations under the License.
         android:id="@+id/add_option_item"
         android:icon="?attr/iconSearch"
         android:title="@string/menu_search"
-        android:showAsAction="ifRoom"
+        app:showAsAction="ifRoom"
         android:orderInCategory="20">
     </item>
     
@@ -55,7 +55,7 @@ limitations under the License.
         android:id="@+id/sort_option_item"
         android:icon="?attr/iconSort"
         android:title="@string/menu_sort"
-        android:showAsAction="ifRoom"
+        app:showAsAction="ifRoom"
         android:orderInCategory="25">
     </item>
        
@@ -63,7 +63,7 @@ limitations under the License.
         android:id="@+id/archive_option_item"
         android:icon="@drawable/device_access_storage"
         android:title="@string/menu_archive"
-        android:showAsAction="never"
+        app:showAsAction="never"
         android:orderInCategory="30">
     </item>
     
@@ -71,8 +71,9 @@ limitations under the License.
         android:id="@+id/settings_option_item"
         android:icon="@drawable/action_settings"
         android:title="@string/menu_settings"
-        android:showAsAction="never"
+        app:showAsAction="never"
         android:orderInCategory="50">
     </item>
-    
+
+
 </menu>
