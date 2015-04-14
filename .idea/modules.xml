@@ -3,7 +3,10 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/Samlib-Info.iml" filepath="$PROJECT_DIR$/Samlib-Info.iml" />
+      <module fileurl="file://$PROJECT_DIR$/samlib-android/samlib-android.iml" filepath="$PROJECT_DIR$/samlib-android/samlib-android.iml" />
+      <module fileurl="file://$PROJECT_DIR$/samlib-core/samlib-core.iml" filepath="$PROJECT_DIR$/samlib-core/samlib-core.iml" />
+      <module fileurl="file://$PROJECT_DIR$/samlib-desk/samlib-desk.iml" filepath="$PROJECT_DIR$/samlib-desk/samlib-desk.iml" />
+      <module fileurl="file://$PROJECT_DIR$/samlib-info.iml" filepath="$PROJECT_DIR$/samlib-info.iml" />
     </modules>
   </component>
 </project>
-

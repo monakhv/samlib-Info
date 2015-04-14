@@ -19,6 +19,7 @@ package monakhv.android.samlib;
 
 import android.content.Intent;
 import android.support.v7.widget.Toolbar;
+import android.view.*;
 import monakhv.android.samlib.data.SettingsHelper;
 import monakhv.android.samlib.dialogs.EnterStringDialog;
 import android.app.AlertDialog;
@@ -30,11 +31,6 @@ import android.support.v4.widget.SimpleCursorAdapter;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.util.SparseBooleanArray;
-import android.view.ContextMenu;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
-import android.view.View;
 import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.ListView;
@@ -129,7 +125,15 @@ public class AuthorTagsActivity extends ActionBarActivity implements AuthorTagFr
         return super.onOptionsItemSelected(item);
     }
 
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if ((keyCode == KeyEvent.KEYCODE_BACK)) { //Back key pressed
+            onFinish(authorTagFragment.getAuthor_id());
+            return true;
+        }
 
+        return super.onKeyDown(keyCode, event);
+    }
 
 
 

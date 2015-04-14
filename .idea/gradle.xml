@@ -8,10 +8,12 @@
         <option name="modules">
           <set>
             <option value="$PROJECT_DIR$" />
+            <option value="$PROJECT_DIR$/samlib-android" />
+            <option value="$PROJECT_DIR$/samlib-core" />
+            <option value="$PROJECT_DIR$/samlib-desk" />
           </set>
         </option>
       </GradleProjectSettings>
     </option>
   </component>
 </project>
-

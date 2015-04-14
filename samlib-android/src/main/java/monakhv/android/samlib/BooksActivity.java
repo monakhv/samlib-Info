@@ -94,7 +94,7 @@ public class BooksActivity extends MyAbstractActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int sel = item.getItemId();
-        if (sel == R.id.menu_books_tags) {
+        if (sel == R.id.menu_books_tags  && author_id >0 ) {
             Intent intent = new Intent(this, AuthorTagsActivity.class);
             intent.putExtra(AuthorTagsActivity.AUTHOR_ID,author_id);
             //intent.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
