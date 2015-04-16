@@ -119,7 +119,7 @@ limitations under the License.
             android:defaultValue="@bool/pref_key_ignore_connect_error"/>
         
         <CheckBoxPreference 
-            android:dependency="pref_key_flag_background_update"
+
             android:title="@string/pref_background_update_autoload_flag"
             android:key="@string/pref_key_flag_background_update_autoload" 
             android:summary="@string/pref_background_update_autoload_flag_summ"
