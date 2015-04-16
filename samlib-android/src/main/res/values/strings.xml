@@ -280,8 +280,6 @@ limitations under the License.
     <string name="download_Loading">Загрузка&#8230;</string>
     <string name="search_Loading">Идет поиск&#8230;</string>
     
-    <string name="pull_to_refresh_pull_label">Потяните, чтобы обновить&#8230;</string>
-    <string name="pull_to_refresh_release_label">Отпустите для обновления&#8230;</string>
-    <string name="pull_to_refresh_refreshing_label">Загрузка&#8230;</string>
+
     
 </resources>
