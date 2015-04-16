@@ -1,0 +1,19 @@
+
+apply plugin:  'com.android.library'
+
+dependencies {
+    compile 'com.android.support:appcompat-v7:22+'
+     compile 'com.github.castorflex.smoothprogressbar:library:0.4.+@aar'
+}
+
+android {
+    compileSdkVersion 22
+    buildToolsVersion "22.0.1"
+
+    defaultConfig {
+        minSdkVersion 11
+        targetSdkVersion 22
+    }
+
+
+}

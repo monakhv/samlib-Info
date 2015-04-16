@@ -34,9 +34,10 @@ project(":samlib-android") {
     apply plugin: "android"
     dependencies {
         compile project(":samlib-core")
+        compile project(":abptr-lib")
         compile 'com.android.support:appcompat-v7:22+'
         compile 'com.android.support:recyclerview-v7:22+'
-        compile 'com.github.chrisbanes.actionbarpulltorefresh:extra-abc:0.9.9'
+
         compile 'com.google.android.gms:play-services:6.1.+'
         compile('com.mikepenz.materialdrawer:library:2.7.9@aar') {
             transitive = true
@@ -57,3 +58,6 @@ project(":samlib-desk") {
         testCompile group: 'junit', name: 'junit', version: '4.11'
     }
 }
+
+
+
