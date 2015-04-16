@@ -586,6 +586,7 @@ public class PullToRefreshAttacher {
     protected void addHeaderViewToActivity(View headerView) {
         // Get the Display Rect of the Decor View
         mActivity.getWindow().getDecorView().getWindowVisibleDisplayFrame(mRect);
+        adjustRect(mRect);
 
         // Honour the requested layout params
         int width = WindowManager.LayoutParams.MATCH_PARENT;
@@ -614,6 +615,7 @@ public class PullToRefreshAttacher {
     protected void updateHeaderViewPosition(View headerView) {
         // Refresh the Display Rect of the Decor View
         mActivity.getWindow().getDecorView().getWindowVisibleDisplayFrame(mRect);
+        adjustRect(mRect);
 
         WindowManager.LayoutParams wlp = null;
         if (headerView.getLayoutParams() instanceof WindowManager.LayoutParams) {
@@ -667,6 +669,24 @@ public class PullToRefreshAttacher {
 
         private View getDecorView() {
             return getAttachedActivity().getWindow().getDecorView();
+        }
+    }
+
+    /**
+     * Very very ugly hack for devices like Galaxy Note
+     * @param rect
+     */
+    private void adjustRect(Rect rect) {
+        if (rect.top == 0) {
+
+            int result = 0;
+            int resourceId = mActivity.getResources().getIdentifier("status_bar_height", "dimen", "android");
+            if (resourceId > 0) {
+                result = mActivity.getResources().getDimensionPixelSize(resourceId);
+            }
+            rect.top=result;
+            return;
+
         }
     }
 }
