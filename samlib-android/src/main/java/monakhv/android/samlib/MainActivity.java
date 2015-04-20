@@ -399,8 +399,8 @@ public class MainActivity extends ActionBarActivity
             filter.addCategory(Intent.CATEGORY_DEFAULT);
             registerReceiver(downloadReceiver, filter);
         }
-        getSupportActionBar().setTitle(R.string.app_name);
-        authorFragment.refresh(null, null);
+        //getSupportActionBar().setTitle(R.string.app_name);
+       // authorFragment.refresh(null, null);
 
 
 

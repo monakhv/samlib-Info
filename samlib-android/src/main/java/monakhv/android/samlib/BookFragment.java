@@ -192,6 +192,7 @@ public class BookFragment extends Fragment implements ListSwipeListener.SwipeCal
         updateAdapter();
         makeEmpty();
         adapter.setAuthor_id(id);
+        adapter.cleanSelection();
     }
 
     @Override
