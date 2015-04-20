@@ -25,7 +25,8 @@ import monakhv.samlib.log.Log;
  * 12/11/14.
  */
  public  class Flip3D {
-    public interface animationEndListener {
+    public interface animationFlip3DListener {
+        public void onStart();
         public void onEnd();
     }
 
@@ -33,7 +34,7 @@ import monakhv.samlib.log.Log;
     private static final String DEBUG_TAG = "Flip3D";
     private final ImageView image1;
     private final ImageView image2;
-    private animationEndListener end;
+    private animationFlip3DListener end;
 
     private boolean isFirstImage = true;
     protected  void afterAnimationEnd() {
@@ -43,7 +44,7 @@ import monakhv.samlib.log.Log;
 
     }
 
-    public Flip3D(ImageView img1, ImageView img2,animationEndListener e) {
+    Flip3D(ImageView img1, ImageView img2,animationFlip3DListener e) {
         this.image1 = img1;
         this.image2 = img2;
         image1.setVisibility(View.VISIBLE);
@@ -52,7 +53,7 @@ import monakhv.samlib.log.Log;
        end=e;
 
     }
-    public Flip3D(ImageView img1, ImageView img2) {
+    Flip3D(ImageView img1, ImageView img2) {
         this(img1,img2,null);
     }
 
@@ -64,6 +65,9 @@ import monakhv.samlib.log.Log;
 
 
     public void makeFlip(){
+        if (end != null){
+            end.onStart();
+        }
 
         if (isFirstImage) {
             //Log.d(DEBUG_TAG,"making flip 0 -> 90");

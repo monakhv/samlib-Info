@@ -94,10 +94,15 @@ public class AuthorCursorAdapter extends RecyclerCursorAdapter<AuthorCursorAdapt
         else {
             oldBookResource=(R.drawable.author_very_old);
         }
-        Flip3D.animationEndListener listener;
+        Flip3D.animationFlip3DListener listener;
         if (isNew) {
             holder.authorName.setTypeface(Typeface.DEFAULT_BOLD);
-            listener = new Flip3D.animationEndListener() {
+            listener = new Flip3D.animationFlip3DListener() {
+                @Override
+                public void onStart() {
+
+                }
+
                 @Override
                 public void onEnd() {
                     Log.i(DEBUG_TAG, "Making Author read!");
@@ -108,7 +113,12 @@ public class AuthorCursorAdapter extends RecyclerCursorAdapter<AuthorCursorAdapt
             holder.flipIcon.setData(R.drawable.author_new,oldBookResource,listener,false);
         } else {
             holder.authorName.setTypeface(Typeface.DEFAULT);
-            listener = new  Flip3D.animationEndListener() {
+            listener = new  Flip3D.animationFlip3DListener() {
+                @Override
+                public void onStart() {
+
+                }
+
                 @Override
                 public void onEnd() {
                     Log.i(DEBUG_TAG, "Making Author new!!");

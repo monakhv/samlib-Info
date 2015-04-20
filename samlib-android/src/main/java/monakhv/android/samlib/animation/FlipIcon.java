@@ -72,7 +72,7 @@ public class FlipIcon extends FrameLayout implements View.OnClickListener {
         typedArray.recycle();
     }
 
-    public void setData(int imageFirstResource,int imageSecondResource , Flip3D.animationEndListener end,boolean clickable){
+    public void setData(int imageFirstResource,int imageSecondResource , Flip3D.animationFlip3DListener end,boolean clickable){
         imageFirst.setImageResource(imageFirstResource);
         imageSecond.setImageResource(imageSecondResource);
         flip3D = new Flip3D(imageFirst,imageSecond,end);

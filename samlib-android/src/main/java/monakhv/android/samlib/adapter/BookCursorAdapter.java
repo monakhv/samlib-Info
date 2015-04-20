@@ -64,6 +64,14 @@ public class BookCursorAdapter extends RecyclerCursorAdapter<BookCursorAdapter.V
 
     }
 
+    /**
+     * Making manual List refresh by calling reQuery
+     */
+    @Override
+    protected void onContentChanged() {
+
+    }
+
     public void setAuthor_id(long author_id) {
         this.author_id = author_id;
     }
@@ -105,27 +113,35 @@ public class BookCursorAdapter extends RecyclerCursorAdapter<BookCursorAdapter.V
 
         final  int openBook = (R.drawable.open);
         final int closeBook = (R.drawable.closed);
-        Flip3D.animationEndListener listener;
+        Flip3D.animationFlip3DListener listener;
 
 
         if (cursor.getInt(idx_isNew)==1) {
-            listener = new Flip3D.animationEndListener() {
+            listener = new Flip3D.animationFlip3DListener() {
+                @Override
+                public void onStart() {
+                    AuthorEditorServiceIntent.markBookReadFlip(context,book_id);
+                }
+
                 @Override
                 public void onEnd() {
                     Log.i(DEBUG_TAG, "Making book read!");
-                    AuthorEditorServiceIntent.markBookReadFlip(context,book_id);
-                    cleanSelection();
+                    reQuery();
                 }
             };
             holder.flipIcon.setData(openBook,closeBook,listener,true);
 
         } else {
-            listener = new Flip3D.animationEndListener() {
+            listener = new Flip3D.animationFlip3DListener() {
+                @Override
+                public void onStart() {
+                    AuthorEditorServiceIntent.markBookReadFlip(context, book_id);
+                }
+
                 @Override
                 public void onEnd() {
                     Log.i(DEBUG_TAG, "Making book new!!");
-                    AuthorEditorServiceIntent.markBookReadFlip(context,book_id);
-                    cleanSelection();
+                    reQuery();
                 }
             };
             holder.flipIcon.setData(closeBook,openBook,listener,true);
@@ -209,7 +225,7 @@ public class BookCursorAdapter extends RecyclerCursorAdapter<BookCursorAdapter.V
             } else {
                 sql.getBookController().markRead(book);
                 sql.testMarkRead(sql.getByBook(book));
-                cleanSelection();
+                reQuery();
             }
         }
 
