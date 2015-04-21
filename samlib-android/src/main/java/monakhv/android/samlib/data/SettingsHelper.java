@@ -284,7 +284,7 @@ public class SettingsHelper implements monakhv.samlib.data.SettingsHelper, Share
 
         return prefs.getBoolean(
                 context.getString(R.string.pref_key_flag_background_update_autoload),
-                false) && getBackgroundUpdateFlag();
+                false) ;
     }
 
     public boolean getLimitBookLifeTimeFlag() {
