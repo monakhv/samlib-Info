@@ -25,5 +25,6 @@ limitations under the License.
     <bool name="pref_key_ignore_connect_error">true</bool>
     <bool name="pref_key_flag_automark">true</bool>
     <bool name="pref_key_flag_background_update_autoload">false</bool>
-    <bool name="pref_key_flag_default_limit_booke_lifetime">true</bool>    
+    <bool name="pref_key_flag_default_limit_booke_lifetime">true</bool>
+    <bool name="pref_key_flag_anim">true</bool>
 </resources>

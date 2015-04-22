@@ -66,6 +66,7 @@ public class SettingsHelper implements monakhv.samlib.data.SettingsHelper, Share
     private static final String DATE_FORMAT_BOOK_FILE = "dd-MM-yyyy_HH-mm-ss";
     private static final String DEBUG_FILE = SQLController.DB_NAME + ".log";
 
+
     public SettingsHelper(Context context) {
         this.context = context;
         this.prefs = context.getSharedPreferences(PREFS_NAME, 0);
@@ -838,5 +839,9 @@ public class SettingsHelper implements monakhv.samlib.data.SettingsHelper, Share
     public String getUpdateTag() {
         return prefs.getString(context.getString(R.string.pref_key_update_tag),
                 Integer.toString(SamLibConfig.TAG_AUTHOR_ALL));
+    }
+
+    public boolean isAnimation() {
+        return prefs.getBoolean(context.getString(R.string.pref_key_flag_anim),true) ;
     }
 }

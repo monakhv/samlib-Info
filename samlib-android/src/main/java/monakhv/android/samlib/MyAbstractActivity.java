@@ -31,13 +31,18 @@ public class MyAbstractActivity extends ActionBarActivity {
         settingsHelper = new SettingsHelper(this);
         setTheme(settingsHelper.getTheme());
         super.onCreate(savedInstanceState);
-        overridePendingTransition(R.anim.pull_in_from_right, R.anim.hold);
+        if (settingsHelper.isAnimation()){
+            overridePendingTransition(R.anim.pull_in_from_right, R.anim.hold);
+        }
+
 
     }
 
     @Override
     protected void onPause() {
-        overridePendingTransition( R.anim.hold,R.anim.pull_out_to_right);
+        if (settingsHelper.isAnimation()){
+            overridePendingTransition( R.anim.hold,R.anim.pull_out_to_right);
+        }
         super.onPause();
     }
 }

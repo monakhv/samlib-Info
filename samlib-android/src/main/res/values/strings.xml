@@ -213,6 +213,12 @@ limitations under the License.
     <string name="pref_title_theme">Тема</string>
     <string name="pref_default_theme">DARK</string>
 
+
+    <string name="pref_key_flag_anim">pref_key_flag_anim</string>
+    <string name="pref_interface_anim_title">Анимация</string>
+    <string name="pref_interface_anim_desc">Включить анимацию перехода к книгам</string>
+
+
     <string name="pref_key_mirror">pref_key_mirror</string>
     <string name="pref_title_mirror">Первое зеркало</string>
     <string name="pref_default_mirror">SamLib</string>
