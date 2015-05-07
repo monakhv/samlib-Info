@@ -233,6 +233,7 @@ public class BookCursorAdapter extends RecyclerCursorAdapter<BookCursorAdapter.V
 
     public void update(Book book) {
         sql.getBookController().update(book);
+        reQuery();
     }
 
 }
