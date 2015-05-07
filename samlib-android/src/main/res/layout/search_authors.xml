@@ -25,10 +25,10 @@ limitations under the License.
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="?attr/colorPrimary"
-            android:elevation="4dp"
+
             android:minHeight="?attr/actionBarSize"
 
-            android:transitionName="actionBar"/>
+            />
 
      <LinearLayout 
         android:id="@+id/search_author_panel_sa"
