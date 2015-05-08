@@ -35,6 +35,7 @@ import android.view.WindowManager;
 
 import java.util.WeakHashMap;
 
+import monakhv.android.lib.Utils;
 import uk.co.senab.actionbarpulltorefresh.library.listeners.HeaderViewListener;
 import uk.co.senab.actionbarpulltorefresh.library.listeners.OnRefreshListener;
 import uk.co.senab.actionbarpulltorefresh.library.viewdelegates.ViewDelegate;
@@ -75,6 +76,8 @@ public class PullToRefreshAttacher {
     private final Rect mRect = new Rect();
 
     private final AddHeaderViewRunnable mAddHeaderViewRunnable;
+    private final boolean isBuggy;
+    private static final String SAMSUNGBUG="Samsung SM-N";
 
     protected PullToRefreshAttacher(Activity activity, Options options) {
         if (activity == null) {
@@ -84,6 +87,11 @@ public class PullToRefreshAttacher {
             Log.i(LOG_TAG, "Given null options so using default options.");
             options = new Options();
         }
+        String deviceName=Utils.getDeviceName();
+        Log.w(LOG_TAG,"Device: "+ deviceName);
+        isBuggy=deviceName.startsWith(SAMSUNGBUG+"7")//Note & Node2
+                || deviceName.startsWith(SAMSUNGBUG+"9");//Node3 & Note 4
+
 
         mActivity = activity;
         mRefreshableViews = new WeakHashMap<View, ViewDelegate>();
@@ -677,7 +685,9 @@ public class PullToRefreshAttacher {
      * @param rect
      */
     private void adjustRect(Rect rect) {
-        if (rect.top == 0) {
+        Log.w(LOG_TAG,"Top: "+rect.top);
+
+        if (rect.top == 0 && isBuggy) {
 
             int result = 0;
             int resourceId = mActivity.getResources().getIdentifier("status_bar_height", "dimen", "android");
