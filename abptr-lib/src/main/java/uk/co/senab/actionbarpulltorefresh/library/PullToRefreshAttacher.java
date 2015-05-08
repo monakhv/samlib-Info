@@ -77,7 +77,7 @@ public class PullToRefreshAttacher {
 
     private final AddHeaderViewRunnable mAddHeaderViewRunnable;
     private final boolean isBuggy;
-    private static final String SAMSUNGBUG="Samsung SM-N";
+    private static final String SAMSUNGBUG="Samsung ";
 
     protected PullToRefreshAttacher(Activity activity, Options options) {
         if (activity == null) {
@@ -89,8 +89,8 @@ public class PullToRefreshAttacher {
         }
         String deviceName=Utils.getDeviceName();
         Log.w(LOG_TAG,"Device: "+ deviceName);
-        isBuggy=deviceName.startsWith(SAMSUNGBUG+"7")//Note & Node2
-                || deviceName.startsWith(SAMSUNGBUG+"9");//Node3 & Note 4
+        isBuggy=deviceName.startsWith(SAMSUNGBUG+"GT-N7")//Note & Node2
+                || deviceName.startsWith(SAMSUNGBUG+"SM-N9");//Node3 & Note 4
 
 
         mActivity = activity;
