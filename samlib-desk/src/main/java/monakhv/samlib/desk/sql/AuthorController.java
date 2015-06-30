@@ -1,17 +1,14 @@
 package monakhv.samlib.desk.sql;
 
+import com.j256.ormlite.dao.Dao;
+import com.j256.ormlite.stmt.QueryBuilder;
 import monakhv.samlib.db.AbstractController;
 import monakhv.samlib.db.SQLController;
-import monakhv.samlib.db.entity.Author;
-import monakhv.samlib.db.entity.Book;
-import monakhv.samlib.db.entity.BookCollection;
+import monakhv.samlib.db.entity.*;
 import monakhv.samlib.log.Log;
 
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
+
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 /*
@@ -34,66 +31,41 @@ import java.util.List;
 
 
 /**
- *COL_ID+"  integer primary key autoincrement, "+
- COL_NAME+" text, "+
- COL_URL   +" text UNIQUE NOT NULL, "+
- COL_isnew+" BOOLEAN DEFAULT '0' NOT NULL,"+
- COL_mtime+" timestamp "+
+ * COL_ID+"  integer primary key autoincrement, "+
+ * COL_NAME+" text, "+
+ * COL_URL   +" text UNIQUE NOT NULL, "+
+ * COL_isnew+" BOOLEAN DEFAULT '0' NOT NULL,"+
+ * COL_mtime+" timestamp "+
  */
 public class AuthorController implements AbstractController<Author> {
     private static final String DEBUG_TAG = "AuthorController";
-    private static final String SQL_UPDATE="UPDATE "+SQLController.TABLE_AUTHOR+" SET "+
-            SQLController.COL_NAME+" =?, "+
-            SQLController.COL_URL   +" =?, "+
-            SQLController.COL_isnew+" =?, "+
-            SQLController.COL_mtime+" =? "+
-            " WHERE  "+SQLController.COL_ID+" =?";
-    private static final String SQL_INSERT="INSERT INTO "+SQLController.TABLE_AUTHOR+" ( "+
-            SQLController.COL_NAME+", "+
-            SQLController.COL_URL   +" , "+
-            SQLController.COL_isnew+" , "+
-            SQLController.COL_mtime+" ) VALUES "+
-            " (?,?,?,?)";
-    private static final String SQL_DELETE="DELETE "+SQLController.TABLE_AUTHOR+
-            " WHERE  "+SQLController.COL_ID+" =?";
-    private final SQLController sql;
+
     private final BookController bookCtl;
+    private final Dao<Author, Integer> dao;
+    private final Dao<Tag2Author, Integer> t2aDao;
+
 
     public AuthorController(SQLController sql) {
-        this.sql = sql;
-        this.bookCtl=new BookController(sql);
+        DaoController daoCtl = DaoController.getInstance(sql);
+        dao = daoCtl.getAuthorDao();
+        t2aDao = daoCtl.getT2aDao();
+        this.bookCtl = new BookController(sql);
+
+
     }
 
     @Override
     public int update(Author author) {
-        PreparedStatement ps;
-        int res=0;
+
+        int res;
+
         try {
-            ps = sql.getPrepare(SQL_UPDATE);
+            res = dao.update(author);
         } catch (SQLException e) {
-            Log.e(DEBUG_TAG,"can not prepare statement for update: "+SQL_UPDATE,e);
+            Log.e(DEBUG_TAG, "can not update: ", e);
             return -1;
         }
-        try {
-            ps.setString(1, author.getName());
-            ps.setString(2,author.getUrl());
-            if (author.isIsNew()){
-                ps.setInt(3,1);
-            }
-            else {
-                ps.setInt(3,0);
-            }
 
-
-            ps.setLong(4,author.getUpdateDate());
-
-            ps.setInt(5, author.getId());
-
-            res =ps.executeUpdate();
-        } catch (SQLException e) {
-            Log.e(DEBUG_TAG,"UPDATE Error: "+ps.toString(),e);
-
-        }
         //Books of the author update
         BookCollection oldBooks = new BookCollection(bookCtl.getAll(author, null));//old books from BD
         for (Book book : author.getBooks()) {//Cycle on new Book list taken from Author object
@@ -122,31 +94,16 @@ public class AuthorController implements AbstractController<Author> {
 
     @Override
     public long insert(Author author) {
-        PreparedStatement ps;
-        int res=0;
+
+        int res;
+
         try {
-            ps = sql.getPrepare(SQL_INSERT);
+            res = dao.create(author);
         } catch (SQLException e) {
-            Log.e(DEBUG_TAG,"can not prepare statement for insert: "+SQL_INSERT,e);
+            Log.e(DEBUG_TAG, "can not insert: ", e);
             return -1;
         }
-        try {
-            ps.setString(1, author.getName());
-            ps.setString(2,author.getUrl());
-            if (author.isIsNew()){
-                ps.setInt(3,1);
-            }
-            else {
-                ps.setInt(3,0);
-            }
 
-
-            ps.setLong(4,author.getUpdateDate());
-            res =ps.executeUpdate();
-        } catch (SQLException e) {
-            Log.e(DEBUG_TAG,"INSERT Error: "+ps.toString(),e);
-
-        }
         //Insert book for the author
         Author a = getByUrl(author.getUrl());
         for (Book book : author.getBooks()) {
@@ -159,88 +116,128 @@ public class AuthorController implements AbstractController<Author> {
     @Override
     public int delete(Author author) {
         //Delete book of the author first
-        List<Book> books = bookCtl.getAll(author,null);
+        List<Book> books = bookCtl.getAll(author, null);
 
         for (Book book : books) {
             bookCtl.delete(book);
         }
         //Delete Author
-        PreparedStatement ps;
-        int res=0;
+
+        int res ;
+
         try {
-            ps = sql.getPrepare(SQL_DELETE);
+            res = dao.delete(author);
         } catch (SQLException e) {
-            Log.e(DEBUG_TAG,"can not prepare statement for delete: "+SQL_DELETE,e);
+            Log.e(DEBUG_TAG, "can not delete: ", e);
             return -1;
         }
-        try {
 
-            ps.setInt(1, author.getId());
-            res =ps.executeUpdate();
-        } catch (SQLException e) {
-            Log.e(DEBUG_TAG,"DELETE Error: "+ps.toString(),e);
-
-        }
         return res;
     }
 
 
     @Override
     public List<Author> getAll() {
-        return getAll(null, null);
+        return getAll(null);
     }
 
-    public Author getByUrl(String url ){
-        List<Author> rr = getAll(SQLController.COL_URL+"=\""+url+"\"",null);
+    public Author getByUrl(String url) {
+        List<Author> rr;
 
-        if (rr.size() != 1){
-            Log.w(DEBUG_TAG,"Wrong result size: "+rr.size());
+        QueryBuilder<Author, Integer> statement = dao.queryBuilder();
+
+
+        try {
+            statement.where().eq(SQLController.COL_URL, url);
+            rr = dao.query(statement.prepare());
+        } catch (SQLException e) {
+            Log.e(DEBUG_TAG, "can not find by URL: ", e);
+            return null;
+        }
+
+        if (rr.size() != 1) {
+            Log.w(DEBUG_TAG, "Wrong result size: " + rr.size());
 
         }
         return rr.get(0);
     }
-    public List<Author> getAll(String selection, String order) {
 
-        String statement = SQLController.SELECT_AUTHOR_WITH_TAGS;
-
+    public List<Author> getAll(String order) {
+        QueryBuilder<Author, Integer> statement = dao.queryBuilder();
+        statement.orderBy(SQLController.COL_isnew, false);//new is first by default
         if (order != null) {
-            statement += " ORDER BY " + order;
+            Log.d(DEBUG_TAG, "Sort order is " + order);
+            statement.orderBy(order, true);
         }
-
-        if (selection == null) {
-            statement = statement.replaceAll(SQLController.WHERE_PAT, "");
-
-        } else {
-            statement = statement.replaceAll(SQLController.WHERE_PAT, "where " + selection);
-        }
-
-        ResultSet rs;
+        List<Author> rr;
 
         try {
-            rs = sql.query(statement);
+            rr = dao.query(statement.prepare());
+
         } catch (SQLException e) {
             Log.e(DEBUG_TAG, "select error: " + statement, e);
             return null;
         }
-        List<Author> res = new ArrayList<>();
+        return rr;
+    }
+    public List<Author> getAllNew(String order) {
+        QueryBuilder<Author, Integer> statement = dao.queryBuilder();
+        statement.orderBy(SQLController.COL_isnew, false);//new is first by default
+        if (order != null) {
+            Log.d(DEBUG_TAG, "Sort order is " + order);
+            statement.orderBy(order, true);
+        }
+
+        List<Author> rr;
+
         try {
-            while (rs.next()) {
-                res.add(resultSetToAuthor(rs));
-            }
+            statement.where().eq(SQLController.COL_isnew,true);
+            rr = dao.query(statement.prepare());
+
         } catch (SQLException e) {
-            Log.e(DEBUG_TAG, "rs next error: " + statement, e);
-            res = null;
+            Log.e(DEBUG_TAG, "select error: " + statement, e);
+            return null;
+        }
+        return rr;
+    }
+    public List<Author> getAll(String order,Tag tag) {
+
+
+
+        QueryBuilder<Tag2Author,Integer> t2aqb = t2aDao.queryBuilder();
+        t2aqb.selectColumns(SQLController.COL_T2A_AUTHORID);
+
+        try {
+            t2aqb.where().eq(SQLController.COL_T2A_TAGID,tag);
+
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
 
 
-        try {
-            rs.close();
-        } catch (SQLException e) {
-            Log.e(DEBUG_TAG, "rs close error: " + statement, e);
+
+
+
+
+
+        QueryBuilder<Author, Integer> statement = dao.queryBuilder();
+        statement.orderBy(SQLController.COL_isnew, false);//new is first by default
+        if (order != null) {
+
+            Log.d(DEBUG_TAG, "Sort order is " + order);
+            statement.orderBy(order, true);
         }
+        List<Author> rr;
 
+        try {
+            statement.where().in(SQLController.COL_ID,t2aqb);
+            rr = dao.query(statement.prepare());
 
-        return res;
+        } catch (SQLException e) {
+            Log.e(DEBUG_TAG, "select error: " + statement, e);
+            return null;
+        }
+        return rr;
     }
 
     @Override
@@ -248,51 +245,5 @@ public class AuthorController implements AbstractController<Author> {
         return null;
     }
 
-    private Author resultSetToAuthor(ResultSet rs) {
-        Author a = new Author();
-
-        try {
-            a.setId(rs.getInt(SQLController.COL_ID));
-            a.setName(rs.getString(SQLController.COL_NAME));
-            a.setUrl(rs.getString(SQLController.COL_URL));
-            a.setUpdateDate(rs.getLong(SQLController.COL_mtime));
-            a.setIsNew(rs.getInt(SQLController.COL_isnew) == 1);
-
-            //Populate List of Books
-
-
-            List<Book> books = bookCtl.getAll(a, null);
-            a.setBooks(books);
-
-
-            String all_tag_names = rs.getString(SQLController.COL_TGNAMES);
-            a.setAll_tags_name(all_tag_names);
-
-            if (all_tag_names != null) {
-                String[] names = all_tag_names.split(",");
-                a.setTags_name(Arrays.asList(names));
-            }
-
-            String all_tag_ids = rs.getString(SQLController.COL_TGIDS);
-
-            if (all_tag_ids != null) {
-                String[] ids = all_tag_ids.split(",");
-
-                List<Integer> res = new ArrayList<>();
-                for (String s : ids) {
-                    res.add(Integer.valueOf(s));
-                }
-
-                a.setTags_id(res);
-            }
-
-
-        } catch (SQLException e) {
-            Log.e(DEBUG_TAG, "resultSetToAuthor error: ", e);
-        }
-
-
-        return a;
-    }
 
 }

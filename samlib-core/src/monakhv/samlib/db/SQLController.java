@@ -15,10 +15,10 @@
  */
 package monakhv.samlib.db;
 
-import java.io.IOException;
+
 import java.sql.*;
 
-import monakhv.samlib.db.entity.Author;
+
 
 /**
  *
@@ -165,11 +165,13 @@ public class SQLController {
              " WHERE "+ COL_ID+"=?";
     private static SQLController instance = null;
     private final Connection bd;
+    private final String dbUrl;
 
 
     private SQLController(String data_path ) throws ClassNotFoundException, SQLException {
         Class.forName(CLASS_NAME);
-        bd = DriverManager.getConnection(CONNECT_STRING_PREFIX+data_path+"/"+DB_NAME+".sqlite");
+        dbUrl=CONNECT_STRING_PREFIX+data_path+"/"+DB_NAME+".sqlite";
+        bd = DriverManager.getConnection(dbUrl);
         Statement st = bd.createStatement();
         st.execute(DB_CREATE_AUTHOR);
         st.execute(DB_CREATE_BOOKS);
@@ -188,7 +190,9 @@ public class SQLController {
 
     }
 
-        
+    public String getDbUrl() {
+        return dbUrl;
+    }
 
     /**
      * Make low level SQL query

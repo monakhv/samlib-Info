@@ -15,10 +15,12 @@ import com.jgoodies.forms.factories.*;
 import com.jgoodies.forms.layout.*;
 import monakhv.samlib.db.SQLController;
 import monakhv.samlib.db.entity.Author;
+import monakhv.samlib.db.entity.Tag;
 import monakhv.samlib.desk.Main;
 import monakhv.samlib.desk.data.Settings;
 import monakhv.samlib.desk.sql.AuthorController;
 import monakhv.samlib.desk.sql.BookController;
+import monakhv.samlib.desk.sql.TagController;
 import monakhv.samlib.exception.SamlibParseException;
 import monakhv.samlib.http.HttpClientController;
 import monakhv.samlib.log.Log;
@@ -34,9 +36,14 @@ public class MainForm extends JFrame {
     private final SQLController sql;
     private Settings settings;
     private BookList bkList;
-    private String selection=null;
+    //private String selection=null;
     private String sortOrder=SQLController.COL_NAME;
     private Author selectedAuthor;
+    private ComboItem selectedTag=ComboItem.ALL;
+
+    /**
+     * Spercial container for Combo Box  wiget
+     */
 
     public MainForm( Settings settings ) {
         this.settings=settings;
@@ -66,6 +73,15 @@ public class MainForm extends JFrame {
         jAuthorList.setModel(authorsModel);
         jAuthorList.setCellRenderer(new AuthorRenderer());
         jAuthorList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+
+
+
+        cBTags.addItem(ComboItem.ALL);
+        cBTags.addItem(ComboItem.NEW);
+        TagController tagCtl = new TagController(sql);
+        for (Tag tag : tagCtl.getAll()){
+            cBTags.addItem(new ComboItem(tag));
+        }
 
 
         //TODO: we can move the constant 20 to settings
@@ -103,8 +119,19 @@ public class MainForm extends JFrame {
         AuthorController ctl = new AuthorController(sql);
          authorsModel.removeAllElements();
 
+        java.util.List<Author> rr;
 
-        for (Author a : ctl.getAll(selection,sortOrder) ){
+        if (selectedTag.equals(ComboItem.ALL)){
+            rr=ctl.getAll(sortOrder);
+        }
+        else if (selectedTag.equals(ComboItem.NEW)){
+            rr=ctl.getAllNew(sortOrder);
+        }
+        else {
+            rr=ctl.getAll(sortOrder,selectedTag.getTag());
+        }
+
+        for (Author a : rr ){
             authorsModel.addElement(a);
         }
 
@@ -123,10 +150,14 @@ public class MainForm extends JFrame {
 
 
         bookPanel.setComponentPopupMenu(bookPopup);
+        redraw();
+
+
+
+    }
+    private void redraw(){
         this.getContentPane().validate();
         this.getContentPane().repaint();
-
-
     }
 
 
@@ -146,7 +177,16 @@ public class MainForm extends JFrame {
     }
 
     private void menuItemSettingsActionPerformed(ActionEvent e) {
-        SettingsForm.show(this,settings);
+        SettingsForm.show(this, settings);
+    }
+
+    private void cBTagsActionPerformed(ActionEvent e) {
+
+        JComboBox cb = (JComboBox) e.getSource();
+        selectedTag= (ComboItem) cb.getSelectedItem();
+        Log.d(DEBUG_TAG,"Tag: "+selectedTag.toString());
+        addSortedAuthorList();
+        redraw();
     }
 
 
@@ -160,6 +200,7 @@ public class MainForm extends JFrame {
         panelMain = new JPanel();
         toolBar = new JPanel();
         buttonUpdate = new JButton();
+        cBTags = new JComboBox();
         progressBar1 = new JProgressBar();
         reFresh = new JButton();
         scrollPane1 = new JScrollPane();
@@ -233,9 +274,20 @@ public class MainForm extends JFrame {
                     }
                 });
                 toolBar.add(buttonUpdate, new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0,
+                        GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                        new Insets(0, 0, 5, 5), 0, 0));
+
+                //---- cBTags ----
+                cBTags.addActionListener(new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        cBTagsActionPerformed(e);
+                    }
+                });
+                toolBar.add(cBTags, new GridBagConstraints(2, 0, 2, 1, 0.0, 0.0,
                     GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                     new Insets(0, 0, 5, 5), 0, 0));
-                toolBar.add(progressBar1, new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0,
+                toolBar.add(progressBar1, new GridBagConstraints(6, 0, 1, 1, 0.0, 0.0,
                     GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                     new Insets(0, 0, 5, 5), 0, 0));
 
@@ -316,6 +368,7 @@ public class MainForm extends JFrame {
     private JPanel panelMain;
     private JPanel toolBar;
     private JButton buttonUpdate;
+    private JComboBox cBTags;
     private JProgressBar progressBar1;
     private JButton reFresh;
     private JScrollPane scrollPane1;
@@ -336,7 +389,7 @@ public class MainForm extends JFrame {
         protected Void doInBackground() throws Exception {
             AuthorController ctl = new AuthorController(sql);
             HttpClientController http = HttpClientController.getInstance(settings);
-            for (Author a : ctl.getAll(selection,sortOrder) ){
+            for (Author a : ctl.getAll(sortOrder) ){
                 String url = a.getUrl();
 
                 Author newA;

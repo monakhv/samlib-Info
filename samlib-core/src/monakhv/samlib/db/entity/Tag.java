@@ -15,15 +15,23 @@
  */
 package monakhv.samlib.db.entity;
 
+import com.j256.ormlite.field.DatabaseField;
+import com.j256.ormlite.table.DatabaseTable;
+import monakhv.samlib.db.SQLController;
+
 import java.io.Serializable;
 
 /**
  *
  * @author monakhv
  */
+@DatabaseTable(tableName = SQLController.TABLE_TAGS)
 public class Tag  implements Serializable{
+    @DatabaseField(columnName = SQLController.COL_ID,generatedId = true)
     private int id;
+    @DatabaseField(columnName = SQLController.COL_TAG_NAME, canBeNull = false)
     private String name;
+    @DatabaseField(columnName = SQLController.COL_TAG_UCNAME, canBeNull = false)
     private String ucName;
 
     public Tag(){

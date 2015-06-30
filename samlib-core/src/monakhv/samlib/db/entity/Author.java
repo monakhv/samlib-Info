@@ -17,7 +17,13 @@ package monakhv.samlib.db.entity;
 
 
 
+import com.j256.ormlite.dao.ForeignCollection;
+import com.j256.ormlite.field.DatabaseField;
+import com.j256.ormlite.field.ForeignCollectionField;
+import com.j256.ormlite.table.DatabaseTable;
 import monakhv.samlib.data.SettingsHelper;
+import monakhv.samlib.db.SQLController;
+import monakhv.samlib.log.Log;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -28,15 +34,22 @@ import java.util.List;
  *
  * @author monakhv
  */
+@DatabaseTable(tableName = SQLController.TABLE_AUTHOR)
 public class Author  implements Serializable{
-    
-    protected List<Book> books;
+    @ForeignCollectionField(eager =true)
+    protected ForeignCollection<Book> books;
+    @DatabaseField(columnName = SQLController.COL_NAME)
     protected String name;
+    @DatabaseField(columnName = SQLController.COL_mtime)
     protected long updateDate;
+    @DatabaseField(columnName = SQLController.COL_URL)
     protected String url;
+    @DatabaseField(columnName = SQLController.COL_isnew)
     protected boolean isNew = false;
+    @DatabaseField(columnName = SQLController.COL_ID, generatedId = true)
     protected int id;
-    
+    @ForeignCollectionField(eager = true,maxEagerLevel = 2)
+    private ForeignCollection<Tag2Author> tag2Authors;
     private List<Integer> tags_id;
     private List<String>  tags_name;
     private String all_tags_name;
@@ -46,7 +59,7 @@ public class Author  implements Serializable{
      */
     public Author() {
         updateDate = Calendar.getInstance().getTime().getTime();
-        books = new ArrayList<Book>();
+        //books = new ArrayList<Book>();
         tags_id = new ArrayList<Integer>();
         tags_name = new ArrayList<String>();
     }
@@ -59,11 +72,11 @@ public class Author  implements Serializable{
         this.id = id;
     }
 
-    public List<Book> getBooks() {
+    public ForeignCollection<Book> getBooks() {
         return books;
     }
 
-    public void setBooks(List<Book> books) {
+    public void setBooks(ForeignCollection<Book> books) {
         this.books = books;
     }
 
@@ -100,6 +113,16 @@ public class Author  implements Serializable{
     }
 
     public String getAll_tags_name() {
+        if (all_tags_name == null && tag2Authors.size()!= 0){
+            StringBuilder sb = new StringBuilder();
+            for (Tag2Author t2a : tag2Authors){
+                Log.d("AUTHOR","t2a "+t2a.getTag().getName());
+                sb.append(t2a.getTag().getId());
+                sb.append(",");
+            }
+
+            all_tags_name=sb.toString();
+        }
         return all_tags_name;
     }
 
