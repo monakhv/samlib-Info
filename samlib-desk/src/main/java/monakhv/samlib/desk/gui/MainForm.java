@@ -7,6 +7,7 @@ package monakhv.samlib.desk.gui;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.IOException;
+import java.util.*;
 import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
@@ -193,6 +194,7 @@ public class MainForm extends JFrame {
 
     private void initComponents() {
         // JFormDesigner - Component initialization - DO NOT MODIFY  //GEN-BEGIN:initComponents
+        ResourceBundle bundle = ResourceBundle.getBundle("samlibDesk");
         menuBar1 = new JMenuBar();
         menu1 = new JMenu();
         menuItemSettings = new JMenuItem();
@@ -200,7 +202,7 @@ public class MainForm extends JFrame {
         panelMain = new JPanel();
         toolBar = new JPanel();
         buttonUpdate = new JButton();
-        cBTags = new JComboBox();
+        cBTags = new JComboBox<>();
         progressBar1 = new JProgressBar();
         reFresh = new JButton();
         scrollPane1 = new JScrollPane();
@@ -266,7 +268,7 @@ public class MainForm extends JFrame {
                 ((GridBagLayout)toolBar.getLayout()).rowWeights = new double[] {0.0, 0.0, 1.0E-4};
 
                 //---- buttonUpdate ----
-                buttonUpdate.setText("Update");
+                buttonUpdate.setText(bundle.getString("buttonUpdate.text"));
                 buttonUpdate.addActionListener(new ActionListener() {
                     @Override
                     public void actionPerformed(ActionEvent e) {
@@ -274,8 +276,8 @@ public class MainForm extends JFrame {
                     }
                 });
                 toolBar.add(buttonUpdate, new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0,
-                        GridBagConstraints.CENTER, GridBagConstraints.BOTH,
-                        new Insets(0, 0, 5, 5), 0, 0));
+                    GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                    new Insets(0, 0, 5, 5), 0, 0));
 
                 //---- cBTags ----
                 cBTags.addActionListener(new ActionListener() {
@@ -368,7 +370,7 @@ public class MainForm extends JFrame {
     private JPanel panelMain;
     private JPanel toolBar;
     private JButton buttonUpdate;
-    private JComboBox cBTags;
+    private JComboBox<ComboItem> cBTags;
     private JProgressBar progressBar1;
     private JButton reFresh;
     private JScrollPane scrollPane1;

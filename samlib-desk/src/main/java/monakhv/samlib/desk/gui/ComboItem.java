@@ -3,6 +3,8 @@ package monakhv.samlib.desk.gui;
 import monakhv.samlib.db.entity.SamLibConfig;
 import monakhv.samlib.db.entity.Tag;
 
+import java.io.Serializable;
+
 /*
  * Copyright 2015  Dmitry Monakhov
  *
@@ -21,7 +23,7 @@ import monakhv.samlib.db.entity.Tag;
  * 30.06.15.
  */
 
-public class ComboItem {
+public class ComboItem implements Serializable{
     public  static final ComboItem ALL= new ComboItem(SamLibConfig.TAG_AUTHOR_ALL ,"ALL");
     public  static final ComboItem NEW= new ComboItem(SamLibConfig.TAG_AUTHOR_NEW ,"NEW");
     private int id;
