@@ -5,6 +5,7 @@
 package monakhv.samlib.desk.gui;
 
 import monakhv.samlib.desk.data.Settings;
+import monakhv.samlib.http.HttpClientController;
 
 import java.awt.*;
 import java.awt.event.*;
@@ -29,9 +30,20 @@ public class SettingsForm extends JPanel {
     }
 
     private void loadData(Settings settings) {
-
+        cbProxy.setSelected(settings.isProxyUse());
+        tfProxyHost.setText(settings.getProxyHost());
+        tfProxyUser.setText(settings.getProxyUser());
+        tfProxyPort.setText(settings.getProxyStrPort());
+        tfProxyPassword.setText(settings.getProxyPassword());
     }
-    private void saveData(Settings settings) {
+    private void saveData() {
+        settings.setProxyUse(cbProxy.isSelected());
+        settings.setProxyHost(tfProxyHost.getText());
+        settings.setProxyStrPort(tfProxyPort.getText());
+        settings.setProxyUser(tfProxyUser.getText());
+        settings.setProxyPassword(tfProxyPassword.getText());
+        settings.saveProperties();
+        HttpClientController.getInstance(settings).setProxy(settings.getProxy());
 
     }
     private void open(){
@@ -43,7 +55,7 @@ public class SettingsForm extends JPanel {
     }
 
     private void buttonOKActionPerformed(ActionEvent e) {
-        saveData(settings);
+        saveData();
         close();
     }
 

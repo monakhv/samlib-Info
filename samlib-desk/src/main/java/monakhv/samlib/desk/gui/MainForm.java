@@ -59,6 +59,7 @@ public class MainForm extends JFrame {
         sql = sql1;
         authorsModel = new DefaultListModel<>();
 //        booksModel = new DefaultListModel<>();
+
         this.addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent e) {
@@ -109,8 +110,6 @@ public class MainForm extends JFrame {
             }
         });
 
-
-
     }
 
     /**
@@ -140,13 +139,13 @@ public class MainForm extends JFrame {
 
     /**
      * Construct Book List
-     * @param a
+     * @param a author
      */
     private void loadBookList(Author a){
         BookController ctl = new BookController(sql);
 
         if (a != null){
-            bkList.load(ctl.getAll(a, null));
+            bkList.load(ctl.getAll(a, SQLController.COL_BOOK_DATE));
         }
 
 
@@ -228,7 +227,7 @@ public class MainForm extends JFrame {
                 menu1.setText("File");
 
                 //---- menuItemSettings ----
-                menuItemSettings.setText("\u041d\u0430\u0441\u0442\u0440\u043e\u0439\u043a\u0438");
+                menuItemSettings.setText(bundle.getString("MainForm.menu.settings"));
                 menuItemSettings.addActionListener(new ActionListener() {
                     @Override
                     public void actionPerformed(ActionEvent e) {
@@ -238,7 +237,7 @@ public class MainForm extends JFrame {
                 menu1.add(menuItemSettings);
 
                 //---- menuItemExit ----
-                menuItemExit.setText("Exit");
+                menuItemExit.setText(bundle.getString("MainForm.menu.exit"));
                 menuItemExit.addActionListener(new ActionListener() {
                     @Override
                     public void actionPerformed(ActionEvent e) {
@@ -268,7 +267,7 @@ public class MainForm extends JFrame {
                 ((GridBagLayout)toolBar.getLayout()).rowWeights = new double[] {0.0, 0.0, 1.0E-4};
 
                 //---- buttonUpdate ----
-                buttonUpdate.setText(bundle.getString("buttonUpdate.text"));
+                buttonUpdate.setText(bundle.getString("MainForm.buttonUpdate.text"));
                 buttonUpdate.addActionListener(new ActionListener() {
                     @Override
                     public void actionPerformed(ActionEvent e) {
@@ -276,8 +275,8 @@ public class MainForm extends JFrame {
                     }
                 });
                 toolBar.add(buttonUpdate, new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0,
-                    GridBagConstraints.CENTER, GridBagConstraints.BOTH,
-                    new Insets(0, 0, 5, 5), 0, 0));
+                        GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                        new Insets(0, 0, 5, 5), 0, 0));
 
                 //---- cBTags ----
                 cBTags.addActionListener(new ActionListener() {
@@ -392,6 +391,7 @@ public class MainForm extends JFrame {
             AuthorController ctl = new AuthorController(sql);
             HttpClientController http = HttpClientController.getInstance(settings);
             for (Author a : ctl.getAll(sortOrder) ){
+                Log.i(DEBUG_TAG,"Author: "+a.getName());
                 String url = a.getUrl();
 
                 Author newA;

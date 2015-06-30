@@ -27,7 +27,7 @@ new FormModel {
 					name: "toolBar"
 					add( new FormComponent( "javax.swing.JButton" ) {
 						name: "buttonUpdate"
-						"text": new FormMessage( null, "buttonUpdate.text" )
+						"text": new FormMessage( null, "MainForm.buttonUpdate.text" )
 						addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "buttonUpdateActionPerformed", true ) )
 					}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) )
 					add( new FormComponent( "javax.swing.JComboBox" ) {
@@ -98,12 +98,12 @@ new FormModel {
 					"text": "File"
 					add( new FormComponent( "javax.swing.JMenuItem" ) {
 						name: "menuItemSettings"
-						"text": "Настройки"
+						"text": new FormMessage( null, "MainForm.menu.settings" )
 						addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "menuItemSettingsActionPerformed", true ) )
 					} )
 					add( new FormComponent( "javax.swing.JMenuItem" ) {
 						name: "menuItemExit"
-						"text": "Exit"
+						"text": new FormMessage( null, "MainForm.menu.exit" )
 						addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "menuItemExitActionPerformed", true ) )
 					} )
 				} )

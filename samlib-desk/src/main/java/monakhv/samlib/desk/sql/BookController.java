@@ -104,6 +104,7 @@ public class BookController  implements AbstractController<Book> {
     public List<Book> getAll(Author author, String order) {
         List<Book> res ;
         QueryBuilder<Book,Integer> qb = dao.queryBuilder();
+        qb.orderBy(SQLController.COL_BOOK_ISNEW, false);//new is first by default
 
         try {
             qb.where().eq(SQLController.COL_BOOK_AUTHOR_ID,author);
