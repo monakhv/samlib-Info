@@ -102,12 +102,13 @@ public class HttpClientController {
      * This is the method for update service
      *
      * @param link reduced URL
+     * @param a Clear Author object
      * @return Author object
      * @throws java.io.IOException
      * @throws monakhv.samlib.exception.SamlibParseException
      */
-    public Author getAuthorByURL(String link) throws IOException, SamlibParseException {
-        Author a = new Author();
+    public Author getAuthorByURL(String link, Author a) throws IOException, SamlibParseException {
+
         a.setUrl(link);
         String str = getURL(slc.getAuthorRequestURL(a), new StringReader());
 
@@ -126,8 +127,8 @@ public class HttpClientController {
      * @throws IOException
      * @throws SamlibParseException
      */
-    public Author addAuthor(String link) throws IOException, SamlibParseException {
-        Author a = getAuthorByURL(link);
+    public Author addAuthor(String link, Author a1) throws IOException, SamlibParseException {
+        Author a = getAuthorByURL(link,a1);
         a.extractName();
         return a;
     }
