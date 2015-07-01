@@ -190,7 +190,7 @@ public class AuthorController implements AbstractController<Author> {
         }
 
         if (rr.size() != 1) {
-            Log.w(DEBUG_TAG, "Wrong result size: " + rr.size());
+            return null;
 
         }
         return rr.get(0);

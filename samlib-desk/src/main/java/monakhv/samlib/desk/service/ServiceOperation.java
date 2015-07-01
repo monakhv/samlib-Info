@@ -3,6 +3,7 @@ package monakhv.samlib.desk.service;
 import monakhv.samlib.db.SQLController;
 import monakhv.samlib.db.entity.Author;
 import monakhv.samlib.db.entity.Book;
+import monakhv.samlib.db.entity.SamLibConfig;
 import monakhv.samlib.desk.data.Settings;
 import monakhv.samlib.desk.sql.AuthorController;
 import monakhv.samlib.exception.SamlibParseException;
@@ -141,4 +142,66 @@ public class ServiceOperation {
         }
 
     }
+
+    public void addAuthor(String url) {
+        HttpClientController http = HttpClientController.getInstance(settings);
+        AuthorController ctl = new AuthorController(sql);
+        Author a = loadAuthor(http, ctl, url);
+        if (a != null) {
+            ctl.insert(a);
+
+        }
+    }
+    /**
+     * URL syntax checkout
+     *
+     * @param url original URL
+     * @return reduced URL without host prefix or NULL if the syntax is wrong
+     *
+     */
+    private String testURL(String url)   {
+        Log.d(DEBUG_TAG, "Got text: " + url);
+
+        return SamLibConfig.reduceUrl(url);
+
+    }
+    private Author loadAuthor(HttpClientController http, AuthorController sql, String url) {
+        Author a;
+        String text;
+
+        text = testURL(url);
+        if (text == null){
+            Log.e(DEBUG_TAG, "URL syntax error: " + url);
+
+            return null;
+        }
+        Author ta = sql.getByUrl(text);
+        if (ta != null) {
+            Log.i(DEBUG_TAG, "Ignore Double entries: "+text);
+
+            //++doubleAdd;
+            return null;
+        }
+
+        try {
+            a = http.addAuthor(text,sql.getEmptyObject());
+        } catch (IOException ex) {
+            Log.e(DEBUG_TAG, "DownLoad Error for URL: " + text, ex);
+
+            return null;
+
+        } catch (SamlibParseException ex) {
+            Log.e(DEBUG_TAG, "Author parsing Error: " + text, ex);
+
+            return null;
+        } catch (IllegalArgumentException ex) {
+            Log.e(DEBUG_TAG, "URL Parsing exception: " + text, ex);
+
+            return null;
+        }
+
+
+        return a;
+    }
+
 }

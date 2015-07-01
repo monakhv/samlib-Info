@@ -107,6 +107,15 @@ new FormModel {
 						addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "menuItemExitActionPerformed", true ) )
 					} )
 				} )
+				add( new FormContainer( "javax.swing.JMenu", new FormLayoutManager( class javax.swing.JMenu ) ) {
+					name: "menuTools"
+					"text": new FormMessage( null, "MainForm.menuTools.text" )
+					add( new FormComponent( "javax.swing.JMenuItem" ) {
+						name: "menuToolsAdd"
+						"text": new FormMessage( null, "MainForm.menuToolsAdd.text" )
+						addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "menuToolsAddActionPerformed", true ) )
+					} )
+				} )
 			}
 		}, new FormLayoutConstraints( null ) {
 			"location": new java.awt.Point( 80, 0 )

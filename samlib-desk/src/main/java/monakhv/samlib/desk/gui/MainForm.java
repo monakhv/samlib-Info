@@ -69,6 +69,7 @@ public class MainForm extends JFrame {
                 Main.exit(1);
             }
         });
+        setTitle(bndl.getString("MainForm.Title.text"));
 
 
         initComponents();
@@ -240,6 +241,24 @@ public class MainForm extends JFrame {
         }
     }
 
+    private void menuToolsAddActionPerformed(ActionEvent e) {
+        AddTextValue addAuthor= new AddTextValue(this,"http://samlib.ot.ru",bndl.getString("MainForm.AddAuthor.Title.text"),
+                new AddTextValue.CallBack(){
+
+                    @Override
+                    public void okClick(String answer) {
+                        Log.i(DEBUG_TAG,"got value: "+answer);
+                        ServiceOperation operation = new ServiceOperation(settings);
+                        operation.addAuthor(answer);
+                        addSortedAuthorList();
+                        redraw();
+                    }
+                });
+        addAuthor.setVisible(true);
+
+
+    }
+
 
 
     private void initComponents() {
@@ -249,6 +268,8 @@ public class MainForm extends JFrame {
         menu1 = new JMenu();
         menuItemSettings = new JMenuItem();
         menuItemExit = new JMenuItem();
+        menuTools = new JMenu();
+        menuToolsAdd = new JMenuItem();
         panelMain = new JPanel();
         toolBar = new JPanel();
         buttonUpdate = new JButton();
@@ -299,6 +320,22 @@ public class MainForm extends JFrame {
                 menu1.add(menuItemExit);
             }
             menuBar1.add(menu1);
+
+            //======== menuTools ========
+            {
+                menuTools.setText(bundle.getString("MainForm.menuTools.text"));
+
+                //---- menuToolsAdd ----
+                menuToolsAdd.setText(bundle.getString("MainForm.menuToolsAdd.text"));
+                menuToolsAdd.addActionListener(new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        menuToolsAddActionPerformed(e);
+                    }
+                });
+                menuTools.add(menuToolsAdd);
+            }
+            menuBar1.add(menuTools);
         }
         setJMenuBar(menuBar1);
 
@@ -441,6 +478,8 @@ public class MainForm extends JFrame {
     private JMenu menu1;
     private JMenuItem menuItemSettings;
     private JMenuItem menuItemExit;
+    private JMenu menuTools;
+    private JMenuItem menuToolsAdd;
     private JPanel panelMain;
     private JPanel toolBar;
     private JButton buttonUpdate;
