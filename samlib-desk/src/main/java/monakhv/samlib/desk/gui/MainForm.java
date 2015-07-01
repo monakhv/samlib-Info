@@ -8,6 +8,7 @@ import java.awt.*;
 import java.awt.event.*;
 import java.io.IOException;
 import java.util.*;
+import java.util.List;
 import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
@@ -16,14 +17,14 @@ import com.jgoodies.forms.factories.*;
 import com.jgoodies.forms.layout.*;
 import monakhv.samlib.db.SQLController;
 import monakhv.samlib.db.entity.Author;
+import monakhv.samlib.db.entity.Book;
 import monakhv.samlib.db.entity.Tag;
 import monakhv.samlib.desk.Main;
 import monakhv.samlib.desk.data.Settings;
+import monakhv.samlib.desk.service.Update;
 import monakhv.samlib.desk.sql.AuthorController;
 import monakhv.samlib.desk.sql.BookController;
 import monakhv.samlib.desk.sql.TagController;
-import monakhv.samlib.exception.SamlibParseException;
-import monakhv.samlib.http.HttpClientController;
 import monakhv.samlib.log.Log;
 
 /**
@@ -41,6 +42,7 @@ public class MainForm extends JFrame {
     private String sortOrder=SQLController.COL_NAME;
     private Author selectedAuthor;
     private ComboItem selectedTag=ComboItem.ALL;
+    private List<Author> authorList;
 
     /**
      * Spercial container for Combo Box  wiget
@@ -67,6 +69,7 @@ public class MainForm extends JFrame {
                 Main.exit(1);
             }
         });
+
 
         initComponents();
 
@@ -119,20 +122,25 @@ public class MainForm extends JFrame {
         AuthorController ctl = new AuthorController(sql);
          authorsModel.removeAllElements();
 
-        java.util.List<Author> rr;
+
 
         if (selectedTag.equals(ComboItem.ALL)){
-            rr=ctl.getAll(sortOrder);
+            authorList=ctl.getAll(sortOrder);
         }
         else if (selectedTag.equals(ComboItem.NEW)){
-            rr=ctl.getAllNew(sortOrder);
+            authorList=ctl.getAllNew(sortOrder);
         }
         else {
-            rr=ctl.getAll(sortOrder,selectedTag.getTag());
+            authorList=ctl.getAll(sortOrder,selectedTag.getTag());
         }
 
-        for (Author a : rr ){
+        for (Author a : authorList ){
             authorsModel.addElement(a);
+
+//            Log.i(DEBUG_TAG,"Author: "+a.getName()+"- books - "+a.getBooks().size());
+//            for (Book book : a.getBooks()){
+//                Log.i(DEBUG_TAG,"               ---- "+book.getTitle());
+//            }
         }
 
     }
@@ -171,9 +179,10 @@ public class MainForm extends JFrame {
     }
 
     private void buttonUpdateActionPerformed(ActionEvent e) {
-        buttonUpdate.setEnabled(false);
-        Update update = new Update();
-        update.execute();
+        //buttonUpdate.setEnabled(false);
+        Update update = new Update(settings);
+
+        update.run(authorList);
     }
 
     private void menuItemSettingsActionPerformed(ActionEvent e) {
@@ -384,52 +393,4 @@ public class MainForm extends JFrame {
     // JFormDesigner - End of variables declaration  //GEN-END:variables
 
 
-    class Update extends SwingWorker<Void,Void>{
-
-        @Override
-        protected Void doInBackground() throws Exception {
-            AuthorController ctl = new AuthorController(sql);
-            HttpClientController http = HttpClientController.getInstance(settings);
-            for (Author a : ctl.getAll(sortOrder) ){
-                Log.i(DEBUG_TAG,"Author: "+a.getName());
-                String url = a.getUrl();
-
-                Author newA;
-
-
-                try {
-                    newA = http.getAuthorByURL(url);
-                }
-                catch (IOException ex ){
-                    Log.e(DEBUG_TAG, "Connection Error: "+url, ex);
-
-                    return null;
-
-                }
-                catch (SamlibParseException ex){
-                    Log.e(DEBUG_TAG, "Error parsing url: " + url + " skip update author ", ex);
-
-                    //++skippedAuthors;
-                    newA = a;
-                }
-
-                if (a.update(newA)) {//we have update for the author
-
-                    Log.i(DEBUG_TAG, "We need update author: " + a.getName());
-                    ctl.update(a);
-                }
-
-            }
-
-            return null;
-        }
-
-        @Override
-        protected void done() {
-            super.done();
-            buttonUpdate.setEnabled(true);
-            loadBookList(selectedAuthor);
-
-        }
-    }
 }

@@ -23,7 +23,7 @@ import com.j256.ormlite.field.ForeignCollectionField;
 import com.j256.ormlite.table.DatabaseTable;
 import monakhv.samlib.data.SettingsHelper;
 import monakhv.samlib.db.SQLController;
-import monakhv.samlib.log.Log;
+
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -36,7 +36,8 @@ import java.util.List;
  */
 @DatabaseTable(tableName = SQLController.TABLE_AUTHOR)
 public class Author  implements Serializable{
-    @ForeignCollectionField(eager =true)
+    public static final String COL_BOOKS="COL_BOOKS";
+    @ForeignCollectionField(eager =true, columnName =COL_BOOKS )
     protected ForeignCollection<Book> books;
     @DatabaseField(columnName = SQLController.COL_NAME)
     protected String name;
@@ -116,7 +117,7 @@ public class Author  implements Serializable{
         if (all_tags_name == null && tag2Authors.size()!= 0){
             StringBuilder sb = new StringBuilder();
             for (Tag2Author t2a : tag2Authors){
-                Log.d("AUTHOR","t2a "+t2a.getTag().getName());
+                //Log.d("AUTHOR","t2a "+t2a.getTag().getName());
                 sb.append(t2a.getTag().getId());
                 sb.append(",");
             }

@@ -111,7 +111,7 @@ public class HttpClientController {
 
         a.setUrl(link);
         String str = getURL(slc.getAuthorRequestURL(a), new StringReader());
-
+        Log.i(DEBUG_TAG,str);
         parseAuthorData(a, str);
         return a;
     }
@@ -347,7 +347,7 @@ public class HttpClientController {
      */
     private static void parseAuthorData(Author a, String text) throws SamlibParseException {
         String[] lines = text.split("\n");
-
+        Log.d(DEBUG_TAG,lines.length+" lines found"+" - "+a.getBooks().size());
         for (String line : lines) {
 
             if (SamLibConfig.testSplit(line) < 9) {
@@ -356,6 +356,7 @@ public class HttpClientController {
             }
             try {
                 Book b = new Book(line);
+                b.setAuthor(a);
                 b.setAuthorId(a.getId());
                 a.getBooks().add(b);
             } catch (BookParseException ex) {//parsing book update date handling

@@ -1,6 +1,7 @@
 package monakhv.samlib.desk.sql;
 
 import com.j256.ormlite.dao.Dao;
+import com.j256.ormlite.dao.ForeignCollection;
 import com.j256.ormlite.stmt.QueryBuilder;
 import monakhv.samlib.db.AbstractController;
 import monakhv.samlib.db.SQLController;
@@ -54,6 +55,19 @@ public class AuthorController implements AbstractController<Author> {
 
     }
 
+    public Author getEmptyObject(){
+        Author a = new Author();
+
+        try {
+            ForeignCollection<Book> books = dao.getEmptyForeignCollection(Author.COL_BOOKS);
+            a.setBooks(books);
+        } catch (SQLException e) {
+            Log.e(DEBUG_TAG,"foreign collection error",e);
+        }
+
+        return a;
+    }
+
     @Override
     public int update(Author author) {
 
@@ -69,7 +83,7 @@ public class AuthorController implements AbstractController<Author> {
         //Books of the author update
         BookCollection oldBooks = new BookCollection(bookCtl.getAll(author, null));//old books from BD
         for (Book book : author.getBooks()) {//Cycle on new Book list taken from Author object
-            book.setAuthorId(author.getId());
+            book.setAuthor(author);
             String url = book.getUri();
             Book oldb = oldBooks.take(url);
 
@@ -242,7 +256,13 @@ public class AuthorController implements AbstractController<Author> {
 
     @Override
     public Author getById(long id) {
-        return null;
+        Integer dd = new Integer((int) id);
+        try {
+            Author res = dao.queryForId(dd);
+            return res;
+        } catch (SQLException e) {
+            return null;
+        }
     }
 
 
