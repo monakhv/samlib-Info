@@ -61,6 +61,7 @@ new FormModel {
 					add( new FormComponent( "javax.swing.JList" ) {
 						name: "jAuthorList"
 						"componentPopupMenu": sfield com.jformdesigner.model.FormObject NULL_VALUE
+						addEvent( new FormEvent( "java.awt.event.MouseListener", "mouseClicked", "jAuthorListMouseClicked", true ) )
 					} )
 				}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
 					"gridX": 1
@@ -81,7 +82,6 @@ new FormModel {
 						"$alignTop": true
 					} ) {
 						name: "bookPanel"
-						"autoscrolls": true
 						"componentPopupMenu": new FormReference( "bookPopup" )
 					} )
 				}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
@@ -116,26 +116,28 @@ new FormModel {
 			name: "bookPopup"
 			add( new FormComponent( "javax.swing.JMenuItem" ) {
 				name: "menuItem3"
-				"text": "text"
+				"text": "Booktext1"
 			} )
 			add( new FormComponent( "javax.swing.JMenuItem" ) {
 				name: "menuItem4"
-				"text": "text"
+				"text": "BookText2"
 			} )
 		}, new FormLayoutConstraints( null ) {
 			"location": new java.awt.Point( 145, 730 )
 		} )
-		add( new FormComponent( "javax.swing.JMenuItem" ) {
-			name: "menuItem5"
-			"text": "text"
+		add( new FormContainer( "javax.swing.JPopupMenu", new FormLayoutManager( class javax.swing.JPopupMenu ) ) {
+			name: "authorPopup"
+			add( new FormComponent( "javax.swing.JMenuItem" ) {
+				name: "menuAuthorMakeRead"
+				"text": new FormMessage( null, "MainForm.authorMenu.makeRead" )
+				addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "menuAuthorMakeReadActionPerformed", true ) )
+			} )
+			add( new FormComponent( "javax.swing.JMenuItem" ) {
+				name: "menuAuthorDelete"
+				"text": new FormMessage( null, "MainForm.menuAuthorDelete.text" )
+			} )
 		}, new FormLayoutConstraints( null ) {
-			"location": new java.awt.Point( 150, 770 )
-		} )
-		add( new FormComponent( "javax.swing.JMenuItem" ) {
-			name: "menuItem6"
-			"text": "text"
-		}, new FormLayoutConstraints( null ) {
-			"location": new java.awt.Point( 365, 755 )
+			"location": new java.awt.Point( 0, 799 )
 		} )
 	}
 }

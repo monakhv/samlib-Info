@@ -6,7 +6,7 @@ package monakhv.samlib.desk.gui;
 
 import java.awt.*;
 import java.awt.event.*;
-import java.io.IOException;
+
 import java.util.*;
 import java.util.List;
 import javax.swing.*;
@@ -78,6 +78,7 @@ public class MainForm extends JFrame {
         jAuthorList.setModel(authorsModel);
         jAuthorList.setCellRenderer(new AuthorRenderer());
         jAuthorList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+
 
 
 
@@ -198,6 +199,31 @@ public class MainForm extends JFrame {
         redraw();
     }
 
+    private void jAuthorListMouseClicked(MouseEvent e) {
+
+        int butNum = e.getButton();
+        if (butNum ==1){//left mouse button clicks are ignored
+            return;
+        }
+        int index = jAuthorList.locationToIndex(e.getPoint());
+        if (index <0){
+            return;
+        }
+        jAuthorList.setSelectedIndex(index);
+        selectedAuthor=authorsModel.elementAt(index);
+        authorPopup.setLabel(selectedAuthor.getName());
+        authorPopup.show(e.getComponent(), e.getX(), e.getY());
+
+    }
+
+    private void menuAuthorMakeReadActionPerformed(ActionEvent e) {
+        AuthorController ctl = new AuthorController(sql);
+        ctl.markRead(selectedAuthor);
+        loadBookList(selectedAuthor);
+        addSortedAuthorList();
+        redraw();
+    }
+
 
 
     private void initComponents() {
@@ -220,8 +246,9 @@ public class MainForm extends JFrame {
         bookPopup = new JPopupMenu();
         menuItem3 = new JMenuItem();
         menuItem4 = new JMenuItem();
-        menuItem5 = new JMenuItem();
-        menuItem6 = new JMenuItem();
+        authorPopup = new JPopupMenu();
+        menuAuthorMakeRead = new JMenuItem();
+        menuAuthorDelete = new JMenuItem();
 
         //======== this ========
         setMinimumSize(new Dimension(20, 70));
@@ -284,8 +311,8 @@ public class MainForm extends JFrame {
                     }
                 });
                 toolBar.add(buttonUpdate, new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0,
-                        GridBagConstraints.CENTER, GridBagConstraints.BOTH,
-                        new Insets(0, 0, 5, 5), 0, 0));
+                    GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                    new Insets(0, 0, 5, 5), 0, 0));
 
                 //---- cBTags ----
                 cBTags.addActionListener(new ActionListener() {
@@ -321,6 +348,12 @@ public class MainForm extends JFrame {
 
                 //---- jAuthorList ----
                 jAuthorList.setComponentPopupMenu(null);
+                jAuthorList.addMouseListener(new MouseAdapter() {
+                    @Override
+                    public void mouseClicked(MouseEvent e) {
+                        jAuthorListMouseClicked(e);
+                    }
+                });
                 scrollPane1.setViewportView(jAuthorList);
             }
             panelMain.add(scrollPane1, CC.xy(1, 2));
@@ -334,7 +367,6 @@ public class MainForm extends JFrame {
 
                 //======== bookPanel ========
                 {
-                    bookPanel.setAutoscrolls(true);
                     bookPanel.setComponentPopupMenu(bookPopup);
                     bookPanel.setLayout(new GridBagLayout());
                     ((GridBagLayout)bookPanel.getLayout()).columnWidths = new int[] {0, 0, 0};
@@ -354,19 +386,31 @@ public class MainForm extends JFrame {
         {
 
             //---- menuItem3 ----
-            menuItem3.setText("text");
+            menuItem3.setText("Booktext1");
             bookPopup.add(menuItem3);
 
             //---- menuItem4 ----
-            menuItem4.setText("text");
+            menuItem4.setText("BookText2");
             bookPopup.add(menuItem4);
         }
 
-        //---- menuItem5 ----
-        menuItem5.setText("text");
+        //======== authorPopup ========
+        {
 
-        //---- menuItem6 ----
-        menuItem6.setText("text");
+            //---- menuAuthorMakeRead ----
+            menuAuthorMakeRead.setText(bundle.getString("MainForm.authorMenu.makeRead"));
+            menuAuthorMakeRead.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    menuAuthorMakeReadActionPerformed(e);
+                }
+            });
+            authorPopup.add(menuAuthorMakeRead);
+
+            //---- menuAuthorDelete ----
+            menuAuthorDelete.setText(bundle.getString("MainForm.menuAuthorDelete.text"));
+            authorPopup.add(menuAuthorDelete);
+        }
         // JFormDesigner - End of component initialization  //GEN-END:initComponents
     }
 
@@ -388,8 +432,9 @@ public class MainForm extends JFrame {
     private JPopupMenu bookPopup;
     private JMenuItem menuItem3;
     private JMenuItem menuItem4;
-    private JMenuItem menuItem5;
-    private JMenuItem menuItem6;
+    private JPopupMenu authorPopup;
+    private JMenuItem menuAuthorMakeRead;
+    private JMenuItem menuAuthorDelete;
     // JFormDesigner - End of variables declaration  //GEN-END:variables
 
 

@@ -49,24 +49,8 @@ public class BookRow extends JPanel {
         else {
             newIcon.setIcon(BLACK_ICON);
         }
-
-
     }
 
-    private void singleClick(MouseEvent e){
-
-        Log.i(DEBUG_TAG, "Clicked: " + e.getButton()+" - "+book.getTitle());
-    }
-
-    private void thisMouseClicked(MouseEvent e) {
-
-       singleClick(e);
-    }
-
-    private void descriptionMouseClicked(MouseEvent e) {
-        singleClick(e);
-
-    }
     private void initComponents() {
         // JFormDesigner - Component initialization - DO NOT MODIFY  //GEN-BEGIN:initComponents
         newIcon = new JLabel();
@@ -80,12 +64,6 @@ public class BookRow extends JPanel {
 
         //======== this ========
         setBorder(new EtchedBorder(EtchedBorder.RAISED));
-        addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseClicked(MouseEvent e) {
-                thisMouseClicked(e);
-            }
-        });
         setLayout(new FormLayout(
             "pref, $lcgap, [pref,250dlu]:grow",
             "top:pref:grow"));
@@ -140,12 +118,6 @@ public class BookRow extends JPanel {
                 //---- description ----
                 description.setContentType("text/html");
                 description.setEditable(false);
-                description.addMouseListener(new MouseAdapter() {
-                    @Override
-                    public void mouseClicked(MouseEvent e) {
-                        descriptionMouseClicked(e);
-                    }
-                });
                 scrollPane1.setViewportView(description);
             }
             panel1.add(scrollPane1, new GridBagConstraints(0, 1, 2, 1, 0.0, 0.0,

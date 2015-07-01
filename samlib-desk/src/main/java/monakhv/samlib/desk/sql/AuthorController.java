@@ -68,6 +68,26 @@ public class AuthorController implements AbstractController<Author> {
         return a;
     }
 
+    /**
+     * Mark Author and all it's book as read
+     *
+     * @param a Author object
+     * @return id of the Author
+     */
+    public int markRead(Author a) {
+        a.setIsNew(false);
+        int ires = update(a);
+        List<Book> books = bookCtl.getAll(a,null);
+        for (Book book : books) {
+            if (book.isIsNew()) {
+                book.setIsNew(false);
+                bookCtl.update(book);
+            }
+        }
+
+        return ires;
+
+    }
     @Override
     public int update(Author author) {
 
