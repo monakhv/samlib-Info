@@ -30,23 +30,29 @@ import java.util.List;
  *
  * 30.06.15.
  */
-public class Update {
-    private static final String DEBUG_TAG = "Update";
+public class ServiceOperation {
+    private static final String DEBUG_TAG = "ServiceOperation";
 
     private Settings settings;
+    private SQLController sql;
 
-    public Update(Settings settings) {
+    public ServiceOperation(Settings settings) {
         this.settings = settings;
-    }
-
-    public void run(List<Author> list) {
-        SQLController sql;
         try {
             sql = SQLController.getInstance(settings.getDataDirectoryPath());
         } catch (Exception e) {
             Log.e(DEBUG_TAG, "SQL Error", e);
-            return;
+
         }
+    }
+
+    public void delete(Author author){
+        AuthorController ctl = new AuthorController(sql);
+        ctl.delete(author);
+    }
+
+    public void update(List<Author> list) {
+
         AuthorController ctl = new AuthorController(sql);
         HttpClientController http = HttpClientController.getInstance(settings);
 
@@ -99,13 +105,7 @@ public class Update {
     }
 
     public void runw(List<Author> list) {
-        SQLController sql;
-        try {
-            sql = SQLController.getInstance(settings.getDataDirectoryPath());
-        } catch (Exception e) {
-            Log.e(DEBUG_TAG, "SQL Error", e);
-            return;
-        }
+
         AuthorController ctl = new AuthorController(sql);
         HttpClientController http = HttpClientController.getInstance(settings);
 

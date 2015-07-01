@@ -17,11 +17,10 @@ import com.jgoodies.forms.factories.*;
 import com.jgoodies.forms.layout.*;
 import monakhv.samlib.db.SQLController;
 import monakhv.samlib.db.entity.Author;
-import monakhv.samlib.db.entity.Book;
 import monakhv.samlib.db.entity.Tag;
 import monakhv.samlib.desk.Main;
 import monakhv.samlib.desk.data.Settings;
-import monakhv.samlib.desk.service.Update;
+import monakhv.samlib.desk.service.ServiceOperation;
 import monakhv.samlib.desk.sql.AuthorController;
 import monakhv.samlib.desk.sql.BookController;
 import monakhv.samlib.desk.sql.TagController;
@@ -32,6 +31,7 @@ import monakhv.samlib.log.Log;
  */
 public class MainForm extends JFrame {
     private static final String DEBUG_TAG="MainForm";
+    private ResourceBundle bndl = ResourceBundle.getBundle("samlibDesk");
     private final DefaultListModel<Author> authorsModel;
     //private final DefaultListModel<Book> booksModel;
 
@@ -181,9 +181,9 @@ public class MainForm extends JFrame {
 
     private void buttonUpdateActionPerformed(ActionEvent e) {
         //buttonUpdate.setEnabled(false);
-        Update update = new Update(settings);
+        ServiceOperation ops = new ServiceOperation(settings);
 
-        update.run(authorList);
+        ops.update(authorList);
     }
 
     private void menuItemSettingsActionPerformed(ActionEvent e) {
@@ -222,6 +222,22 @@ public class MainForm extends JFrame {
         loadBookList(selectedAuthor);
         addSortedAuthorList();
         redraw();
+    }
+
+    private void menuAuthorDeleteActionPerformed(ActionEvent e) {
+        int  answer = JOptionPane.showConfirmDialog(
+                this,
+                bndl.getString("MainForm.confirmAuthorDelete"),
+                selectedAuthor.getName(),
+                JOptionPane.YES_NO_OPTION
+        );
+        if (answer==JOptionPane.YES_OPTION){
+            ServiceOperation ops = new ServiceOperation( settings);
+            ops.delete(selectedAuthor);
+            selectedAuthor = null;
+            addSortedAuthorList();
+            redraw();
+        }
     }
 
 
@@ -409,6 +425,12 @@ public class MainForm extends JFrame {
 
             //---- menuAuthorDelete ----
             menuAuthorDelete.setText(bundle.getString("MainForm.menuAuthorDelete.text"));
+            menuAuthorDelete.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    menuAuthorDeleteActionPerformed(e);
+                }
+            });
             authorPopup.add(menuAuthorDelete);
         }
         // JFormDesigner - End of component initialization  //GEN-END:initComponents

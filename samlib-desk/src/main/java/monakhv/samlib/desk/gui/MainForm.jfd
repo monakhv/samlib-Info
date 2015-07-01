@@ -135,6 +135,7 @@ new FormModel {
 			add( new FormComponent( "javax.swing.JMenuItem" ) {
 				name: "menuAuthorDelete"
 				"text": new FormMessage( null, "MainForm.menuAuthorDelete.text" )
+				addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "menuAuthorDeleteActionPerformed", true ) )
 			} )
 		}, new FormLayoutConstraints( null ) {
 			"location": new java.awt.Point( 0, 799 )
