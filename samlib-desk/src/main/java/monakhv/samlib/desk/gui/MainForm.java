@@ -17,6 +17,7 @@ import com.jgoodies.forms.factories.*;
 import com.jgoodies.forms.layout.*;
 import monakhv.samlib.db.SQLController;
 import monakhv.samlib.db.entity.Author;
+import monakhv.samlib.db.entity.Book;
 import monakhv.samlib.db.entity.Tag;
 import monakhv.samlib.desk.Main;
 import monakhv.samlib.desk.data.Settings;
@@ -94,7 +95,13 @@ public class MainForm extends JFrame {
         //TODO: we can move the constant 20 to settings
         bookScrolPanel.getVerticalScrollBar().setUnitIncrement(20);
 
-        bkList = new BookList(bookPanel);
+        bkList = new BookList(bookPanel, new BookList.CallBack(){
+
+            @Override
+            public void bookClick(MouseEvent e, Book book) {
+                makeBookClick(e, book);
+            }
+        });
 
         jAuthorList.addListSelectionListener(new ListSelectionListener() {
             @Override
@@ -116,6 +123,8 @@ public class MainForm extends JFrame {
         });
 
     }
+
+
 
     /**
      * Construct Author list
@@ -159,7 +168,7 @@ public class MainForm extends JFrame {
         }
 
 
-        bookPanel.setComponentPopupMenu(bookPopup);
+        //bookPanel.setComponentPopupMenu(bookPopup);
         redraw();
 
 
@@ -217,6 +226,11 @@ public class MainForm extends JFrame {
 
     }
 
+    private void makeBookClick(MouseEvent e, Book book) {
+        bookPopup.show(e.getComponent(), e.getX(), e.getY());
+        Log.i(DEBUG_TAG,"Book: "+book.getTitle());
+    }
+
     private void menuAuthorMakeReadActionPerformed(ActionEvent e) {
         AuthorController ctl = new AuthorController(sql);
         ctl.markRead(selectedAuthor);
@@ -247,7 +261,7 @@ public class MainForm extends JFrame {
 
                     @Override
                     public void okClick(String answer) {
-                        Log.i(DEBUG_TAG,"got value: "+answer);
+                        Log.i(DEBUG_TAG, "got value: " + answer);
                         ServiceOperation operation = new ServiceOperation(settings);
                         operation.addAuthor(answer);
                         addSortedAuthorList();
@@ -420,7 +434,6 @@ public class MainForm extends JFrame {
 
                 //======== bookPanel ========
                 {
-                    bookPanel.setComponentPopupMenu(bookPopup);
                     bookPanel.setLayout(new GridBagLayout());
                     ((GridBagLayout)bookPanel.getLayout()).columnWidths = new int[] {0, 0, 0};
                     ((GridBagLayout)bookPanel.getLayout()).rowHeights = new int[] {0, 0, 0, 0};

@@ -22,6 +22,8 @@ public class BookRow extends JPanel {
     private final static ImageIcon BLACK_ICON = new ImageIcon(AuthorRenderer.class.getResource("/pics/16x16/bullet_black.png"));
 
     private Book book;
+
+
     public BookRow(Book book) {
         initComponents();
         scrollPane1.removeMouseWheelListener(scrollPane1.getMouseWheelListeners()[0]);
@@ -73,7 +75,7 @@ public class BookRow extends JPanel {
         {
             panel1.setLayout(new GridBagLayout());
             ((GridBagLayout)panel1.getLayout()).columnWidths = new int[] {0, 0, 0};
-            ((GridBagLayout)panel1.getLayout()).rowHeights = new int[] {0, 0, 0};
+            ((GridBagLayout)panel1.getLayout()).rowHeights = new int[] {0, 52, 0};
             ((GridBagLayout)panel1.getLayout()).columnWeights = new double[] {1.0, 0.0, 1.0E-4};
             ((GridBagLayout)panel1.getLayout()).rowWeights = new double[] {0.0, 1.0, 1.0E-4};
 
@@ -137,5 +139,28 @@ public class BookRow extends JPanel {
     private JLabel form;
     private JScrollPane scrollPane1;
     private JTextPane description;
+
+    public void setCallBackClickListener(final BookList.CallBack callBackClickListener) {
+
+        panel1.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                callBackClickListener.bookClick(e, book);
+            }
+        });
+        panel2.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                callBackClickListener.bookClick(e, book);
+            }
+        });
+        description.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                callBackClickListener.bookClick(e, book);
+            }
+        });
+
+    }
     // JFormDesigner - End of variables declaration  //GEN-END:variables
 }
