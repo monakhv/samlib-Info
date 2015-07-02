@@ -3,6 +3,7 @@ package monakhv.samlib.desk.sql;
 import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.dao.DaoManager;
 import com.j256.ormlite.jdbc.JdbcConnectionSource;
+import monakhv.samlib.db.DaoBuilder;
 import monakhv.samlib.db.SQLController;
 import monakhv.samlib.db.entity.Author;
 import monakhv.samlib.db.entity.Book;
@@ -29,7 +30,7 @@ import java.sql.SQLException;
  *
  * 10.06.15.
  */
-public class DaoController {
+public class DaoController implements DaoBuilder{
     private static DaoController instance;
 
     private Dao<Author, Integer>    authorDao;

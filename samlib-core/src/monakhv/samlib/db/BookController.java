@@ -1,8 +1,9 @@
-package monakhv.samlib.desk.sql;
+package monakhv.samlib.db;
 
 import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.stmt.QueryBuilder;
 import monakhv.samlib.db.AbstractController;
+import monakhv.samlib.db.DaoBuilder;
 import monakhv.samlib.db.SQLController;
 import monakhv.samlib.db.entity.Author;
 import monakhv.samlib.db.entity.Book;
@@ -51,9 +52,9 @@ public class BookController  implements AbstractController<Book> {
 
     private final Dao<Book,Integer> dao;
 
-    public BookController(SQLController sql) {
-        DaoController daoCtl = DaoController.getInstance(sql);
-        dao = daoCtl.getBookDao();
+    public BookController(DaoBuilder sql) {
+
+        dao = sql.getBookDao();
 
     }
     @Override

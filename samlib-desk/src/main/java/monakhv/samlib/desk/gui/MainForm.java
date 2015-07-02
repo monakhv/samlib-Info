@@ -22,9 +22,10 @@ import monakhv.samlib.db.entity.Tag;
 import monakhv.samlib.desk.Main;
 import monakhv.samlib.desk.data.Settings;
 import monakhv.samlib.desk.service.ServiceOperation;
-import monakhv.samlib.desk.sql.AuthorController;
-import monakhv.samlib.desk.sql.BookController;
-import monakhv.samlib.desk.sql.TagController;
+import monakhv.samlib.db.AuthorController;
+import monakhv.samlib.db.BookController;
+import monakhv.samlib.desk.sql.DaoController;
+import monakhv.samlib.db.TagController;
 import monakhv.samlib.log.Log;
 
 /**
@@ -86,7 +87,7 @@ public class MainForm extends JFrame {
 
         cBTags.addItem(ComboItem.ALL);
         cBTags.addItem(ComboItem.NEW);
-        TagController tagCtl = new TagController(sql);
+        TagController tagCtl = new TagController(DaoController.getInstance(sql));
         for (Tag tag : tagCtl.getAll()){
             cBTags.addItem(new ComboItem(tag));
         }
@@ -130,7 +131,7 @@ public class MainForm extends JFrame {
      * Construct Author list
      */
     private void addSortedAuthorList() {
-        AuthorController ctl = new AuthorController(sql);
+        AuthorController ctl = new AuthorController(DaoController.getInstance(sql));
          authorsModel.removeAllElements();
 
 
@@ -161,7 +162,7 @@ public class MainForm extends JFrame {
      * @param a author
      */
     private void loadBookList(Author a){
-        BookController ctl = new BookController(sql);
+        BookController ctl = new BookController(DaoController.getInstance(sql));
 
         if (a != null){
             bkList.load(ctl.getAll(a, SQLController.COL_BOOK_DATE));
@@ -232,7 +233,7 @@ public class MainForm extends JFrame {
     }
 
     private void menuAuthorMakeReadActionPerformed(ActionEvent e) {
-        AuthorController ctl = new AuthorController(sql);
+        AuthorController ctl = new AuthorController(DaoController.getInstance(sql));
         ctl.markRead(selectedAuthor);
         loadBookList(selectedAuthor);
         addSortedAuthorList();

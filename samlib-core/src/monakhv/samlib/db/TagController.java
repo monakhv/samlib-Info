@@ -1,8 +1,9 @@
-package monakhv.samlib.desk.sql;
+package monakhv.samlib.db;
 
 import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.stmt.QueryBuilder;
 import monakhv.samlib.db.AbstractController;
+import monakhv.samlib.db.DaoBuilder;
 import monakhv.samlib.db.SQLController;
 import monakhv.samlib.db.entity.Tag;
 import monakhv.samlib.log.Log;
@@ -31,9 +32,9 @@ public class TagController implements AbstractController<Tag> {
     private static final String DEBUG_TAG="TagController";
     private final Dao<Tag, Integer> tagDao;
 
-    public TagController(SQLController sql){
-        DaoController daoCtl = DaoController.getInstance(sql);
-        tagDao = daoCtl.getTagDao();
+    public TagController(DaoBuilder sql){
+
+        tagDao = sql.getTagDao();
     }
     @Override
     public int update(Tag tag) {

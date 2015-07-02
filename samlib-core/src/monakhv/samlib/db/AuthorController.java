@@ -1,10 +1,8 @@
-package monakhv.samlib.desk.sql;
+package monakhv.samlib.db;
 
 import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.dao.ForeignCollection;
 import com.j256.ormlite.stmt.QueryBuilder;
-import monakhv.samlib.db.AbstractController;
-import monakhv.samlib.db.SQLController;
 import monakhv.samlib.db.entity.*;
 import monakhv.samlib.log.Log;
 
@@ -46,10 +44,10 @@ public class AuthorController implements AbstractController<Author> {
     private final Dao<Tag2Author, Integer> t2aDao;
 
 
-    public AuthorController(SQLController sql) {
-        DaoController daoCtl = DaoController.getInstance(sql);
-        dao = daoCtl.getAuthorDao();
-        t2aDao = daoCtl.getT2aDao();
+    public AuthorController(DaoBuilder sql) {
+
+        dao = sql.getAuthorDao();
+        t2aDao = sql.getT2aDao();
         this.bookCtl = new BookController(sql);
 
 
@@ -276,10 +274,9 @@ public class AuthorController implements AbstractController<Author> {
 
     @Override
     public Author getById(long id) {
-        Integer dd = new Integer((int) id);
+        Integer dd = (int) id;
         try {
-            Author res = dao.queryForId(dd);
-            return res;
+            return dao.queryForId(dd);
         } catch (SQLException e) {
             return null;
         }

@@ -2,10 +2,10 @@ package monakhv.samlib.desk.service;
 
 import monakhv.samlib.db.SQLController;
 import monakhv.samlib.db.entity.Author;
-import monakhv.samlib.db.entity.Book;
 import monakhv.samlib.db.entity.SamLibConfig;
 import monakhv.samlib.desk.data.Settings;
-import monakhv.samlib.desk.sql.AuthorController;
+import monakhv.samlib.db.AuthorController;
+import monakhv.samlib.desk.sql.DaoController;
 import monakhv.samlib.exception.SamlibParseException;
 import monakhv.samlib.http.HttpClientController;
 import monakhv.samlib.log.Log;
@@ -35,12 +35,13 @@ public class ServiceOperation {
     private static final String DEBUG_TAG = "ServiceOperation";
 
     private Settings settings;
-    private SQLController sql;
+    private AuthorController sql;
 
     public ServiceOperation(Settings settings) {
         this.settings = settings;
         try {
-            sql = SQLController.getInstance(settings.getDataDirectoryPath());
+            SQLController sqlController = SQLController.getInstance(settings.getDataDirectoryPath());
+            sql=new AuthorController(DaoController.getInstance(sqlController));
         } catch (Exception e) {
             Log.e(DEBUG_TAG, "SQL Error", e);
 
@@ -48,19 +49,19 @@ public class ServiceOperation {
     }
 
     public void delete(Author author){
-        AuthorController ctl = new AuthorController(sql);
-        ctl.delete(author);
+
+        sql.delete(author);
     }
 
     public void update(List<Author> list) {
 
-        AuthorController ctl = new AuthorController(sql);
+
         HttpClientController http = HttpClientController.getInstance(settings);
 
-        Author ess = ctl.getById(118);
+        Author ess = sql.getById(118);
 
         Log.i(DEBUG_TAG, "Author: " + ess.getName() + " - " + ess.getBooks().size());
-        Author newEss = ctl.getEmptyObject();
+        Author newEss = sql.getEmptyObject();
         try {
             newEss = http.getAuthorByURL(ess.getUrl(), newEss);
         } catch (IOException ex) {
@@ -79,7 +80,7 @@ public class ServiceOperation {
         if (ess.update(newEss)) {//we have update for the author
 
             Log.i(DEBUG_TAG, "We need update author: " + ess.getName() + " - " + ess.getId() + " : " + ess.getBooks().size());
-            ctl.update(ess);
+            sql.update(ess);
         } else {
             Log.e(DEBUG_TAG, "Constant Author");
         }
@@ -107,14 +108,14 @@ public class ServiceOperation {
 
     public void runw(List<Author> list) {
 
-        AuthorController ctl = new AuthorController(sql);
+
         HttpClientController http = HttpClientController.getInstance(settings);
 
 
         for (Author a : list) {
 
             String url = a.getUrl();
-            Author newA = ctl.getEmptyObject();
+            Author newA = sql.getEmptyObject();
 
 
             try {
@@ -145,10 +146,10 @@ public class ServiceOperation {
 
     public void addAuthor(String url) {
         HttpClientController http = HttpClientController.getInstance(settings);
-        AuthorController ctl = new AuthorController(sql);
-        Author a = loadAuthor(http, ctl, url);
+
+        Author a = loadAuthor(http, sql, url);
         if (a != null) {
-            ctl.insert(a);
+            sql.insert(a);
 
         }
     }
