@@ -4,7 +4,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.database.Cursor;
+
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -23,6 +23,7 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 
+import com.j256.ormlite.android.apptools.OpenHelperManager;
 import com.mikepenz.iconics.typeface.FontAwesome;
 import com.mikepenz.materialdrawer.Drawer;
 import com.mikepenz.materialdrawer.model.*;
@@ -36,9 +37,10 @@ import monakhv.android.samlib.service.CleanNotificationData;
 import monakhv.android.samlib.sortorder.AuthorSortOrder;
 import monakhv.android.samlib.sortorder.BookSortOrder;
 import monakhv.android.samlib.sortorder.RadioItems;
-import monakhv.android.samlib.sql.AuthorProvider;
-import monakhv.samlib.db.SQLController;
+import monakhv.android.samlib.sql.DatabaseHelper;
+import monakhv.samlib.db.TagController;
 import monakhv.samlib.db.entity.SamLibConfig;
+import monakhv.samlib.db.entity.Tag;
 
 
 import java.util.ArrayList;
@@ -61,8 +63,8 @@ import java.util.ArrayList;
  *
  * 12/5/14.
  */
-public class MainActivity extends ActionBarActivity
-        implements AuthorFragment.Callbacks, Drawer.OnDrawerItemClickListener, OnCheckedChangeListener,
+public class MainActivity extends MyBaseAbstractActivity  implements
+        AuthorFragment.Callbacks, Drawer.OnDrawerItemClickListener, OnCheckedChangeListener,
         AuthorTagFragment.AuthorTagCallback{
 
     private static final String DEBUG_TAG = "MainActivity";
@@ -177,12 +179,14 @@ public class MainActivity extends ActionBarActivity
         items.add(new SecondaryDrawerItem().withName(R.string.filter_new).withIdentifier(SamLibConfig.TAG_AUTHOR_NEW + tagsShift)
                 .withTag(getString(R.string.filter_new)));
 
-        Cursor tags = getContentResolver().query(AuthorProvider.TAG_URI, null, null, null, SQLController.COL_TAG_NAME);
 
-        while (tags.moveToNext()) {
-            items.add(new SecondaryDrawerItem().withName(tags.getString(tags.getColumnIndex(SQLController.COL_TAG_NAME)))
-                    .withIdentifier( tagsShift + tags.getInt(tags.getColumnIndex(SQLController.COL_ID)))
-                    .withTag(tags.getString(tags.getColumnIndex(SQLController.COL_TAG_NAME))));
+        TagController tagSQL = new TagController(getDatabaseHelper());
+        tagSQL.getAll();
+
+        for  (Tag tag: tagSQL.getAll()) {
+            items.add(new SecondaryDrawerItem().withName(tag.getName())
+                    .withIdentifier( tagsShift + tag.getId())
+                    .withTag(tag.getName()));
         }
         //end author group
 
@@ -221,7 +225,7 @@ public class MainActivity extends ActionBarActivity
                 .addDrawerItems(items.toArray(new IDrawerItem[1]))
                 .withOnDrawerItemClickListener(this)
                 .build();
-        tags.close();
+
         restoreTagSelection();
 
     }
@@ -265,7 +269,7 @@ public class MainActivity extends ActionBarActivity
                 }
                 tagFragment.setAuthor_id(author_id);
                 final FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-                ft.replace(R.id.listBooksFragment,tagFragment);
+                ft.replace(R.id.listBooksFragment, tagFragment);
                 ft.addToBackStack(null);
                 ft.commit();
                 isTagShow=true;
@@ -279,7 +283,7 @@ public class MainActivity extends ActionBarActivity
     public void onCheckedChanged(IDrawerItem iDrawerItem, CompoundButton compoundButton, boolean b) {
         String sTag = (String) iDrawerItem.getTag();
         int iDent = iDrawerItem.getIdentifier();
-        Log.i(DEBUG_TAG, "Check change: tag - " + sTag + " - "+iDent+" - "+b);
+        Log.i(DEBUG_TAG, "Check change: tag - " + sTag + " - " + iDent + " - " + b);
 
 
 

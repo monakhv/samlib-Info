@@ -10,7 +10,6 @@ import java.util.Map;
 
 
 import monakhv.android.samlib.data.SettingsHelper;
-import monakhv.android.samlib.sql.AuthorController;
 
 import monakhv.samlib.db.entity.Author;
 import monakhv.android.samlib.tasks.AddAuthorRestore;

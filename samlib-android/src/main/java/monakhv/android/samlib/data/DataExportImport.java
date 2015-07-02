@@ -16,7 +16,6 @@
 package monakhv.android.samlib.data;
 
 import android.content.Context;
-import android.os.Environment;
 import android.util.Log;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -36,8 +35,9 @@ import java.util.Date;
 import java.util.List;
 
 import monakhv.android.samlib.service.AuthorEditorServiceIntent;
-import monakhv.android.samlib.sql.AuthorController;
 
+import monakhv.android.samlib.sql.DatabaseHelper;
+import monakhv.samlib.db.AuthorController;
 import monakhv.samlib.db.SQLController;
 import monakhv.samlib.db.entity.Author;
 import monakhv.samlib.db.entity.Book;
@@ -165,7 +165,7 @@ public class DataExportImport {
      *
      * @return File Name where the list of urls is stored
      */
-    public  String exportAuthorList() {
+    public  String exportAuthorList(DatabaseHelper helper) {
         String backupTxtPath = null;
         try {
             @SuppressWarnings("UnusedDeclaration")
@@ -176,7 +176,7 @@ public class DataExportImport {
 
                 BufferedWriter bw = new BufferedWriter(new FileWriter(backupTxt));
 
-                for (String u : getAuthorUrls(context)) {
+                for (String u : getAuthorUrls(helper)) {
                     bw.write(u);
                     bw.newLine();
                 }
@@ -193,12 +193,12 @@ public class DataExportImport {
         return backupTxtPath;
 
     }
-    public static List<String> getAuthorUrls(Context applicationContext){
+    public List<String> getAuthorUrls(DatabaseHelper helper){
         List<String> res = new ArrayList<String>();
-        AuthorController sql = new AuthorController(applicationContext);
+        AuthorController sql = new AuthorController(helper);
         List<Author> authors = sql.getAll();
         for (Author a : authors) {
-            res.add(a.getUrlForBrowser(new SettingsHelper(applicationContext)));
+            res.add(a.getUrlForBrowser(new SettingsHelper(context)));
         }
         return res;
     }

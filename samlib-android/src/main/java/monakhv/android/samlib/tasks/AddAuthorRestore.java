@@ -27,12 +27,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 
+import com.j256.ormlite.android.apptools.OpenHelperManager;
 import monakhv.android.samlib.R;
 import monakhv.android.samlib.data.SettingsHelper;
 import monakhv.android.samlib.data.backup.AuthorStatePrefs;
+import monakhv.android.samlib.sql.DatabaseHelper;
+import monakhv.samlib.db.AuthorController;
+import monakhv.samlib.db.TagController;
 import monakhv.samlib.exception.SamlibParseException;
-import monakhv.android.samlib.sql.AuthorController;
-import monakhv.android.samlib.sql.TagController;
 import monakhv.samlib.db.entity.Author;
 import monakhv.samlib.db.entity.SamLibConfig;
 import monakhv.samlib.db.entity.Tag;
@@ -56,6 +58,7 @@ public class AddAuthorRestore extends AsyncTask<String, Void, Boolean> {
     private int doubleAdd = 0;
     private final SettingsHelper settings;
     private final SharedPreferences prefs;
+    private DatabaseHelper databaseHelper = null;
 
     public AddAuthorRestore(Context c) {
         context = c;
@@ -63,14 +66,15 @@ public class AddAuthorRestore extends AsyncTask<String, Void, Boolean> {
         settings = new SettingsHelper(context);
 
         prefs = context.getSharedPreferences(AuthorStatePrefs.PREF_NAME, 0);
+        databaseHelper= OpenHelperManager.getHelper(c,DatabaseHelper.class);
     }
 
     @Override
     protected Boolean doInBackground(String... texts) {
 
         HttpClientController http = HttpClientController.getInstance(settings);
-        AuthorController sql = new AuthorController(context);
-        TagController tagController = new TagController(context);
+        AuthorController sql = new AuthorController(databaseHelper);
+        TagController tagController = new TagController(databaseHelper);
         PowerManager pm = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
         PowerManager.WakeLock wl = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, DEBUG_TAG);
         wl.acquire();
@@ -111,6 +115,7 @@ public class AddAuthorRestore extends AsyncTask<String, Void, Boolean> {
 
     @Override
     protected void onPostExecute(Boolean result) {
+        OpenHelperManager.releaseHelper();
         int duration = Toast.LENGTH_SHORT;
         CharSequence msg = "";
 
@@ -156,7 +161,7 @@ public class AddAuthorRestore extends AsyncTask<String, Void, Boolean> {
             return null;
         }
         try {
-            a = http.addAuthor(text);
+            a = http.addAuthor(text, sql.getEmptyObject());
         } catch (IOException ex) {
             Log.e(DEBUG_TAG, "DownLoad Error for URL: " + text, ex);
 

@@ -63,9 +63,6 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper implements DaoBuilde
         }
 
 
-       // db.execSQL(SQLController.DB_CREATE_STATE);
-
-
     }
 
     @Override
@@ -117,15 +114,7 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper implements DaoBuilde
     }
 
 
-    private void upgradeSchema3To4(SQLiteDatabase db) {
-        db.execSQL(SQLController.DB_CREATE_TAGS);
-        db.execSQL(SQLController.DB_CREATE_TAG_TO_AUTHOR);
-        db.execSQL(SQLController.DB_CREATE_STATE);
 
-        db.execSQL(SQLController.DB_IDX3);
-        db.execSQL(SQLController.DB_IDX4);
-        db.execSQL(SQLController.DB_ALTER_BOOK1);
-    }
     @Override
     public void close() {
         super.close();

@@ -34,7 +34,6 @@ import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
-import android.support.v7.app.ActionBarActivity;
 import android.text.Html;
 import android.util.Log;
 import android.view.MenuItem;
@@ -52,7 +51,7 @@ import monakhv.android.samlib.service.AuthorEditorServiceIntent;
  *
  * @author monakhv
  */
-public class ArchiveActivity extends ActionBarActivity {
+public class ArchiveActivity extends MyBaseAbstractActivity {
 
     public static final String UPDATE_KEY = "UPDATE_LIST_PARAM";
     public static final int UPDATE_LIST = 22;
@@ -171,7 +170,7 @@ public class ArchiveActivity extends ActionBarActivity {
 
     @SuppressWarnings("UnusedParameters")
     public void exportTxt(View v) {
-        String file = dataExportImport.exportAuthorList();
+        String file = dataExportImport.exportAuthorList(getDatabaseHelper());
         String text;
         if (file != null) {
             text = getString(R.string.res_export_txt_good) + " " + file;

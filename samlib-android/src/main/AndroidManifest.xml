@@ -83,13 +83,7 @@ limitations under the License.
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="monakhv.android.samlib.MainActivity"/>
         </activity>
-        
-        <provider
-            android:exported="false"
-            android:authorities="monakhv.android.samlib.sql.AuthorProvider"
-            android:multiprocess="true"
-            android:name="monakhv.android.samlib.sql.AuthorProvider">            
-        </provider>
+
         <service
             android:name=".service.UpdateServiceIntent">
         </service>

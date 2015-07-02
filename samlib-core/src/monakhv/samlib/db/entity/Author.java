@@ -147,6 +147,14 @@ public class Author  implements Serializable{
         this.tags_name = tags_name;
     }
 
+    public ForeignCollection<Tag2Author> getTag2Authors() {
+        return tag2Authors;
+    }
+
+    public void setTag2Authors(ForeignCollection<Tag2Author> tag2Authors) {
+        this.tag2Authors = tag2Authors;
+    }
+
     @Override
     public int hashCode() {
         int hash = 7;

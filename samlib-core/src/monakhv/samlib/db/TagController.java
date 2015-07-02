@@ -2,9 +2,7 @@ package monakhv.samlib.db;
 
 import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.stmt.QueryBuilder;
-import monakhv.samlib.db.AbstractController;
-import monakhv.samlib.db.DaoBuilder;
-import monakhv.samlib.db.SQLController;
+
 import monakhv.samlib.db.entity.Tag;
 import monakhv.samlib.log.Log;
 
@@ -38,17 +36,35 @@ public class TagController implements AbstractController<Tag> {
     }
     @Override
     public int update(Tag tag) {
-        return 0;
+        try {
+            return tagDao.update(tag);
+        } catch (SQLException e) {
+            Log.e(DEBUG_TAG,"update Error",e);
+            return 0;
+        }
+
     }
 
     @Override
     public long insert(Tag tag) {
-        return 0;
+        try {
+            return tagDao.create(tag);
+        } catch (SQLException e) {
+            Log.e(DEBUG_TAG,"insert Error",e);
+            return 0;
+        }
     }
 
     @Override
     public int delete(Tag tag) {
-        return 0;
+        int ires;
+        try {
+            ires = tagDao.delete(tag);
+        } catch (SQLException e) {
+            Log.e(DEBUG_TAG,"Delete Error!",e);
+            return 0;
+        }
+        return ires;
     }
 
     @Override
@@ -65,6 +81,44 @@ public class TagController implements AbstractController<Tag> {
 
     @Override
     public Tag getById(long id) {
-        return null;
+        Integer dd = (int) id;
+        try {
+            return tagDao.queryForId(dd);
+        } catch (SQLException e) {
+            Log.e(DEBUG_TAG,"getById - Error",e);
+            return null;
+        }
+    }
+
+
+
+    /**
+     * Find tag by name
+     * @param name
+     * @return tag id or -1 if no tag found
+     */
+    public int getByName(String name){
+        int res =  -1;
+        String ucs = name.toUpperCase();
+        QueryBuilder<Tag,Integer> statement = tagDao.queryBuilder();
+        List<Tag> rr;
+
+        try {
+            statement.where().eq(SQLController.COL_TAG_UCNAME,ucs);
+            rr = tagDao.query(statement.prepare());
+        } catch (SQLException e) {
+            Log.e(DEBUG_TAG,"Get by name Error!",e);
+            return res;
+        }
+
+
+        if (rr.size() != 1){
+            Log.e(DEBUG_TAG,"Get by name NOT Unique");
+            return res;
+        }
+
+        return rr.get(0).getId();
+
+
     }
 }

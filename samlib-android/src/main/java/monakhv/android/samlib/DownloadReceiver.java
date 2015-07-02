@@ -8,7 +8,6 @@ import android.widget.Toast;
 
 
 import monakhv.android.samlib.data.SettingsHelper;
-import monakhv.android.samlib.sql.AuthorController;
 import monakhv.samlib.db.entity.Book;
 
 /*

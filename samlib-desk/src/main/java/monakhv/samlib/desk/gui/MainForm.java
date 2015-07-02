@@ -45,6 +45,7 @@ public class MainForm extends JFrame {
     private Author selectedAuthor;
     private ComboItem selectedTag=ComboItem.ALL;
     private List<Author> authorList;
+    private AuthorTags authorTags;
 
     /**
      * Spercial container for Combo Box  wiget
@@ -72,6 +73,7 @@ public class MainForm extends JFrame {
             }
         });
         setTitle(bndl.getString("MainForm.Title.text"));
+        authorTags = new AuthorTags(DaoController.getInstance(sql));
 
 
         initComponents();
@@ -118,7 +120,7 @@ public class MainForm extends JFrame {
                     return;
                 }
                 selectedAuthor=authorsModel.get(lsm.getMaxSelectionIndex());
-                Log.i(DEBUG_TAG, "selection " +selectedAuthor.getName()+"  "+e.getValueIsAdjusting());
+                Log.i(DEBUG_TAG, "selection " +selectedAuthor.getName()+"  "+e.getValueIsAdjusting()+" - "+selectedAuthor.getTag2Authors().size());
                 loadBookList(selectedAuthor);
             }
         });
@@ -229,7 +231,7 @@ public class MainForm extends JFrame {
 
     private void makeBookClick(MouseEvent e, Book book) {
         bookPopup.show(e.getComponent(), e.getX(), e.getY());
-        Log.i(DEBUG_TAG,"Book: "+book.getTitle());
+        Log.i(DEBUG_TAG, "Book: " + book.getTitle());
     }
 
     private void menuAuthorMakeReadActionPerformed(ActionEvent e) {
@@ -274,6 +276,11 @@ public class MainForm extends JFrame {
 
     }
 
+    private void menuAuthorTagsActionPerformed(ActionEvent e) {
+        JPanel panel =authorTags.getPanel(selectedAuthor);
+
+    }
+
 
 
     private void initComponents() {
@@ -299,6 +306,7 @@ public class MainForm extends JFrame {
         menuItem3 = new JMenuItem();
         menuItem4 = new JMenuItem();
         authorPopup = new JPopupMenu();
+        menuAuthorTags = new JMenuItem();
         menuAuthorMakeRead = new JMenuItem();
         menuAuthorDelete = new JMenuItem();
 
@@ -464,6 +472,16 @@ public class MainForm extends JFrame {
         //======== authorPopup ========
         {
 
+            //---- menuAuthorTags ----
+            menuAuthorTags.setText(bundle.getString("MainForm.menuAuthorTags.text"));
+            menuAuthorTags.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    menuAuthorTagsActionPerformed(e);
+                }
+            });
+            authorPopup.add(menuAuthorTags);
+
             //---- menuAuthorMakeRead ----
             menuAuthorMakeRead.setText(bundle.getString("MainForm.authorMenu.makeRead"));
             menuAuthorMakeRead.addActionListener(new ActionListener() {
@@ -508,6 +526,7 @@ public class MainForm extends JFrame {
     private JMenuItem menuItem3;
     private JMenuItem menuItem4;
     private JPopupMenu authorPopup;
+    private JMenuItem menuAuthorTags;
     private JMenuItem menuAuthorMakeRead;
     private JMenuItem menuAuthorDelete;
     // JFormDesigner - End of variables declaration  //GEN-END:variables

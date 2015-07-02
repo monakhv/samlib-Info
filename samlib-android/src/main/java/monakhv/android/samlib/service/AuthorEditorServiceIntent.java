@@ -1,6 +1,5 @@
 package monakhv.android.samlib.service;
 
-import android.app.IntentService;
 import android.content.Context;
 import android.content.Intent;
 import android.os.PowerManager;
@@ -12,8 +11,8 @@ import java.util.ArrayList;
 
 import monakhv.android.samlib.R;
 import monakhv.android.samlib.data.SettingsHelper;
+import monakhv.samlib.db.AuthorController;
 import monakhv.samlib.exception.SamlibParseException;
-import monakhv.android.samlib.sql.AuthorController;
 import monakhv.samlib.db.entity.Author;
 import monakhv.samlib.db.entity.Book;
 import monakhv.samlib.db.entity.SamLibConfig;
@@ -37,7 +36,7 @@ import monakhv.samlib.log.Log;
  *
  * 12/25/14.
  */
-public class AuthorEditorServiceIntent extends IntentService {
+public class AuthorEditorServiceIntent extends MyServiceIntent {
     public static final String RECEIVER_FILTER="AuthorEditorServiceIntent_RECEIVER_FILTER";
 
     private static final String DEBUG_TAG="AddAuthorServiceIntent";
@@ -133,7 +132,7 @@ public class AuthorEditorServiceIntent extends IntentService {
      * @return true if success
      */
     private  boolean makeAuthorRead(int id) {
-        AuthorController sql = new AuthorController(context);
+        AuthorController sql = new AuthorController(getHelper());
         Author a = sql.getById(id);
 
         if (a == null){
@@ -161,17 +160,17 @@ public class AuthorEditorServiceIntent extends IntentService {
      * @param id  book id
      */
     private  void makeBookReadFlip(int id) {
-        AuthorController sql = new AuthorController(context);
+        AuthorController sql = new AuthorController(getHelper());
         Book book=sql.getBookController().getById(id);
 
         if (book.isIsNew()){
             sql.getBookController().markRead(book);
-            Author a = sql.getByBook(book);
+            Author a = book.getAuthor();
             sql.testMarkRead(a);
         }
         else {
             sql.getBookController().markUnRead(book);
-            Author a = sql.getByBook(book);
+            Author a = book.getAuthor();
             sql.testMarkRead(a);
         }
 
@@ -182,7 +181,7 @@ public class AuthorEditorServiceIntent extends IntentService {
      * @param id author id
      */
     private void makeAuthorDel(int id){
-        AuthorController sql = new AuthorController(context);
+        AuthorController sql = new AuthorController(getHelper());
         int res = sql.delete(sql.getById(id));
         Log.d(DEBUG_TAG, "Author id "+id+" deleted, status "+res);
         if (res == 1){
@@ -197,7 +196,7 @@ public class AuthorEditorServiceIntent extends IntentService {
      */
     private void makeAuthorAdd(ArrayList<String> urls){
         HttpClientController http = HttpClientController.getInstance(settings);
-        AuthorController sql = new AuthorController(context);
+        AuthorController sql = new AuthorController(getHelper());
         PowerManager pm = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
         PowerManager.WakeLock wl = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, DEBUG_TAG);
         wl.acquire();
@@ -231,7 +230,7 @@ public class AuthorEditorServiceIntent extends IntentService {
             return null;
         }
         try {
-            a = http.addAuthor(text);
+            a = http.addAuthor(text,sql.getEmptyObject());
         } catch (IOException ex) {
             Log.e(DEBUG_TAG, "DownLoad Error for URL: " + text, ex);
 

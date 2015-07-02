@@ -20,39 +20,20 @@ package monakhv.android.samlib;
 import android.content.Intent;
 import android.support.v7.widget.Toolbar;
 import android.view.*;
+import com.j256.ormlite.android.apptools.OpenHelperManager;
 import monakhv.android.samlib.data.SettingsHelper;
-import monakhv.android.samlib.dialogs.EnterStringDialog;
-import android.app.AlertDialog;
-import android.app.Dialog;
-import android.content.DialogInterface;
-import android.database.Cursor;
 import android.os.Bundle;
-import android.support.v4.widget.SimpleCursorAdapter;
 import android.support.v7.app.ActionBarActivity;
-import android.util.Log;
-import android.util.SparseBooleanArray;
-import android.widget.AdapterView;
-import android.widget.EditText;
-import android.widget.ListView;
-import android.widget.TextView;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
 
-import monakhv.android.samlib.sql.AuthorController;
-import monakhv.android.samlib.sql.AuthorProvider;
-
-import monakhv.android.samlib.sql.TagController;
-import monakhv.samlib.db.SQLController;
+import monakhv.android.samlib.sql.DatabaseHelper;
+import monakhv.samlib.db.AuthorController;
 import monakhv.samlib.db.entity.Author;
-import monakhv.samlib.db.entity.Tag;
 
 /**
  *
  * @author monakhv
  */
-public class AuthorTagsActivity extends ActionBarActivity implements AuthorTagFragment.AuthorTagCallback {
+public class AuthorTagsActivity extends MyBaseAbstractActivity implements AuthorTagFragment.AuthorTagCallback {
 
     public static final String AUTHOR_ID = "TAGS_AUTHOR_ID";
 
@@ -82,7 +63,7 @@ public class AuthorTagsActivity extends ActionBarActivity implements AuthorTagFr
     @Override
     protected void onResume() {
         super.onResume();
-        AuthorController sql = new AuthorController(this);
+        AuthorController sql = new AuthorController(getDatabaseHelper());
         Author a = sql.getById(authorTagFragment.getAuthor_id());
 
         if (a.getTags_name().isEmpty()){

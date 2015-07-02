@@ -136,6 +136,11 @@ new FormModel {
 		add( new FormContainer( "javax.swing.JPopupMenu", new FormLayoutManager( class javax.swing.JPopupMenu ) ) {
 			name: "authorPopup"
 			add( new FormComponent( "javax.swing.JMenuItem" ) {
+				name: "menuAuthorTags"
+				"text": new FormMessage( null, "MainForm.menuAuthorTags.text" )
+				addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "menuAuthorTagsActionPerformed", true ) )
+			} )
+			add( new FormComponent( "javax.swing.JMenuItem" ) {
 				name: "menuAuthorMakeRead"
 				"text": new FormMessage( null, "MainForm.authorMenu.makeRead" )
 				addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "menuAuthorMakeReadActionPerformed", true ) )

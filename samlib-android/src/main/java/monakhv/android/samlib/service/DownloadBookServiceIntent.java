@@ -15,7 +15,7 @@
  */
 package monakhv.android.samlib.service;
 
-import android.app.IntentService;
+
 import android.content.Context;
 import android.content.Intent;
 
@@ -26,7 +26,7 @@ import monakhv.android.samlib.DownloadReceiver;
 
 import monakhv.android.samlib.R;
 import monakhv.android.samlib.data.SettingsHelper;
-import monakhv.android.samlib.sql.AuthorController;
+import monakhv.samlib.db.AuthorController;
 import monakhv.samlib.db.entity.Book;
 import monakhv.samlib.http.HttpClientController;
 import monakhv.samlib.log.Log;
@@ -36,7 +36,7 @@ import monakhv.samlib.log.Log;
  *
  * @author monakhv
  */
-public class DownloadBookServiceIntent extends IntentService {
+public class DownloadBookServiceIntent extends MyServiceIntent {
 
     private static final String DEBUG_TAG = "DownloadBookServiceIntent";
     public static final  String BOOK_ID = "BOOK_ID";
@@ -55,7 +55,7 @@ public class DownloadBookServiceIntent extends IntentService {
         Log.d(DEBUG_TAG, "Got intent");
         book_id = intent.getLongExtra(BOOK_ID, 0);
         sendResult = intent.getBooleanExtra(SEND_UPDATE, false);//do not send update by default
-        AuthorController ctl = new AuthorController(this.getApplicationContext());
+        AuthorController ctl = new AuthorController(getHelper());
 
         Book book = ctl.getBookController().getById(book_id);
        

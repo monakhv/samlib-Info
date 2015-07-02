@@ -2,9 +2,6 @@ package monakhv.samlib.db;
 
 import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.stmt.QueryBuilder;
-import monakhv.samlib.db.AbstractController;
-import monakhv.samlib.db.DaoBuilder;
-import monakhv.samlib.db.SQLController;
 import monakhv.samlib.db.entity.Author;
 import monakhv.samlib.db.entity.Book;
 import monakhv.samlib.log.Log;
@@ -12,6 +9,7 @@ import monakhv.samlib.log.Log;
 
 import java.sql.SQLException;
 import java.util.List;
+
 
 /*
  * Copyright 2015  Dmitry Monakhov
@@ -127,4 +125,17 @@ public class BookController  implements AbstractController<Book> {
         return null;
     }
 
+    public List<Book> getBooksByAuthor(Author a) {
+        return getAll(a,null);
+    }
+
+    public void markRead(Book book) {
+        book.setIsNew(false);
+        update(book);
+    }
+
+    public void markUnRead(Book book) {
+        book.setIsNew(true);
+        update(book);
+    }
 }

@@ -6,6 +6,7 @@ import android.support.v7.app.ActionBarActivity;
 
 import android.support.v7.widget.Toolbar;
 import monakhv.android.samlib.data.SettingsHelper;
+import monakhv.android.samlib.sql.DatabaseHelper;
 
 
 /*
@@ -25,7 +26,7 @@ import monakhv.android.samlib.data.SettingsHelper;
  *
  * 12/3/14.
  */
-public class SamlibPreferencesActivity  extends ActionBarActivity{
+public class SamlibPreferencesActivity  extends MyBaseAbstractActivity implements  SamlibPreferencesFragment.CallBack {
     private  SamlibPreferencesFragment prefs;
 
     @Override
