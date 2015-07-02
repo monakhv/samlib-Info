@@ -68,8 +68,5 @@ public class BookList {
 
     }
 
-    private void bookClicked(MouseEvent e, Book book){
-
-    }
 
 }

@@ -45,7 +45,7 @@ public class MainForm extends JFrame {
     private Author selectedAuthor;
     private ComboItem selectedTag=ComboItem.ALL;
     private List<Author> authorList;
-    private AuthorTags authorTags;
+    private AuthorTagsDialog authorTags;
 
     /**
      * Spercial container for Combo Box  wiget
@@ -73,7 +73,7 @@ public class MainForm extends JFrame {
             }
         });
         setTitle(bndl.getString("MainForm.Title.text"));
-        authorTags = new AuthorTags(DaoController.getInstance(sql));
+        authorTags = new AuthorTagsDialog(this,DaoController.getInstance(sql));
 
 
         initComponents();
@@ -277,7 +277,8 @@ public class MainForm extends JFrame {
     }
 
     private void menuAuthorTagsActionPerformed(ActionEvent e) {
-        JPanel panel =authorTags.getPanel(selectedAuthor);
+        authorTags.setPanel(selectedAuthor);
+        authorTags.setVisible(true);
 
     }
 
