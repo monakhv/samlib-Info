@@ -11,13 +11,12 @@ import javax.swing.border.*;
 import com.jgoodies.forms.factories.*;
 import com.jgoodies.forms.layout.*;
 import monakhv.samlib.db.entity.Book;
-import monakhv.samlib.log.Log;
 
 /**
  * @author Dmitry Monakhov
  */
 public class BookRow extends JPanel {
-    private static final String DEBUG_TAG = "BookRow";
+
     private final static ImageIcon GREEN_ICON = new ImageIcon(AuthorRenderer.class.getResource("/pics/16x16/bullet_green.png"));
     private final static ImageIcon BLACK_ICON = new ImageIcon(AuthorRenderer.class.getResource("/pics/16x16/bullet_black.png"));
 

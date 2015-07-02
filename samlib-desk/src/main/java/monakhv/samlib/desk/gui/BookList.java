@@ -4,7 +4,6 @@ import monakhv.samlib.db.entity.Book;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.List;
 
