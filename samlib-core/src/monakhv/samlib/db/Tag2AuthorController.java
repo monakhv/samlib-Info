@@ -2,12 +2,15 @@ package monakhv.samlib.db;
 
 import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.stmt.DeleteBuilder;
+import com.j256.ormlite.stmt.QueryBuilder;
 import monakhv.samlib.db.entity.Author;
 import monakhv.samlib.db.entity.Tag;
 import monakhv.samlib.db.entity.Tag2Author;
 import monakhv.samlib.log.Log;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 /*
  * Copyright 2015  Dmitry Monakhov
@@ -60,4 +63,58 @@ public class Tag2AuthorController {
             Log.e(DEBUG_TAG,"DeleteByTag Error",e);
         }
     }
+    boolean sync(Author author,List<Tag> tags){
+        boolean res = false;
+        List<Tag2Author> t2as= queryByAuthor(author);
+
+        if (t2as == null){
+            return false;
+        }
+        List<Tag> tgs = new ArrayList<>();
+        for (Tag2Author t2a: t2as){
+            if (! tags.contains(t2a.getTag())){//delete t2a
+                try {
+                    t2aDao.delete(t2a);
+                    res = true;
+                } catch (SQLException e) {
+                    Log.e(DEBUG_TAG,"Error delete t2a",e);
+                    return false;
+                }
+            }
+            else {
+                tgs.add(t2a.getTag());
+            }
+        }
+
+        for (Tag tag : tags){
+            if (! tgs.contains(tag)){//add new t2a
+
+                Tag2Author t2a = new Tag2Author(author,tag);
+
+                try {
+                    t2aDao.create(t2a);
+                    res = true;
+                } catch (SQLException e) {
+                    Log.e(DEBUG_TAG,"Error create t2a",e);
+                    return false;
+                }
+            }
+        }
+
+        return res;
+    }
+
+    private List<Tag2Author> queryByAuthor(Author author){
+        List<Tag2Author> t2as;
+        QueryBuilder<Tag2Author,Integer> queryBuilder = t2aDao.queryBuilder();
+        try {
+            queryBuilder.where().eq(SQLController.COL_T2A_AUTHORID,author);
+            t2as=queryBuilder.query();
+        } catch (SQLException e) {
+            Log.e(DEBUG_TAG,"Query error",e);
+            return null;
+        }
+        return t2as;
+    }
+
 }

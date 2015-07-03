@@ -351,32 +351,15 @@ public class AuthorController implements AbstractController<Author> {
     }
 
 
-     /**
+    /**
      * Making tags for the Author according to th given list
-     *
-     * @param a the Author
-     * @param tags list of tag id
+     * @param author the Author
+     * @param tags list of tags
+     * @return true if  database sync was done
      */
-//    public void syncTags(Author a, List<Integer> tags) {
-//        for (Integer tag_id : tags) {//add new tag to the author
-//            if (!a.getTags_id().contains(tag_id)) {
-//                ContentValues cv = new ContentValues();
-//                cv.put(SQLController.COL_T2A_AUTHORID, a.getId());
-//                cv.put(SQLController.COL_T2A_TAGID, tag_id);
-//                context.getContentResolver().insert(AuthorProvider.T2A_URI, cv);
-//            }
-//
-//        }
-//
-//        for (Integer tag : a.getTags_id()){
-//            if (! tags.contains(tag)){
-//                context.getContentResolver().delete(AuthorProvider.T2A_URI, SQLController.COL_T2A_AUTHORID+ "="+a.getId()
-//                        +" and "+SQLController.COL_T2A_TAGID+"="+tag.toString()
-//                        , null);
-//            }
-//        }
-//        Uri singleUri = ContentUris.withAppendedId(AuthorProvider.AUTHOR_URI, a.getId());
-//        context.getContentResolver().notifyChange(singleUri, null);
-//    }
+    public boolean syncTags(Author author, List<Tag>tags){
+        //TODO: modification of the list of tags into the Author Object
+        return  t2aCtl.sync(author,tags);
+    }
 
 }

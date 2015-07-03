@@ -37,6 +37,11 @@ public class Tag2Author implements Serializable {
 
     }
 
+    public Tag2Author(Author author,Tag tag){
+        this.author=author;
+        this.tag = tag;
+    }
+
     public int getId() {
         return id;
     }
