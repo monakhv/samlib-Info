@@ -150,7 +150,7 @@ public class MainForm extends JFrame implements GuiCallBack{
             authorList=ctl.getAllNew(sortOrder);
         }
         else {
-            authorList=ctl.getAll(sortOrder,selectedTag.getTag());
+            authorList=ctl.getAllByTag(sortOrder, selectedTag.getTag());
         }
 
         for (Author a : authorList ){

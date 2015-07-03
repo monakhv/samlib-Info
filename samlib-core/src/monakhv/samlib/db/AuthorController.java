@@ -41,6 +41,7 @@ public class AuthorController implements AbstractController<Author> {
 
     private final BookController bookCtl;
     private final Tag2AuthorController t2aCtl;
+    private final TagController tagCtl;
     private final Dao<Author, Integer> dao;
     private final Dao<Tag2Author, Integer> t2aDao;
 
@@ -52,6 +53,7 @@ public class AuthorController implements AbstractController<Author> {
         t2aDao = sql.getT2aDao();
         this.bookCtl = new BookController(sql);
         this.t2aCtl=new Tag2AuthorController(sql);
+        this.tagCtl = new TagController(sql);
 
 
     }
@@ -197,20 +199,14 @@ public class AuthorController implements AbstractController<Author> {
     }
 
     public Author getByUrl(String url) {
-        List<Author> rr;
+
 
         QueryBuilder<Author, Integer> statement = dao.queryBuilder();
 
+        List<Author> rr=query(statement, SQLController.COL_URL, url);
 
-        try {
-            statement.where().eq(SQLController.COL_URL, url);
-            rr = dao.query(statement.prepare());
-        } catch (SQLException e) {
-            Log.e(DEBUG_TAG, "can not find by URL: ", e);
-            return null;
-        }
+        if (rr== null || rr.size() != 1) {
 
-        if (rr.size() != 1) {
             return null;
 
         }
@@ -230,17 +226,59 @@ public class AuthorController implements AbstractController<Author> {
             Log.d(DEBUG_TAG, "Sort order is " + order);
             statement.orderBy(order, true);
         }
+        return query(statement, null, null);
+
+    }
+
+    /**
+     *  Very general method to make SQL query like this
+     *  <i>Select * from Author WHERE x=y</i>
+     * @param cb QueryBuilder could be make sorted calls
+     * @param ColumnName Column name for WHERE or null when select ALL items
+     * @param object Object for WHERE =
+     * @return List of the Authors
+     */
+    private List<Author> query(QueryBuilder<Author,Integer>  cb,String ColumnName, Object object){
         List<Author> rr;
 
         try {
-            rr = dao.query(statement.prepare());
+            if (ColumnName != null){
+                if (ColumnName.equalsIgnoreCase(SQLController.COL_ID) && object instanceof QueryBuilder) {
+                    cb.where().in(ColumnName, (QueryBuilder<Tag2Author,Integer> ) object);
+
+                }
+                else{
+                    cb.where().eq(ColumnName,object);
+                }
+            }
+
+            rr = dao.query(cb.prepare());
 
         } catch (SQLException e) {
-            Log.e(DEBUG_TAG, "select error: " + statement, e);
+            Log.e(DEBUG_TAG, "select error: " + cb.toString(), e);
             return null;
         }
+        makeAuthorTags(rr);
         return rr;
     }
+
+    private void makeAuthorTags(List<Author> authors){
+        for (Author author : authors ){
+            int num = author.getTag2Authors().size();
+            int i =1;
+            StringBuilder sb = new StringBuilder();
+            for (Tag2Author t2a : author.getTag2Authors()){
+                sb.append(tagCtl.getById(t2a.getTag().getId()).getName());
+                if (i<num){
+                    sb.append(", ");
+                }
+                ++i;
+            }
+            author.setAll_tags_name(sb.toString());
+        }
+    }
+
+
     /**
      * Get All NEW Authors ordered by <b>order</b> param
      * @param order Field used for sorting
@@ -254,17 +292,9 @@ public class AuthorController implements AbstractController<Author> {
             statement.orderBy(order, true);
         }
 
-        List<Author> rr;
+        return query(statement,SQLController.COL_isnew,true);
 
-        try {
-            statement.where().eq(SQLController.COL_isnew,true);
-            rr = dao.query(statement.prepare());
 
-        } catch (SQLException e) {
-            Log.e(DEBUG_TAG, "select error: " + statement, e);
-            return null;
-        }
-        return rr;
     }
 
     /**
@@ -274,7 +304,7 @@ public class AuthorController implements AbstractController<Author> {
      * @param tag common tag for all authors to return
      * @return List of the Authors
      */
-    public List<Author> getAll(String order,Tag tag) {
+    public List<Author> getAllByTag(String order, Tag tag) {
 
         QueryBuilder<Tag2Author,Integer> t2aqb = t2aDao.queryBuilder();
         t2aqb.selectColumns(SQLController.COL_T2A_AUTHORID);
@@ -292,17 +322,7 @@ public class AuthorController implements AbstractController<Author> {
             Log.d(DEBUG_TAG, "Sort order is " + order);
             statement.orderBy(order, true);
         }
-        List<Author> rr;
-
-        try {
-            statement.where().in(SQLController.COL_ID, t2aqb);
-            rr = dao.query(statement.prepare());
-
-        } catch (SQLException e) {
-            Log.e(DEBUG_TAG, "select error: " + statement, e);
-            return null;
-        }
-        return rr;
+        return query(statement,SQLController.COL_ID, t2aqb);
     }
 
     @Override
