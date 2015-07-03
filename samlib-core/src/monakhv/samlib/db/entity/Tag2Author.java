@@ -1,6 +1,5 @@
 package monakhv.samlib.db.entity;
 
-import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
 import monakhv.samlib.db.SQLController;

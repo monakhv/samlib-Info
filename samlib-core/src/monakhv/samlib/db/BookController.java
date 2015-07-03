@@ -115,7 +115,7 @@ public class BookController  implements AbstractController<Book> {
 
     /**
      * Delete all book of the Author
-     * @param author
+     * @param author The Author whose books to be deleted
      */
     void deleteByAuthor(Author author){
         DeleteBuilder<Book,Integer> deleteBuilder = dao.deleteBuilder();
