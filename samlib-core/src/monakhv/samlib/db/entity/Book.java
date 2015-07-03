@@ -72,7 +72,7 @@ public class Book implements Serializable {
     private int options;
     @DatabaseField(columnName = SQLController.COL_BOOK_AUTHOR_ID,foreign = true,canBeNull = false)
     private Author author;
-    private long authorId;
+
     private SettingsHelper.FileType fileType;
 
     /**
@@ -173,10 +173,6 @@ public class Book implements Serializable {
 
     public long getAuthorId() {
         return author.getId();
-    }
-
-    public void setAuthorId(long authorId) {
-        this.authorId = authorId;
     }
 
     public Author getAuthor() {

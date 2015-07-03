@@ -357,7 +357,7 @@ public class HttpClientController {
             try {
                 Book b = new Book(line);
                 b.setAuthor(a);
-                b.setAuthorId(a.getId());
+
                 a.getBooks().add(b);
             } catch (BookParseException ex) {//parsing book update date handling
                 //TODO: new put it to Book constructor

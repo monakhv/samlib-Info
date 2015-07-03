@@ -155,7 +155,7 @@ public class AuthorController implements AbstractController<Author> {
         //Insert book for the author
         Author a = getByUrl(author.getUrl());
         for (Book book : author.getBooks()) {
-            book.setAuthorId(a.getId());
+            book.setAuthor(a);
             bookCtl.insert(book);
         }
         return res;

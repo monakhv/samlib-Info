@@ -51,8 +51,7 @@ public class Author  implements Serializable{
     protected int id;
     @ForeignCollectionField(eager = true,maxEagerLevel = 2)
     private ForeignCollection<Tag2Author> tag2Authors;
-    private List<Integer> tags_id;
-    private List<String>  tags_name;
+
     private String all_tags_name;
 
     /**
@@ -61,8 +60,7 @@ public class Author  implements Serializable{
     public Author() {
         updateDate = Calendar.getInstance().getTime().getTime();
         //books = new ArrayList<Book>();
-        tags_id = new ArrayList<Integer>();
-        tags_name = new ArrayList<String>();
+
     }
 
     public int getId() {
@@ -131,21 +129,7 @@ public class Author  implements Serializable{
         this.all_tags_name = all_tags_name;
     }
 
-    public List<Integer> getTags_id() {
-        return tags_id;
-    }
 
-    public void setTags_id(List<Integer> tags_id) {
-        this.tags_id = tags_id;
-    }
-
-    public List<String> getTags_name() {
-        return tags_name;
-    }
-
-    public void setTags_name(List<String> tags_name) {
-        this.tags_name = tags_name;
-    }
 
     public ForeignCollection<Tag2Author> getTag2Authors() {
         return tag2Authors;
