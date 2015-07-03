@@ -278,7 +278,24 @@ public class AuthorTagsDialog extends JDialog {
             setPanel(author);
         }
     }
-    private void startEdit(Tag tag){
+    private void startEdit(final Tag tag){
+        AddTextValue editTag= new AddTextValue(
+                this,
+                bundle.getString("AuthorTagsDialog.EditTag.text"),
+                bundle.getString("AuthorTagsDialog.EditTag.title"),
+                new AddTextValue.CallBack(){
+
+                    @Override
+                    public void okClick(String answer) {
+                        tag.setName(answer);
+                        tagCtl.update(tag);
+                        makePanel();
+                        setPanel(author);
+                    }
+                },tag.getName());
+
+
+        editTag.setVisible(true);
 
     }
 }

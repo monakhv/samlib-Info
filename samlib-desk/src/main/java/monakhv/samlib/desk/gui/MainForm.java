@@ -87,12 +87,7 @@ public class MainForm extends JFrame implements GuiCallBack{
 
 
 
-        cBTags.addItem(ComboItem.ALL);
-        cBTags.addItem(ComboItem.NEW);
-        TagController tagCtl = new TagController(DaoController.getInstance(sql));
-        for (Tag tag : tagCtl.getAll()){
-            cBTags.addItem(new ComboItem(tag));
-        }
+        createTagSelector();
 
 
         //TODO: we can move the constant 20 to settings
@@ -125,6 +120,16 @@ public class MainForm extends JFrame implements GuiCallBack{
             }
         });
 
+    }
+
+    private void createTagSelector(){
+        cBTags.removeAllItems();
+        cBTags.addItem(ComboItem.ALL);
+        cBTags.addItem(ComboItem.NEW);
+        TagController tagCtl = new TagController(DaoController.getInstance(sql));
+        for (Tag tag : tagCtl.getAll()){
+            cBTags.addItem(new ComboItem(tag));
+        }
     }
 
 
@@ -207,6 +212,9 @@ public class MainForm extends JFrame implements GuiCallBack{
 
         JComboBox cb = (JComboBox) e.getSource();
         selectedTag= (ComboItem) cb.getSelectedItem();
+        if (selectedTag == null){
+            return;
+        }
         Log.d(DEBUG_TAG,"Tag: "+selectedTag.toString());
         addSortedAuthorList();
         redraw();
@@ -533,6 +541,7 @@ public class MainForm extends JFrame implements GuiCallBack{
 
     @Override
     public void authorRedraw() {
+        createTagSelector();
         addSortedAuthorList();
         redraw();
     }

@@ -28,6 +28,17 @@ public class AddTextValue extends JDialog {
 
 
     }
+    public AddTextValue(JDialog owner,String label,String title, CallBack callBack,String text ) {
+        super(owner);
+        initComponents();
+        label1.setText(label);
+        setTitle(title);
+        pack();
+        this.callBack=callBack;
+        textField1.setText(text);
+
+
+    }
 
     private void cancelButtonActionPerformed(ActionEvent e) {
         this.setVisible(false);
