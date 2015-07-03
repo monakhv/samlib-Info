@@ -31,7 +31,7 @@ import monakhv.samlib.log.Log;
 /**
  * @author Dmitry Monakhov
  */
-public class MainForm extends JFrame {
+public class MainForm extends JFrame implements GuiCallBack{
     private static final String DEBUG_TAG="MainForm";
     private ResourceBundle bndl = ResourceBundle.getBundle("samlibDesk");
     private final DefaultListModel<Author> authorsModel;
@@ -73,7 +73,7 @@ public class MainForm extends JFrame {
             }
         });
         setTitle(bndl.getString("MainForm.Title.text"));
-        authorTags = new AuthorTagsDialog(this,DaoController.getInstance(sql));
+        authorTags = new AuthorTagsDialog(this,DaoController.getInstance(sql),this);
 
 
         initComponents();
@@ -530,6 +530,12 @@ public class MainForm extends JFrame {
     private JMenuItem menuAuthorTags;
     private JMenuItem menuAuthorMakeRead;
     private JMenuItem menuAuthorDelete;
+
+    @Override
+    public void authorRedraw() {
+        addSortedAuthorList();
+        redraw();
+    }
     // JFormDesigner - End of variables declaration  //GEN-END:variables
 
 

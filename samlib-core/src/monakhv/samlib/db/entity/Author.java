@@ -114,10 +114,15 @@ public class Author  implements Serializable{
     public String getAll_tags_name() {
         if (all_tags_name == null && tag2Authors.size()!= 0){
             StringBuilder sb = new StringBuilder();
+            int i =1;
+            int num = tag2Authors.size();
             for (Tag2Author t2a : tag2Authors){
                 //Log.d("AUTHOR","t2a "+t2a.getTag().getName());
                 sb.append(t2a.getTag().getId());
-                sb.append(",");
+                if (i<num){
+                    sb.append(",");
+                }
+                ++i;
             }
 
             all_tags_name=sb.toString();

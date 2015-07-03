@@ -5,6 +5,8 @@
 package monakhv.samlib.desk.gui;
 
 import java.awt.event.*;
+
+import monakhv.samlib.db.AuthorController;
 import monakhv.samlib.db.DaoBuilder;
 import monakhv.samlib.db.TagController;
 import monakhv.samlib.db.entity.Author;
@@ -15,6 +17,7 @@ import monakhv.samlib.log.Log;
 import java.awt.*;
 import java.util.*;
 import java.util.List;
+
 import javax.swing.*;
 import javax.swing.border.*;
 
@@ -23,44 +26,79 @@ import javax.swing.border.*;
  */
 public class AuthorTagsDialog extends JDialog {
     private static final String DEBUG_TAG="AuthorTagsDialog";
+    private final static ImageIcon DELETE_ICON = new ImageIcon(AuthorRenderer.class.getResource("/pics/16x16/delete.png"));
+    private final static ImageIcon EDIT_ICON = new ImageIcon(AuthorRenderer.class.getResource("/pics/16x16/keyboardpencil.png"));
+
+    private ResourceBundle bundle = ResourceBundle.getBundle("samlibDesk");
     private HashMap<String,JCheckBox> allCbs;
 
     private TagController tagCtl;
     private DaoBuilder sql;
+    private Author author;
+    private GuiCallBack callBack;
 
-    public AuthorTagsDialog(Frame owner,DaoBuilder sql) {
+    public AuthorTagsDialog(Frame owner,DaoBuilder sql,GuiCallBack callBack) {
         super(owner);
         initComponents();
         this.sql = sql;
+        this.callBack = callBack;
         allCbs=new HashMap<>();
 
 
         tagCtl = new TagController(sql);
 
+        makePanel();
+
+
+    }
+    private void makePanel(){
         panel1.removeAll();
-        for (Tag tag: tagCtl.getAll()){
+        for (final Tag tag: tagCtl.getAll()){
             JCheckBox cb = new JCheckBox();
             allCbs.put(tag.getUcName(), cb);
             cb.setName(tag.getName());
             JLabel label = new JLabel();
             label.setText(tag.getName());
+
+
+            JButton deleteButton = new JButton(DELETE_ICON);
+            JButton editButton = new JButton(EDIT_ICON);
+
+
+            deleteButton.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    startDelete(tag);
+                }
+            });
+
+            editButton.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    startEdit(tag);
+                }
+            });
+            cb.setText(tag.getName());
             panel1.add(cb);
-            panel1.add(label);
+
+
+            JPanel pan = new JPanel(new GridLayout(1,2));
+            pan.add(deleteButton);
+            pan.add(editButton);
+            panel1.add(pan);
 
         }
 
         panel1.revalidate();
         pack();
 
-
     }
 
-    public AuthorTagsDialog(Dialog owner) {
-        super(owner);
-        initComponents();
-    }
 
     void setPanel(Author author){
+        tFAddTagName.setText("");
+        this.author = author;
+        setTitle(author.getName());
         for (JCheckBox cb : allCbs.values()){
             cb.setSelected(false);
         }
@@ -71,26 +109,52 @@ public class AuthorTagsDialog extends JDialog {
             allCbs.get(tag.getUcName()).setSelected(true);
             Log.i(DEBUG_TAG, "Author: " + author.getName() + " - " + tag.getName());
         }
-        panel1.revalidate();
+        redraw();
 
 
     }
+    private void redraw(){
+        this.getContentPane().validate();
+        this.getContentPane().repaint();
+    }
 
     private void okButtonActionPerformed(ActionEvent e) {
+        List<Tag> tags = new ArrayList<>();
+        for (JCheckBox cb : allCbs.values()){
+            if (cb.isSelected()){
+                tags.add(tagCtl.getByName(cb.getName()));
+            }
+        }
+        AuthorController aSQL = new AuthorController(sql);
+        aSQL.syncTags(author,tags);
+        callBack.authorRedraw();
         setVisible(false);
     }
 
     private void cancelButtonActionPerformed(ActionEvent e) {
         setVisible(false);
     }
+
+    private void buttonAddTagActionPerformed(ActionEvent e) {
+        String tname =  tFAddTagName.getText();
+        tFAddTagName.setText("");
+        tagCtl.insert(new Tag(tname));
+        makePanel();
+        setPanel(author);;
+
+    }
     private void initComponents() {
         // JFormDesigner - Component initialization - DO NOT MODIFY  //GEN-BEGIN:initComponents
+        ResourceBundle bundle = ResourceBundle.getBundle("samlibDesk");
         dialogPane = new JPanel();
         contentPanel = new JPanel();
         panel1 = new JPanel();
         buttonBar = new JPanel();
         okButton = new JButton();
         cancelButton = new JButton();
+        panel2 = new JPanel();
+        tFAddTagName = new JTextField();
+        buttonAddTag = new JButton();
 
         //======== this ========
         Container contentPane = getContentPane();
@@ -111,7 +175,7 @@ public class AuthorTagsDialog extends JDialog {
 
                 //======== panel1 ========
                 {
-                    panel1.setLayout(new GridLayout(0, 2));
+                    panel1.setLayout(new GridLayout(0, 2, 2, 2));
                 }
                 contentPanel.add(panel1, new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0,
                     GridBagConstraints.CENTER, GridBagConstraints.BOTH,
@@ -154,6 +218,31 @@ public class AuthorTagsDialog extends JDialog {
                     new Insets(0, 0, 0, 0), 0, 0));
             }
             dialogPane.add(buttonBar, BorderLayout.SOUTH);
+
+            //======== panel2 ========
+            {
+                panel2.setLayout(new GridBagLayout());
+                ((GridBagLayout)panel2.getLayout()).columnWidths = new int[] {0, 0, 0};
+                ((GridBagLayout)panel2.getLayout()).rowHeights = new int[] {0, 0, 0, 0};
+                ((GridBagLayout)panel2.getLayout()).columnWeights = new double[] {1.0, 0.0, 1.0E-4};
+                ((GridBagLayout)panel2.getLayout()).rowWeights = new double[] {0.0, 0.0, 0.0, 1.0E-4};
+                panel2.add(tFAddTagName, new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0,
+                    GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                    new Insets(0, 0, 5, 5), 0, 0));
+
+                //---- buttonAddTag ----
+                buttonAddTag.setText(bundle.getString("AuthorTagsDialog.AddButton.text"));
+                buttonAddTag.addActionListener(new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        buttonAddTagActionPerformed(e);
+                    }
+                });
+                panel2.add(buttonAddTag, new GridBagConstraints(1, 1, 1, 1, 0.0, 0.0,
+                    GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                    new Insets(0, 0, 5, 0), 0, 0));
+            }
+            dialogPane.add(panel2, BorderLayout.NORTH);
         }
         contentPane.add(dialogPane, BorderLayout.CENTER);
         pack();
@@ -168,5 +257,28 @@ public class AuthorTagsDialog extends JDialog {
     private JPanel buttonBar;
     private JButton okButton;
     private JButton cancelButton;
+    private JPanel panel2;
+    private JTextField tFAddTagName;
+    private JButton buttonAddTag;
     // JFormDesigner - End of variables declaration  //GEN-END:variables
+
+
+    private void startDelete(Tag tag){
+        int  answer = JOptionPane.showConfirmDialog(
+                this,
+                bundle.getString("AuthorTagsDialog.Confirm.text")+" \""+tag.getName()+"\"?",
+                bundle.getString("AuthorTagsDialog.Confirm.Title"),
+                JOptionPane.YES_NO_OPTION
+        );
+        if (answer==JOptionPane.YES_OPTION){
+            tagCtl.delete(tag);
+            AuthorController aSQL = new AuthorController(sql);
+            author=aSQL.getById(author.getId());
+            makePanel();
+            setPanel(author);
+        }
+    }
+    private void startEdit(Tag tag){
+
+    }
 }
