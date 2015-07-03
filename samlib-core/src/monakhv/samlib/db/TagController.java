@@ -29,9 +29,10 @@ import java.util.List;
 public class TagController implements AbstractController<Tag> {
     private static final String DEBUG_TAG="TagController";
     private final Dao<Tag, Integer> tagDao;
+    private final Tag2AuthorController t2aCtl;
 
     public TagController(DaoBuilder sql){
-
+        t2aCtl=new Tag2AuthorController(sql);
         tagDao = sql.getTagDao();
     }
     @Override
@@ -47,6 +48,9 @@ public class TagController implements AbstractController<Tag> {
 
     @Override
     public long insert(Tag tag) {
+        if (getByName(tag.getName()) != null){
+            return 0;//ignore Duplicate by name objects
+        }
         try {
             return tagDao.create(tag);
         } catch (SQLException e) {
@@ -57,6 +61,9 @@ public class TagController implements AbstractController<Tag> {
 
     @Override
     public int delete(Tag tag) {
+        //Delete Tag2Author
+        t2aCtl.deleteByTag(tag);
+        //Delete Tag
         int ires;
         try {
             ires = tagDao.delete(tag);
@@ -94,11 +101,11 @@ public class TagController implements AbstractController<Tag> {
 
     /**
      * Find tag by name
-     * @param name
-     * @return tag id or -1 if no tag found
+     * @param name Name of the TAG
+     * @return tag  or null if no tag found
      */
-    public int getByName(String name){
-        int res =  -1;
+    public Tag getByName(String name){
+
         String ucs = name.toUpperCase();
         QueryBuilder<Tag,Integer> statement = tagDao.queryBuilder();
         List<Tag> rr;
@@ -108,16 +115,16 @@ public class TagController implements AbstractController<Tag> {
             rr = tagDao.query(statement.prepare());
         } catch (SQLException e) {
             Log.e(DEBUG_TAG,"Get by name Error!",e);
-            return res;
+            return null;
         }
 
 
         if (rr.size() != 1){
             Log.e(DEBUG_TAG,"Get by name NOT Unique");
-            return res;
+            return null;
         }
 
-        return rr.get(0).getId();
+        return rr.get(0);
 
 
     }

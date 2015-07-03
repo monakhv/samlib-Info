@@ -40,6 +40,7 @@ public class AuthorController implements AbstractController<Author> {
     private static final String DEBUG_TAG = "AuthorController";
 
     private final BookController bookCtl;
+    private final Tag2AuthorController t2aCtl;
     private final Dao<Author, Integer> dao;
     private final Dao<Tag2Author, Integer> t2aDao;
 
@@ -50,6 +51,7 @@ public class AuthorController implements AbstractController<Author> {
         dao = sql.getAuthorDao();
         t2aDao = sql.getT2aDao();
         this.bookCtl = new BookController(sql);
+        this.t2aCtl=new Tag2AuthorController(sql);
 
 
     }
@@ -94,8 +96,8 @@ public class AuthorController implements AbstractController<Author> {
 
     /**
      * Update Author object
-     * @param author
-     * @return
+     * @param author Author to update
+     * @return id
      */
     @Override
     public int update(Author author) {
@@ -137,8 +139,8 @@ public class AuthorController implements AbstractController<Author> {
 
     /**
      * Make persist new Author object
-     * @param author
-     * @return
+     * @param author Author to persist
+     * @return id
      */
     @Override
     public long insert(Author author) {
@@ -164,16 +166,16 @@ public class AuthorController implements AbstractController<Author> {
     /**
      * Delete author object from Data base
      * @param author Author to delete
-     * @return
+     * @return id
      */
     @Override
     public int delete(Author author) {
         //Delete book of the author first
-        List<Book> books = bookCtl.getAll(author, null);
+        bookCtl.deleteByAuthor(author);
 
-        for (Book book : books) {
-            bookCtl.delete(book);
-        }
+        //Delete Tag2Author
+        t2aCtl.deleteByAuthor(author);
+
         //Delete Author
 
         int res ;
@@ -242,7 +244,7 @@ public class AuthorController implements AbstractController<Author> {
     /**
      * Get All NEW Authors ordered by <b>order</b> param
      * @param order Field used for sorting
-     * @return
+     * @return List of the Authors
      */
     public List<Author> getAllNew(String order) {
         QueryBuilder<Author, Integer> statement = dao.queryBuilder();

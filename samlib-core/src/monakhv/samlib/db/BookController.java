@@ -1,6 +1,7 @@
 package monakhv.samlib.db;
 
 import com.j256.ormlite.dao.Dao;
+import com.j256.ormlite.stmt.DeleteBuilder;
 import com.j256.ormlite.stmt.QueryBuilder;
 import monakhv.samlib.db.entity.Author;
 import monakhv.samlib.db.entity.Book;
@@ -55,6 +56,12 @@ public class BookController  implements AbstractController<Book> {
         dao = sql.getBookDao();
 
     }
+
+    /**
+     * Update book into database
+     * @param book The object to update
+     * @return id
+     */
     @Override
     public int update(Book book) {
 
@@ -71,6 +78,11 @@ public class BookController  implements AbstractController<Book> {
 
     }
 
+    /**
+     * Insert new Book object into Database
+     * @param book object to insert
+     * @return id
+     */
     @Override
     public long insert(Book book) {
         int res;
@@ -83,6 +95,11 @@ public class BookController  implements AbstractController<Book> {
         return res;
     }
 
+    /**
+     * Delete Book object
+     * @param book objecr to delete
+     * @return id
+     */
     @Override
     public int delete(Book book) {
         int res;
@@ -94,6 +111,21 @@ public class BookController  implements AbstractController<Book> {
         }
 
         return res;
+    }
+
+    /**
+     * Delete all book of the Author
+     * @param author
+     */
+    void deleteByAuthor(Author author){
+        DeleteBuilder<Book,Integer> deleteBuilder = dao.deleteBuilder();
+        try {
+            deleteBuilder.where().eq(SQLController.COL_BOOK_AUTHOR_ID,author);
+            deleteBuilder.delete();
+        } catch (SQLException e) {
+            Log.e(DEBUG_TAG,"Delete all Author book error",e);
+        }
+
     }
 
     @Override
