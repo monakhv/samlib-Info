@@ -41,7 +41,7 @@ public class MainForm extends JFrame implements GuiCallBack{
     private Settings settings;
     private BookList bkList;
     //private String selection=null;
-    private String sortOrder=SQLController.COL_NAME;
+    private String sortOrder=SQLController.COL_isnew + " DESC, " + SQLController.COL_NAME;
     private Author selectedAuthor;
     private ComboItem selectedTag=ComboItem.ALL;
     private List<Author> authorList;
@@ -141,17 +141,19 @@ public class MainForm extends JFrame implements GuiCallBack{
         AuthorController ctl = new AuthorController(DaoController.getInstance(sql));
          authorsModel.removeAllElements();
 
+        authorList=ctl.getAll(selectedTag.getId(),sortOrder);
 
 
-        if (selectedTag.equals(ComboItem.ALL)){
-            authorList=ctl.getAll(sortOrder);
-        }
-        else if (selectedTag.equals(ComboItem.NEW)){
-            authorList=ctl.getAllNew(sortOrder);
-        }
-        else {
-            authorList=ctl.getAllByTag(sortOrder, selectedTag.getTag());
-        }
+
+//        if (selectedTag.equals(ComboItem.ALL)){
+//            authorList=ctl.getAll(sortOrder);
+//        }
+//        else if (selectedTag.equals(ComboItem.NEW)){
+//            authorList=ctl.getAllNew(sortOrder);
+//        }
+//        else {
+//            authorList=ctl.getAllByTag(sortOrder, selectedTag.getTag());
+//        }
 
         for (Author a : authorList ){
             authorsModel.addElement(a);

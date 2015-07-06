@@ -278,23 +278,33 @@ public class AuthorController implements AbstractController<Author> {
         }
     }
 
-
-    /**
-     * Get All NEW Authors ordered by <b>order</b> param
-     * @param order Field used for sorting
-     * @return List of the Authors
-     */
-    public List<Author> getAllNew(String order) {
+    public List<Author> getAll(int isel, String rowSort){
         QueryBuilder<Author, Integer> statement = dao.queryBuilder();
-        statement.orderBy(SQLController.COL_isnew, false);//new is first by default
-        if (order != null) {
-            Log.d(DEBUG_TAG, "Sort order is " + order);
-            statement.orderBy(order, true);
+        if (rowSort != null){
+            statement.orderByRaw(rowSort);
         }
+        if (isel == SamLibConfig.TAG_AUTHOR_ALL){//return ALL Authors
+            return query(statement,null,null);
+        }
+        if (isel == SamLibConfig.TAG_AUTHOR_NEW){//return Authors with new Books
+            return query(statement,SQLController.COL_isnew,true);
+        }
+        Tag tag = tagCtl.getById(isel);
+        if (tag == null){
+            Log.e(DEBUG_TAG,"getAll: wrong tag: "+isel+"<");
+            return null;
+        }
+        QueryBuilder<Tag2Author,Integer> t2aqb = t2aDao.queryBuilder();
+        t2aqb.selectColumns(SQLController.COL_T2A_AUTHORID);
 
-        return query(statement,SQLController.COL_isnew,true);
+        try {
+            t2aqb.where().eq(SQLController.COL_T2A_TAGID,tag);
 
-
+        } catch (SQLException e) {
+            Log.e(DEBUG_TAG,"getAll:  SQL Error");
+            return null;
+        }
+        return query(statement,SQLController.COL_ID, t2aqb);
     }
 
     /**

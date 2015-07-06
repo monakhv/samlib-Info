@@ -53,7 +53,7 @@ public class ServiceOperation {
         sql.delete(author);
     }
 
-    public void update(List<Author> list) {
+    public void update_tes(List<Author> list) {
 
 
         HttpClientController http = HttpClientController.getInstance(settings);
@@ -106,11 +106,11 @@ public class ServiceOperation {
 
     }
 
-    public void runw(List<Author> list) {
+    public void update(List<Author> list) {
 
 
         HttpClientController http = HttpClientController.getInstance(settings);
-
+        Log.d(DEBUG_TAG,"Begin Author update");
 
         for (Author a : list) {
 
@@ -134,13 +134,14 @@ public class ServiceOperation {
             if (a.update(newA)) {//we have update for the author
 
                 Log.i(DEBUG_TAG, "We need update author: " + a.getName() + " - " + a.getId() + " : " + a.getBooks().size());
-                //ctl.update(a);
+               sql.update(a);
             } else {
                 Log.e(DEBUG_TAG, "Constant Author");
             }
 
 
         }
+        Log.d(DEBUG_TAG,"END Author update");
 
     }
 
