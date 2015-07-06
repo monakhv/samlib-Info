@@ -16,6 +16,7 @@ import java.util.Date;
 import java.util.HashMap;
 
 
+import monakhv.android.samlib.MyBaseAbstractActivity;
 import monakhv.android.samlib.R;
 import monakhv.android.samlib.animation.Flip3D;
 import monakhv.android.samlib.animation.FlipIcon;
@@ -56,10 +57,11 @@ public class AuthorCursorAdapter extends RecyclerCursorAdapter<AuthorCursorAdapt
 
 
 
-    public AuthorCursorAdapter(AuthorController sql,Cursor cursor) {
+    public AuthorCursorAdapter(MyBaseAbstractActivity context,Cursor cursor) {
         super(cursor);
+        this.context=context;
 
-        this.sql= sql;
+        this.sql= new AuthorController(context.getDatabaseHelper());
         flips = new HashMap<>();
 
         setName(DEBUG_TAG);
@@ -131,14 +133,15 @@ public class AuthorCursorAdapter extends RecyclerCursorAdapter<AuthorCursorAdapt
         }
         flips.put(cursor.getPosition(), holder.flipIcon);
 
-        Author author = sql.getById(id_author);
-        String tags=author.getAll_tags_name();
-        if (tags == null) {
-            holder.tgnames.setText("");
-        }
-        else {
-            holder.tgnames.setText(tags);
-        }
+        //TODO: possible performance problem
+//        Author author = sql.getById(id_author);
+//        String tags=author.getAll_tags_name();
+//        if (tags == null) {
+//            holder.tgnames.setText("");
+//        }
+//        else {
+//            holder.tgnames.setText(tags);
+//        }
 
 
 
@@ -158,6 +161,9 @@ public class AuthorCursorAdapter extends RecyclerCursorAdapter<AuthorCursorAdapt
         return new ViewHolder(v);
     }
 
+    public void refresh() {
+        reQuery();
+    }
 
 
     public static class ViewHolder extends RecyclerView.ViewHolder  {

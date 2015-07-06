@@ -190,7 +190,13 @@ public class BookController implements AbstractController<Book> {
 
     @Override
     public Book getById(long id) {
-        return null;
+        Integer dd = (int) id;
+        try {
+            return dao.queryForId(dd);
+        } catch (SQLException e) {
+            return null;
+        }
+
     }
 
     public List<Book> getBooksByAuthor(Author a) {

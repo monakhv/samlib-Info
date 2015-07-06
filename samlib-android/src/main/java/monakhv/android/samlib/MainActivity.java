@@ -620,6 +620,7 @@ public class MainActivity extends MyBaseAbstractActivity  implements
         public static final String ACTION = "ACTION";
         public static final String ACTION_TOAST = "TOAST";
         public static final String ACTION_PROGRESS = "PROGRESS";
+        public static final String ACTION_REFRESH = "ACTION_REFRESH";
 
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -635,6 +636,9 @@ public class MainActivity extends MyBaseAbstractActivity  implements
                 }//
                 if (action.equalsIgnoreCase(ACTION_PROGRESS)) {
                     authorFragment.updateProgress(intent.getStringExtra(TOAST_STRING));
+                }
+                if (action.equalsIgnoreCase(ACTION_REFRESH)){
+                    authorFragment.refresh();
                 }
             }
 

@@ -49,7 +49,7 @@ public class BookCursorAdapter extends RecyclerCursorAdapter<BookCursorAdapter.V
 
     private static final String DEBUG_TAG = "BookCursorAdapter";
     private long author_id;
-    private MyBaseAbstractActivity context;
+    private Context context;
     private SettingsHelper settingsHelper;
     private AuthorController sql;
     private HashMap<Integer,FlipIcon> flips;
@@ -202,9 +202,14 @@ public class BookCursorAdapter extends RecyclerCursorAdapter<BookCursorAdapter.V
     public Book getSelected() {
         int pos = getSelectedPosition();
         if (pos == NOT_SELECTED) {
+            Log.e(DEBUG_TAG,"getSelected: position is NOT_SELECTED");
             return null;
         }
-        return sql.getBookController().getById(getItemId(pos));
+        Book res = sql.getBookController().getById(getItemId(pos));
+        if (res == null){
+            Log.e(DEBUG_TAG,"getSelected: can not find book pos  = "+pos +"        id = "+getItemId(pos));
+        }
+        return res;
     }
 
     /**

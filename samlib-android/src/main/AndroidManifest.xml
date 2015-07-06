@@ -29,7 +29,8 @@ limitations under the License.
         android:backupAgent=".data.backup.SamLibBackupAgentHelper"
         android:icon="@drawable/ic_launcher"
         android:theme="@style/MyTheme"
-        android:allowBackup="true">
+        android:allowBackup="true"
+        android:allowClearUserData="true" >
         <meta-data
             android:name="com.google.android.gms.version"
             android:value="@integer/google_play_services_version"

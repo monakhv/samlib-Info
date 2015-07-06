@@ -242,6 +242,7 @@ public class BookFragment extends Fragment implements ListSwipeListener.SwipeCal
 
         Book book = adapter.getSelected();
         if (book == null) {
+            Log.e(DEBUG_TAG,"singleClick: null book error position = "+position);
             return false;
         }
         loadBook(book);

@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import monakhv.android.samlib.R;
 import monakhv.android.samlib.data.SettingsHelper;
 import monakhv.samlib.db.AuthorController;
+import monakhv.samlib.db.BookController;
 import monakhv.samlib.exception.SamlibParseException;
 import monakhv.samlib.db.entity.Author;
 import monakhv.samlib.db.entity.Book;
@@ -122,7 +123,7 @@ public class AuthorEditorServiceIntent extends MyServiceIntent {
             makeBookReadFlip(id);
             return;
         }
-        Log.e(DEBUG_TAG,"Wrong Action Type");
+        Log.e(DEBUG_TAG, "Wrong Action Type");
 
     }
 
@@ -160,18 +161,23 @@ public class AuthorEditorServiceIntent extends MyServiceIntent {
      * @param id  book id
      */
     private  void makeBookReadFlip(int id) {
-        AuthorController sql = new AuthorController(getHelper());
-        Book book=sql.getBookController().getById(id);
+        BookController sql = new BookController(getHelper());
+        AuthorController aCtl = new AuthorController(getHelper());
+        Book book=sql.getById(id);
+        if (book == null){
+            Log.e(DEBUG_TAG,"makeBookReadFlip: book not found id = "+id);
+            return;
+        }
 
         if (book.isIsNew()){
-            sql.getBookController().markRead(book);
+            sql.markRead(book);
             Author a = book.getAuthor();
-            sql.testMarkRead(a);
+            aCtl.testMarkRead(a);
         }
         else {
-            sql.getBookController().markUnRead(book);
+            sql.markUnRead(book);
             Author a = book.getAuthor();
-            sql.testMarkRead(a);
+            aCtl.testMarkRead(a);
         }
 
     }

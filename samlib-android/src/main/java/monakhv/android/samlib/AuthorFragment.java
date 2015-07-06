@@ -170,7 +170,7 @@ public class AuthorFragment extends Fragment implements OnRefreshListener, ListS
                 return false;
             }
         });
-        adapter = new AuthorCursorAdapter(new AuthorController(mCallbacks.getDatabaseHelper()),getCursor());
+        adapter = new AuthorCursorAdapter((MyBaseAbstractActivity) getActivity(),getCursor());
 
         authorRV.setAdapter(adapter);
         adapter.registerAdapterDataObserver(observer);
@@ -528,6 +528,10 @@ public class AuthorFragment extends Fragment implements OnRefreshListener, ListS
 
 
         updateAdapter();
+    }
+
+    public void refresh(){
+        adapter.refresh();
     }
 
     /**

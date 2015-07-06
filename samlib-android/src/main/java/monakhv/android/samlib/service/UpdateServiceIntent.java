@@ -176,6 +176,7 @@ public class UpdateServiceIntent extends MyServiceIntent {
                         }
                     }
                 }
+                sendRefresh();
             }
 
             try {
@@ -195,6 +196,11 @@ public class UpdateServiceIntent extends MyServiceIntent {
         wl.release();
     }
 
+    /**
+     * Send notification that update is finished
+     * and update status
+     * @param result false if we have an error during update process
+     */
     private void finish(boolean result) {
 
         Log.d(DEBUG_TAG, "Finish intent.");
@@ -253,6 +259,19 @@ public class UpdateServiceIntent extends MyServiceIntent {
         }
     }
 
+    private void sendRefresh(){
+        Intent broadcastIntent = new Intent();
+        broadcastIntent.addCategory(Intent.CATEGORY_DEFAULT);
+        broadcastIntent.setAction(UpdateActivityReceiver.ACTION_RESP);
+        broadcastIntent.putExtra(UpdateActivityReceiver.ACTION, UpdateActivityReceiver.ACTION_REFRESH);
+        sendBroadcast(broadcastIntent);
+    }
+    /**
+     * Send update status
+     * @param total Total number if Author we need checkout
+     * @param iCurrent number of current author
+     * @param name name of current Author
+     */
     private void sendUpdate(int total, int iCurrent, String name) {
 
         //String str = context.getText(R.string.update_update)+"  ["+iCurrent+"/"+total+"]:   "+name;
