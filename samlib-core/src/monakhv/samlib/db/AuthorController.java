@@ -1,8 +1,11 @@
 package monakhv.samlib.db;
 
+import com.j256.ormlite.dao.CloseableIterator;
 import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.dao.ForeignCollection;
+import com.j256.ormlite.stmt.PreparedQuery;
 import com.j256.ormlite.stmt.QueryBuilder;
+import com.j256.ormlite.support.DatabaseResults;
 import monakhv.samlib.db.entity.*;
 import monakhv.samlib.log.Log;
 
@@ -195,7 +198,7 @@ public class AuthorController implements AbstractController<Author> {
 
     @Override
     public List<Author> getAll() {
-        return getAll(null);
+        return getAll(SamLibConfig.TAG_AUTHOR_ALL, null);
     }
 
     public Author getByUrl(String url) {
@@ -203,7 +206,7 @@ public class AuthorController implements AbstractController<Author> {
 
         QueryBuilder<Author, Integer> statement = dao.queryBuilder();
 
-        List<Author> rr=query(statement, SQLController.COL_URL, url);
+        List<Author> rr=query(getPrepared(statement, SQLController.COL_URL, url));
 
         if (rr== null || rr.size() != 1) {
 
@@ -213,85 +216,136 @@ public class AuthorController implements AbstractController<Author> {
         return rr.get(0);
     }
 
-    /**
-     * Get All Authors ordered by <b>order</b> param
-     * Authors with new books are in the begin of the list
-     * @param order Field used for sorting
-     * @return list of the Authors
-     */
-    public List<Author> getAll(String order) {
-        QueryBuilder<Author, Integer> statement = dao.queryBuilder();
-        statement.orderBy(SQLController.COL_isnew, false);//new is first by default
-        if (order != null) {
-            Log.d(DEBUG_TAG, "Sort order is " + order);
-            statement.orderBy(order, true);
+
+
+
+    private List<Author> query(PreparedQuery<Author> prep){
+        List<Author> rr;
+
+
+
+        if (prep == null){
+            Log.e(DEBUG_TAG,"query: prepare error");
         }
-        return query(statement, null, null);
-
+        try {
+            rr=dao.query(prep);
+        } catch (SQLException e) {
+            Log.e(DEBUG_TAG, "query: query error");
+            return null;
+        }
+        makeAuthorTags(rr);
+        return rr;
     }
-
     /**
      *  Very general method to make SQL query like this
      *  <i>Select * from Author WHERE x=y</i>
      * @param cb QueryBuilder could be make sorted calls
      * @param ColumnName Column name for WHERE or null when select ALL items
      * @param object Object for WHERE =
-     * @return List of the Authors
+     * @return preparedQuery
      */
-    private List<Author> query(QueryBuilder<Author,Integer>  cb,String ColumnName, Object object){
-        List<Author> rr;
+    private PreparedQuery<Author> getPrepared(QueryBuilder<Author,Integer>  cb,String ColumnName, Object object){
 
         try {
-            if (ColumnName != null){
+            if (ColumnName != null) {
                 if (ColumnName.equalsIgnoreCase(SQLController.COL_ID) && object instanceof QueryBuilder) {
-                    cb.where().in(ColumnName, (QueryBuilder<Tag2Author,Integer> ) object);
-
-                }
-                else{
-                    cb.where().eq(ColumnName,object);
+                    Log.d(DEBUG_TAG,"PreparedQuery: running where IN query");
+                    cb.where().in(ColumnName, (QueryBuilder<Tag2Author, Integer>) object);
+                } else {
+                    Log.d(DEBUG_TAG, "PreparedQuery: running where EQ query");
+                    cb.where().eq(ColumnName, object);
                 }
             }
-
-            rr = dao.query(cb.prepare());
-
-        } catch (SQLException e) {
-            Log.e(DEBUG_TAG, "select error: " + cb.toString(), e);
+            return  cb.prepare();
+        }catch (SQLException e) {
+            Log.e(DEBUG_TAG, "getPrepared  error: " + cb.toString(), e);
             return null;
         }
-        makeAuthorTags(rr);
-        return rr;
+
+
     }
 
+
+    /**
+     * Make human readable String with list of  all tags for the authors
+     *
+     * @param authors list of the authors
+     */
     private void makeAuthorTags(List<Author> authors){
         for (Author author : authors ){
-            int num = author.getTag2Authors().size();
-            int i =1;
-            StringBuilder sb = new StringBuilder();
-            for (Tag2Author t2a : author.getTag2Authors()){
-                sb.append(tagCtl.getById(t2a.getTag().getId()).getName());
-                if (i<num){
-                    sb.append(", ");
-                }
-                ++i;
-            }
-            author.setAll_tags_name(sb.toString());
+            setTags(author);
         }
     }
+    public void setTags(Author author){
+        if (author.getTag2Authors()==null){
+            return;
+        }
+        int num = author.getTag2Authors().size();
+        int i =1;
+        StringBuilder sb = new StringBuilder();
+        for (Tag2Author t2a : author.getTag2Authors()){
+            sb.append(tagCtl.getById(t2a.getTag().getId()).getName());
+            if (i<num){
+                sb.append(", ");
+            }
+            ++i;
+        }
+        author.setAll_tags_name(sb.toString());
+    }
 
+    /**
+     * the main method to query authors
+     *
+     * SamLibConfig.TAG_AUTHOR_ALL - all authors
+     * SamLibConfig.TAG_AUTHOR_NEW - authors with new books
+     *
+     *
+     * @param isel ALL, New or TAG-id
+     * @param rowSort -- SQL order part statement - can be null
+     * @return list of the authors
+     */
     public List<Author> getAll(int isel, String rowSort){
+        PreparedQuery<Author> prep = getPrepared(isel, rowSort);
+
+        if (prep == null){
+            Log.e(DEBUG_TAG, "getAll: prepare error");
+            return null;
+        }
+
+        return query(prep);
+    }
+
+    public DatabaseResults getRowResults(int isel, String rowSort){
+        PreparedQuery<Author> prep = getPrepared(isel, rowSort);
+        if (prep == null){
+            Log.e(DEBUG_TAG, "getRowResults: prepare error: iSel = " + isel + "   rowSort = " + rowSort);
+            return null;
+        }
+        try {
+            CloseableIterator<Author> iterator = dao.iterator(prep);
+            return iterator.getRawResults();
+        } catch (SQLException e) {
+            Log.e(DEBUG_TAG, "getRowResults: get Results error");
+            return null;
+        }
+
+    }
+
+    private PreparedQuery<Author> getPrepared(int isel, String rowSort){
         QueryBuilder<Author, Integer> statement = dao.queryBuilder();
         if (rowSort != null){
             statement.orderByRaw(rowSort);
         }
         if (isel == SamLibConfig.TAG_AUTHOR_ALL){//return ALL Authors
-            return query(statement,null,null);
+            Log.d(DEBUG_TAG,"getPrepared: query ALL Authors");
+            return getPrepared(statement, null, null);
         }
         if (isel == SamLibConfig.TAG_AUTHOR_NEW){//return Authors with new Books
-            return query(statement,SQLController.COL_isnew,true);
+            return getPrepared(statement, SQLController.COL_isnew, true);
         }
         Tag tag = tagCtl.getById(isel);
         if (tag == null){
-            Log.e(DEBUG_TAG,"getAll: wrong tag: "+isel+"<");
+            Log.e(DEBUG_TAG,"getPrepared: wrong tag: "+isel+"<");
             return null;
         }
         QueryBuilder<Tag2Author,Integer> t2aqb = t2aDao.queryBuilder();
@@ -301,49 +355,27 @@ public class AuthorController implements AbstractController<Author> {
             t2aqb.where().eq(SQLController.COL_T2A_TAGID,tag);
 
         } catch (SQLException e) {
-            Log.e(DEBUG_TAG,"getAll:  SQL Error");
+            Log.e(DEBUG_TAG,"getPrepared:  SQL Error");
             return null;
         }
-        return query(statement,SQLController.COL_ID, t2aqb);
+        return getPrepared(statement, SQLController.COL_ID, t2aqb);
     }
 
-    /**
-     * Get All Authors with given tag  ordered by <b>order</b> param
-     *
-     * @param order Field used for sorting
-     * @param tag common tag for all authors to return
-     * @return List of the Authors
-     */
-    public List<Author> getAllByTag(String order, Tag tag) {
-
-        QueryBuilder<Tag2Author,Integer> t2aqb = t2aDao.queryBuilder();
-        t2aqb.selectColumns(SQLController.COL_T2A_AUTHORID);
-
-        try {
-            t2aqb.where().eq(SQLController.COL_T2A_TAGID,tag);
-
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        QueryBuilder<Author, Integer> statement = dao.queryBuilder();
-        statement.orderBy(SQLController.COL_isnew, false);//new is first by default
-        if (order != null) {
-
-            Log.d(DEBUG_TAG, "Sort order is " + order);
-            statement.orderBy(order, true);
-        }
-        return query(statement,SQLController.COL_ID, t2aqb);
-    }
 
     @Override
     public Author getById(long id) {
         Integer dd = (int) id;
+        Author a;
         try {
-            return dao.queryForId(dd);
+            a= dao.queryForId(dd);
         } catch (SQLException e) {
             Log.e(DEBUG_TAG,"getById - Error",e);
             return null;
         }
+        if (a != null){
+            setTags(a);
+        }
+        return a;
     }
 
 

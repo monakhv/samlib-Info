@@ -53,6 +53,7 @@ public class Author  implements Serializable{
     private ForeignCollection<Tag2Author> tag2Authors;
 
     private String all_tags_name;
+    private List<Integer> tagIds;
 
     /**
      * Just empty constructor with empty book list and current updated time
@@ -112,21 +113,6 @@ public class Author  implements Serializable{
     }
 
     public String getAll_tags_name() {
-        if (all_tags_name == null && tag2Authors.size()!= 0){
-            StringBuilder sb = new StringBuilder();
-            int i =1;
-            int num = tag2Authors.size();
-            for (Tag2Author t2a : tag2Authors){
-                //Log.d("AUTHOR","t2a "+t2a.getTag().getName());
-                sb.append(t2a.getTag().getId());
-                if (i<num){
-                    sb.append(",");
-                }
-                ++i;
-            }
-
-            all_tags_name=sb.toString();
-        }
         return all_tags_name;
     }
 
@@ -134,7 +120,15 @@ public class Author  implements Serializable{
         this.all_tags_name = all_tags_name;
     }
 
-
+    public List<Integer> getTagIds() {
+        if (tagIds == null && tag2Authors.size()!=0){
+            tagIds = new ArrayList<>();
+            for (Tag2Author t2a: tag2Authors){
+                tagIds.add(t2a.getTag().getId());
+            }
+        }
+        return tagIds;
+    }
 
     public ForeignCollection<Tag2Author> getTag2Authors() {
         return tag2Authors;

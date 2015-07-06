@@ -35,7 +35,7 @@ public abstract class RecyclerCursorAdapter<VH
         extends android.support.v7.widget.RecyclerView.ViewHolder> extends RecyclerView.Adapter<VH> {
     private static final String DEBUG_TAG="RecyclerCursorAdapter";
 
-    private Context mContext;
+
     private Cursor mCursor;
     private boolean mDataValid;
     private int mRowIdColumn;
@@ -44,8 +44,8 @@ public abstract class RecyclerCursorAdapter<VH
 
     private String name;//for testing
 
-    public RecyclerCursorAdapter(Context context, Cursor cursor) {
-        mContext = context;
+    public RecyclerCursorAdapter( Cursor cursor) {
+
         mCursor = cursor;
         mDataValid = cursor != null;
         mRowIdColumn = mDataValid ? mCursor.getColumnIndex("_id") : -1;

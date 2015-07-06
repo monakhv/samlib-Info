@@ -84,7 +84,7 @@ public class MyBaseAbstractActivity extends ActionBarActivity {
 	 */
 	protected DatabaseHelper getHelperInternal(Context context) {
 		@SuppressWarnings({ "unchecked", "deprecation" })
-        DatabaseHelper newHelper = (DatabaseHelper) OpenHelperManager.getHelper(context);
+        DatabaseHelper newHelper = (DatabaseHelper) OpenHelperManager.getHelper(context,DatabaseHelper.class);
 
 		return newHelper;
 	}

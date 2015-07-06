@@ -11,6 +11,8 @@ import java.util.Map;
 
 import monakhv.android.samlib.data.SettingsHelper;
 
+import monakhv.samlib.db.AuthorController;
+import monakhv.samlib.db.DaoBuilder;
 import monakhv.samlib.db.entity.Author;
 import monakhv.android.samlib.tasks.AddAuthorRestore;
 
@@ -44,11 +46,13 @@ public class AuthorStatePrefs {
     private SharedPreferences prefs;
     private static AuthorStatePrefs instance;
     private SettingsHelper settings;
+    private DaoBuilder dao;
 
 
     private AuthorStatePrefs(Context context) {
 
         this.context = context;
+        this.dao=dao;
         this.prefs = getPrefs();
         this.settings = new SettingsHelper(this.context);
     }
@@ -64,7 +68,7 @@ public class AuthorStatePrefs {
         editor.commit();
         settings.backup(prefs);
         editor = prefs.edit();
-        AuthorController sql = new AuthorController(context);
+        AuthorController sql = new AuthorController(dao);
         for (Author a : sql.getAll()) {
             editor.putString(a.getUrlForBrowser(settings), a.getAll_tags_name());
 

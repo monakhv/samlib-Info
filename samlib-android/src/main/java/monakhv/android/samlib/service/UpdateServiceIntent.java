@@ -15,7 +15,6 @@
  */
 package monakhv.android.samlib.service;
 
-import android.app.IntentService;
 import android.content.Context;
 import android.content.Intent;
 import android.os.PowerManager;
@@ -32,11 +31,12 @@ import monakhv.android.samlib.R;
 import monakhv.android.samlib.data.DataExportImport;
 import monakhv.android.samlib.data.SettingsHelper;
 import monakhv.android.samlib.sortorder.AuthorSortOrder;
-import monakhv.samlib.db.SQLController;
-import monakhv.samlib.exception.SamlibParseException;
-import monakhv.android.samlib.sql.AuthorController;
+import monakhv.samlib.db.AuthorController;
 
 import monakhv.samlib.db.entity.SamLibConfig;
+import monakhv.samlib.exception.SamlibParseException;
+
+
 import monakhv.samlib.http.HttpClientController;
 import monakhv.samlib.db.entity.Author;
 import monakhv.samlib.db.entity.Book;
@@ -48,12 +48,13 @@ import monakhv.samlib.log.Log;
  *
  * @author monakhv
  */
-public class UpdateServiceIntent extends IntentService {
+public class UpdateServiceIntent extends MyServiceIntent {
     public static final long SLEEP_INTERVAL_SECONDS=1;
-    public static final String CALLER_TYPE = "CALLER_TYPE";
-    public static final String SELECT_STRING = "SELECT_STRING";
-    public static final int CALLER_IS_ACTIVITY = 1;
-    public static final int CALLER_IS_RECEIVER = 2;
+    private static final String CALLER_TYPE = "CALLER_TYPE";
+    private static final String SELECT_INDEX = "SELECT_INDEX";
+    private static final String SELECT_ID="SELECT_ID";
+    private static final int CALLER_IS_ACTIVITY = 1;
+    private static final int CALLER_IS_RECEIVER = 2;
     private static final String DEBUG_TAG = "UpdateServiceIntent";
     private int currentCaller = 0;
     private Context context;
@@ -63,7 +64,7 @@ public class UpdateServiceIntent extends IntentService {
 
     public UpdateServiceIntent() {
         super("UpdateServiceIntent");
-        updatedAuthors = new ArrayList<Author>();
+        updatedAuthors = new ArrayList<>();
        // Log.d(DEBUG_TAG, "Constructor Call");
     }
 
@@ -76,24 +77,21 @@ public class UpdateServiceIntent extends IntentService {
         Log.d(DEBUG_TAG, "Got intent");
         dataExportImport = new DataExportImport(context);
         currentCaller = intent.getIntExtra(CALLER_TYPE, 0);
-        String selection = intent.getStringExtra(SELECT_STRING);
+        int idx  = intent.getIntExtra(SELECT_INDEX, SamLibConfig.TAG_AUTHOR_ALL);
+
         settings.requestFirstBackup();
         if (currentCaller == 0) {
             Log.e(DEBUG_TAG, "Wrong Caller type");
 
             return;
         }
+        AuthorController ctl = new AuthorController(getHelper());
+        List<Author> authors;
 
         if (currentCaller == CALLER_IS_RECEIVER) {
             String stag = settings.getUpdateTag();
             int tag_id = Integer.parseInt(stag);
-            if (tag_id == SamLibConfig.TAG_AUTHOR_ALL){
-                selection = null;
-            }
-            else {
-                selection = SQLController.TABLE_TAGS + "." + SQLController.COL_ID + "=" + tag_id;
-
-            }
+            idx = tag_id;
             if (!SettingsHelper.haveInternetWIFI(context)) {
                 Log.d(DEBUG_TAG, "Ignore update task - we have no internet connection");
 
@@ -109,16 +107,34 @@ public class UpdateServiceIntent extends IntentService {
             }
 
         }
+        if (idx == SamLibConfig.TAG_AUTHOR_ID){
 
-        Log.i(DEBUG_TAG, "selection string: " + selection);
+            int id = intent.getIntExtra(SELECT_ID,0);
+            Author author = ctl.getById(id);
+            if (author != null){
+                authors = new ArrayList<>();
+                authors.add(author);
+                Log.i(DEBUG_TAG,"Check single Author: "+author.getName());
+            }
+            else {
+                Log.e(DEBUG_TAG,"Can not fing Author: "+id);
+                return;
+            }
+        }
+        else {
+            authors=ctl.getAll(idx,AuthorSortOrder.DateUpdate.getOrder());
+
+            Log.i(DEBUG_TAG, "selection index: " + idx);
+        }
+
 
 
         HttpClientController http = HttpClientController.getInstance(settings);
-        AuthorController ctl = new AuthorController(context);
+
         PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
         PowerManager.WakeLock wl = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, DEBUG_TAG);
         wl.acquire();
-        List<Author> authors = ctl.getAll(selection, AuthorSortOrder.DateUpdate.getOrder());
+
         int total = authors.size();
         int iCurrent = 0;//to send update information to pull-to-refresh
         for (Author a : authors) {//main author cycle
@@ -129,9 +145,9 @@ public class UpdateServiceIntent extends IntentService {
                 Log.d(DEBUG_TAG,"update: "+a.getName());
             }
             String url = a.getUrl();
-            Author newA;
+            Author newA=ctl.getEmptyObject();
             try {
-                newA = http.getAuthorByURL(url);
+                newA = http.getAuthorByURL(url,newA);
             } catch (IOException ex) {//here we abort cycle author and total update
                 Log.i(DEBUG_TAG, "Connection Error: "+url, ex);
 
@@ -248,5 +264,30 @@ public class UpdateServiceIntent extends IntentService {
         broadcastIntent.putExtra(UpdateActivityReceiver.TOAST_STRING, str);
         sendBroadcast(broadcastIntent);
 
+    }
+
+    /**
+     * Start service - use for receiver Calls
+     * @param ctx - Context
+     */
+    public static void makeUpdate(Context ctx){
+        Intent updater = new Intent(ctx, UpdateServiceIntent.class);
+        updater.putExtra(UpdateServiceIntent.CALLER_TYPE, UpdateServiceIntent.CALLER_IS_RECEIVER);
+        ctx.startService(updater);
+    }
+    public static void makeUpdateAuthor(Context ctx,int id){
+        Intent service = new Intent(ctx, UpdateServiceIntent.class);
+        service.putExtra(UpdateServiceIntent.CALLER_TYPE, UpdateServiceIntent.CALLER_IS_ACTIVITY);
+        service.putExtra(UpdateServiceIntent.SELECT_INDEX, SamLibConfig.TAG_AUTHOR_ID);
+        service.putExtra(UpdateServiceIntent.SELECT_ID, id);
+
+        ctx.startService(service);
+    }
+    public static void makeUpdate(Context ctx,int tagId){
+        Intent service = new Intent(ctx, UpdateServiceIntent.class);
+        service.putExtra(UpdateServiceIntent.CALLER_TYPE, UpdateServiceIntent.CALLER_IS_ACTIVITY);
+        service.putExtra(UpdateServiceIntent.SELECT_INDEX, tagId);
+
+        ctx.startService(service);
     }
 }

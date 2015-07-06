@@ -1,8 +1,11 @@
 package monakhv.samlib.db;
 
+import com.j256.ormlite.dao.CloseableIterator;
 import com.j256.ormlite.dao.Dao;
+import com.j256.ormlite.stmt.PreparedQuery;
 import com.j256.ormlite.stmt.QueryBuilder;
 
+import com.j256.ormlite.support.DatabaseResults;
 import monakhv.samlib.db.entity.Tag;
 import monakhv.samlib.log.Log;
 
@@ -85,7 +88,20 @@ public class TagController implements AbstractController<Tag> {
             return null;
         }
     }
+public DatabaseResults getRowResult(){
+    QueryBuilder<Tag,Integer> statement = tagDao.queryBuilder();
+    statement.orderBy(SQLController.COL_TAG_NAME, true);
 
+    try {
+        PreparedQuery<Tag> prepare = statement.prepare();
+        CloseableIterator iterator = tagDao.iterator(prepare);
+        return iterator.getRawResults();
+    }catch (SQLException e) {
+        Log.e(DEBUG_TAG,"getRowResult: error");
+        return null;
+    }
+
+}
     @Override
     public Tag getById(long id) {
         Integer dd = (int) id;

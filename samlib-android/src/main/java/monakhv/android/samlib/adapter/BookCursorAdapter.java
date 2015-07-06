@@ -15,14 +15,15 @@ import android.widget.TextView;
 import java.util.HashMap;
 
 
+import monakhv.android.samlib.MyBaseAbstractActivity;
 import monakhv.android.samlib.R;
 import monakhv.android.samlib.animation.Flip3D;
 
 import monakhv.android.samlib.animation.FlipIcon;
 import monakhv.android.samlib.data.SettingsHelper;
 import monakhv.android.samlib.service.AuthorEditorServiceIntent;
-import monakhv.android.samlib.sql.AuthorController;
 
+import monakhv.samlib.db.AuthorController;
 import monakhv.samlib.db.SQLController;
 import monakhv.samlib.db.entity.Book;
 import monakhv.samlib.db.entity.SamLibConfig;
@@ -48,16 +49,16 @@ public class BookCursorAdapter extends RecyclerCursorAdapter<BookCursorAdapter.V
 
     private static final String DEBUG_TAG = "BookCursorAdapter";
     private long author_id;
-    private Context context;
+    private MyBaseAbstractActivity context;
     private SettingsHelper settingsHelper;
     private AuthorController sql;
     private HashMap<Integer,FlipIcon> flips;
 
-    public BookCursorAdapter(Context context, Cursor cursor) {
-        super(context, cursor);
+    public BookCursorAdapter(MyBaseAbstractActivity context, Cursor cursor) {
+        super(cursor);
         this.context = context;
         settingsHelper = new SettingsHelper(context);
-        sql = new AuthorController(context);
+        sql = new AuthorController(context.getDatabaseHelper());
         flips=new HashMap<>();
 
         setName(DEBUG_TAG);
@@ -224,7 +225,7 @@ public class BookCursorAdapter extends RecyclerCursorAdapter<BookCursorAdapter.V
 
             } else {
                 sql.getBookController().markRead(book);
-                sql.testMarkRead(sql.getByBook(book));
+                sql.testMarkRead(book.getAuthor());
                 reQuery();
             }
         }

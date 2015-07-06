@@ -82,7 +82,7 @@ public abstract class MyServiceIntent extends IntentService {
 	 */
 	protected DatabaseHelper getHelperInternal(Context context) {
 		@SuppressWarnings({ "unchecked", "deprecation" })
-        DatabaseHelper newHelper = (DatabaseHelper) OpenHelperManager.getHelper(context);
+        DatabaseHelper newHelper = (DatabaseHelper) OpenHelperManager.getHelper(context,DatabaseHelper.class);
 		return newHelper;
 	}
     /**

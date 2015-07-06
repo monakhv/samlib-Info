@@ -25,6 +25,9 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 
+import com.j256.ormlite.android.AndroidDatabaseResults;
+import com.j256.ormlite.dao.CloseableIterator;
+import com.j256.ormlite.stmt.PreparedQuery;
 import monakhv.android.samlib.adapter.AuthorCursorAdapter;
 
 import monakhv.android.samlib.data.SettingsHelper;
@@ -38,9 +41,9 @@ import monakhv.android.samlib.recyclerview.RecyclerViewDelegate;
 import monakhv.android.samlib.service.AuthorEditorServiceIntent;
 import monakhv.android.samlib.service.UpdateServiceIntent;
 import monakhv.android.samlib.sortorder.AuthorSortOrder;
-import monakhv.android.samlib.sql.AuthorProvider;
 
-import monakhv.samlib.db.SQLController;
+import monakhv.android.samlib.sql.DatabaseHelper;
+import monakhv.samlib.db.AuthorController;
 import monakhv.samlib.db.entity.Author;
 import monakhv.samlib.db.entity.SamLibConfig;
 
@@ -49,6 +52,8 @@ import uk.co.senab.actionbarpulltorefresh.library.ActionBarPullToRefresh;
 import uk.co.senab.actionbarpulltorefresh.library.DefaultHeaderTransformer;
 import uk.co.senab.actionbarpulltorefresh.library.Options;
 import uk.co.senab.actionbarpulltorefresh.library.listeners.OnRefreshListener;
+
+import java.sql.SQLException;
 
 import static monakhv.android.samlib.ActivityUtils.getClipboardText;
 
@@ -75,7 +80,7 @@ public class AuthorFragment extends Fragment implements OnRefreshListener, ListS
     private RecyclerView authorRV;
     private AuthorCursorAdapter adapter;
 
-    private String selection = null;
+
     private AuthorSortOrder order;
     private PullToRefreshLayout mPullToRefreshLayout;
     private GestureDetector detector;
@@ -87,8 +92,10 @@ public class AuthorFragment extends Fragment implements OnRefreshListener, ListS
     private View empty;
     private boolean canUpdate;
     private SettingsHelper settingsHelper;
+    private int selectedTag;
 
     public interface Callbacks {
+        public DatabaseHelper getDatabaseHelper();
         public void onAuthorSelected(long id);
 
         public void selectBookSortOrder();
@@ -98,7 +105,7 @@ public class AuthorFragment extends Fragment implements OnRefreshListener, ListS
         public void cleanBookSelection();
     }
 
-    private static Callbacks mCallbacks;
+    private  Callbacks mCallbacks;
 
 
     @Override
@@ -163,7 +170,7 @@ public class AuthorFragment extends Fragment implements OnRefreshListener, ListS
                 return false;
             }
         });
-        adapter = new AuthorCursorAdapter(getActivity(),getCursor());
+        adapter = new AuthorCursorAdapter(new AuthorController(mCallbacks.getDatabaseHelper()),getCursor());
 
         authorRV.setAdapter(adapter);
         adapter.registerAdapterDataObserver(observer);
@@ -185,7 +192,13 @@ public class AuthorFragment extends Fragment implements OnRefreshListener, ListS
 
 
     private Cursor getCursor() {
-        return getActivity().getContentResolver().query(AuthorProvider.AUTHOR_URI, null, selection, null, order.getOrder());
+        AuthorController sql = new AuthorController(mCallbacks.getDatabaseHelper());
+        AndroidDatabaseResults res = (AndroidDatabaseResults) sql.getRowResults(selectedTag,order.getOrder());
+        if (res == null){
+            Log.e(DEBUG_TAG,"getCursor error");
+            return null;
+        }
+        return res.getRawCursor();
 
     }
 
@@ -207,21 +220,19 @@ public class AuthorFragment extends Fragment implements OnRefreshListener, ListS
 
     @Override
     public void onRefreshStarted(View view) {
-        Log.d(DEBUG_TAG,"Start update service");
+        Log.d(DEBUG_TAG, "Start update service");
 
         if (getActivity() == null) {
             return;//try to prevent some ANR reports
         }
-        Intent service = new Intent(getActivity(), UpdateServiceIntent.class);
-        service.putExtra(UpdateServiceIntent.CALLER_TYPE, UpdateServiceIntent.CALLER_IS_ACTIVITY);
-        if (updateAuthor) {
-            String str = SQLController.TABLE_AUTHOR + "." + SQLController.COL_ID + "=" + Integer.toString(author.getId());
-            service.putExtra(UpdateServiceIntent.SELECT_STRING, str);
-        } else {
-            service.putExtra(UpdateServiceIntent.SELECT_STRING, selection);
-        }
 
-        getActivity().startService(service);
+        if (updateAuthor) {
+            UpdateServiceIntent.makeUpdateAuthor(getActivity(),author.getId());
+
+        } else {
+            UpdateServiceIntent.makeUpdate(getActivity(),selectedTag);
+
+        }
     }
 
     void onRefreshComplete() {
@@ -447,28 +458,27 @@ public class AuthorFragment extends Fragment implements OnRefreshListener, ListS
      * @param tg_name tag name
      */
     public void selectTag(int tag_id, String tg_name){
-        selection = SQLController.TABLE_TAGS + "." + SQLController.COL_ID + "=" + tag_id;
+        selectedTag=tag_id;
+
 
         if (tag_id == SamLibConfig.TAG_AUTHOR_ALL) {
-            selection = null;
+
             mCallbacks.onTitleChange(getActivity().getText(R.string.app_name).toString());
         } else {
             mCallbacks.onTitleChange(tg_name);
         }
 
-        if (tag_id == SamLibConfig.TAG_AUTHOR_NEW) {
-            selection = SQLController.TABLE_AUTHOR + "." + SQLController.COL_isnew + "=1";
-        }
-        Log.i(DEBUG_TAG, "WHERE " + selection);
-        refresh(selection, null);
+
+        Log.i(DEBUG_TAG, "Selected tag " + selectedTag);
+        refresh(selectedTag, null);
     }
 
     /**
      * Get selection string for author search
      * @return
      */
-    public String getSelection() {
-        return selection;
+    public int getSelection() {
+        return selectedTag;
     }
 
     /**
@@ -505,13 +515,13 @@ public class AuthorFragment extends Fragment implements OnRefreshListener, ListS
     /**
      * update sort order and selection parameters and restart loader
      *
-     * @param selection selection string
+     * @param selectedTag selection tag id
      * @param so        sort order string
      */
-    public void refresh(String selection, AuthorSortOrder so) {
-        Log.d(DEBUG_TAG, "set Selection: " + selection);
+    public void refresh(int selectedTag, AuthorSortOrder so) {
+        Log.d(DEBUG_TAG, "set Selection: " + selectedTag);
         cleanSelection();
-        this.selection = selection;
+        this.selectedTag = selectedTag;
         if (so != null) {
             order = so;
         }

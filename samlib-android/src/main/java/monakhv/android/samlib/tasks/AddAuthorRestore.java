@@ -89,21 +89,18 @@ public class AddAuthorRestore extends AsyncTask<String, Void, Boolean> {
                 ++numberOfAdded;
 
                 String[] tags = allTags.split(",");
-                List<Integer> idTags = new ArrayList<Integer>();
+                List<Tag> Tags = new ArrayList<>();
 
                 for (String tag : tags) {
                     if (!tag.equals("")) {
                         Log.d(DEBUG_TAG, "insert tag: " + tag);
-                        int idTag = (int) tagController.insert(new Tag(tag));
-                        if (idTag != 0) {
-                            idTags.add(idTag);
-                        } else {
-                            idTags.add(tagController.getByName(tag));
+                        Tag nTag = tagController.getByName(tag);
+                        if (nTag != null){
+                            Tags.add(nTag);
                         }
-
                     }
                 }
-                sql.syncTags(a, idTags);
+                sql.syncTags(a, Tags);
 
 
             }

@@ -24,7 +24,7 @@ import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
-import monakhv.android.samlib.sql.AuthorController;
+import monakhv.samlib.db.AuthorController;
 import monakhv.samlib.db.entity.Author;
 import monakhv.samlib.db.entity.SamLibConfig;
 import monakhv.samlib.log.Log;
@@ -32,7 +32,7 @@ import monakhv.samlib.log.Log;
 /**
  * @author monakhv
  */
-public class BooksActivity extends MyAbstractActivity {
+public class BooksActivity extends MyAbstractAnimActivity implements BookFragment.Callbacks{
     private static final String DEBUG_TAG = "BooksActivity";
     private static final int TAGS_ACTIVITY = 21;
     private long author_id = 0;
@@ -119,7 +119,7 @@ public class BooksActivity extends MyAbstractActivity {
 
 
         if (author_id != SamLibConfig.SELECTED_BOOK_ID) {
-            AuthorController sql = new AuthorController(this);
+            AuthorController sql = new AuthorController(getDatabaseHelper());
             Author a = sql.getById(author_id);
             if (a != null) {
                 setTitle(a.getName());
@@ -130,7 +130,7 @@ public class BooksActivity extends MyAbstractActivity {
         }
 
 
-        receiver = new DownloadReceiver(listFragment);
+        receiver = new DownloadReceiver(listFragment,getDatabaseHelper());
         IntentFilter filter = new IntentFilter(DownloadReceiver.ACTION_RESP);
         filter.addCategory(Intent.CATEGORY_DEFAULT);
         registerReceiver(receiver, filter);

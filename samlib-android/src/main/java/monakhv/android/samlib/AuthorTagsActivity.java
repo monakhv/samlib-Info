@@ -20,12 +20,11 @@ package monakhv.android.samlib;
 import android.content.Intent;
 import android.support.v7.widget.Toolbar;
 import android.view.*;
-import com.j256.ormlite.android.apptools.OpenHelperManager;
 import monakhv.android.samlib.data.SettingsHelper;
 import android.os.Bundle;
-import android.support.v7.app.ActionBarActivity;
 
-import monakhv.android.samlib.sql.DatabaseHelper;
+
+
 import monakhv.samlib.db.AuthorController;
 import monakhv.samlib.db.entity.Author;
 
@@ -66,11 +65,11 @@ public class AuthorTagsActivity extends MyBaseAbstractActivity implements Author
         AuthorController sql = new AuthorController(getDatabaseHelper());
         Author a = sql.getById(authorTagFragment.getAuthor_id());
 
-        if (a.getTags_name().isEmpty()){
+        if (a.getTag2Authors().isEmpty()){
             getSupportActionBar().setTitle(a.getName() + ": NO TAGS" );
         }
         else {
-            getSupportActionBar().setTitle(a.getName() + ": " +authorTagFragment. join(a.getTags_name(), ", "));
+            getSupportActionBar().setTitle(a.getName() + ": " +authorTagFragment. join(a.getTag2Authors(), ", "));
         }
 
 

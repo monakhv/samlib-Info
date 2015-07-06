@@ -9,7 +9,6 @@ import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
-import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.util.Log;
@@ -23,7 +22,6 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 
-import com.j256.ormlite.android.apptools.OpenHelperManager;
 import com.mikepenz.iconics.typeface.FontAwesome;
 import com.mikepenz.materialdrawer.Drawer;
 import com.mikepenz.materialdrawer.model.*;
@@ -37,7 +35,6 @@ import monakhv.android.samlib.service.CleanNotificationData;
 import monakhv.android.samlib.sortorder.AuthorSortOrder;
 import monakhv.android.samlib.sortorder.BookSortOrder;
 import monakhv.android.samlib.sortorder.RadioItems;
-import monakhv.android.samlib.sql.DatabaseHelper;
 import monakhv.samlib.db.TagController;
 import monakhv.samlib.db.entity.SamLibConfig;
 import monakhv.samlib.db.entity.Tag;
@@ -65,7 +62,7 @@ import java.util.ArrayList;
  */
 public class MainActivity extends MyBaseAbstractActivity  implements
         AuthorFragment.Callbacks, Drawer.OnDrawerItemClickListener, OnCheckedChangeListener,
-        AuthorTagFragment.AuthorTagCallback{
+        AuthorTagFragment.AuthorTagCallback, BookFragment.Callbacks{
 
     private static final String DEBUG_TAG = "MainActivity";
     //    private static final String STATE_SELECTION = "STATE_SELECTION";
@@ -398,7 +395,7 @@ public class MainActivity extends MyBaseAbstractActivity  implements
             if (bookFragment == null) {
                 Log.e(DEBUG_TAG, "Fragment is NULL for two pane layout!!");
             }
-            downloadReceiver = new DownloadReceiver(bookFragment);
+            downloadReceiver = new DownloadReceiver(bookFragment,getDatabaseHelper());
             IntentFilter filter = new IntentFilter(DownloadReceiver.ACTION_RESP);
             filter.addCategory(Intent.CATEGORY_DEFAULT);
             registerReceiver(downloadReceiver, filter);
@@ -436,7 +433,7 @@ public class MainActivity extends MyBaseAbstractActivity  implements
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (resultCode != RESULT_OK) {
             Log.d(DEBUG_TAG, "Wrong result code from onActivityResult");
-            authorFragment.refresh(null, null);
+            authorFragment.refresh(SamLibConfig.TAG_AUTHOR_ALL, null);
             return;
         }
         if (requestCode == ARCHIVE_ACTIVITY) {
@@ -444,7 +441,7 @@ public class MainActivity extends MyBaseAbstractActivity  implements
             int res = data.getIntExtra(ArchiveActivity.UPDATE_KEY, -1);
             if (res == ArchiveActivity.UPDATE_LIST) {
                 Log.d(DEBUG_TAG, "Reconstruct List View");
-                authorFragment.refresh(null, null);
+                authorFragment.refresh(SamLibConfig.TAG_AUTHOR_ALL, null);
 
             }
         }
@@ -563,8 +560,8 @@ public class MainActivity extends MyBaseAbstractActivity  implements
                 return true;
             }
 
-            if (authorFragment.getSelection() != null) {
-                authorFragment.refresh(null, null);
+            if (authorFragment.getSelection() != 0) {
+                authorFragment.refresh(SamLibConfig.TAG_AUTHOR_ALL, null);
                 onTitleChange(getString(R.string.app_name));
                 selectedTagId=SamLibConfig.TAG_AUTHOR_ALL;
                 restoreTagSelection();

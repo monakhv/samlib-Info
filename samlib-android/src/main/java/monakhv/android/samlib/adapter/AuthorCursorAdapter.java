@@ -20,8 +20,8 @@ import monakhv.android.samlib.R;
 import monakhv.android.samlib.animation.Flip3D;
 import monakhv.android.samlib.animation.FlipIcon;
 import monakhv.android.samlib.service.AuthorEditorServiceIntent;
-import monakhv.android.samlib.sql.AuthorController;
 
+import monakhv.samlib.db.AuthorController;
 import monakhv.samlib.db.SQLController;
 import monakhv.samlib.db.entity.Author;
 
@@ -56,10 +56,10 @@ public class AuthorCursorAdapter extends RecyclerCursorAdapter<AuthorCursorAdapt
 
 
 
-    public AuthorCursorAdapter(Context context,Cursor cursor) {
-        super(context,cursor);
-        this.context=context;
-        sql= new AuthorController(context);
+    public AuthorCursorAdapter(AuthorController sql,Cursor cursor) {
+        super(cursor);
+
+        this.sql= sql;
         flips = new HashMap<>();
 
         setName(DEBUG_TAG);
@@ -130,7 +130,9 @@ public class AuthorCursorAdapter extends RecyclerCursorAdapter<AuthorCursorAdapt
             holder.flipIcon.setData(oldBookResource,R.drawable.author_new,listener,false);
         }
         flips.put(cursor.getPosition(), holder.flipIcon);
-        String tags = cursor.getString(idx_tags);
+        //TODO: just for now, must be corrected!!!!
+        //String tags = cursor.getString(idx_tags);
+        String tags="";
         if (tags != null) {
             holder.tgnames.setText(tags.replaceAll(",", ", "));
         } else {

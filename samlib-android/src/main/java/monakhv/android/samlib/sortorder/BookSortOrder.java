@@ -20,6 +20,7 @@ public enum BookSortOrder implements SortOrder {
         this.order = order;
     }
 
+    @Override
     public String getOrder() {
         return order;
     }

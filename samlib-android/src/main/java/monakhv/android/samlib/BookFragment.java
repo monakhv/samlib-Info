@@ -1,5 +1,6 @@
 package monakhv.android.samlib;
 
+import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
@@ -21,6 +22,8 @@ import android.widget.AdapterView;
 import android.widget.TextView;
 
 
+import com.j256.ormlite.android.AndroidDatabaseResults;
+import com.j256.ormlite.android.apptools.OpenHelperManager;
 import monakhv.android.samlib.adapter.BookCursorAdapter;
 
 import monakhv.android.samlib.data.DataExportImport;
@@ -31,9 +34,12 @@ import monakhv.android.samlib.dialogs.SingleChoiceSelectDialog;
 import monakhv.android.samlib.recyclerview.DividerItemDecoration;
 import monakhv.android.samlib.service.DownloadBookServiceIntent;
 import monakhv.android.samlib.sortorder.BookSortOrder;
-import monakhv.android.samlib.sql.AuthorProvider;
 
+import monakhv.android.samlib.sql.DatabaseHelper;
+import monakhv.samlib.db.AuthorController;
+import monakhv.samlib.db.BookController;
 import monakhv.samlib.db.SQLController;
+import monakhv.samlib.db.entity.Author;
 import monakhv.samlib.db.entity.Book;
 import monakhv.samlib.db.entity.SamLibConfig;
 
@@ -55,6 +61,9 @@ import monakhv.samlib.db.entity.SamLibConfig;
  * 12/11/14.
  */
 public class BookFragment extends Fragment implements ListSwipeListener.SwipeCallBack {
+    public interface Callbacks {
+        public DatabaseHelper getDatabaseHelper();
+    }
     private static final String DEBUG_TAG = "BookFragment";
     public static final String AUTHOR_ID = "AUTHOR_ID";
     private RecyclerView bookRV;
@@ -70,6 +79,7 @@ public class BookFragment extends Fragment implements ListSwipeListener.SwipeCal
     private TextView emptyText;
     private DataExportImport dataExportImport;
     private SingleChoiceSelectDialog dialog = null;
+    private Callbacks mCallbacks;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -92,6 +102,16 @@ public class BookFragment extends Fragment implements ListSwipeListener.SwipeCal
 
 
     @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+        if (!(activity instanceof BookFragment.Callbacks)) {
+            throw new IllegalStateException(
+                    "Activity must implement fragment's callbacks.");
+        }
+        mCallbacks = (Callbacks) activity;
+    }
+
+    @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         Log.i(DEBUG_TAG, "onCreateView");
 
@@ -105,9 +125,8 @@ public class BookFragment extends Fragment implements ListSwipeListener.SwipeCal
         Log.i(DEBUG_TAG, "selection = " + selection);
 
 
-        Cursor c = getActivity().getContentResolver().query(AuthorProvider.BOOKS_URI, null, selection, null, order.getOrder());
 
-        adapter = new BookCursorAdapter(getActivity(), c);
+        adapter = new BookCursorAdapter((MyBaseAbstractActivity)getActivity(), getCursor());
         adapter.setAuthor_id(author_id);
         bookRV.setHasFixedSize(true);
         bookRV.setLayoutManager(new LinearLayoutManager(getActivity()));
@@ -128,6 +147,26 @@ public class BookFragment extends Fragment implements ListSwipeListener.SwipeCal
         return view;
     }
 
+    private Cursor getCursor(){
+        BookController   bCtl = new BookController(mCallbacks.getDatabaseHelper());
+        AuthorController aCtl = new AuthorController(mCallbacks.getDatabaseHelper());
+
+        Author a= aCtl.getById(author_id);
+
+        if (a == null){
+            Log.e(DEBUG_TAG,"getCursor: author is not defined");
+            return null;
+        }
+
+
+        AndroidDatabaseResults res  = (AndroidDatabaseResults) bCtl.getRowResult(a,order.getOrder());
+        if (res == null){
+            Log.e(DEBUG_TAG,"getCursor: nul results");
+            return null;
+        }
+        return res.getRawCursor();
+
+    }
     private RecyclerView.AdapterDataObserver observer = new RecyclerView.AdapterDataObserver() {
         @Override
         public void onChanged() {
@@ -178,7 +217,7 @@ public class BookFragment extends Fragment implements ListSwipeListener.SwipeCal
             order = BookSortOrder.valueOf(settings.getBookSortOrderString());
         }
         String so = order.getOrder();
-        adapter.changeCursor(getActivity().getContentResolver().query(AuthorProvider.BOOKS_URI, null, selection, null, so));
+        adapter.changeCursor(getCursor());
     }
 
     /**
