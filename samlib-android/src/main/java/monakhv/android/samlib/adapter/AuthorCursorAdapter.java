@@ -130,13 +130,14 @@ public class AuthorCursorAdapter extends RecyclerCursorAdapter<AuthorCursorAdapt
             holder.flipIcon.setData(oldBookResource,R.drawable.author_new,listener,false);
         }
         flips.put(cursor.getPosition(), holder.flipIcon);
-        //TODO: just for now, must be corrected!!!!
-        //String tags = cursor.getString(idx_tags);
-        String tags="";
-        if (tags != null) {
-            holder.tgnames.setText(tags.replaceAll(",", ", "));
-        } else {
+
+        Author author = sql.getById(id_author);
+        String tags=author.getAll_tags_name();
+        if (tags == null) {
             holder.tgnames.setText("");
+        }
+        else {
+            holder.tgnames.setText(tags);
         }
 
 
