@@ -8,6 +8,7 @@ import com.j256.ormlite.stmt.QueryBuilder;
 import com.j256.ormlite.support.DatabaseResults;
 import monakhv.samlib.db.entity.Author;
 import monakhv.samlib.db.entity.Book;
+import monakhv.samlib.db.entity.SamLibConfig;
 import monakhv.samlib.log.Log;
 
 
@@ -183,6 +184,26 @@ public class BookController implements AbstractController<Book> {
 
         } catch (SQLException e) {
             Log.e(DEBUG_TAG,"getRowResult: error",e);
+            return null;
+        }
+
+    }
+    public DatabaseResults getRowResultSelected( String order) {
+
+        QueryBuilder<Book, Integer> qb = dao.queryBuilder();
+        qb.orderBy(SQLController.COL_BOOK_ISNEW, false);//new is first by default
+
+        if (order != null) {
+            qb.orderByRaw(order);
+        }
+        try {
+            qb.where().eq(SQLController.COL_BOOK_GROUP_ID, Book.SELECTED_GROUP_ID);
+
+            CloseableIterator<Book> iterator = dao.iterator(qb.prepare());
+            return iterator.getRawResults();
+
+        } catch (SQLException e) {
+            Log.e(DEBUG_TAG,"getRowResultSelected: error",e);
             return null;
         }
 

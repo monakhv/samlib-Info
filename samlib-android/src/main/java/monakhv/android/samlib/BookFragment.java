@@ -23,7 +23,6 @@ import android.widget.TextView;
 
 
 import com.j256.ormlite.android.AndroidDatabaseResults;
-import com.j256.ormlite.android.apptools.OpenHelperManager;
 import monakhv.android.samlib.adapter.BookCursorAdapter;
 
 import monakhv.android.samlib.data.DataExportImport;
@@ -38,7 +37,6 @@ import monakhv.android.samlib.sortorder.BookSortOrder;
 import monakhv.android.samlib.sql.DatabaseHelper;
 import monakhv.samlib.db.AuthorController;
 import monakhv.samlib.db.BookController;
-import monakhv.samlib.db.SQLController;
 import monakhv.samlib.db.entity.Author;
 import monakhv.samlib.db.entity.Book;
 import monakhv.samlib.db.entity.SamLibConfig;
@@ -79,7 +77,7 @@ public class BookFragment extends Fragment implements ListSwipeListener.SwipeCal
     private SettingsHelper settings;
     ProgressDialog progress;
     ContextMenuDialog contextMenuDialog;
-    private String selection;
+    //private String selection;
     private TextView emptyText;
     private DataExportImport dataExportImport;
     private SingleChoiceSelectDialog dialog = null;
@@ -125,8 +123,7 @@ public class BookFragment extends Fragment implements ListSwipeListener.SwipeCal
         bookRV = (RecyclerView) view.findViewById(R.id.bookRV);
         emptyText = (TextView) view.findViewById(R.id.id_empty_book_text);
 
-        setSelection();
-        Log.i(DEBUG_TAG, "selection = " + selection);
+
 
 
 
@@ -152,8 +149,13 @@ public class BookFragment extends Fragment implements ListSwipeListener.SwipeCal
     }
 
     private Cursor getCursor(){
-        BookController   bCtl = new BookController(mCallbacks.getDatabaseHelper());
+
         AuthorController aCtl = new AuthorController(mCallbacks.getDatabaseHelper());
+
+        if (author_id == SamLibConfig.SELECTED_BOOK_ID){
+            AndroidDatabaseResults res  =(AndroidDatabaseResults) aCtl.getBookController().getRowResultSelected(order.getOrder());
+            return res.getRawCursor();
+        }
 
         Author a= aCtl.getById(author_id);
 
@@ -163,7 +165,7 @@ public class BookFragment extends Fragment implements ListSwipeListener.SwipeCal
         }
 
 
-        AndroidDatabaseResults res  = (AndroidDatabaseResults) bCtl.getRowResult(a,order.getOrder());
+        AndroidDatabaseResults res  = (AndroidDatabaseResults) aCtl.getBookController().getRowResult(a, order.getOrder());
         if (res == null){
             Log.e(DEBUG_TAG,"getCursor: nul results");
             return null;
@@ -180,16 +182,7 @@ public class BookFragment extends Fragment implements ListSwipeListener.SwipeCal
         }
     };
 
-    /**
-     * Construction selection string using author_id parameter
-     */
-    private void setSelection() {
-        if (author_id == SamLibConfig.SELECTED_BOOK_ID) {
-            selection = SQLController.COL_BOOK_GROUP_ID + "=" + Book.SELECTED_GROUP_ID;
-        } else {
-            selection = SQLController.COL_BOOK_AUTHOR_ID + "=" + author_id;
-        }
-    }
+
 
     /**
      * Make empty text view
@@ -231,7 +224,7 @@ public class BookFragment extends Fragment implements ListSwipeListener.SwipeCal
      */
     public void setAuthorId(long id) {
         author_id = id;
-        setSelection();
+
         updateAdapter();
         makeEmpty();
         adapter.setAuthor_id(id);
