@@ -103,6 +103,7 @@ public class AuthorEditorServiceIntent extends MyServiceIntent {
                 return;
             }
             makeAuthorDel(id);
+            sendRefresh();
             return;
         }
         if (action.equals(ACTION_AUTHOR_READ)){
@@ -112,6 +113,7 @@ public class AuthorEditorServiceIntent extends MyServiceIntent {
                 return;
             }
             makeAuthorRead(id);
+            sendRefresh();
             return;
         }
         if (action.equals(ACTION_BOOK_READ_FLIP)){
@@ -121,6 +123,7 @@ public class AuthorEditorServiceIntent extends MyServiceIntent {
                 return;
             }
             makeBookReadFlip(id);
+            sendRefresh();
             return;
         }
         Log.e(DEBUG_TAG, "Wrong Action Type");

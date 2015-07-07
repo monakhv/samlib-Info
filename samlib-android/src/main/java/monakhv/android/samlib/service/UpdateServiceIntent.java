@@ -259,13 +259,7 @@ public class UpdateServiceIntent extends MyServiceIntent {
         }
     }
 
-    private void sendRefresh(){
-        Intent broadcastIntent = new Intent();
-        broadcastIntent.addCategory(Intent.CATEGORY_DEFAULT);
-        broadcastIntent.setAction(UpdateActivityReceiver.ACTION_RESP);
-        broadcastIntent.putExtra(UpdateActivityReceiver.ACTION, UpdateActivityReceiver.ACTION_REFRESH);
-        sendBroadcast(broadcastIntent);
-    }
+
     /**
      * Send update status
      * @param total Total number if Author we need checkout
