@@ -92,6 +92,7 @@ public class AuthorEditorServiceIntent extends MyServiceIntent {
             }
             totalToAdd = ll.size();
             makeAuthorAdd(ll);
+            sendRefresh(false);
             return;
 
         }
@@ -103,7 +104,7 @@ public class AuthorEditorServiceIntent extends MyServiceIntent {
                 return;
             }
             makeAuthorDel(id);
-            sendRefresh();
+            sendRefresh(true);
             return;
         }
         if (action.equals(ACTION_AUTHOR_READ)){
@@ -113,7 +114,7 @@ public class AuthorEditorServiceIntent extends MyServiceIntent {
                 return;
             }
             makeAuthorRead(id);
-            sendRefresh();
+            sendRefresh(true);
             return;
         }
         if (action.equals(ACTION_BOOK_READ_FLIP)){
@@ -123,7 +124,7 @@ public class AuthorEditorServiceIntent extends MyServiceIntent {
                 return;
             }
             makeBookReadFlip(id);
-            sendRefresh();
+            sendRefresh(false);
             return;
         }
         Log.e(DEBUG_TAG, "Wrong Action Type");

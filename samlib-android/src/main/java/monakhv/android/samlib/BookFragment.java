@@ -61,6 +61,10 @@ import monakhv.samlib.db.entity.SamLibConfig;
  * 12/11/14.
  */
 public class BookFragment extends Fragment implements ListSwipeListener.SwipeCallBack {
+    public void refresh() {
+        adapter.refresh();
+    }
+
     public interface Callbacks {
         public DatabaseHelper getDatabaseHelper();
     }

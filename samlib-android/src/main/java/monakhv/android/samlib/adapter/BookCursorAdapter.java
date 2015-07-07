@@ -178,6 +178,10 @@ public class BookCursorAdapter extends RecyclerCursorAdapter<BookCursorAdapter.V
         return new ViewHolder(v);
     }
 
+    public void refresh() {
+        reQuery();
+    }
+
     public class ViewHolder extends RecyclerView.ViewHolder {
         // {R.id.bookTitle, R.id.bookUpdate, R.id.bookDesc, R.id.Bookicon,R.id.Staricon,R.id.bookAuthorName,R.id.bookForm};
         public TextView bookTitle, bookSize, bookDesc, bookAuthorName, bookForm;

@@ -403,6 +403,7 @@ public class MainActivity extends MyBaseAbstractActivity  implements
         //getSupportActionBar().setTitle(R.string.app_name);
        // authorFragment.refresh(null, null);
 
+        authorFragment.refresh();
 
 
     }
@@ -621,6 +622,7 @@ public class MainActivity extends MyBaseAbstractActivity  implements
         public static final String ACTION_TOAST = "TOAST";
         public static final String ACTION_PROGRESS = "PROGRESS";
         public static final String ACTION_REFRESH = "ACTION_REFRESH";
+        public static final String ACTION_REFRESH_BOTH = "ACTION_REFRESH_BOTH";
 
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -638,7 +640,11 @@ public class MainActivity extends MyBaseAbstractActivity  implements
                     authorFragment.updateProgress(intent.getStringExtra(TOAST_STRING));
                 }
                 if (action.equalsIgnoreCase(ACTION_REFRESH)){
+                    boolean isBoth = intent.getBooleanExtra(ACTION_REFRESH_BOTH,false);
                     authorFragment.refresh();
+                    if (twoPain && !isTagShow && isBoth){
+                        bookFragment.refresh();
+                    }
                 }
             }
 

@@ -100,11 +100,13 @@ public abstract class MyServiceIntent extends IntentService {
 		OpenHelperManager.releaseHelper();
 		this.helper = null;
 	}
-    protected void sendRefresh(){
+    protected void sendRefresh(boolean isBoth){
         Intent broadcastIntent = new Intent();
         broadcastIntent.addCategory(Intent.CATEGORY_DEFAULT);
         broadcastIntent.setAction(MainActivity.UpdateActivityReceiver.ACTION_RESP);
         broadcastIntent.putExtra(MainActivity.UpdateActivityReceiver.ACTION, MainActivity.UpdateActivityReceiver.ACTION_REFRESH);
+        broadcastIntent.putExtra(MainActivity.UpdateActivityReceiver.ACTION_REFRESH_BOTH, isBoth);
         sendBroadcast(broadcastIntent);
     }
+
 }

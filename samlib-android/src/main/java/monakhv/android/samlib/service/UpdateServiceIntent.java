@@ -176,7 +176,7 @@ public class UpdateServiceIntent extends MyServiceIntent {
                         }
                     }
                 }
-                sendRefresh();
+                sendRefresh(false);
             }
 
             try {
