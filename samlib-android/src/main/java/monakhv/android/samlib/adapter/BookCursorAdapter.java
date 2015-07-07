@@ -230,7 +230,7 @@ public class BookCursorAdapter extends RecyclerCursorAdapter<BookCursorAdapter.V
 
             } else {
                 sql.getBookController().markRead(book);
-                sql.testMarkRead(book.getAuthor());
+                sql.testMarkRead(sql.getById(book.getAuthor().getId()));
                 reQuery();
             }
         }

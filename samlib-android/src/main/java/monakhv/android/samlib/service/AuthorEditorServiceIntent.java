@@ -171,12 +171,12 @@ public class AuthorEditorServiceIntent extends MyServiceIntent {
 
         if (book.isIsNew()){
             sql.markRead(book);
-            Author a = book.getAuthor();
+            Author a = aCtl.getById(book.getAuthor().getId());
             aCtl.testMarkRead(a);
         }
         else {
             sql.markUnRead(book);
-            Author a = book.getAuthor();
+            Author a = aCtl.getById(book.getAuthor().getId());
             aCtl.testMarkRead(a);
         }
 
