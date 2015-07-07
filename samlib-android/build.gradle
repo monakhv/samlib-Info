@@ -22,8 +22,8 @@ android {
     defaultConfig {
         minSdkVersion 11
         targetSdkVersion 22
-        versionCode 10340
-        versionName "3.2.20"
+        versionCode 10341
+        versionName "3.2.21"
     }
 
 
