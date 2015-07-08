@@ -561,7 +561,7 @@ public class MainActivity extends MyBaseAbstractActivity  implements
                 return true;
             }
 
-            if (authorFragment.getSelection() != 0) {
+            if (authorFragment.getSelection() != SamLibConfig.TAG_AUTHOR_ALL) {
                 authorFragment.refresh(SamLibConfig.TAG_AUTHOR_ALL, null);
                 onTitleChange(getString(R.string.app_name));
                 selectedTagId=SamLibConfig.TAG_AUTHOR_ALL;
