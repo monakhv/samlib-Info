@@ -1,11 +1,11 @@
 package monakhv.android.samlib;
 
 import android.os.Bundle;
-import android.support.v7.app.ActionBarActivity;
 
-import com.j256.ormlite.android.apptools.OpenHelperManager;
+
+
 import monakhv.android.samlib.data.SettingsHelper;
-import monakhv.android.samlib.sql.DatabaseHelper;
+
 
 
 /*

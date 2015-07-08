@@ -27,25 +27,16 @@ import monakhv.android.samlib.sql.DatabaseHelper;
  */
 public class MyBaseAbstractActivity extends ActionBarActivity {
     private volatile DatabaseHelper helper;
-	private volatile boolean created = false;
-	private volatile boolean destroyed = false;
+
 
     /**
 	 * Get a helper for this action.
 	 */
 	public DatabaseHelper getDatabaseHelper() {
 		if (helper == null) {
-			if (!created) {
-				throw new IllegalStateException("A call has not been made to onCreate() yet so the helper is null");
-			} else if (destroyed) {
-				throw new IllegalStateException(
-						"A call to onDestroy has already been made and the helper cannot be used after that point");
-			} else {
-				throw new IllegalStateException("Helper is null for some unknown reason");
-			}
-		} else {
-			return helper;
+			helper=getHelperInternal(this);
 		}
+		return helper;
 	}
 
     /**
@@ -55,20 +46,13 @@ public class MyBaseAbstractActivity extends ActionBarActivity {
 		return getDatabaseHelper().getConnectionSource();
 	}
 
-	@Override
-	protected void onCreate(Bundle savedInstanceState) {
-		if (helper == null) {
-			helper = getHelperInternal(this);
-			created = true;
-		}
-		super.onCreate(savedInstanceState);
-	}
 
 	@Override
 	protected void onDestroy() {
 		super.onDestroy();
-		releaseHelper(helper);
-		destroyed = true;
+        if (helper != null){
+            releaseHelper(helper);
+        }
 	}
 
 
