@@ -127,11 +127,12 @@ public class AuthorFragment extends Fragment implements OnRefreshListener, ListS
         mCallbacks = (Callbacks) activity;
     }
 
+    private View view;
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         Log.d(DEBUG_TAG,"onCreateView");
         canUpdate=true;
-        View view = inflater.inflate(R.layout.author_fragment,
+        view = inflater.inflate(R.layout.author_fragment,
                 container, false);
         authorRV = (RecyclerView) view.findViewById(R.id.authorRV);
         empty = view.findViewById(R.id.add_author_panel);
@@ -146,22 +147,7 @@ public class AuthorFragment extends Fragment implements OnRefreshListener, ListS
         authorRV.addItemDecoration(new DividerItemDecoration(getActivity(), DividerItemDecoration.VERTICAL_LIST));
 
 
-        mPullToRefreshLayout = (PullToRefreshLayout) view.findViewById(R.id.ptr_layout);
-
-        ActionBarPullToRefresh.from(getActivity())
-                .options(Options.create()
-                        .refreshOnUp(true)
-                        .headerLayout(R.layout.updateheader)
-                        .noMinimize()
-                        .build())
-                        // We need to insert the PullToRefreshLayout into the Fragment's ViewGroup
-                .allChildrenArePullable()
-                .listener(this)
-                .useViewDelegate(android.support.v7.widget.RecyclerView.class, new RecyclerViewDelegate())
-                .setup(mPullToRefreshLayout);
-
-        DefaultHeaderTransformer dht = (DefaultHeaderTransformer) mPullToRefreshLayout.getHeaderTransformer();
-        updateTextView = (TextView) dht.getHeaderView().findViewById(R.id.ptr_text);
+        makePulToRefresh();
 
 
         authorRV.setOnTouchListener(new View.OnTouchListener() {
@@ -179,6 +165,25 @@ public class AuthorFragment extends Fragment implements OnRefreshListener, ListS
 
         return view;
 
+    }
+    public void makePulToRefresh(){
+
+        mPullToRefreshLayout = (PullToRefreshLayout) view.findViewById(R.id.ptr_layout);
+
+        ActionBarPullToRefresh.from(getActivity())
+                .options(Options.create()
+                        .refreshOnUp(true)
+                        .headerLayout(R.layout.updateheader)
+                        .noMinimize()
+                        .build())
+                        // We need to insert the PullToRefreshLayout into the Fragment's ViewGroup
+                .allChildrenArePullable()
+                .listener(this)
+                .useViewDelegate(android.support.v7.widget.RecyclerView.class, new RecyclerViewDelegate())
+                .setup(mPullToRefreshLayout);
+
+        DefaultHeaderTransformer dht = (DefaultHeaderTransformer) mPullToRefreshLayout.getHeaderTransformer();
+        updateTextView = (TextView) dht.getHeaderView().findViewById(R.id.ptr_text);
     }
 
     private RecyclerView.AdapterDataObserver observer= new RecyclerView.AdapterDataObserver() {

@@ -410,6 +410,7 @@ public class MainActivity extends MyBaseAbstractActivity  implements
 
         authorFragment.refresh();
         createDrawer();
+        authorFragment.makePulToRefresh();
 
 
     }
