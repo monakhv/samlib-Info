@@ -26,8 +26,6 @@ import android.widget.TextView;
 
 
 import com.j256.ormlite.android.AndroidDatabaseResults;
-import com.j256.ormlite.dao.CloseableIterator;
-import com.j256.ormlite.stmt.PreparedQuery;
 import monakhv.android.samlib.adapter.AuthorCursorAdapter;
 
 import monakhv.android.samlib.data.SettingsHelper;
@@ -53,7 +51,6 @@ import uk.co.senab.actionbarpulltorefresh.library.DefaultHeaderTransformer;
 import uk.co.senab.actionbarpulltorefresh.library.Options;
 import uk.co.senab.actionbarpulltorefresh.library.listeners.OnRefreshListener;
 
-import java.sql.SQLException;
 
 import static monakhv.android.samlib.ActivityUtils.getClipboardText;
 
@@ -486,26 +483,7 @@ public class AuthorFragment extends Fragment implements OnRefreshListener, ListS
         return selectedTag;
     }
 
-    /**
-     * Get Selected Author list position
-     * @return
-     */
-    public int getSelectedAuthorPosition() {
-        return adapter.getSelectedPosition();
-    }
-    public long getSelectedAuthorId() {
-        Author a  = adapter.getSelected();
-        if (a == null){
-            return 0;
-        }
-        else {
-            return a.getId();
-        }
-    }
-    public void restoreSelection(int position) {
-        adapter.toggleSelection(position);
 
-    }
     public void selectAuthor(long id){
 
         boolean res=adapter.findAndSelect(id);
