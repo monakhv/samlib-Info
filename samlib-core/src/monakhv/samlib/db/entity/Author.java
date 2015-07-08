@@ -51,7 +51,7 @@ public class Author  implements Serializable{
     protected int id;
     @ForeignCollectionField(eager = true,maxEagerLevel = 2)
     private ForeignCollection<Tag2Author> tag2Authors;
-
+    @DatabaseField(columnName = SQLController.COL_ALL_TAGS_NAME)
     private String all_tags_name;
     private List<Integer> tagIds;
 
@@ -221,6 +221,21 @@ public class Author  implements Serializable{
             return true;
         }
         return false;
+    }
+
+    public void setAll_tags_name(List<String> tagNames) {
+        int num = tagNames.size();
+        int i =1;
+        StringBuilder sb = new StringBuilder();
+        for (String tn : tagNames){
+            sb.append(tn);
+            if (i<num){
+                sb.append(", ");
+            }
+            ++i;
+        }
+        all_tags_name=sb.toString();
+
     }
 //    public void dump(){
 //        System.out.println(name);

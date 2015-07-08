@@ -233,7 +233,7 @@ public class AuthorController implements AbstractController<Author> {
             Log.e(DEBUG_TAG, "query: query error");
             return null;
         }
-        makeAuthorTags(rr);
+
         return rr;
     }
     /**
@@ -271,12 +271,15 @@ public class AuthorController implements AbstractController<Author> {
      *
      * @param authors list of the authors
      */
-    private void makeAuthorTags(List<Author> authors){
+    public void updateAuthorTags(List<Author> authors){
         for (Author author : authors ){
-            setTags(author);
+            updateTags(author);
         }
     }
-    public void setTags(Author author){
+    public void updateAuthorTags(){
+        updateAuthorTags(getAll());
+    }
+    public void updateTags(Author author){
         if (author.getTag2Authors()==null){
             return;
         }
@@ -291,6 +294,7 @@ public class AuthorController implements AbstractController<Author> {
             ++i;
         }
         author.setAll_tags_name(sb.toString());
+        update(author);
     }
 
     /**
@@ -372,9 +376,7 @@ public class AuthorController implements AbstractController<Author> {
             Log.e(DEBUG_TAG,"getById - Error",e);
             return null;
         }
-        if (a != null){
-            setTags(a);
-        }
+
         return a;
     }
 
@@ -420,8 +422,12 @@ public class AuthorController implements AbstractController<Author> {
      * @return true if  database sync was done
      */
     public boolean syncTags(Author author, List<Tag>tags){
-        //TODO: modification of the list of tags into the Author Object
-        return  t2aCtl.sync(author,tags);
+
+        boolean bres =t2aCtl.sync(author,tags);
+        if (bres){
+            updateTags(author);
+        }
+        return  bres;
     }
 
 }

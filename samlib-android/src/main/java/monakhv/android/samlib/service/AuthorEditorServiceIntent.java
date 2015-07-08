@@ -48,6 +48,7 @@ public class AuthorEditorServiceIntent extends MyServiceIntent {
     public static final String ACTION_DELETE="AddAuthorServiceIntent_ACTION_DELETE";
     public static final String ACTION_AUTHOR_READ="AddAuthorServiceIntent_ACTION_AUTHOR_READ";
     public static final String ACTION_BOOK_READ_FLIP="AddAuthorServiceIntent_ACTION_BOOK_READ_FLIP";
+    public static final String ACTION_ALL_TAGS_UPDATE="AddAuthorServiceIntent_ACTION_ALL_TAGS_UPDATE";
 
 
     public static final String RESULT_DEL_NUMBER ="AddAuthorServiceIntent_RESULT_DEL_NUMBER";
@@ -127,6 +128,15 @@ public class AuthorEditorServiceIntent extends MyServiceIntent {
             sendRefresh(false);
             return;
         }
+        //
+        if (action.equals(ACTION_ALL_TAGS_UPDATE)){
+            AuthorController sql = new AuthorController(getHelper());
+            sql.updateAuthorTags();
+
+            sendRefresh(false);
+            return;
+        }
+
         Log.e(DEBUG_TAG, "Wrong Action Type");
 
     }
@@ -153,7 +163,7 @@ public class AuthorEditorServiceIntent extends MyServiceIntent {
 
         int i = sql.markRead(a);
 
-        Log.d(DEBUG_TAG, "Update author status: "+i);
+        Log.d(DEBUG_TAG, "Update author status: " + i);
 
         return true;
 
@@ -367,6 +377,13 @@ public class AuthorEditorServiceIntent extends MyServiceIntent {
         Intent service = new Intent(ctx,AuthorEditorServiceIntent.class );
         service.putExtra(EXTRA_ACTION_TYPE,ACTION_BOOK_READ_FLIP);
         service.putExtra(EXTRA_DEL_AUTHOR_DATA, id);
+        ctx.startService(service);
+    }
+    public static void updateAllAuthorsTags(Context ctx) {
+        Log.v(DEBUG_TAG, "Starting update all tags service");
+        Intent service = new Intent(ctx,AuthorEditorServiceIntent.class );
+        service.putExtra(EXTRA_ACTION_TYPE,ACTION_ALL_TAGS_UPDATE);
+
         ctx.startService(service);
     }
 }

@@ -75,7 +75,7 @@ public class AuthorCursorAdapter extends RecyclerCursorAdapter<AuthorCursorAdapt
         int idx_isNew = cursor.getColumnIndex(SQLController.COL_isnew);
         int idx_name = cursor.getColumnIndex(SQLController.COL_NAME);
         int idx_mtime = cursor.getColumnIndex(SQLController.COL_mtime);
-        int idx_tags = cursor.getColumnIndex(SQLController.COL_TGNAMES);
+        int idx_tags = cursor.getColumnIndex(SQLController.COL_ALL_TAGS_NAME);
         int idx_url = cursor.getColumnIndex(SQLController.COL_URL);
         final int id_author=cursor.getInt(cursor.getColumnIndex(SQLController.COL_ID));
 
@@ -132,8 +132,8 @@ public class AuthorCursorAdapter extends RecyclerCursorAdapter<AuthorCursorAdapt
             holder.flipIcon.setData(oldBookResource,R.drawable.author_new,listener,false);
         }
         flips.put(cursor.getPosition(), holder.flipIcon);
+        holder.tgnames.setText(cursor.getString(idx_tags));
 
-        //TODO: possible performance problem
 //        Author author = sql.getById(id_author);
 //        String tags=author.getAll_tags_name();
 //        if (tags == null) {

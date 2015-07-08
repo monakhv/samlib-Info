@@ -95,6 +95,7 @@ public class MainActivity extends MyBaseAbstractActivity  implements
     private    RadioItems authorSort,bookSort;
     private int selectedTagId=SamLibConfig.TAG_AUTHOR_ALL;
     private long author_id=0;
+    private TagController tagSQL;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -158,7 +159,8 @@ public class MainActivity extends MyBaseAbstractActivity  implements
             Log.i(DEBUG_TAG, "onCreate: one pane");
         }
 
-        createDrawer();
+        tagSQL = new TagController(getDatabaseHelper());
+        //createDrawer();
     }
 
     /**
@@ -177,7 +179,7 @@ public class MainActivity extends MyBaseAbstractActivity  implements
                 .withTag(getString(R.string.filter_new)));
 
 
-        TagController tagSQL = new TagController(getDatabaseHelper());
+
         tagSQL.getAll();
 
         for  (Tag tag: tagSQL.getAll()) {
@@ -354,6 +356,9 @@ public class MainActivity extends MyBaseAbstractActivity  implements
 
     }
     private void restoreTagSelection(){
+        if (tagSQL.getById(selectedTagId)==null){
+            selectedTagId=SamLibConfig.TAG_AUTHOR_ALL;
+        }
         drResult.setSelectionByIdentifier(selectedTagId + tagsShift);
     }
     @Override
@@ -404,6 +409,7 @@ public class MainActivity extends MyBaseAbstractActivity  implements
        // authorFragment.refresh(null, null);
 
         authorFragment.refresh();
+        createDrawer();
 
 
     }

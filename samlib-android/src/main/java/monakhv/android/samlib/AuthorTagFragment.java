@@ -19,6 +19,7 @@ import android.widget.ListView;
 import com.j256.ormlite.android.AndroidDatabaseResults;
 import monakhv.android.samlib.data.SettingsHelper;
 import monakhv.android.samlib.dialogs.EnterStringDialog;
+import monakhv.android.samlib.service.AuthorEditorServiceIntent;
 import monakhv.android.samlib.sql.DatabaseHelper;
 import monakhv.samlib.db.AuthorController;
 import monakhv.samlib.db.SQLController;
@@ -180,6 +181,7 @@ public class AuthorTagFragment extends Fragment {
                         Tag tag = sql.getById(cursor.getInt(cursor.getColumnIndex(SQLController.COL_ID)));
                         sql.delete(tag);
                         cursor = null;
+                        AuthorEditorServiceIntent.updateAllAuthorsTags(getActivity());
                         refreshList();
                     }
 
@@ -208,6 +210,7 @@ public class AuthorTagFragment extends Fragment {
                 public void okClick(String txt) {
                     tag.setName(txt);
                     sql.update(tag);
+                    AuthorEditorServiceIntent.updateAllAuthorsTags(getActivity());
                     refreshList();
                 }
             },getText(R.string.tag_edit_title).toString(),tag.getName());
