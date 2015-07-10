@@ -33,7 +33,7 @@ public class AuthorEditorServiceIntent extends MyServiceIntent {
 
     private static final String DEBUG_TAG="AddAuthorServiceIntent";
     private static final String EXTRA_ADD_AUTHOR_DATA="AddAuthorServiceIntent_EXTRA_ADD_AUTHOR_DATA";
-    private static final String EXTRA_DEL_AUTHOR_DATA="AddAuthorServiceIntent_EXTRA_DEL_AUTHOR_DATA";
+    private static final String EXTRA_OBJECT_ID ="AddAuthorServiceIntent_EXTRA_OBJECT_ID";
     public static final String EXTRA_ACTION_TYPE="AddAuthorServiceIntent_EXTRA_ACTION_TYPE";
 
     public static final String ACTION_AUTHOR_READ="AddAuthorServiceIntent_ACTION_AUTHOR_READ";
@@ -72,7 +72,7 @@ public class AuthorEditorServiceIntent extends MyServiceIntent {
         }
         if (action.equals(AuthorService.ACTION_DELETE)){
             Log.d(DEBUG_TAG, "Making DEL Author");
-            int id =intent.getIntExtra(EXTRA_DEL_AUTHOR_DATA,-1);
+            int id =intent.getIntExtra(EXTRA_OBJECT_ID,-1);
             if (id <0){
                 Log.e(DEBUG_TAG,"Null del data - nothing to del!");
                 return;
@@ -82,7 +82,7 @@ public class AuthorEditorServiceIntent extends MyServiceIntent {
             return;
         }
         if (action.equals(ACTION_AUTHOR_READ)){
-            int id =intent.getIntExtra(EXTRA_DEL_AUTHOR_DATA,-1);
+            int id =intent.getIntExtra(EXTRA_OBJECT_ID,-1);
             if (id <0){
                 Log.e(DEBUG_TAG,"Null author data, can not make it read");
                 return;
@@ -92,7 +92,7 @@ public class AuthorEditorServiceIntent extends MyServiceIntent {
             return;
         }
         if (action.equals(ACTION_BOOK_READ_FLIP)){
-            int id =intent.getIntExtra(EXTRA_DEL_AUTHOR_DATA,-1);
+            int id =intent.getIntExtra(EXTRA_OBJECT_ID,-1);
             if (id <0){
                 Log.e(DEBUG_TAG,"Null book data, can not make it read/unread");
                 return;
@@ -148,7 +148,7 @@ public class AuthorEditorServiceIntent extends MyServiceIntent {
         Log.v(DEBUG_TAG,"Starting del service");
         Intent service = new Intent(ctx,AuthorEditorServiceIntent.class );
         service.putExtra(EXTRA_ACTION_TYPE, AuthorService.ACTION_DELETE);
-        service.putExtra(EXTRA_DEL_AUTHOR_DATA, id);
+        service.putExtra(EXTRA_OBJECT_ID, id);
         ctx.startService(service);
 
     }
@@ -156,20 +156,21 @@ public class AuthorEditorServiceIntent extends MyServiceIntent {
         Log.v(DEBUG_TAG,"Starting author read service");
         Intent service = new Intent(ctx,AuthorEditorServiceIntent.class );
         service.putExtra(EXTRA_ACTION_TYPE,ACTION_AUTHOR_READ);
-        service.putExtra(EXTRA_DEL_AUTHOR_DATA, id);
+        service.putExtra(EXTRA_OBJECT_ID, id);
         ctx.startService(service);
     }
     public static void markBookReadFlip(Context ctx,int id){
         Log.v(DEBUG_TAG,"Starting book read service");
         Intent service = new Intent(ctx,AuthorEditorServiceIntent.class );
         service.putExtra(EXTRA_ACTION_TYPE,ACTION_BOOK_READ_FLIP);
-        service.putExtra(EXTRA_DEL_AUTHOR_DATA, id);
+        service.putExtra(EXTRA_OBJECT_ID, id);
         ctx.startService(service);
     }
     public static void updateAllAuthorsTags(Context ctx) {
         Log.v(DEBUG_TAG, "Starting update all tags service");
         Intent service = new Intent(ctx,AuthorEditorServiceIntent.class );
         service.putExtra(EXTRA_ACTION_TYPE,ACTION_ALL_TAGS_UPDATE);
+        service.putExtra(EXTRA_OBJECT_ID, 0);
 
         ctx.startService(service);
     }

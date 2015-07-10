@@ -161,10 +161,6 @@ public class AuthorCursorAdapter extends RecyclerCursorAdapter<AuthorCursorAdapt
         return new ViewHolder(v);
     }
 
-    public void refresh() {
-        reQuery();
-    }
-
 
     public static class ViewHolder extends RecyclerView.ViewHolder  {
         //{R.id.authorName, R.id.updated, R.id.icon, R.id.tgnames, R.id.authorURL};

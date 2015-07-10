@@ -49,7 +49,7 @@ public class Author  implements Serializable{
     protected boolean isNew = false;
     @DatabaseField(columnName = SQLController.COL_ID, generatedId = true)
     protected int id;
-    @ForeignCollectionField(eager = true,maxEagerLevel = 2)
+    @ForeignCollectionField(eager = true)
     private ForeignCollection<Tag2Author> tag2Authors;
     @DatabaseField(columnName = SQLController.COL_ALL_TAGS_NAME)
     private String all_tags_name;
@@ -121,7 +121,7 @@ public class Author  implements Serializable{
     }
 
     public List<Integer> getTagIds() {
-        if (tagIds == null && tag2Authors.size()!=0){
+        if (tagIds == null ){
             tagIds = new ArrayList<>();
             for (Tag2Author t2a: tag2Authors){
                 tagIds.add(t2a.getTag().getId());

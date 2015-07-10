@@ -69,7 +69,7 @@ public class AuthorTagsActivity extends MyBaseAbstractActivity implements Author
             getSupportActionBar().setTitle(a.getName() + ": NO TAGS" );
         }
         else {
-            getSupportActionBar().setTitle(a.getName() + ": " +authorTagFragment. join(a.getTag2Authors(), ", "));
+            getSupportActionBar().setTitle(a.getName() + ": " +a.getAll_tags_name());
         }
 
 

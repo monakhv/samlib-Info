@@ -514,7 +514,7 @@ public class AuthorFragment extends Fragment implements OnRefreshListener, ListS
     }
 
     public void refresh(){
-        adapter.refresh();
+        updateAdapter();
     }
 
     /**

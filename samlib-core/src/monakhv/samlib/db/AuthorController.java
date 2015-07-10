@@ -279,11 +279,13 @@ public class AuthorController implements AbstractController<Author> {
     }
     public void updateTags(Author author){
         if (author.getTag2Authors()==null){
+            Log.e(DEBUG_TAG,"updateTags: T2A Collection is NULL for Author "+ author.getName());
             return;
         }
         int num = author.getTag2Authors().size();
         int i =1;
         StringBuilder sb = new StringBuilder();
+        Log.d(DEBUG_TAG,"updateTags: author "+author.getName()+" has "+num+" tags");
         for (Tag2Author t2a : author.getTag2Authors()){
             sb.append(tagCtl.getById(t2a.getTag().getId()).getName());
             if (i<num){
@@ -422,7 +424,9 @@ public class AuthorController implements AbstractController<Author> {
     public boolean syncTags(Author author, List<Tag>tags){
 
         boolean bres =t2aCtl.sync(author,tags);
+        author=getById(author.getId());
         if (bres){
+            Log.d(DEBUG_TAG,"syncTags: making update for All_Tags_String for "+author.getName());
             updateTags(author);
         }
         return  bres;

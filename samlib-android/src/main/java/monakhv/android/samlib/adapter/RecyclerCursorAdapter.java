@@ -1,10 +1,9 @@
 package monakhv.android.samlib.adapter;
 
-import android.content.Context;
+
 import android.database.Cursor;
 import android.database.DataSetObserver;
 import android.database.ContentObserver;
-import android.net.Uri;
 import android.os.Handler;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -39,8 +38,8 @@ public abstract class RecyclerCursorAdapter<VH
     private Cursor mCursor;
     private boolean mDataValid;
     private int mRowIdColumn;
-    private DataSetObserver mDataSetObserver;
-    private ContentObserver mChangeObserver;
+//    private DataSetObserver mDataSetObserver;
+//    private ContentObserver mChangeObserver;
 
     private String name;//for testing
 
@@ -49,13 +48,13 @@ public abstract class RecyclerCursorAdapter<VH
         mCursor = cursor;
         mDataValid = cursor != null;
         mRowIdColumn = mDataValid ? mCursor.getColumnIndex("_id") : -1;
-        mDataSetObserver = new NotifyingDataSetObserver();
-        mChangeObserver = new ChangeObserver();
-
-        if (mCursor != null) {
-            mCursor.registerDataSetObserver(mDataSetObserver);
-            mCursor.registerContentObserver(mChangeObserver);
-        }
+//        mDataSetObserver = new NotifyingDataSetObserver();
+//        mChangeObserver = new ChangeObserver();
+//
+//        if (mCursor != null) {
+//            mCursor.registerDataSetObserver(mDataSetObserver);
+//            mCursor.registerContentObserver(mChangeObserver);
+//        }
     }
 
     public Cursor getCursor() {
@@ -137,18 +136,18 @@ public abstract class RecyclerCursorAdapter<VH
             return null;
         }
         Cursor oldCursor = mCursor;
-        if (oldCursor != null && mDataSetObserver != null) {
-            oldCursor.unregisterDataSetObserver(mDataSetObserver);
-            oldCursor.unregisterContentObserver(mChangeObserver);
-        }
+//        if (oldCursor != null && mDataSetObserver != null) {
+//            oldCursor.unregisterDataSetObserver(mDataSetObserver);
+//            oldCursor.unregisterContentObserver(mChangeObserver);
+//        }
         mCursor = newCursor;
         if (mCursor != null) {
-            if (mDataSetObserver != null){
-                mCursor.registerDataSetObserver(mDataSetObserver);
-            }
-            if (mChangeObserver!= null){
-                mCursor.registerContentObserver(mChangeObserver);
-            }
+//            if (mDataSetObserver != null){
+//                mCursor.registerDataSetObserver(mDataSetObserver);
+//            }
+//            if (mChangeObserver!= null){
+//                mCursor.registerContentObserver(mChangeObserver);
+//            }
             mRowIdColumn = newCursor.getColumnIndexOrThrow("_id");
             mDataValid = true;
             notifyDataSetChanged();

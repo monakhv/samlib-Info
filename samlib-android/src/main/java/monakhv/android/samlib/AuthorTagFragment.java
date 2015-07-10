@@ -19,6 +19,7 @@ import android.widget.ListView;
 import com.j256.ormlite.android.AndroidDatabaseResults;
 import monakhv.android.samlib.data.SettingsHelper;
 import monakhv.android.samlib.dialogs.EnterStringDialog;
+import monakhv.android.samlib.service.AndroidGuiUpdater;
 import monakhv.android.samlib.service.AuthorEditorServiceIntent;
 import monakhv.android.samlib.sql.DatabaseHelper;
 import monakhv.samlib.db.AuthorController;
@@ -231,7 +232,7 @@ public class AuthorTagFragment extends Fragment {
             if (checked.valueAt(i)) {
                 Object o = listView.getItemAtPosition(checked.keyAt(i));
                 Cursor cur = (Cursor) o;//selected cursors
-                Log.i(DEBUG_TAG, "selected: " + cur.getString(cur.getColumnIndex(SQLController.COL_TAG_NAME)));
+                Log.d(DEBUG_TAG, "okClick: selected: " + cur.getString(cur.getColumnIndex(SQLController.COL_TAG_NAME)));
                 tags.add(tagCtl.getById(cur.getInt(cur.getColumnIndex(SQLController.COL_ID))));
             }
         }
@@ -239,6 +240,11 @@ public class AuthorTagFragment extends Fragment {
         Author a = sql.getById(author_id);
         sql.syncTags(a, tags);
         helper.requestBackup();
+        a=sql.getById(author_id);
+        Log.d(DEBUG_TAG, "okClick:   " + a.getName() + ": " + a.getAll_tags_name()+"  -  "+a.getTagIds().size()+" = "+a.getTag2Authors().size());
+        for (Integer ii : a.getTagIds()){
+            Log.d(DEBUG_TAG, "okClick:   tagId -" +ii);
+        }
         cancelClick();
     }
 
@@ -319,6 +325,7 @@ public class AuthorTagFragment extends Fragment {
         AuthorController sql = new AuthorController(callBack.getDatabaseHelper());
         Author a = sql.getById(author_id);
         if (a==null){
+            Log.e(DEBUG_TAG,"loadTagData: author is NULL");
             return;
         }
         for (int i = 0; i < size; i++) {

@@ -581,7 +581,7 @@ public class MainActivity extends MyBaseAbstractActivity  implements
 
     @Override
     public void onFinish(long id) {
-
+        authorFragment.refresh();
         Log.d(DEBUG_TAG, "Return to Books");
         final FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
         ft.replace(R.id.listBooksFragment, bookFragment);
