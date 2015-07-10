@@ -38,6 +38,7 @@ import monakhv.android.samlib.sortorder.RadioItems;
 import monakhv.samlib.db.TagController;
 import monakhv.samlib.db.entity.SamLibConfig;
 import monakhv.samlib.db.entity.Tag;
+import monakhv.samlib.service.AuthorService;
 
 
 import java.util.ArrayList;
@@ -409,8 +410,7 @@ public class MainActivity extends MyBaseAbstractActivity  implements
        // authorFragment.refresh(null, null);
 
         authorFragment.refresh();
-        createDrawer();
-        authorFragment.makePulToRefresh();
+        refreshTags();
 
 
     }
@@ -601,16 +601,17 @@ public class MainActivity extends MyBaseAbstractActivity  implements
             CharSequence msg = intent.getCharSequenceExtra(AuthorEditorServiceIntent.RESULT_MESSAGE);
             Toast toast = Toast.makeText(context, msg, duration);
 
-            if (intent.getStringExtra(AuthorEditorServiceIntent.EXTRA_ACTION_TYPE).equals(AuthorEditorServiceIntent.ACTION_ADD)) {
-                Log.d(DEBUG_TAG, "onReceive: author add");
+            if (intent.getStringExtra(AuthorEditorServiceIntent.EXTRA_ACTION_TYPE).equals(AuthorService.ACTION_ADD)) {
+
                 long id = intent.getLongExtra(AuthorEditorServiceIntent.RESULT_AUTHOR_ID, 0);
+                Log.d(DEBUG_TAG, "onReceive: author add, id = "+id);
 
                 authorFragment.selectAuthor(id);
                 toast.show();
                 onAuthorSelected(id);
 
             }
-            if (intent.getStringExtra(AuthorEditorServiceIntent.EXTRA_ACTION_TYPE).equals(AuthorEditorServiceIntent.ACTION_DELETE)) {
+            if (intent.getStringExtra(AuthorEditorServiceIntent.EXTRA_ACTION_TYPE).equals(AuthorService.ACTION_DELETE)) {
                 Log.d(DEBUG_TAG, "onReceive: author del");
                 toast.show();
             }
@@ -629,7 +630,10 @@ public class MainActivity extends MyBaseAbstractActivity  implements
         public static final String ACTION_TOAST = "TOAST";
         public static final String ACTION_PROGRESS = "PROGRESS";
         public static final String ACTION_REFRESH = "ACTION_REFRESH";
-        public static final String ACTION_REFRESH_BOTH = "ACTION_REFRESH_BOTH";
+        public static final String ACTION_REFRESH_OBJECT = "ACTION_REFRESH_OBJECT";
+        public static final int     ACTION_REFRESH_AUTHORS = 10;
+        public static final int     ACTION_REFRESH_BOOKS     = 20;
+        public static final int     ACTION_REFRESH_TAGS        = 30;
 
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -647,15 +651,28 @@ public class MainActivity extends MyBaseAbstractActivity  implements
                     authorFragment.updateProgress(intent.getStringExtra(TOAST_STRING));
                 }
                 if (action.equalsIgnoreCase(ACTION_REFRESH)){
-                    boolean isBoth = intent.getBooleanExtra(ACTION_REFRESH_BOTH,false);
-                    authorFragment.refresh();
-                    if (twoPain && !isTagShow && isBoth){
+
+                    int iObject = intent.getIntExtra(ACTION_REFRESH_OBJECT, ACTION_REFRESH_AUTHORS);
+                    if (iObject == ACTION_REFRESH_AUTHORS){
+                        authorFragment.refresh();
+                    }
+
+                    if (twoPain && !isTagShow &&  (iObject == ACTION_REFRESH_BOOKS)){
                         bookFragment.refresh();
                     }
+                    if (twoPain &&   (iObject == ACTION_REFRESH_TAGS)){
+                        refreshTags();
+                    }
+
                 }
             }
 
 
         }
+    }
+
+    private void refreshTags() {
+        createDrawer();
+        authorFragment.makePulToRefresh();
     }
 }

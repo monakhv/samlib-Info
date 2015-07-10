@@ -2,10 +2,8 @@ package monakhv.android.samlib.service;
 
 import android.app.IntentService;
 import android.content.Context;
-import android.content.Intent;
 import com.j256.ormlite.android.apptools.OpenHelperManager;
 import com.j256.ormlite.support.ConnectionSource;
-import monakhv.android.samlib.MainActivity;
 import monakhv.android.samlib.sql.DatabaseHelper;
 
 /*
@@ -54,11 +52,7 @@ public abstract class MyServiceIntent extends IntentService {
         }
     }
 
-    public ConnectionSource getConnectionSource() {
-        return getHelper().getConnectionSource();
-    }
-
-    @Override
+     @Override
     public void onCreate() {
         if (helper == null) {
 			helper = getHelperInternal(this);
@@ -100,13 +94,5 @@ public abstract class MyServiceIntent extends IntentService {
 		OpenHelperManager.releaseHelper();
 		this.helper = null;
 	}
-    protected void sendRefresh(boolean isBoth){
-        Intent broadcastIntent = new Intent();
-        broadcastIntent.addCategory(Intent.CATEGORY_DEFAULT);
-        broadcastIntent.setAction(MainActivity.UpdateActivityReceiver.ACTION_RESP);
-        broadcastIntent.putExtra(MainActivity.UpdateActivityReceiver.ACTION, MainActivity.UpdateActivityReceiver.ACTION_REFRESH);
-        broadcastIntent.putExtra(MainActivity.UpdateActivityReceiver.ACTION_REFRESH_BOTH, isBoth);
-        sendBroadcast(broadcastIntent);
-    }
 
 }

@@ -150,10 +150,8 @@ public class AuthorController implements AbstractController<Author> {
     @Override
     public long insert(Author author) {
 
-        int res;
-
         try {
-            res = dao.create(author);
+            dao.create(author);
         } catch (SQLException e) {
             Log.e(DEBUG_TAG, "can not insert: ", e);
             return -1;
@@ -165,7 +163,7 @@ public class AuthorController implements AbstractController<Author> {
             book.setAuthor(a);
             bookCtl.insert(book);
         }
-        return res;
+        return a.getId();
     }
 
     /**
