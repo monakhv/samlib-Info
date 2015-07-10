@@ -41,18 +41,6 @@ public class AuthorEditorServiceIntent extends MyServiceIntent {
     public static final String ACTION_ALL_TAGS_UPDATE="AddAuthorServiceIntent_ACTION_ALL_TAGS_UPDATE";
 
 
-    public static final String RESULT_DEL_NUMBER ="AddAuthorServiceIntent_RESULT_DEL_NUMBER";
-    public static final String RESULT_ADD_NUMBER="AddAuthorServiceIntent_RESULT_ADD_NUMBER";
-    public static final String RESULT_DOUBLE_NUMBER="AddAuthorServiceIntent_RESULT_DOUBLE_NUMBER";
-    public static final String RESULT_AUTHOR_ID="AddAuthorServiceIntent_ RESULT_AUTHOR_ID";
-    public static final String RESULT_MESSAGE="AddAuthorServiceIntent_ RESULT_RESULT_MESSAGE";
-
-    private Context context;
-
-
-    private String action;
-
-
     public AuthorEditorServiceIntent() {
         super(DEBUG_TAG);
     }
@@ -60,8 +48,8 @@ public class AuthorEditorServiceIntent extends MyServiceIntent {
     @Override
     protected void onHandleIntent(Intent intent) {
 
-        action = intent.getStringExtra(EXTRA_ACTION_TYPE);
-        context = this.getApplicationContext();
+        String action = intent.getStringExtra(EXTRA_ACTION_TYPE);
+        Context context = this.getApplicationContext();
         AuthorService service = new AuthorService(getHelper(),new AndroidGuiUpdater(context,0), new SettingsHelper(context));
 
         Log.d(DEBUG_TAG, "Got intent");

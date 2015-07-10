@@ -44,7 +44,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 
-
+import monakhv.android.samlib.service.AndroidGuiUpdater;
 import monakhv.android.samlib.service.AuthorEditorServiceIntent;
 import monakhv.samlib.service.AuthorService;
 
@@ -331,8 +331,8 @@ public class ArchiveActivity extends MyBaseAbstractActivity {
 
         @Override
         public void onReceive(Context context, Intent intent) {
-            CharSequence msg = intent.getCharSequenceExtra(AuthorEditorServiceIntent.RESULT_MESSAGE);
-            if (intent.getStringExtra(AuthorEditorServiceIntent.EXTRA_ACTION_TYPE).equals(AuthorService.ACTION_ADD))
+            CharSequence msg = intent.getCharSequenceExtra(AndroidGuiUpdater.TOAST_STRING);
+            if (intent.getStringExtra(AndroidGuiUpdater.ACTION).equals(AuthorService.ACTION_ADD))
             {
                 TextView tvMsg = new TextView(ArchiveActivity.this);
                 tvMsg.setText(Html.fromHtml(msg.toString()));

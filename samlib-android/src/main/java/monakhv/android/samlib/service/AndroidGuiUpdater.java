@@ -2,7 +2,6 @@ package monakhv.android.samlib.service;
 
 import android.content.Context;
 import android.content.Intent;
-import monakhv.android.samlib.MainActivity;
 import monakhv.android.samlib.R;
 import monakhv.android.samlib.data.SettingsHelper;
 import monakhv.samlib.db.entity.Author;
@@ -31,8 +30,25 @@ import java.util.List;
  */
 public class AndroidGuiUpdater implements GuiUpdate {
     private static final String DEBUG_TAG="AndroidGuiUpdater";
-    private Context context;
-    private int currentCaller;
+    public static final String ACTION_RESP = "monakhv.android.samlib.action.UPDATED";
+    public static final String TOAST_STRING = "TOAST_STRING";
+    public static final String ACTION = "ACTION";
+    public static final String ACTION_TOAST = "TOAST";
+    public static final String ACTION_PROGRESS = "PROGRESS";
+    public static final String ACTION_REFRESH = "ACTION_REFRESH";
+    public static final String ACTION_REFRESH_OBJECT = "ACTION_REFRESH_OBJECT";
+    public static final int     ACTION_REFRESH_AUTHORS = 10;
+    public static final int     ACTION_REFRESH_BOOKS     = 20;
+    public static final int     ACTION_REFRESH_TAGS        = 30;
+
+    public static final String RESULT_AUTHOR_ID="RESULT_AUTHOR_ID";
+    //    public static final String RESULT_DEL_NUMBER ="AddAuthorServiceIntent_RESULT_DEL_NUMBER";
+    //    public static final String RESULT_ADD_NUMBER="AddAuthorServiceIntent_RESULT_ADD_NUMBER";
+    //    public static final String RESULT_DOUBLE_NUMBER="AddAuthorServiceIntent_RESULT_DOUBLE_NUMBER";
+
+
+    private final Context context;
+    private final int currentCaller;
 
     public AndroidGuiUpdater(Context context,int currentCaller) {
         this.context = context;
@@ -43,10 +59,9 @@ public class AndroidGuiUpdater implements GuiUpdate {
     public void makeUpdateAuthors() {
         Intent broadcastIntent = new Intent();
         broadcastIntent.addCategory(Intent.CATEGORY_DEFAULT);
-        broadcastIntent.setAction(MainActivity.UpdateActivityReceiver.ACTION_RESP);
-        broadcastIntent.putExtra(MainActivity.UpdateActivityReceiver.ACTION, MainActivity.UpdateActivityReceiver.ACTION_REFRESH);
-        broadcastIntent.putExtra(MainActivity.UpdateActivityReceiver.ACTION_REFRESH_OBJECT,
-                MainActivity.UpdateActivityReceiver.ACTION_REFRESH_AUTHORS);
+        broadcastIntent.setAction(ACTION_RESP);
+        broadcastIntent.putExtra(ACTION, ACTION_REFRESH);
+        broadcastIntent.putExtra(ACTION_REFRESH_OBJECT,ACTION_REFRESH_AUTHORS);
         context.sendBroadcast(broadcastIntent);
 
     }
@@ -54,10 +69,9 @@ public class AndroidGuiUpdater implements GuiUpdate {
     public void makeUpdateTagList() {
         Intent broadcastIntent = new Intent();
         broadcastIntent.addCategory(Intent.CATEGORY_DEFAULT);
-        broadcastIntent.setAction(MainActivity.UpdateActivityReceiver.ACTION_RESP);
-        broadcastIntent.putExtra(MainActivity.UpdateActivityReceiver.ACTION, MainActivity.UpdateActivityReceiver.ACTION_REFRESH);
-        broadcastIntent.putExtra(MainActivity.UpdateActivityReceiver.ACTION_REFRESH_OBJECT,
-                MainActivity.UpdateActivityReceiver.ACTION_REFRESH_TAGS);
+        broadcastIntent.setAction(ACTION_RESP);
+        broadcastIntent.putExtra(ACTION, ACTION_REFRESH);
+        broadcastIntent.putExtra(ACTION_REFRESH_OBJECT,ACTION_REFRESH_TAGS);
 
         context.sendBroadcast(broadcastIntent);
 
@@ -67,10 +81,9 @@ public class AndroidGuiUpdater implements GuiUpdate {
     public void makeUpdateBooks() {
         Intent broadcastIntent = new Intent();
         broadcastIntent.addCategory(Intent.CATEGORY_DEFAULT);
-        broadcastIntent.setAction(MainActivity.UpdateActivityReceiver.ACTION_RESP);
-        broadcastIntent.putExtra(MainActivity.UpdateActivityReceiver.ACTION, MainActivity.UpdateActivityReceiver.ACTION_REFRESH);
-        broadcastIntent.putExtra(MainActivity.UpdateActivityReceiver.ACTION_REFRESH_OBJECT,
-                MainActivity.UpdateActivityReceiver.ACTION_REFRESH_BOOKS);
+        broadcastIntent.setAction(ACTION_RESP);
+        broadcastIntent.putExtra(ACTION, ACTION_REFRESH);
+        broadcastIntent.putExtra(ACTION_REFRESH_OBJECT, ACTION_REFRESH_BOOKS);
         context.sendBroadcast(broadcastIntent);
 
     }
@@ -80,9 +93,9 @@ public class AndroidGuiUpdater implements GuiUpdate {
         String str = " ["+iCurrent+"/"+total+"]:   "+name;
         Intent broadcastIntent = new Intent();
         broadcastIntent.addCategory(Intent.CATEGORY_DEFAULT);
-        broadcastIntent.setAction(MainActivity.UpdateActivityReceiver.ACTION_RESP);
-        broadcastIntent.putExtra(MainActivity.UpdateActivityReceiver.ACTION, MainActivity.UpdateActivityReceiver.ACTION_PROGRESS);
-        broadcastIntent.putExtra(MainActivity.UpdateActivityReceiver.TOAST_STRING, str);
+        broadcastIntent.setAction(ACTION_RESP);
+        broadcastIntent.putExtra(ACTION, ACTION_PROGRESS);
+        broadcastIntent.putExtra(TOAST_STRING, str);
         context.sendBroadcast(broadcastIntent);
 
     }
@@ -110,9 +123,9 @@ public class AndroidGuiUpdater implements GuiUpdate {
             }
             Intent broadcastIntent = new Intent();
             broadcastIntent.addCategory(Intent.CATEGORY_DEFAULT);
-            broadcastIntent.setAction(MainActivity.UpdateActivityReceiver.ACTION_RESP);
-            broadcastIntent.putExtra(MainActivity.UpdateActivityReceiver.ACTION, MainActivity.UpdateActivityReceiver.ACTION_TOAST);
-            broadcastIntent.putExtra(MainActivity.UpdateActivityReceiver.TOAST_STRING, text);
+            broadcastIntent.setAction(ACTION_RESP);
+            broadcastIntent.putExtra(ACTION, ACTION_TOAST);
+            broadcastIntent.putExtra(TOAST_STRING, text);
             context.sendBroadcast(broadcastIntent);
         }
 
@@ -150,12 +163,13 @@ public class AndroidGuiUpdater implements GuiUpdate {
     public void sendResult(String action,int numberOfAdded,int numberOfDeleted,int doubleAdd,int totalToAdd, long author_id) {
         Intent broadcastIntent = new Intent();
         broadcastIntent.addCategory(Intent.CATEGORY_DEFAULT);
-        broadcastIntent.setAction(AuthorEditorServiceIntent.RECEIVER_FILTER);
-        broadcastIntent.putExtra(AuthorEditorServiceIntent.EXTRA_ACTION_TYPE, action);
-        broadcastIntent.putExtra(AuthorEditorServiceIntent.RESULT_ADD_NUMBER,numberOfAdded);
-        broadcastIntent.putExtra(AuthorEditorServiceIntent.RESULT_DEL_NUMBER,numberOfDeleted);
-        broadcastIntent.putExtra(AuthorEditorServiceIntent.RESULT_DOUBLE_NUMBER,doubleAdd);
-        broadcastIntent.putExtra(AuthorEditorServiceIntent.RESULT_AUTHOR_ID, author_id);
+        broadcastIntent.setAction(ACTION_RESP);
+
+        broadcastIntent.putExtra(ACTION, action);
+//        broadcastIntent.putExtra(AuthorEditorServiceIntent.RESULT_ADD_NUMBER,numberOfAdded);
+//        broadcastIntent.putExtra(AuthorEditorServiceIntent.RESULT_DEL_NUMBER,numberOfDeleted);
+//        broadcastIntent.putExtra(AuthorEditorServiceIntent.RESULT_DOUBLE_NUMBER,doubleAdd);
+        broadcastIntent.putExtra(RESULT_AUTHOR_ID, author_id);
         CharSequence msg="";
         if (action.equals(AuthorService.ACTION_ADD)){//ADD Action
 
@@ -188,7 +202,7 @@ public class AndroidGuiUpdater implements GuiUpdate {
                 msg=context.getText(R.string.del_error);
             }
         }
-        broadcastIntent.putExtra(AuthorEditorServiceIntent.RESULT_MESSAGE,msg);
+        broadcastIntent.putExtra(TOAST_STRING,msg);
 
         context.sendBroadcast(broadcastIntent);
 

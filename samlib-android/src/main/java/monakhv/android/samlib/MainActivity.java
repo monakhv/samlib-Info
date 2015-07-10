@@ -30,6 +30,7 @@ import com.mikepenz.materialdrawer.model.interfaces.OnCheckedChangeListener;
 import monakhv.android.samlib.data.SettingsHelper;
 import monakhv.android.samlib.search.SearchAuthorActivity;
 import monakhv.android.samlib.search.SearchAuthorsListFragment;
+import monakhv.android.samlib.service.AndroidGuiUpdater;
 import monakhv.android.samlib.service.AuthorEditorServiceIntent;
 import monakhv.android.samlib.service.CleanNotificationData;
 import monakhv.android.samlib.sortorder.AuthorSortOrder;
@@ -78,7 +79,7 @@ public class MainActivity extends MyBaseAbstractActivity  implements
     private AuthorTagFragment tagFragment;
     private SettingsHelper settingsHelper;
     private DownloadReceiver downloadReceiver;
-    private AuthorEditReceiver authorReceiver;
+
     private boolean twoPain;
     private Toolbar toolbar;
     private boolean isTagShow=false;
@@ -381,20 +382,16 @@ public class MainActivity extends MyBaseAbstractActivity  implements
     protected void onResume() {
         super.onResume();
 
-        IntentFilter updateFilter = new IntentFilter(UpdateActivityReceiver.ACTION_RESP);
-        IntentFilter authorFilter = new IntentFilter(AuthorEditorServiceIntent.RECEIVER_FILTER);
-
+        IntentFilter updateFilter = new IntentFilter(AndroidGuiUpdater.ACTION_RESP);
 
         updateFilter.addCategory(Intent.CATEGORY_DEFAULT);
-        authorFilter.addCategory(Intent.CATEGORY_DEFAULT);
-
 
         updateReceiver = new UpdateActivityReceiver();
-        authorReceiver = new AuthorEditReceiver();
+
 
         //getActionBarHelper().setRefreshActionItemState(refreshStatus);
         registerReceiver(updateReceiver, updateFilter);
-        registerReceiver(authorReceiver, authorFilter);
+
 
         if (twoPain) {
 
@@ -419,7 +416,7 @@ public class MainActivity extends MyBaseAbstractActivity  implements
     protected void onPause() {
         super.onPause();
         unregisterReceiver(updateReceiver);
-        unregisterReceiver(authorReceiver);
+
         if (twoPain) {
             unregisterReceiver(downloadReceiver);
         }
@@ -593,77 +590,65 @@ public class MainActivity extends MyBaseAbstractActivity  implements
     }
 
 
-    public class AuthorEditReceiver extends BroadcastReceiver {
 
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            int duration = Toast.LENGTH_SHORT;
-            CharSequence msg = intent.getCharSequenceExtra(AuthorEditorServiceIntent.RESULT_MESSAGE);
-            Toast toast = Toast.makeText(context, msg, duration);
-
-            if (intent.getStringExtra(AuthorEditorServiceIntent.EXTRA_ACTION_TYPE).equals(AuthorService.ACTION_ADD)) {
-
-                long id = intent.getLongExtra(AuthorEditorServiceIntent.RESULT_AUTHOR_ID, 0);
-                Log.d(DEBUG_TAG, "onReceive: author add, id = "+id);
-
-                authorFragment.selectAuthor(id);
-                toast.show();
-                onAuthorSelected(id);
-
-            }
-            if (intent.getStringExtra(AuthorEditorServiceIntent.EXTRA_ACTION_TYPE).equals(AuthorService.ACTION_DELETE)) {
-                Log.d(DEBUG_TAG, "onReceive: author del");
-                toast.show();
-            }
-
-        }
-    }
 
     /**
      * Receive updates from Update Service
      */
     public class UpdateActivityReceiver extends BroadcastReceiver {
 
-        public static final String ACTION_RESP = "monakhv.android.samlib.action.UPDATED";
-        public static final String TOAST_STRING = "TOAST_STRING";
-        public static final String ACTION = "ACTION";
-        public static final String ACTION_TOAST = "TOAST";
-        public static final String ACTION_PROGRESS = "PROGRESS";
-        public static final String ACTION_REFRESH = "ACTION_REFRESH";
-        public static final String ACTION_REFRESH_OBJECT = "ACTION_REFRESH_OBJECT";
-        public static final int     ACTION_REFRESH_AUTHORS = 10;
-        public static final int     ACTION_REFRESH_BOOKS     = 20;
-        public static final int     ACTION_REFRESH_TAGS        = 30;
+
+
 
         @Override
         public void onReceive(Context context, Intent intent) {
 
-            String action = intent.getStringExtra(ACTION);
+            String action = intent.getStringExtra(AndroidGuiUpdater.ACTION);
             if (action != null) {
-                if (action.equalsIgnoreCase(ACTION_TOAST)) {
+                if (action.equalsIgnoreCase(AndroidGuiUpdater.ACTION_TOAST)) {
                     int duration = Toast.LENGTH_SHORT;
-                    Toast toast = Toast.makeText(context, intent.getCharSequenceExtra(TOAST_STRING), duration);
+                    Toast toast = Toast.makeText(context, intent.getCharSequenceExtra(AndroidGuiUpdater.TOAST_STRING), duration);
                     toast.show();
 
                     authorFragment.onRefreshComplete();
                 }//
-                if (action.equalsIgnoreCase(ACTION_PROGRESS)) {
-                    authorFragment.updateProgress(intent.getStringExtra(TOAST_STRING));
+                if (action.equalsIgnoreCase(AndroidGuiUpdater.ACTION_PROGRESS)) {
+                    authorFragment.updateProgress(intent.getStringExtra(AndroidGuiUpdater.TOAST_STRING));
                 }
-                if (action.equalsIgnoreCase(ACTION_REFRESH)){
+                if (action.equalsIgnoreCase(AndroidGuiUpdater.ACTION_REFRESH)){
 
-                    int iObject = intent.getIntExtra(ACTION_REFRESH_OBJECT, ACTION_REFRESH_AUTHORS);
-                    if (iObject == ACTION_REFRESH_AUTHORS){
+                    int iObject = intent.getIntExtra(AndroidGuiUpdater.ACTION_REFRESH_OBJECT, AndroidGuiUpdater.ACTION_REFRESH_AUTHORS);
+                    if (iObject == AndroidGuiUpdater.ACTION_REFRESH_AUTHORS){
                         authorFragment.refresh();
                     }
 
-                    if (twoPain && !isTagShow &&  (iObject == ACTION_REFRESH_BOOKS)){
+                    if (twoPain && !isTagShow &&  (iObject == AndroidGuiUpdater.ACTION_REFRESH_BOOKS)){
                         bookFragment.refresh();
                     }
-                    if (twoPain &&   (iObject == ACTION_REFRESH_TAGS)){
+                    if (twoPain &&   (iObject == AndroidGuiUpdater.ACTION_REFRESH_TAGS)){
                         refreshTags();
                     }
 
+                }
+                if (action.equals(AuthorService.ACTION_ADD)) {
+
+                    long id = intent.getLongExtra(AndroidGuiUpdater.RESULT_AUTHOR_ID, 0);
+                    Log.d(DEBUG_TAG, "onReceive: author add, id = "+id);
+                    int duration = Toast.LENGTH_SHORT;
+                    CharSequence msg = intent.getCharSequenceExtra(AndroidGuiUpdater.TOAST_STRING);
+                    Toast toast = Toast.makeText(context, msg, duration);
+
+                    authorFragment.selectAuthor(id);
+                    toast.show();
+                    onAuthorSelected(id);
+
+                }
+                if (action.equals(AuthorService.ACTION_DELETE)) {
+                    int duration = Toast.LENGTH_SHORT;
+                    CharSequence msg = intent.getCharSequenceExtra(AndroidGuiUpdater.TOAST_STRING);
+                    Toast toast = Toast.makeText(context, msg, duration);
+                    Log.d(DEBUG_TAG, "onReceive: author del");
+                    toast.show();
                 }
             }
 
