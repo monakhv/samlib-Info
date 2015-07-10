@@ -13,6 +13,7 @@ import monakhv.samlib.db.entity.Author;
 import monakhv.samlib.db.entity.Tag;
 import monakhv.samlib.db.entity.Tag2Author;
 import monakhv.samlib.log.Log;
+import monakhv.samlib.service.GuiUpdate;
 
 import java.awt.*;
 import java.util.*;
@@ -32,12 +33,13 @@ public class AuthorTagsDialog extends JDialog {
     private ResourceBundle bundle = ResourceBundle.getBundle("samlibDesk");
     private HashMap<String,JCheckBox> allCbs;
 
-    private TagController tagCtl;
-    private DaoBuilder sql;
+    private final TagController tagCtl;
+    private final AuthorController authCtl;
+    private final DaoBuilder sql;
     private Author author;
-    private GuiCallBack callBack;
+    private final GuiUpdate callBack;
 
-    public AuthorTagsDialog(Frame owner,DaoBuilder sql,GuiCallBack callBack) {
+    public AuthorTagsDialog(Frame owner,DaoBuilder sql,GuiUpdate callBack) {
         super(owner);
         initComponents();
         this.sql = sql;
@@ -46,6 +48,7 @@ public class AuthorTagsDialog extends JDialog {
 
 
         tagCtl = new TagController(sql);
+        authCtl = new AuthorController(sql);
 
         makePanel();
 
@@ -127,7 +130,7 @@ public class AuthorTagsDialog extends JDialog {
         }
         AuthorController aSQL = new AuthorController(sql);
         aSQL.syncTags(author,tags);
-        callBack.authorRedraw();
+        callBack.makeUpdateAuthors();
         setVisible(false);
     }
 
@@ -276,6 +279,9 @@ public class AuthorTagsDialog extends JDialog {
             author=aSQL.getById(author.getId());
             makePanel();
             setPanel(author);
+            authCtl.updateAuthorTags();
+            callBack.makeUpdateAuthors();
+            callBack.makeUpdateTagList();
         }
     }
     private void startEdit(final Tag tag){
@@ -291,6 +297,9 @@ public class AuthorTagsDialog extends JDialog {
                         tagCtl.update(tag);
                         makePanel();
                         setPanel(author);
+                        authCtl.updateAuthorTags();
+                        callBack.makeUpdateAuthors();
+                        callBack.makeUpdateTagList();
                     }
                 },tag.getName());
 

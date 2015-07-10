@@ -21,24 +21,25 @@ import monakhv.samlib.db.entity.Book;
 import monakhv.samlib.db.entity.Tag;
 import monakhv.samlib.desk.Main;
 import monakhv.samlib.desk.data.Settings;
-import monakhv.samlib.desk.service.ServiceOperation;
 import monakhv.samlib.db.AuthorController;
 import monakhv.samlib.db.BookController;
 import monakhv.samlib.desk.sql.DaoController;
 import monakhv.samlib.db.TagController;
 import monakhv.samlib.log.Log;
+import monakhv.samlib.service.AuthorService;
+import monakhv.samlib.service.GuiUpdate;
 
 /**
  * @author Dmitry Monakhov
  */
-public class MainForm extends JFrame implements GuiCallBack{
+public class MainForm extends JFrame implements GuiUpdate{
     private static final String DEBUG_TAG="MainForm";
     private ResourceBundle bndl = ResourceBundle.getBundle("samlibDesk");
     private final DefaultListModel<Author> authorsModel;
-    //private final DefaultListModel<Book> booksModel;
+    private final AuthorService service;
 
     private final SQLController sql;
-    private Settings settings;
+    private final Settings settings;
     private BookList bkList;
     //private String selection=null;
     private String sortOrder=SQLController.COL_isnew + " DESC, " + SQLController.COL_NAME;
@@ -120,6 +121,8 @@ public class MainForm extends JFrame implements GuiCallBack{
             }
         });
 
+        service = new AuthorService(DaoController.getInstance(sql),this,settings );
+
     }
 
     private void createTagSelector(){
@@ -145,23 +148,10 @@ public class MainForm extends JFrame implements GuiCallBack{
 
 
 
-//        if (selectedTag.equals(ComboItem.ALL)){
-//            authorList=ctl.getAll(sortOrder);
-//        }
-//        else if (selectedTag.equals(ComboItem.NEW)){
-//            authorList=ctl.getAllNew(sortOrder);
-//        }
-//        else {
-//            authorList=ctl.getAllByTag(sortOrder, selectedTag.getTag());
-//        }
-
         for (Author a : authorList ){
             authorsModel.addElement(a);
 
-//            Log.i(DEBUG_TAG,"Author: "+a.getName()+"- books - "+a.getBooks().size());
-//            for (Book book : a.getBooks()){
-//                Log.i(DEBUG_TAG,"               ---- "+book.getTitle());
-//            }
+
         }
 
     }
@@ -201,9 +191,8 @@ public class MainForm extends JFrame implements GuiCallBack{
 
     private void buttonUpdateActionPerformed(ActionEvent e) {
         //buttonUpdate.setEnabled(false);
-        ServiceOperation ops = new ServiceOperation(settings);
+        service.runUpdate(authorList);
 
-        ops.update(authorList);
     }
 
     private void menuItemSettingsActionPerformed(ActionEvent e) {
@@ -260,11 +249,9 @@ public class MainForm extends JFrame implements GuiCallBack{
                 JOptionPane.YES_NO_OPTION
         );
         if (answer==JOptionPane.YES_OPTION){
-            ServiceOperation ops = new ServiceOperation( settings);
-            ops.delete(selectedAuthor);
+            service.makeAuthorDel(selectedAuthor.getId());
             selectedAuthor = null;
-            addSortedAuthorList();
-            redraw();
+
         }
     }
 
@@ -275,10 +262,10 @@ public class MainForm extends JFrame implements GuiCallBack{
                     @Override
                     public void okClick(String answer) {
                         Log.i(DEBUG_TAG, "got value: " + answer);
-                        ServiceOperation operation = new ServiceOperation(settings);
-                        operation.addAuthor(answer);
-                        addSortedAuthorList();
-                        redraw();
+                        ArrayList<String> urls = new ArrayList<>();
+                        urls.add(answer);
+                        service.makeAuthorAdd(urls);
+
                     }
                 });
         addAuthor.setVisible(true);
@@ -541,13 +528,40 @@ public class MainForm extends JFrame implements GuiCallBack{
     private JMenuItem menuAuthorMakeRead;
     private JMenuItem menuAuthorDelete;
 
+    // JFormDesigner - End of variables declaration  //GEN-END:variables
+
     @Override
-    public void authorRedraw() {
-        createTagSelector();
+    public void makeUpdateAuthors() {
         addSortedAuthorList();
         redraw();
     }
-    // JFormDesigner - End of variables declaration  //GEN-END:variables
+
+    @Override
+    public void makeUpdateBooks() {
+        loadBookList(selectedAuthor);
+        redraw();
+    }
+
+    @Override
+    public void makeUpdateTagList() {
+        createTagSelector();
+        redraw();
+    }
+
+    @Override
+    public void sendAuthorUpdateProgress(int total, int iCurrent, String name) {
+
+    }
+
+    @Override
+    public void finishUpdate(boolean result, List<Author> updatedAuthors) {
+
+    }
+
+    @Override
+    public void sendResult(String action, int numberOfAdded, int numberOfDeleted, int doubleAdd, int totalToAdd, long author_id) {
+
+    }
 
 
 }
