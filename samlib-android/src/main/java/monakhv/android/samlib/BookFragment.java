@@ -31,6 +31,7 @@ import monakhv.android.samlib.dialogs.ContextMenuDialog;
 import monakhv.android.samlib.dialogs.MyMenuData;
 import monakhv.android.samlib.dialogs.SingleChoiceSelectDialog;
 import monakhv.android.samlib.recyclerview.DividerItemDecoration;
+import monakhv.android.samlib.service.AndroidGuiUpdater;
 import monakhv.android.samlib.service.DownloadBookServiceIntent;
 import monakhv.android.samlib.sortorder.BookSortOrder;
 
@@ -447,7 +448,7 @@ public class BookFragment extends Fragment implements ListSwipeListener.SwipeCal
             progress.setCancelable(true);
             progress.setIndeterminate(true);
             progress.show();
-            DownloadBookServiceIntent.start(getActivity(), book.getId(), true);
+            DownloadBookServiceIntent.start(getActivity(), book.getId(), AndroidGuiUpdater.CALLER_IS_ACTIVITY);
 
 
         } else {

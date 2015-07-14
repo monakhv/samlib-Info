@@ -276,4 +276,46 @@ public class AuthorService {
         guiUpdate.makeUpdateAuthors();
         guiUpdate.makeUpdateTagList();
     }
+
+    public void downloadBook(long book_id){
+
+        Book book = authorController.getBookController().getById(book_id);
+
+        SettingsHelper.FileType ft = settingsHelper.getFileType();
+        Log.d(DEBUG_TAG, "default type is  " + ft.toString());
+
+        switch (ft){
+            case HTML:
+                guiUpdate.finishBookLoad(getBook(book, SettingsHelper.FileType.HTML), SettingsHelper.FileType.HTML,book_id);
+                break;
+            case FB2:
+                boolean rr = getBook(book, SettingsHelper.FileType.FB2);
+                if (rr){
+                    guiUpdate.finishBookLoad(true,SettingsHelper.FileType.FB2,book_id);
+                }
+                else {
+                    guiUpdate.finishBookLoad(getBook(book, SettingsHelper.FileType.HTML), SettingsHelper.FileType.HTML,book_id);
+                }
+                break;
+        }
+    }
+
+    private boolean getBook(Book book, SettingsHelper.FileType ft) {
+        book.setFileType(ft);
+        HttpClientController http = HttpClientController.getInstance(settingsHelper);
+        try {
+            http.downloadBook(book);
+            return true;
+
+        } catch (Exception ex) {
+
+            settingsHelper.cleanBookFile(book);//clean file on error
+
+            Log.e(DEBUG_TAG, "Download book error: " + book.getUri(), ex);
+
+            return false;
+        }
+    }
+
+
 }

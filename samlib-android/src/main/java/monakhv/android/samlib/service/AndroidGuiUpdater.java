@@ -2,6 +2,7 @@ package monakhv.android.samlib.service;
 
 import android.content.Context;
 import android.content.Intent;
+import monakhv.android.samlib.DownloadReceiver;
 import monakhv.android.samlib.R;
 import monakhv.android.samlib.data.SettingsHelper;
 import monakhv.samlib.db.entity.Author;
@@ -40,6 +41,9 @@ public class AndroidGuiUpdater implements GuiUpdate {
     public static final int     ACTION_REFRESH_AUTHORS = 10;
     public static final int     ACTION_REFRESH_BOOKS     = 20;
     public static final int     ACTION_REFRESH_TAGS        = 30;
+    public static final String CALLER_TYPE = "CALLER_TYPE";
+    public static final int CALLER_IS_ACTIVITY = 1;
+    public static final int CALLER_IS_RECEIVER = 2;
 
     public static final String RESULT_AUTHOR_ID="RESULT_AUTHOR_ID";
     //    public static final String RESULT_DEL_NUMBER ="AddAuthorServiceIntent_RESULT_DEL_NUMBER";
@@ -78,6 +82,31 @@ public class AndroidGuiUpdater implements GuiUpdate {
     }
 
     @Override
+    public void finishBookLoad(  boolean b, monakhv.samlib.data.SettingsHelper.FileType ft, long book_id) {
+        Log.d(DEBUG_TAG, "finish result: " + b);
+        Log.d(DEBUG_TAG, "file type:  " + ft.toString());
+        if (currentCaller == CALLER_IS_RECEIVER){
+            return;
+        }
+        CharSequence msg;
+        if (b) {
+            msg = context.getText(R.string.download_book_success);
+        } else {
+            msg = context.getText(R.string.download_book_error);
+        }
+        Intent broadcastIntent = new Intent();
+        broadcastIntent.addCategory(Intent.CATEGORY_DEFAULT);
+        broadcastIntent.setAction(DownloadReceiver.ACTION_RESP);
+        broadcastIntent.putExtra(DownloadReceiver.MESG, msg);
+        broadcastIntent.putExtra(DownloadReceiver.RESULT, b);
+        broadcastIntent.putExtra(DownloadReceiver.FILE_TYPE, ft.toString());
+        broadcastIntent.putExtra(DownloadReceiver.BOOK_ID, book_id);
+
+        context.sendBroadcast(broadcastIntent);
+
+    }
+
+    @Override
     public void makeUpdateBooks() {
         Intent broadcastIntent = new Intent();
         broadcastIntent.addCategory(Intent.CATEGORY_DEFAULT);
@@ -107,7 +136,7 @@ public class AndroidGuiUpdater implements GuiUpdate {
         if (settings.getLimitBookLifeTimeFlag()) {
             CleanBookServiceIntent.start(context);
         }
-        if (currentCaller == UpdateServiceIntent.CALLER_IS_ACTIVITY) {//Call from activity
+        if (currentCaller == CALLER_IS_ACTIVITY) {//Call from activity
 
             CharSequence text;
 
@@ -129,7 +158,7 @@ public class AndroidGuiUpdater implements GuiUpdate {
             context.sendBroadcast(broadcastIntent);
         }
 
-        if (currentCaller == UpdateServiceIntent.CALLER_IS_RECEIVER) {//Call as a regular service
+        if (currentCaller == CALLER_IS_RECEIVER) {//Call as a regular service
 
 
             if (result && updatedAuthors.isEmpty() && !settings.getDebugFlag()) {

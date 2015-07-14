@@ -30,6 +30,10 @@ public interface SettingsHelper {
     public File getBookFile(Book book,FileType fileType);
     public String getDataDirectoryPath();
 
+    FileType getFileType();
+
+    void cleanBookFile(Book book);
+
 
     public static enum FileType {
         HTML(".html","text/html"),

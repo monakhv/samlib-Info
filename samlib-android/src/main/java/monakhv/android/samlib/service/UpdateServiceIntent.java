@@ -47,11 +47,10 @@ import monakhv.samlib.service.AuthorService;
  */
 public class UpdateServiceIntent extends MyServiceIntent {
 
-    private static final String CALLER_TYPE = "CALLER_TYPE";
+
     private static final String SELECT_INDEX = "SELECT_INDEX";
     private static final String SELECT_ID="SELECT_ID";
-    public static final int CALLER_IS_ACTIVITY = 1;
-    public static final int CALLER_IS_RECEIVER = 2;
+
     private static final String DEBUG_TAG = "UpdateServiceIntent";
     private int currentCaller = 0;
     private Context context;
@@ -73,7 +72,7 @@ public class UpdateServiceIntent extends MyServiceIntent {
         settings = new SettingsHelper(context);
         Log.d(DEBUG_TAG, "Got intent");
         dataExportImport = new DataExportImport(context);
-        currentCaller = intent.getIntExtra(CALLER_TYPE, 0);
+        currentCaller = intent.getIntExtra(AndroidGuiUpdater.CALLER_TYPE, 0);
         int idx  = intent.getIntExtra(SELECT_INDEX, SamLibConfig.TAG_AUTHOR_ALL);
 
         settings.requestFirstBackup();
@@ -86,7 +85,7 @@ public class UpdateServiceIntent extends MyServiceIntent {
         List<Author> authors;
         GuiUpdate guiUpdate = new AndroidGuiUpdater(context,currentCaller);
 
-        if (currentCaller == CALLER_IS_RECEIVER) {
+        if (currentCaller == AndroidGuiUpdater.CALLER_IS_RECEIVER) {
             String stag = settings.getUpdateTag();
             int tag_id = Integer.parseInt(stag);
             idx = tag_id;
@@ -96,7 +95,7 @@ public class UpdateServiceIntent extends MyServiceIntent {
                 return;
             }
         }
-        if (currentCaller == CALLER_IS_ACTIVITY) {
+        if (currentCaller == AndroidGuiUpdater.CALLER_IS_ACTIVITY) {
             if (!SettingsHelper.haveInternet(context)) {
                 Log.e(DEBUG_TAG, "Ignore update - we have no internet connection");
 
@@ -148,12 +147,12 @@ public class UpdateServiceIntent extends MyServiceIntent {
      */
     public static void makeUpdate(Context ctx){
         Intent updater = new Intent(ctx, UpdateServiceIntent.class);
-        updater.putExtra(UpdateServiceIntent.CALLER_TYPE, UpdateServiceIntent.CALLER_IS_RECEIVER);
+        updater.putExtra(AndroidGuiUpdater.CALLER_TYPE, AndroidGuiUpdater.CALLER_IS_RECEIVER);
         ctx.startService(updater);
     }
     public static void makeUpdateAuthor(Context ctx,int id){
         Intent service = new Intent(ctx, UpdateServiceIntent.class);
-        service.putExtra(UpdateServiceIntent.CALLER_TYPE, UpdateServiceIntent.CALLER_IS_ACTIVITY);
+        service.putExtra(AndroidGuiUpdater.CALLER_TYPE, AndroidGuiUpdater.CALLER_IS_ACTIVITY);
         service.putExtra(UpdateServiceIntent.SELECT_INDEX, SamLibConfig.TAG_AUTHOR_ID);
         service.putExtra(UpdateServiceIntent.SELECT_ID, id);
 
@@ -161,7 +160,7 @@ public class UpdateServiceIntent extends MyServiceIntent {
     }
     public static void makeUpdate(Context ctx,int tagId){
         Intent service = new Intent(ctx, UpdateServiceIntent.class);
-        service.putExtra(UpdateServiceIntent.CALLER_TYPE, UpdateServiceIntent.CALLER_IS_ACTIVITY);
+        service.putExtra(AndroidGuiUpdater.CALLER_TYPE, AndroidGuiUpdater.CALLER_IS_ACTIVITY);
         service.putExtra(UpdateServiceIntent.SELECT_INDEX, tagId);
 
         ctx.startService(service);
@@ -183,7 +182,7 @@ public class UpdateServiceIntent extends MyServiceIntent {
                 for (Book book : authorController.getBookController().getBooksByAuthor(a)) {//book cycle for the author to update
                     if (book.isIsNew() && settings.testAutoLoadLimit(book) && dataExportImport.needUpdateFile(book)) {
                         Log.i(DEBUG_TAG, "Auto Load book: " + book.getId());
-                        DownloadBookServiceIntent.start(context, book,false);
+                        DownloadBookServiceIntent.start(context, book.getId(),currentCaller);
                     }
                 }
             }
