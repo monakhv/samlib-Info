@@ -1,5 +1,8 @@
 package monakhv.samlib.desk.gui;
 
+import monakhv.samlib.db.entity.SamLibConfig;
+import monakhv.samlib.db.entity.Tag;
+
 import java.io.Serializable;
 
 /*
@@ -17,36 +20,33 @@ import java.io.Serializable;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * 15.07.15.
+ * 30.06.15.
  */
-public class ComboItem implements Serializable {
-    private String title;
-    private String data;
 
-    public ComboItem(String title, String data) {
-        this.title = title;
-        this.data = data;
+public class TagComboItem implements Serializable{
+    public  static final TagComboItem ALL= new TagComboItem(SamLibConfig.TAG_AUTHOR_ALL ,"ALL");
+    public  static final TagComboItem NEW= new TagComboItem(SamLibConfig.TAG_AUTHOR_NEW ,"NEW");
+    private int id;
+    private String tittle;
+    private Tag tag=null;
+
+    private TagComboItem(int id, String title){
+        this.id=id;
+        this.tittle= title;
     }
-
-    public String getTitle() {
-        return title;
-    }
-
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
-    public String getData() {
-        return data;
-    }
-
-    public void setData(String data) {
-        this.data = data;
+    public TagComboItem(Tag tag){
+        this.tag=tag;
+        this.id=tag.getId();
+        this.tittle=tag.getName();
     }
 
     @Override
     public String toString() {
-        return title;
+        return tittle;
+    }
+
+    public int getId(){
+        return id;
     }
 
     @Override
@@ -54,14 +54,18 @@ public class ComboItem implements Serializable {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        ComboItem comboItem = (ComboItem) o;
+        TagComboItem tagComboItem = (TagComboItem) o;
 
-        return !(data != null ? !data.equals(comboItem.data) : comboItem.data != null);
+        return id == tagComboItem.id;
 
     }
 
     @Override
     public int hashCode() {
-        return data != null ? data.hashCode() : 0;
+        return id;
+    }
+
+    public Tag getTag() {
+        return tag;
     }
 }

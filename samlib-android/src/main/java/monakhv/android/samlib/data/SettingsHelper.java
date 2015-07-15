@@ -281,6 +281,7 @@ public class SettingsHelper extends AbstractSettings implements SharedPreference
                 false);
     }
 
+    @Override
     public boolean getAutoLoadFlag() {
 
         return prefs.getBoolean(
@@ -288,6 +289,7 @@ public class SettingsHelper extends AbstractSettings implements SharedPreference
                 false) ;
     }
 
+    @Override
     public boolean getLimitBookLifeTimeFlag() {
 
         return prefs.getBoolean(

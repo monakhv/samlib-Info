@@ -58,8 +58,25 @@ public abstract class AbstractSettings {
     public abstract void log(String debugTag, String s);//special logging for debug
     public abstract void log(String debugTag, String s, Exception e);//special logging for debug
     public abstract  File getDataDirectory();
+
+    /**
+     *
+     * @return day number to live book into store
+     */
     public abstract String getBookLifeTime();
     public abstract FileType getFileType();
+
+    /**
+     *  need we download new book during update process or not
+     * @return true make download book
+     */
+    public abstract boolean getAutoLoadFlag();
+
+    /**
+     * Limit book file life time or not
+     * @return true make life time limitation
+     */
+    public abstract boolean getLimitBookLifeTimeFlag();
 
     /**
      * Setting file to store book content

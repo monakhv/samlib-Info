@@ -43,7 +43,7 @@ public class Settings extends AbstractSettings {
     private static final String PROP_VALUE_FIRST_MIRROR = "SamLib";
 
     private static final String PROP_KEY_USE_PROXY = "PROP_KEY_USE_PROXY";
-    private static final String PROP_VALUE_USE_PROXY = "0";
+    private static final String PROP_VALUE_USE_PROXY = ZERO;
 
     private static final String PROP_KEY_PROXY_HOST = "PROP_KEY_PROXY_HOST";
     private static final String PROP_VALUE_PROXY_HOST = "";
@@ -53,6 +53,17 @@ public class Settings extends AbstractSettings {
     private static final String PROP_VALUE_PROXY_USER = "";
     private static final String PROP_KEY_PROXY_PASSWORD = "PROP_KEY_PROXY_PASSWORD";
     private static final String PROP_VALUE_PROXY_PASSWORD = "";
+
+
+    private static final String PROP_KEY_AUTO_LOAD_FLAG="PROP_KEY_AUTO_LOAD_FLAG";
+    private static final String PROP_VALUE_AUTO_LOAD_FLAG=ONE;
+    private static final String PROP_KEY_LIMIT_BOOK_LIFE_TIME_FLAG="PROP_KEY_LIMIT_BOOK_LIFE_TIME_FLAG";
+    private static final String PROP_VALUE_LIMIT_BOOK_LIFE_TIME_FLAG=ZERO;
+    private static final String PROP_KEY_BOOK_LIFE_TIME="PROP_KEY_BOOK_LIFE_TIME";
+    private static final String PROP_VALUE_BOOK_LIFE_TIME="365";
+    private static final String PROP_KEY_BOOK_FILE_TYPE="PROP_KEY_BOOK_FILE_TYPE";
+    private static final String PROP_VALUE_BOOK_FILE_TYPE="HTML";
+
 
 
     private static final Properties defaultProperty;
@@ -66,13 +77,21 @@ public class Settings extends AbstractSettings {
         defaultProperty.setProperty(PROP_KEY_PROXY_PORT, PROP_VALUE_PROXY_PORT);
         defaultProperty.setProperty(PROP_KEY_PROXY_USER, PROP_VALUE_PROXY_USER);
         defaultProperty.setProperty(PROP_KEY_PROXY_PASSWORD, PROP_VALUE_PROXY_PASSWORD);
+        defaultProperty.setProperty(PROP_KEY_AUTO_LOAD_FLAG, PROP_VALUE_AUTO_LOAD_FLAG);
+        defaultProperty.setProperty(PROP_KEY_LIMIT_BOOK_LIFE_TIME_FLAG, PROP_VALUE_LIMIT_BOOK_LIFE_TIME_FLAG);
+        defaultProperty.setProperty(PROP_KEY_BOOK_LIFE_TIME, PROP_VALUE_BOOK_LIFE_TIME);
+        defaultProperty.setProperty(PROP_KEY_BOOK_FILE_TYPE, PROP_VALUE_BOOK_FILE_TYPE);
     }
 
     private String proxyStrPort;
-   private String proxyHost;
+    private String proxyHost;
     private String proxyUser;
     private String proxyPassword;
+    private String bookLifeTime;
     private boolean proxyUse;
+    private boolean autoLoadFlag;
+    private boolean limitBookLifeTimeFlag;
+    private FileType fileType;
 
     private File config_dir;
     private Properties props;
@@ -117,22 +136,34 @@ public class Settings extends AbstractSettings {
         proxyPassword = props.getProperty(PROP_KEY_PROXY_PASSWORD);
 
 
+        autoLoadFlag=props.getProperty(PROP_KEY_AUTO_LOAD_FLAG).equalsIgnoreCase(ONE);
+        limitBookLifeTimeFlag=props.getProperty(PROP_KEY_LIMIT_BOOK_LIFE_TIME_FLAG).equalsIgnoreCase(ONE);
+        bookLifeTime=props.getProperty(PROP_KEY_BOOK_LIFE_TIME);
+        fileType=FileType.valueOf(props.getProperty(PROP_KEY_BOOK_FILE_TYPE));
     }
 
-    public void saveProperties() {
-
-        if (proxyUse){
-            props.setProperty(PROP_KEY_USE_PROXY,ONE);
+    private void saveBoolean(boolean value, String key){
+        if (value){
+            props.setProperty(key,ONE);
         }
         else {
-            props.setProperty(PROP_KEY_USE_PROXY,ZERO);
+            props.setProperty(key,ZERO);
 
         }
+    }
+    public void saveProperties() {
 
-        props.setProperty(PROP_KEY_PROXY_PORT,proxyStrPort);
+        saveBoolean(proxyUse,PROP_KEY_USE_PROXY);
+        saveBoolean(autoLoadFlag,PROP_KEY_AUTO_LOAD_FLAG);
+        saveBoolean(limitBookLifeTimeFlag,PROP_KEY_LIMIT_BOOK_LIFE_TIME_FLAG);
+
+        props.setProperty(PROP_KEY_PROXY_PORT, proxyStrPort);
         props.setProperty(PROP_KEY_PROXY_HOST,proxyHost);
         props.setProperty(PROP_KEY_PROXY_USER,proxyUser);
         props.setProperty(PROP_KEY_PROXY_PASSWORD,proxyPassword);
+
+        props.setProperty(PROP_KEY_BOOK_LIFE_TIME, bookLifeTime);
+        props.setProperty(PROP_KEY_BOOK_FILE_TYPE,fileType.name());
 
 
         File propFile = new File(config_dir, PROPERTY_FILE);
@@ -189,16 +220,43 @@ public class Settings extends AbstractSettings {
 
     @Override
     public String getBookLifeTime() {
-        //TODO: must be implemented
-        return null;
+
+        return bookLifeTime;
+    }
+
+    public void setBookLifeTime(String bookLifeTime) {
+        this.bookLifeTime = bookLifeTime;
     }
 
     @Override
     public FileType getFileType() {
-        //TODO: must be implemented
-        return null;
+
+        return fileType;
     }
 
+    public void setFileType(String fileTypeS) {
+        this.fileType = FileType.valueOf(fileTypeS);
+    }
+
+    @Override
+    public boolean getAutoLoadFlag() {
+
+        return autoLoadFlag;
+    }
+
+    public void setAutoLoadFlag(boolean autoLoadFlag) {
+        this.autoLoadFlag = autoLoadFlag;
+    }
+
+    @Override
+    public boolean getLimitBookLifeTimeFlag() {
+
+        return limitBookLifeTimeFlag;
+    }
+
+    public void setLimitBookLifeTimeFlag(boolean limitBookLifeTimeFlag) {
+        this.limitBookLifeTimeFlag = limitBookLifeTimeFlag;
+    }
 
     public String getProxyStrPort() {
         return proxyStrPort;

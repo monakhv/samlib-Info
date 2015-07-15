@@ -15,6 +15,7 @@ import javax.swing.event.ListSelectionListener;
 
 import com.jgoodies.forms.factories.*;
 import com.jgoodies.forms.layout.*;
+import monakhv.samlib.data.AbstractSettings;
 import monakhv.samlib.db.SQLController;
 import monakhv.samlib.db.entity.Author;
 import monakhv.samlib.db.entity.Book;
@@ -44,7 +45,7 @@ public class MainForm extends JFrame implements GuiUpdate{
     //private String selection=null;
     private String sortOrder=SQLController.COL_isnew + " DESC, " + SQLController.COL_NAME;
     private Author selectedAuthor;
-    private ComboItem selectedTag=ComboItem.ALL;
+    private TagComboItem selectedTag= TagComboItem.ALL;
     private List<Author> authorList;
     private AuthorTagsDialog authorTags;
 
@@ -127,11 +128,11 @@ public class MainForm extends JFrame implements GuiUpdate{
 
     private void createTagSelector(){
         cBTags.removeAllItems();
-        cBTags.addItem(ComboItem.ALL);
-        cBTags.addItem(ComboItem.NEW);
+        cBTags.addItem(TagComboItem.ALL);
+        cBTags.addItem(TagComboItem.NEW);
         TagController tagCtl = new TagController(DaoController.getInstance(sql));
         for (Tag tag : tagCtl.getAll()){
-            cBTags.addItem(new ComboItem(tag));
+            cBTags.addItem(new TagComboItem(tag));
         }
     }
 
@@ -202,7 +203,7 @@ public class MainForm extends JFrame implements GuiUpdate{
     private void cBTagsActionPerformed(ActionEvent e) {
 
         JComboBox cb = (JComboBox) e.getSource();
-        selectedTag= (ComboItem) cb.getSelectedItem();
+        selectedTag= (TagComboItem) cb.getSelectedItem();
         if (selectedTag == null){
             return;
         }
@@ -513,7 +514,7 @@ public class MainForm extends JFrame implements GuiUpdate{
     private JPanel panelMain;
     private JPanel toolBar;
     private JButton buttonUpdate;
-    private JComboBox<ComboItem> cBTags;
+    private JComboBox<TagComboItem> cBTags;
     private JProgressBar progressBar1;
     private JButton reFresh;
     private JScrollPane scrollPane1;
@@ -546,6 +547,11 @@ public class MainForm extends JFrame implements GuiUpdate{
     public void makeUpdateTagList() {
         createTagSelector();
         redraw();
+    }
+
+    @Override
+    public void finishBookLoad(boolean result, AbstractSettings.FileType ft, long book_id) {
+        //TODO: must be implemented
     }
 
     @Override
