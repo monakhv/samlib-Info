@@ -22,44 +22,5 @@ allprojects {
 }
 
 
-project(":samlib-core") {
-    apply plugin: "java"
-    dependencies {
-        testCompile group: 'junit', name: 'junit', version: '4.11'
-        compile 'org.apache.httpcomponents:httpclient:4.2.3'
-        compile 'com.j256.ormlite:ormlite-core:4.48'
-    }
-}
-
-project(":samlib-android") {
-    apply plugin: "android"
-    dependencies {
-        compile project(":samlib-core")
-        compile project(":abptr-lib")
-        compile 'com.android.support:appcompat-v7:22+'
-        compile 'com.android.support:recyclerview-v7:22+'
-        compile 'com.j256.ormlite:ormlite-android:4.48'
-        compile 'com.google.android.gms:play-services:6.1.+'
-        compile('com.mikepenz.materialdrawer:library:2.7.9@aar') {
-            transitive = true
-        }
-
-    }
-}
-
-project(":samlib-desk") {
-    apply plugin: "java"
-    dependencies {
-        compile project(":samlib-core")
-        compile group: 'org.apache.logging.log4j', name: 'log4j-api', version: '2.1'
-        compile group: 'org.apache.logging.log4j', name: 'log4j-core', version: '2.1'
-        compile group: 'org.xerial', name: 'sqlite-jdbc', version: '3.7.2'
-        compile group: 'com.jgoodies', name: 'jgoodies-common', version: '1.6.0'
-        compile group: 'com.jgoodies', name: 'jgoodies-forms', version: '1.6.0'
-        compile 'com.j256.ormlite:ormlite-jdbc:4.48'
-        testCompile group: 'junit', name: 'junit', version: '4.11'
-    }
-}
-
 
 
