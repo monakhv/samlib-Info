@@ -236,6 +236,9 @@ public abstract class AbstractDataExportImport {
 
     }
 
+    /**
+     * Delete books with expired LifeTime if it is restricted
+     */
     public  void findDeleteBookFile() {
         findDeleteBookFile(  new File(backupDIR, AbstractSettings.BOOKS_DIR) );
     }

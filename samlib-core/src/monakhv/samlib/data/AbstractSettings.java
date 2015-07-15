@@ -177,7 +177,12 @@ public abstract class AbstractSettings {
         return "file://" + getBookFile4Read(book, book.getFileType()).getAbsolutePath();
     }
 
-    public void checkDeleteBook(File file) {
+    /**
+     * Delete book file with expired life time
+     * For book clean up usage only
+     * @param file Book file
+     */
+    void checkDeleteBook(File file) {
 
         String str = getBookLifeTime();
 
