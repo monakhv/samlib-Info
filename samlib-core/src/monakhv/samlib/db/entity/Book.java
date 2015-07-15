@@ -22,7 +22,7 @@ import java.util.TimeZone;
 
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
-import monakhv.samlib.data.SettingsHelper;
+import monakhv.samlib.data.AbstractSettings;
 import monakhv.samlib.db.SQLController;
 import monakhv.samlib.exception.BookParseException;
 
@@ -73,7 +73,7 @@ public class Book implements Serializable {
     @DatabaseField(columnName = SQLController.COL_BOOK_AUTHOR_ID,foreign = true,canBeNull = false)
     private Author author;
 
-    private SettingsHelper.FileType fileType;
+    private AbstractSettings.FileType fileType;
 
     /**
      * Default constructor
@@ -82,7 +82,7 @@ public class Book implements Serializable {
         isNew = false;
         updateDate = Calendar.getInstance().getTime().getTime();
         modifyTime = Calendar.getInstance().getTime().getTime();
-        fileType= SettingsHelper.FileType.HTML;
+        fileType= AbstractSettings.FileType.HTML;
         options=0;
     }
 
@@ -215,11 +215,11 @@ public class Book implements Serializable {
         this.group_id = group_id;
     }
 
-    public SettingsHelper.FileType getFileType() {
+    public AbstractSettings.FileType getFileType() {
         return fileType;
     }
 
-    public void setFileType(SettingsHelper.FileType fileType) {
+    public void setFileType(AbstractSettings.FileType fileType) {
         this.fileType = fileType;
     }
 
@@ -298,7 +298,7 @@ public class Book implements Serializable {
      * Get book url to open it using web browser
      * @return  String url to open book for reading
      */
-    public String getUrlForBrowser(SettingsHelper context){
+    public String getUrlForBrowser(AbstractSettings context){
         SamLibConfig sc = SamLibConfig.getInstance(context);
         return sc.getBookUrlForBrowser(this);
     }

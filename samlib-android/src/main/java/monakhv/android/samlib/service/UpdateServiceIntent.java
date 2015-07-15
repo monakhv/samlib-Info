@@ -27,6 +27,7 @@ import java.util.List;
 import monakhv.android.samlib.data.DataExportImport;
 import monakhv.android.samlib.data.SettingsHelper;
 import monakhv.android.samlib.sortorder.AuthorSortOrder;
+import monakhv.samlib.data.AbstractSettings;
 import monakhv.samlib.db.AuthorController;
 
 import monakhv.samlib.db.DaoBuilder;
@@ -171,7 +172,7 @@ public class UpdateServiceIntent extends MyServiceIntent {
      */
     public class SpecialAuthorService extends AuthorService {
 
-        public SpecialAuthorService(DaoBuilder sql, GuiUpdate guiUpdate, monakhv.samlib.data.SettingsHelper settingsHelper) {
+        public SpecialAuthorService(DaoBuilder sql, GuiUpdate guiUpdate, AbstractSettings settingsHelper) {
             super(sql, guiUpdate, settingsHelper);
         }
 

@@ -37,7 +37,6 @@ import monakhv.android.samlib.sortorder.BookSortOrder;
 
 import monakhv.android.samlib.sql.DatabaseHelper;
 import monakhv.samlib.db.AuthorController;
-import monakhv.samlib.db.BookController;
 import monakhv.samlib.db.entity.Author;
 import monakhv.samlib.db.entity.Book;
 import monakhv.samlib.db.entity.SamLibConfig;

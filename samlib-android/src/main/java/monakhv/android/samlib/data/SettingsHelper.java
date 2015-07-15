@@ -44,6 +44,7 @@ import java.util.*;
 
 import monakhv.android.samlib.R;
 import monakhv.android.samlib.receiver.UpdateReceiver;
+import monakhv.samlib.data.AbstractSettings;
 import monakhv.samlib.db.SQLController;
 import monakhv.samlib.db.entity.Book;
 import monakhv.samlib.db.entity.SamLibConfig;
@@ -52,7 +53,7 @@ import monakhv.samlib.http.Proxy;
 /**
  * @author monakhv
  */
-public class SettingsHelper implements monakhv.samlib.data.SettingsHelper, SharedPreferences.OnSharedPreferenceChangeListener {
+public class SettingsHelper extends AbstractSettings implements SharedPreferences.OnSharedPreferenceChangeListener {
     private static final String DATA_DIR = "/SamLib-Info/";
 
     public final static String PREFS_NAME = "samlib_prefs";
@@ -63,14 +64,13 @@ public class SettingsHelper implements monakhv.samlib.data.SettingsHelper, Share
     private static final String DARK = "DARK";
     private static final String LIGHT = "LIGHT";
     private static final String DATE_FORMAT_DEBUG = "dd-MM-yyyy HH:mm:ss";
-    private static final String DATE_FORMAT_BOOK_FILE = "dd-MM-yyyy_HH-mm-ss";
     private static final String DEBUG_FILE = SQLController.DB_NAME + ".log";
 
 
     public SettingsHelper(Context context) {
         this.context = context;
         this.prefs = context.getSharedPreferences(PREFS_NAME, 0);
-        monakhv.samlib.log.Log.checkInit(new Logger(),this);
+        monakhv.samlib.log.Log.checkInit(new Logger(), this);
 
     }
 
@@ -402,135 +402,7 @@ public class SettingsHelper implements monakhv.samlib.data.SettingsHelper, Share
 
         }
     }
-    /**
-     * Setting file to store book content
-     * making parent directories if need
-     *
-     * @param book Book object to get File for
-     * @return  File object to sore book to
-     */
-    @Override
-    public File getBookFile(Book book, FileType fileType) {
-        String ff;
-        if (book.isPreserve()){
-            SimpleDateFormat df = new SimpleDateFormat(DATE_FORMAT_BOOK_FILE);
-            ff=  DataExportImport.BOOKS_DIR +"/"+    book.getUri()    + "/" +   df.format(Calendar.getInstance().getTime())+ fileType.ext;
-        }
-        else {
-            ff=  DataExportImport.BOOKS_DIR +"/"+    book.getUri()    +      fileType.ext;
-        }
 
-
-        File ss = new File(getDataDirectory(), ff);
-        File pp = ss.getParentFile();
-        boolean res =pp.mkdirs();
-        Log.d(DEBUG_TAG, "Path: " + pp.getAbsolutePath() + " result is: " + res);
-        return ss;
-
-    }
-
-    /**
-     * Create directory to store many versions for the book
-     * Move existing version into the directory
-     * @param book
-     */
-    public void makePreserved(Book book){
-        SimpleDateFormat df = new SimpleDateFormat(DATE_FORMAT_BOOK_FILE);
-
-        File dir =  new File(getDataDirectory(), DataExportImport.BOOKS_DIR +"/"+    book.getUri()    );
-        dir.mkdir();
-
-        File old = getBookFile(book,book.getFileType());
-        if (old.exists()){
-            Date lm = Calendar.getInstance().getTime();
-            lm.setTime(old.lastModified());
-            old.renameTo(new File(dir,df.format(lm)+book.getFileType().ext));
-        }
-
-    }
-
-    /**
-     * get All version for book files for read selection
-     * @param book
-     * @return
-     */
-    public  String[] getBookFileVersions(Book book){
-        File dir =  new File(getDataDirectory(), DataExportImport.BOOKS_DIR +"/"+    book.getUri()    );
-        List<String> files = new ArrayList<String>();
-        for (String fn : dir.list()){
-            if (fn.endsWith(book.getFileType().ext)){
-                files.add(fn);
-            }
-        }
-//        if (files.isEmpty()){
-//            return null;
-//        }
-        return files.toArray(new String[files.size()]);
-    }
-
-    /**
-     * get Book file to read it
-     * @param book
-     * @param fileType
-     * @return
-     */
-    public File getBookFile4Read(Book book,FileType fileType){
-        if (book.isPreserve()){//choose latest version to read
-            File dir =  new File(getDataDirectory(), DataExportImport.BOOKS_DIR +"/"+    book.getUri()    );
-            File res = null;
-            long lastmod=0L;
-            for (String fn : dir.list()){
-                if (fn.endsWith(fileType.ext)){
-                    File file = new File(dir,fn);
-                    Log.i(DEBUG_TAG,"test file "+fn+" - "+file.getAbsolutePath());
-                    if (file.lastModified()>lastmod){
-                        lastmod=file.lastModified();
-                        res=file;
-                    }
-                }
-            }//file cycle
-            return res;
-        }
-        else {
-            return getBookFile(book,fileType);//we have the only version just open it
-        }
-
-    }
-    /**
-     * Get URL to open book for offline reading
-     * @return construct URL to start external program for offline reading
-     */
-    public String getBookFileURL(Book book) {
-        return "file://" + getBookFile4Read(book, book.getFileType()).getAbsolutePath();
-    }
-
-    /**
-     * Get URL to open book for offline reading
-     * To read  particular version of file
-     * @param book Book object
-     * @param file version file name
-     * @return file URL to READ
-     */
-    public String getBookFileURL(Book book,String file) {
-        File dir =  new File(getDataDirectory(), DataExportImport.BOOKS_DIR +"/"+    book.getUri()    );
-        File f=new File(dir,file);
-        return "file://" +f.getAbsolutePath();
-    }
-    /**
-     * Clean downloaded files of any types
-     * Find all book for read and delete them
-     *
-     * @param book  Book object
-     */
-    public void cleanBookFile(Book book){
-        for (monakhv.samlib.data.SettingsHelper.FileType ft : monakhv.samlib.data.SettingsHelper.FileType.values()){
-            File ff = getBookFile4Read(book, ft);
-
-            if (ff!=null && ff.exists()) {
-                ff.delete();
-            }
-        }
-    }
 
     public void log(String tag, String msg) {
         if (getDebugFlag()) {
@@ -688,36 +560,16 @@ public class SettingsHelper implements monakhv.samlib.data.SettingsHelper, Share
         return R.drawable.collections_sort_by_size;
     }
 
-
+    @Override
     public String getFirstMirror() {
         return prefs.getString(context.getString(R.string.pref_key_mirror), context.getString(R.string.pref_default_mirror));
     }
 
-    void checkDeleteBook(File file) {
-
-        String str = prefs.getString(context.getString(R.string.pref_key_book_lifetime), context.getString(R.string.pref_default_book_lifetime));
-
-        int limit;
-        try {
-            limit = Integer.parseInt(str);
-        } catch (NumberFormatException ex) {
-            Log.e(DEBUG_TAG, "Error parse Auto-load limit: " + str, ex);
-            return;
-        }
-
-
-        long interval = AlarmManager.INTERVAL_DAY * limit;
-        long curTime = Calendar.getInstance().getTimeInMillis();
-
-        //Log.d("checkDeleteBook", file.getAbsolutePath());
-        if ((curTime - file.lastModified()) > interval) {
-            Log.i("checkDeleteBook", "delete book: " + file.getAbsolutePath());
-            if (!file.delete()) {
-                Log.e(DEBUG_TAG, "Can not delete the book: " + file.getAbsolutePath());
-            }
-        }
-
+    @Override
+    public String getBookLifeTime(){
+        return prefs.getString(context.getString(R.string.pref_key_book_lifetime), context.getString(R.string.pref_default_book_lifetime));
     }
+
 
     /**
      * Prepare for  backup
@@ -804,18 +656,7 @@ public class SettingsHelper implements monakhv.samlib.data.SettingsHelper, Share
 
     }
 
-    /**
-     * Return absolute path data directory preference
-     * get Default directory as SD-path + Samlib-Info
-     * <p/>
-     * Create if need
-     *
-     * @return Absolute path to the data directory
-     */
-    public String getDataDirectoryPath() {
 
-        return getDataDirectory().getAbsolutePath();
-    }
 
     public File getDataDirectory() {
         String SdPath = prefs.getString(context.getString(R.string.pref_key_directory), null);

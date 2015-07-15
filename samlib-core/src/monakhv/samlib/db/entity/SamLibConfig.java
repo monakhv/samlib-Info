@@ -17,7 +17,7 @@ package monakhv.samlib.db.entity;
 
 
 
-import monakhv.samlib.data.SettingsHelper;
+import monakhv.samlib.data.AbstractSettings;
 import monakhv.samlib.log.Log;
 
 import java.io.BufferedReader;
@@ -107,9 +107,9 @@ public class SamLibConfig {
     private static SamLibConfig instance = null;
 
     private final LinkedList<SamIzdat> linkedSZ;//actual list of Samizdat URLs
-    private SettingsHelper settings;
+    private AbstractSettings settings;
     
-    public static SamLibConfig getInstance(SettingsHelper settings){
+    public static SamLibConfig getInstance(AbstractSettings settings){
         if (instance == null){
             instance = new SamLibConfig(settings);
 
@@ -118,7 +118,7 @@ public class SamLibConfig {
     }
     
     
-    private SamLibConfig(SettingsHelper settings){
+    private SamLibConfig(AbstractSettings settings){
         this.settings=settings;
         linkedSZ = new LinkedList<SamIzdat>();
         refreshData( );
@@ -210,7 +210,7 @@ public class SamLibConfig {
          * @param uu book url
          * @return  URL to download the book
          */
-        private String getBookURL(String uu,SettingsHelper.FileType fileType){
+        private String getBookURL(String uu,AbstractSettings.FileType fileType){
             switch (fileType){
                 case HTML:
                     return urlIP+REQUEST_BOOK_TEXT+uu;

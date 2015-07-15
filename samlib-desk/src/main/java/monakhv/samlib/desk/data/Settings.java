@@ -1,7 +1,6 @@
 package monakhv.samlib.desk.data;
 
-import monakhv.samlib.data.SettingsHelper;
-import monakhv.samlib.db.entity.Book;
+import monakhv.samlib.data.AbstractSettings;
 import monakhv.samlib.http.Proxy;
 import monakhv.samlib.log.Log;
 
@@ -25,14 +24,14 @@ import java.util.Properties;
  *
  * 2/13/15.
  */
-public class Settings implements SettingsHelper {
+public class Settings extends AbstractSettings {
     private static final String DEBUG_TAG = "SettingsHelper";
     private static final String CONFIG_DIR = ".samlib-info";
-    private static final String BOOKS_DIR = "Books";
+
     private static final String PROPERTY_FILE = "samlib-info.properties";
     //private static final String os = System.getProperty("os.name");
     private static final String home = System.getProperty("user.home");
-    private static final String sep = System.getProperty("file.separator");
+
 
     public static final String ZERO = "0";
     public static final String ONE = "1";
@@ -176,22 +175,8 @@ public class Settings implements SettingsHelper {
 
     }
 
-    @Override
-    public File getBookFile(Book book, FileType fileType) {
-        String ff = BOOKS_DIR + sep + book.getUri() + fileType.ext;
-
-        File ss = new File(getDataDirectory(), ff);
-        File pp = ss.getParentFile();
-        boolean res = pp.mkdirs();
-        Log.d(DEBUG_TAG, "Path: " + pp.getAbsolutePath() + " result is: " + res);
-        return ss;
-    }
 
     @Override
-    public String getDataDirectoryPath() {
-        return getDataDirectory().getAbsolutePath();
-    }
-
     public File getDataDirectory() {
         String path = props.getProperty(PROP_KEY_DATA_DIR, CONFIG_DIR);
         File dataDirectory = new File(path);
@@ -202,6 +187,17 @@ public class Settings implements SettingsHelper {
         return dataDirectory;
     }
 
+    @Override
+    public String getBookLifeTime() {
+        //TODO: must be implemented
+        return null;
+    }
+
+    @Override
+    public FileType getFileType() {
+        //TODO: must be implemented
+        return null;
+    }
 
 
     public String getProxyStrPort() {

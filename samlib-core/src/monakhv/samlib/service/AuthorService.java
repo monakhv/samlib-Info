@@ -16,7 +16,7 @@
 package monakhv.samlib.service;
 
 
-import monakhv.samlib.data.SettingsHelper;
+import monakhv.samlib.data.AbstractSettings;
 import monakhv.samlib.db.AuthorController;
 import monakhv.samlib.db.DaoBuilder;
 import monakhv.samlib.db.entity.Author;
@@ -51,9 +51,9 @@ public class AuthorService {
     private final List<Author> updatedAuthors;
     protected final AuthorController authorController;
     private final GuiUpdate guiUpdate;
-    private final SettingsHelper settingsHelper;
+    private final AbstractSettings settingsHelper;
 
-    public AuthorService(DaoBuilder sql, GuiUpdate guiUpdate, SettingsHelper settingsHelper) {
+    public AuthorService(DaoBuilder sql, GuiUpdate guiUpdate, AbstractSettings settingsHelper) {
         this.guiUpdate = guiUpdate;
         this.settingsHelper = settingsHelper;
         authorController = new AuthorController(sql);
@@ -281,26 +281,26 @@ public class AuthorService {
 
         Book book = authorController.getBookController().getById(book_id);
 
-        SettingsHelper.FileType ft = settingsHelper.getFileType();
+        AbstractSettings.FileType ft = settingsHelper.getFileType();
         Log.d(DEBUG_TAG, "default type is  " + ft.toString());
 
         switch (ft){
             case HTML:
-                guiUpdate.finishBookLoad(getBook(book, SettingsHelper.FileType.HTML), SettingsHelper.FileType.HTML,book_id);
+                guiUpdate.finishBookLoad(getBook(book, AbstractSettings.FileType.HTML), AbstractSettings.FileType.HTML,book_id);
                 break;
             case FB2:
-                boolean rr = getBook(book, SettingsHelper.FileType.FB2);
+                boolean rr = getBook(book, AbstractSettings.FileType.FB2);
                 if (rr){
-                    guiUpdate.finishBookLoad(true,SettingsHelper.FileType.FB2,book_id);
+                    guiUpdate.finishBookLoad(true, AbstractSettings.FileType.FB2,book_id);
                 }
                 else {
-                    guiUpdate.finishBookLoad(getBook(book, SettingsHelper.FileType.HTML), SettingsHelper.FileType.HTML,book_id);
+                    guiUpdate.finishBookLoad(getBook(book, AbstractSettings.FileType.HTML), AbstractSettings.FileType.HTML,book_id);
                 }
                 break;
         }
     }
 
-    private boolean getBook(Book book, SettingsHelper.FileType ft) {
+    private boolean getBook(Book book, AbstractSettings.FileType ft) {
         book.setFileType(ft);
         HttpClientController http = HttpClientController.getInstance(settingsHelper);
         try {

@@ -21,7 +21,7 @@ import com.j256.ormlite.dao.ForeignCollection;
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.field.ForeignCollectionField;
 import com.j256.ormlite.table.DatabaseTable;
-import monakhv.samlib.data.SettingsHelper;
+import monakhv.samlib.data.AbstractSettings;
 import monakhv.samlib.db.SQLController;
 
 
@@ -166,7 +166,7 @@ public class Author  implements Serializable{
      * Get book url to open it using web browser
      * @return String of URL to open author home page
      */
-    public String getUrlForBrowser(SettingsHelper context){
+    public String getUrlForBrowser(AbstractSettings context){
         SamLibConfig sc = SamLibConfig.getInstance(context);
         return sc.getAuthorUrlForBrowser(this);
     }

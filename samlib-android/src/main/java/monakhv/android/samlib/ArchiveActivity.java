@@ -48,6 +48,8 @@ import monakhv.android.samlib.service.AndroidGuiUpdater;
 import monakhv.android.samlib.service.AuthorEditorServiceIntent;
 import monakhv.samlib.service.AuthorService;
 
+import java.util.ArrayList;
+
 /**
  *
  * @author monakhv
@@ -205,12 +207,16 @@ public class ArchiveActivity extends MyBaseAbstractActivity {
 
     private void _importTxt(String file) {
         
-        boolean res = dataExportImport.importAuthorList(file);
-        progress = new ProgressDialog(this);
-        progress.setMessage(getText(R.string.arc_import_text_title));
-        progress.setCancelable(false);
-        progress.setIndeterminate(true);
-        progress.show();
+        ArrayList<String> urls =  dataExportImport.importAuthorList(file);
+        if (!urls.isEmpty()){
+            AuthorEditorServiceIntent.addAuthor(this,urls);
+            progress = new ProgressDialog(this);
+            progress.setMessage(getText(R.string.arc_import_text_title));
+            progress.setCancelable(false);
+            progress.setIndeterminate(true);
+            progress.show();
+        }
+
 
     }
     @Override

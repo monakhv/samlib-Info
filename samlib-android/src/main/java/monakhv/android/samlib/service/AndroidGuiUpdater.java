@@ -5,6 +5,7 @@ import android.content.Intent;
 import monakhv.android.samlib.DownloadReceiver;
 import monakhv.android.samlib.R;
 import monakhv.android.samlib.data.SettingsHelper;
+import monakhv.samlib.data.AbstractSettings;
 import monakhv.samlib.db.entity.Author;
 import monakhv.samlib.log.Log;
 import monakhv.samlib.service.GuiUpdate;
@@ -82,7 +83,7 @@ public class AndroidGuiUpdater implements GuiUpdate {
     }
 
     @Override
-    public void finishBookLoad(  boolean b, monakhv.samlib.data.SettingsHelper.FileType ft, long book_id) {
+    public void finishBookLoad(  boolean b, AbstractSettings.FileType ft, long book_id) {
         Log.d(DEBUG_TAG, "finish result: " + b);
         Log.d(DEBUG_TAG, "file type:  " + ft.toString());
         if (currentCaller == CALLER_IS_RECEIVER){

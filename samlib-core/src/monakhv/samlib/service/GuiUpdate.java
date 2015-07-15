@@ -18,7 +18,7 @@ package monakhv.samlib.service;
  * 09.07.15.
  */
 
-import monakhv.samlib.data.SettingsHelper;
+import monakhv.samlib.data.AbstractSettings;
 import monakhv.samlib.db.entity.Author;
 
 import java.util.List;
@@ -41,5 +41,5 @@ public interface GuiUpdate {
     void sendResult (String action,int numberOfAdded,int numberOfDeleted,int doubleAdd,int totalToAdd, long author_id);
 
     void makeUpdateTagList();
-    void finishBookLoad(  boolean result, SettingsHelper.FileType ft,long book_id);
+    void finishBookLoad(  boolean result, AbstractSettings.FileType ft,long book_id);
 }

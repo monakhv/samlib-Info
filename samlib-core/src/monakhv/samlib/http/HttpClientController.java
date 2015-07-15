@@ -29,7 +29,7 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 
-import monakhv.samlib.data.SettingsHelper;
+import monakhv.samlib.data.AbstractSettings;
 import monakhv.samlib.exception.SamlibParseException;
 import monakhv.samlib.exception.BookParseException;
 import monakhv.samlib.exception.SamLibIsBusyException;
@@ -76,9 +76,9 @@ public class HttpClientController {
     private static HttpClientController instance = null;
     private final SamLibConfig slc;
 
-    private final SettingsHelper settingsHelper;
+    private final AbstractSettings settingsHelper;
 
-    public static HttpClientController getInstance(SettingsHelper context) {
+    public static HttpClientController getInstance(AbstractSettings context) {
         if (instance == null){
             instance = new HttpClientController(context);
         }
@@ -86,7 +86,7 @@ public class HttpClientController {
         return instance;
     }
 
-    private HttpClientController(SettingsHelper context) {
+    private HttpClientController(AbstractSettings context) {
         slc = SamLibConfig.getInstance(context);
 
         settingsHelper = context;
