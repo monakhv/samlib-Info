@@ -40,13 +40,13 @@ public abstract class AbstractSettings {
     public static final long INTERVAL_DAY = 2*INTERVAL_HALF_DAY;
 
 
-    public static enum FileType {
+    public  enum FileType {
         HTML(".html","text/html"),
         FB2(".fb2",null);
         public final String ext;
         public final String mime;
 
-        private FileType(String ext,String mime) {
+        FileType(String ext,String mime) {
             this.ext=ext;
             this.mime = mime;
         }
@@ -104,7 +104,7 @@ public abstract class AbstractSettings {
     /**
      * Create directory to store many versions for the book
      * Move existing version into the directory
-     * @param book
+     * @param book Book object
      */
     public void makePreserved(Book book){
         SimpleDateFormat df = new SimpleDateFormat(DATE_FORMAT_BOOK_FILE);
@@ -123,8 +123,8 @@ public abstract class AbstractSettings {
 
     /**
      * get All version for book files for read selection
-     * @param book
-     * @return
+     * @param book Book object
+     * @return List of all versions of file
      */
     public  String[] getBookFileVersions(Book book){
         File dir =  new File(getDataDirectory(), BOOKS_DIR +sep+    book.getUri()    );
@@ -143,9 +143,9 @@ public abstract class AbstractSettings {
 
     /**
      * get Book file to read it
-     * @param book
-     * @param fileType
-     * @return
+     * @param book Book object
+     * @param fileType Type of file to opent
+     * @return file object of book
      */
     public File getBookFile4Read(Book book,FileType fileType){
         if (book.isPreserve()){//choose latest version to read
