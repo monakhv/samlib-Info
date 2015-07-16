@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.util.*;
 import java.util.List;
 import javax.swing.*;
+import javax.swing.border.*;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
@@ -20,7 +21,6 @@ import monakhv.samlib.data.AbstractSettings;
 import monakhv.samlib.db.SQLController;
 import monakhv.samlib.db.entity.Author;
 import monakhv.samlib.db.entity.Book;
-import monakhv.samlib.db.entity.SamLibConfig;
 import monakhv.samlib.db.entity.Tag;
 import monakhv.samlib.desk.Main;
 import monakhv.samlib.desk.data.DataExportImport;
@@ -29,7 +29,9 @@ import monakhv.samlib.db.AuthorController;
 import monakhv.samlib.db.BookController;
 import monakhv.samlib.desk.sql.DaoController;
 import monakhv.samlib.db.TagController;
+import monakhv.samlib.desk.workers.CheckUpdateWorker;
 import monakhv.samlib.desk.workers.LoadBookWorker;
+import monakhv.samlib.desk.workers.ReadAuthorWorker;
 import monakhv.samlib.log.Log;
 import monakhv.samlib.service.AuthorService;
 import monakhv.samlib.service.GuiUpdate;
@@ -169,12 +171,12 @@ public class MainForm extends JFrame implements GuiUpdate{
         BookController ctl = new BookController(DaoController.getInstance(sql));
 
         if (a != null){
-            bkList.load(ctl.getAll(a, SQLController.COL_BOOK_DATE));
+            bkList.load(ctl.getAll(a, SQLController.COL_BOOK_ISNEW + " DESC, " + SQLController.COL_BOOK_DATE + " DESC"));
         }
 
 
         //bookPanel.setComponentPopupMenu(bookPopup);
-        redraw();
+        //redraw();
 
 
 
@@ -189,14 +191,18 @@ public class MainForm extends JFrame implements GuiUpdate{
         Main.exit(0);
     }
 
-    private void reFreshActionPerformed(ActionEvent e) {
-        bookPanel.revalidate();
-        this.repaint();
-    }
 
     private void buttonUpdateActionPerformed(ActionEvent e) {
-        //buttonUpdate.setEnabled(false);
-        service.runUpdate(authorList);
+        if (authorList.isEmpty()){
+            return;
+        }
+        buttonUpdate.setEnabled(false);
+        progressBar1.setStringPainted(true);
+        progressBar1.setMinimum(0);
+        progressBar1.setMaximum(authorList.size());
+        progressBar1.setValue(0);
+        CheckUpdateWorker worker = new CheckUpdateWorker(service,authorList);
+        worker.execute();
 
     }
 
@@ -258,11 +264,8 @@ public class MainForm extends JFrame implements GuiUpdate{
     }
 
     private void menuAuthorMakeReadActionPerformed(ActionEvent e) {
-        AuthorController ctl = new AuthorController(DaoController.getInstance(sql));
-        ctl.markRead(selectedAuthor);
-        loadBookList(selectedAuthor);
-        addSortedAuthorList();
-        redraw();
+        ReadAuthorWorker worker = new ReadAuthorWorker(service,selectedAuthor);
+        worker.execute();
     }
 
     private void menuAuthorDeleteActionPerformed(ActionEvent e) {
@@ -321,11 +324,13 @@ public class MainForm extends JFrame implements GuiUpdate{
         progressBar1 = new JProgressBar();
         scrollPane1 = new JScrollPane();
         jAuthorList = new JList();
+        panel1 = new JPanel();
+        lbProgress = new JLabel();
         bookScrolPanel = new JScrollPane();
         bookPanel = new JPanel();
         bookPopup = new JPopupMenu();
-        menuItem3 = new JMenuItem();
         menuItem4 = new JMenuItem();
+        menuItem3 = new JMenuItem();
         authorPopup = new JPopupMenu();
         menuAuthorTags = new JMenuItem();
         menuAuthorMakeRead = new JMenuItem();
@@ -443,6 +448,23 @@ public class MainForm extends JFrame implements GuiUpdate{
             }
             panelMain.add(scrollPane1, CC.xy(1, 2));
 
+            //======== panel1 ========
+            {
+                panel1.setBorder(new EtchedBorder());
+                panel1.setLayout(new GridBagLayout());
+                ((GridBagLayout)panel1.getLayout()).columnWidths = new int[] {0, 0, 0};
+                ((GridBagLayout)panel1.getLayout()).rowHeights = new int[] {0, 0, 0, 0};
+                ((GridBagLayout)panel1.getLayout()).columnWeights = new double[] {0.0, 0.0, 1.0E-4};
+                ((GridBagLayout)panel1.getLayout()).rowWeights = new double[] {0.0, 0.0, 0.0, 1.0E-4};
+
+                //---- lbProgress ----
+                lbProgress.setText(bundle.getString("MainForm.lbProgress.text"));
+                panel1.add(lbProgress, new GridBagConstraints(0, 0, 2, 1, 0.0, 0.0,
+                    GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                    new Insets(0, 0, 5, 0), 0, 0));
+            }
+            panelMain.add(panel1, CC.xywh(1, 4, 3, 1));
+
             //======== bookScrolPanel ========
             {
                 bookScrolPanel.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
@@ -469,13 +491,13 @@ public class MainForm extends JFrame implements GuiUpdate{
         //======== bookPopup ========
         {
 
-            //---- menuItem3 ----
-            menuItem3.setText("Booktext1");
-            bookPopup.add(menuItem3);
-
             //---- menuItem4 ----
             menuItem4.setText("BookText2");
             bookPopup.add(menuItem4);
+
+            //---- menuItem3 ----
+            menuItem3.setText("Booktext1");
+            bookPopup.add(menuItem3);
         }
 
         //======== authorPopup ========
@@ -528,11 +550,13 @@ public class MainForm extends JFrame implements GuiUpdate{
     private JProgressBar progressBar1;
     private JScrollPane scrollPane1;
     private JList jAuthorList;
+    private JPanel panel1;
+    private JLabel lbProgress;
     private JScrollPane bookScrolPanel;
     private JPanel bookPanel;
     private JPopupMenu bookPopup;
-    private JMenuItem menuItem3;
     private JMenuItem menuItem4;
+    private JMenuItem menuItem3;
     private JPopupMenu authorPopup;
     private JMenuItem menuAuthorTags;
     private JMenuItem menuAuthorMakeRead;
@@ -541,6 +565,7 @@ public class MainForm extends JFrame implements GuiUpdate{
 
     @Override
     public void makeUpdateAuthors() {
+        Log.d(DEBUG_TAG,"makeUpdateAuthors");
         addSortedAuthorList();
         redraw();
     }
@@ -572,11 +597,18 @@ public class MainForm extends JFrame implements GuiUpdate{
 
     @Override
     public void sendAuthorUpdateProgress(int total, int iCurrent, String name) {
-
+        progressBar1.setValue(iCurrent);
+        showError(name);
     }
 
     @Override
     public void finishUpdate(boolean result, List<Author> updatedAuthors) {
+        buttonUpdate.setEnabled(true);
+        progressBar1.setValue(0);
+        if (! result){
+            showError("Error update authors");
+        }
+
 
     }
 
@@ -605,6 +637,7 @@ public class MainForm extends JFrame implements GuiUpdate{
      */
     private void showError(String msg){
         Log.e(DEBUG_TAG,msg);
+        lbProgress.setText(msg);
     }
 
 

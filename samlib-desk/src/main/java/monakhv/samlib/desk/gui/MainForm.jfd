@@ -60,6 +60,26 @@ new FormModel {
 					"gridX": 1
 					"gridY": 2
 				} )
+				add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.GridBagLayout ) {
+					"$columnSpecs": "0, 0"
+					"$rowSpecs": "0, 0, 0"
+					"$hGap": 5
+					"$vGap": 5
+					"$alignLeft": true
+					"$alignTop": true
+				} ) {
+					name: "panel1"
+					"border": new javax.swing.border.EtchedBorder( 1, null, null )
+					add( new FormComponent( "javax.swing.JLabel" ) {
+						name: "lbProgress"
+						"text": new FormMessage( null, "MainForm.lbProgress.text" )
+					}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
+						"gridwidth": 2
+					} )
+				}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
+					"gridY": 4
+					"gridWidth": 3
+				} )
 				add( new FormContainer( "javax.swing.JScrollPane", new FormLayoutManager( class javax.swing.JScrollPane ) ) {
 					name: "bookScrolPanel"
 					"horizontalScrollBarPolicy": 31
@@ -116,12 +136,12 @@ new FormModel {
 		add( new FormContainer( "javax.swing.JPopupMenu", new FormLayoutManager( class javax.swing.JPopupMenu ) ) {
 			name: "bookPopup"
 			add( new FormComponent( "javax.swing.JMenuItem" ) {
-				name: "menuItem3"
-				"text": "Booktext1"
-			} )
-			add( new FormComponent( "javax.swing.JMenuItem" ) {
 				name: "menuItem4"
 				"text": "BookText2"
+			} )
+			add( new FormComponent( "javax.swing.JMenuItem" ) {
+				name: "menuItem3"
+				"text": "Booktext1"
 			} )
 		}, new FormLayoutConstraints( null ) {
 			"location": new java.awt.Point( 145, 730 )
