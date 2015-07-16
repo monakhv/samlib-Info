@@ -1,12 +1,6 @@
-buildscript {
-    repositories {
-        jcenter()
-    }
-    dependencies {
-        classpath 'com.android.tools.build:gradle:1.1.1'
-    }
-}
 apply plugin: 'com.android.application'
+
+
 if(project.hasProperty("Monakhv.signing")
         && new File(project.property("Monakhv.signing") + ".gradle").exists()) {
     apply from: project.property("Monakhv.signing") + ".gradle";
