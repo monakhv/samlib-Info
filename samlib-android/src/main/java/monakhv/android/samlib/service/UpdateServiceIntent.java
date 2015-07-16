@@ -50,10 +50,9 @@ public class UpdateServiceIntent extends MyServiceIntent {
 
 
     private static final String SELECT_INDEX = "SELECT_INDEX";
-    private static final String SELECT_ID="SELECT_ID";
+    private static final String SELECT_ID = "SELECT_ID";
 
     private static final String DEBUG_TAG = "UpdateServiceIntent";
-    private int currentCaller = 0;
     private Context context;
     private SettingsHelper settings;
     private DataExportImport dataExportImport;
@@ -62,19 +61,18 @@ public class UpdateServiceIntent extends MyServiceIntent {
     public UpdateServiceIntent() {
         super("UpdateServiceIntent");
         updatedAuthors = new ArrayList<>();
-       // Log.d(DEBUG_TAG, "Constructor Call");
+        // Log.d(DEBUG_TAG, "Constructor Call");
     }
 
     @Override
     protected void onHandleIntent(Intent intent) {
-        int skippedAuthors = 0;
         context = this.getApplicationContext();
         updatedAuthors.clear();
         settings = new SettingsHelper(context);
         Log.d(DEBUG_TAG, "Got intent");
         dataExportImport = new DataExportImport(context);
-        currentCaller = intent.getIntExtra(AndroidGuiUpdater.CALLER_TYPE, 0);
-        int idx  = intent.getIntExtra(SELECT_INDEX, SamLibConfig.TAG_AUTHOR_ALL);
+        int currentCaller = intent.getIntExtra(AndroidGuiUpdater.CALLER_TYPE, 0);
+        int idx = intent.getIntExtra(SELECT_INDEX, SamLibConfig.TAG_AUTHOR_ALL);
 
         settings.requestFirstBackup();
         if (currentCaller == 0) {
@@ -84,12 +82,11 @@ public class UpdateServiceIntent extends MyServiceIntent {
         }
         AuthorController ctl = new AuthorController(getHelper());
         List<Author> authors;
-        GuiUpdate guiUpdate = new AndroidGuiUpdater(context,currentCaller);
+        GuiUpdate guiUpdate = new AndroidGuiUpdater(context, currentCaller);
 
         if (currentCaller == AndroidGuiUpdater.CALLER_IS_RECEIVER) {
             String stag = settings.getUpdateTag();
-            int tag_id = Integer.parseInt(stag);
-            idx = tag_id;
+            idx = Integer.parseInt(stag);
             if (!SettingsHelper.haveInternetWIFI(context)) {
                 Log.d(DEBUG_TAG, "Ignore update task - we have no internet connection");
 
@@ -100,34 +97,31 @@ public class UpdateServiceIntent extends MyServiceIntent {
             if (!SettingsHelper.haveInternet(context)) {
                 Log.e(DEBUG_TAG, "Ignore update - we have no internet connection");
 
-                guiUpdate.finishUpdate(false,updatedAuthors);
+                guiUpdate.finishUpdate(false, updatedAuthors);
                 return;
             }
 
         }
-        if (idx == SamLibConfig.TAG_AUTHOR_ID){
+        if (idx == SamLibConfig.TAG_AUTHOR_ID) {
 
-            int id = intent.getIntExtra(SELECT_ID,0);
+            int id = intent.getIntExtra(SELECT_ID, 0);
             Author author = ctl.getById(id);
-            if (author != null){
+            if (author != null) {
                 authors = new ArrayList<>();
                 authors.add(author);
-                Log.i(DEBUG_TAG,"Check single Author: "+author.getName());
-            }
-            else {
-                Log.e(DEBUG_TAG,"Can not fing Author: "+id);
+                Log.i(DEBUG_TAG, "Check single Author: " + author.getName());
+            } else {
+                Log.e(DEBUG_TAG, "Can not fing Author: " + id);
                 return;
             }
-        }
-        else {
-            authors=ctl.getAll(idx,AuthorSortOrder.DateUpdate.getOrder());
+        } else {
+            authors = ctl.getAll(idx, AuthorSortOrder.DateUpdate.getOrder());
 
             Log.i(DEBUG_TAG, "selection index: " + idx);
         }
 
 
-
-        AuthorService service = new SpecialAuthorService(getHelper(),guiUpdate,settings );
+        AuthorService service = new SpecialAuthorService(getHelper(), guiUpdate, settings);
 
 
         PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
@@ -136,22 +130,26 @@ public class UpdateServiceIntent extends MyServiceIntent {
 
         service.runUpdate(authors);
 
+        if (settings.getLimitBookLifeTimeFlag()) {
+            CleanBookServiceIntent.start(context);
+        }
+
         wl.release();
     }
 
 
-
-
     /**
      * Start service - use for receiver Calls
+     *
      * @param ctx - Context
      */
-    public static void makeUpdate(Context ctx){
+    public static void makeUpdate(Context ctx) {
         Intent updater = new Intent(ctx, UpdateServiceIntent.class);
         updater.putExtra(AndroidGuiUpdater.CALLER_TYPE, AndroidGuiUpdater.CALLER_IS_RECEIVER);
         ctx.startService(updater);
     }
-    public static void makeUpdateAuthor(Context ctx,int id){
+
+    public static void makeUpdateAuthor(Context ctx, int id) {
         Intent service = new Intent(ctx, UpdateServiceIntent.class);
         service.putExtra(AndroidGuiUpdater.CALLER_TYPE, AndroidGuiUpdater.CALLER_IS_ACTIVITY);
         service.putExtra(UpdateServiceIntent.SELECT_INDEX, SamLibConfig.TAG_AUTHOR_ID);
@@ -159,7 +157,8 @@ public class UpdateServiceIntent extends MyServiceIntent {
 
         ctx.startService(service);
     }
-    public static void makeUpdate(Context ctx,int tagId){
+
+    public static void makeUpdate(Context ctx, int tagId) {
         Intent service = new Intent(ctx, UpdateServiceIntent.class);
         service.putExtra(AndroidGuiUpdater.CALLER_TYPE, AndroidGuiUpdater.CALLER_IS_ACTIVITY);
         service.putExtra(UpdateServiceIntent.SELECT_INDEX, tagId);
@@ -178,15 +177,14 @@ public class UpdateServiceIntent extends MyServiceIntent {
 
         @Override
         public void loadBook(Author a) {
-            if (settings.getAutoLoadFlag()) {//download the book
 
-                for (Book book : authorController.getBookController().getBooksByAuthor(a)) {//book cycle for the author to update
-                    if (book.isIsNew() && settings.testAutoLoadLimit(book) && dataExportImport.needUpdateFile(book)) {
-                        Log.i(DEBUG_TAG, "Auto Load book: " + book.getId());
-                        DownloadBookServiceIntent.start(context, book.getId(),currentCaller);
-                    }
+            for (Book book : authorController.getBookController().getBooksByAuthor(a)) {//book cycle for the author to update
+                if (book.isIsNew() && settings.testAutoLoadLimit(book) && dataExportImport.needUpdateFile(book)) {
+                    Log.i(DEBUG_TAG, "Auto Load book: " + book.getId());
+                    DownloadBookServiceIntent.start(context, book.getId(), AndroidGuiUpdater.CALLER_IS_RECEIVER);//we do not need GUI update
                 }
             }
+
 
         }
     }

@@ -95,7 +95,9 @@ public class AuthorService {
                 Log.i(DEBUG_TAG, "We need update author: " + a.getName());
                 authorController.update(a);
 
-                loadBook(a);
+                if (settingsHelper.getAutoLoadFlag()){
+                    loadBook(a);
+                }
 
                 guiUpdate.makeUpdateAuthors();
             }
