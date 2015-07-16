@@ -7,6 +7,7 @@ package monakhv.samlib.desk.gui;
 import java.awt.*;
 import java.awt.event.*;
 
+import java.io.IOException;
 import java.util.*;
 import java.util.List;
 import javax.swing.*;
@@ -19,13 +20,16 @@ import monakhv.samlib.data.AbstractSettings;
 import monakhv.samlib.db.SQLController;
 import monakhv.samlib.db.entity.Author;
 import monakhv.samlib.db.entity.Book;
+import monakhv.samlib.db.entity.SamLibConfig;
 import monakhv.samlib.db.entity.Tag;
 import monakhv.samlib.desk.Main;
+import monakhv.samlib.desk.data.DataExportImport;
 import monakhv.samlib.desk.data.Settings;
 import monakhv.samlib.db.AuthorController;
 import monakhv.samlib.db.BookController;
 import monakhv.samlib.desk.sql.DaoController;
 import monakhv.samlib.db.TagController;
+import monakhv.samlib.desk.workers.LoadBookWorker;
 import monakhv.samlib.log.Log;
 import monakhv.samlib.service.AuthorService;
 import monakhv.samlib.service.GuiUpdate;
@@ -230,8 +234,27 @@ public class MainForm extends JFrame implements GuiUpdate{
     }
 
     private void makeBookClick(MouseEvent e, Book book) {
-        bookPopup.show(e.getComponent(), e.getX(), e.getY());
-        Log.i(DEBUG_TAG, "Book: " + book.getTitle());
+        Log.i(DEBUG_TAG, "Book: " + book.getTitle() + "  - " + e.getButton());
+        if (e.getButton() == 1 ){
+            book.setFileType(settings.getFileType());
+            DataExportImport dd = new DataExportImport(settings);
+
+            if (dd.needUpdateFile(book)){
+                this.setCursor(new Cursor(Cursor.WAIT_CURSOR));
+                LoadBookWorker worker = new LoadBookWorker(service,book.getId());
+                worker.execute();
+
+            }
+            else {
+                showBook(book);
+            }
+
+        }
+        else {
+            bookPopup.show(e.getComponent(), e.getX(), e.getY());
+        }
+
+
     }
 
     private void menuAuthorMakeReadActionPerformed(ActionEvent e) {
@@ -296,7 +319,6 @@ public class MainForm extends JFrame implements GuiUpdate{
         buttonUpdate = new JButton();
         cBTags = new JComboBox<>();
         progressBar1 = new JProgressBar();
-        reFresh = new JButton();
         scrollPane1 = new JScrollPane();
         jAuthorList = new JList();
         bookScrolPanel = new JScrollPane();
@@ -402,18 +424,6 @@ public class MainForm extends JFrame implements GuiUpdate{
                 toolBar.add(progressBar1, new GridBagConstraints(6, 0, 1, 1, 0.0, 0.0,
                     GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                     new Insets(0, 0, 5, 5), 0, 0));
-
-                //---- reFresh ----
-                reFresh.setText("Refresh");
-                reFresh.addActionListener(new ActionListener() {
-                    @Override
-                    public void actionPerformed(ActionEvent e) {
-                        reFreshActionPerformed(e);
-                    }
-                });
-                toolBar.add(reFresh, new GridBagConstraints(24, 0, 1, 1, 0.0, 0.0,
-                    GridBagConstraints.CENTER, GridBagConstraints.BOTH,
-                    new Insets(0, 0, 5, 0), 0, 0));
             }
             panelMain.add(toolBar, CC.xywh(1, 1, 3, 1));
 
@@ -516,7 +526,6 @@ public class MainForm extends JFrame implements GuiUpdate{
     private JButton buttonUpdate;
     private JComboBox<TagComboItem> cBTags;
     private JProgressBar progressBar1;
-    private JButton reFresh;
     private JScrollPane scrollPane1;
     private JList jAuthorList;
     private JScrollPane bookScrolPanel;
@@ -528,7 +537,6 @@ public class MainForm extends JFrame implements GuiUpdate{
     private JMenuItem menuAuthorTags;
     private JMenuItem menuAuthorMakeRead;
     private JMenuItem menuAuthorDelete;
-
     // JFormDesigner - End of variables declaration  //GEN-END:variables
 
     @Override
@@ -551,7 +559,15 @@ public class MainForm extends JFrame implements GuiUpdate{
 
     @Override
     public void finishBookLoad(boolean result, AbstractSettings.FileType ft, long book_id) {
-        //TODO: must be implemented
+        this.setCursor(Cursor.DEFAULT_CURSOR);
+        if (result){
+            AuthorController ctl = new AuthorController(DaoController.getInstance(sql));
+            showBook(ctl.getBookController().getById(book_id));
+        }
+        else {
+            showError("Book Load Error");
+        }
+
     }
 
     @Override
@@ -568,6 +584,29 @@ public class MainForm extends JFrame implements GuiUpdate{
     public void sendResult(String action, int numberOfAdded, int numberOfDeleted, int doubleAdd, int totalToAdd, long author_id) {
 
     }
+
+    /**
+     * Show book
+     * @param book book to read
+     */
+    private void showBook(Book book){
+        Log.i(DEBUG_TAG, "Display book: " + settings.getBookFile(book,book.getFileType()).getAbsolutePath());
+        try {
+            //TODO: put reader into setting for different File type
+            Runtime.getRuntime().exec("/usr/bin/firefox "+settings.getBookFile(book,book.getFileType()).getAbsolutePath());
+        } catch (IOException e) {
+            Log.e(DEBUG_TAG,"Error Open Book");
+        }
+    }
+
+    /**
+     * Show error
+     * @param msg message to display
+     */
+    private void showError(String msg){
+        Log.e(DEBUG_TAG,msg);
+    }
+
 
 
 }

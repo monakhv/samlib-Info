@@ -47,6 +47,7 @@ public class SQLController {
     }
 
     public static final String DB_NAME   = "AUTHOR_DATA";
+    public static final String DB_EXT = ".db";
     public static final int    DB_VERSION = 7;
     
     public static final String COL_ID = "_id";
@@ -173,7 +174,7 @@ public class SQLController {
 
     private SQLController(String data_path ) throws ClassNotFoundException, SQLException {
         Class.forName(CLASS_NAME);
-        dbUrl=CONNECT_STRING_PREFIX+data_path+"/"+DB_NAME+".sqlite";
+        dbUrl=CONNECT_STRING_PREFIX+data_path+"/"+DB_NAME+DB_EXT;
         bd = DriverManager.getConnection(dbUrl);
         Statement st = bd.createStatement();
         st.execute(DB_CREATE_AUTHOR);

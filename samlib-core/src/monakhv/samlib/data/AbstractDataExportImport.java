@@ -36,7 +36,7 @@ import java.util.List;
 public abstract class AbstractDataExportImport {
     private static final String DEBUG_TAG = "AbstractDataExportImport";
     private static final String DATE_FORMAT = "dd-MM-yyyy";
-    public static final String DB_EXT = ".db";
+    public static final String DB_EXT = SQLController.DB_EXT;
     public static final String DB_PREFIX = SQLController.DB_NAME;
 
     private static final String TXT_PREFIX = "Authors";
