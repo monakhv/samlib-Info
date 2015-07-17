@@ -134,6 +134,11 @@ new FormModel {
 						"text": new FormMessage( null, "MainForm.menuToolsAdd.text" )
 						addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "menuToolsAddActionPerformed", true ) )
 					} )
+					add( new FormComponent( "javax.swing.JMenuItem" ) {
+						name: "menuToosImport"
+						"text": new FormMessage( null, "MainForm.menuToosImport.text" )
+						addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "menuToosImportActionPerformed", false ) )
+					} )
 				} )
 			}
 		}, new FormLayoutConstraints( null ) {

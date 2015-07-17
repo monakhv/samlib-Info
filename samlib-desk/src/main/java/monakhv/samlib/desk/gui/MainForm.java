@@ -306,6 +306,17 @@ public class MainForm extends JFrame implements GuiUpdate {
         redraw();
     }
 
+    private void menuToosImportActionPerformed() {
+        JFileChooser chooser = new JFileChooser();
+        int returnVal = chooser.showOpenDialog(this);
+        if (returnVal == JFileChooser.APPROVE_OPTION) {
+            DataExportImport dei = new DataExportImport(settings);
+            dei.importDB(chooser.getSelectedFile());
+            addSortedAuthorList();
+        }
+
+    }
+
 
     private void initComponents() {
         // JFormDesigner - Component initialization - DO NOT MODIFY  //GEN-BEGIN:initComponents
@@ -316,6 +327,7 @@ public class MainForm extends JFrame implements GuiUpdate {
         menuItemExit = new JMenuItem();
         menuTools = new JMenu();
         menuToolsAdd = new JMenuItem();
+        menuToosImport = new JMenuItem();
         panelMain = new JPanel();
         toolBar = new JPanel();
         buttonUpdate = new JButton();
@@ -383,6 +395,16 @@ public class MainForm extends JFrame implements GuiUpdate {
                     }
                 });
                 menuTools.add(menuToolsAdd);
+
+                //---- menuToosImport ----
+                menuToosImport.setText(bundle.getString("MainForm.menuToosImport.text"));
+                menuToosImport.addActionListener(new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        menuToosImportActionPerformed();
+                    }
+                });
+                menuTools.add(menuToosImport);
             }
             menuBar1.add(menuTools);
         }
@@ -555,6 +577,7 @@ public class MainForm extends JFrame implements GuiUpdate {
     private JMenuItem menuItemExit;
     private JMenu menuTools;
     private JMenuItem menuToolsAdd;
+    private JMenuItem menuToosImport;
     private JPanel panelMain;
     private JPanel toolBar;
     private JButton buttonUpdate;

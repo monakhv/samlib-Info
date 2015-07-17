@@ -221,8 +221,15 @@ public abstract class AbstractDataExportImport {
      * @return true if success
      */
     public  boolean importDB( String fileToImport) {
-        File currentDB = getDataBase();
+
         File backupDB = new File(backupDIR, fileToImport);
+        return importDB(backupDB);
+
+
+    }
+    public  boolean importDB(File backupDB ) {
+        File currentDB = getDataBase();
+
         try {
             fileCopy(backupDB, currentDB);
         } catch (FileNotFoundException ex) {
@@ -235,6 +242,7 @@ public abstract class AbstractDataExportImport {
         return true;
 
     }
+
 
     /**
      * Delete books with expired LifeTime if it is restricted
