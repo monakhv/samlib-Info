@@ -582,7 +582,7 @@ public class MainForm extends JFrame implements GuiUpdate{
 
     @Override
     public void makeUpdate(boolean isBoth){
-        Log.d(DEBUG_TAG, "makeUpdate: isBoth = "+isBoth);
+        Log.d(DEBUG_TAG, "makeUpdate: isBoth = " + isBoth);
         addSortedAuthorList();//refresh authors
         if (isBoth){
             loadBookList(selectedAuthor);
@@ -615,15 +615,19 @@ public class MainForm extends JFrame implements GuiUpdate{
     @Override
     public void sendAuthorUpdateProgress(int total, int iCurrent, String name) {
         progressBar1.setValue(iCurrent);
-        showError(name);
+        showError(bndl.getString("MainForm.message.Update") + "  " + name);
     }
 
     @Override
     public void finishUpdate(boolean result, List<Author> updatedAuthors) {
         buttonUpdate.setEnabled(true);
         progressBar1.setValue(0);
-        if (! result){
-            showError("Error update authors");
+        progressBar1.setString("");
+        if ( result){
+            showError(bndl.getString("MainForm.message.UpdateSuccess"));
+        }
+        else {
+            showError(bndl.getString("MainForm.message.UpdateError"));
         }
 
 
@@ -639,7 +643,7 @@ public class MainForm extends JFrame implements GuiUpdate{
      * @param book book to read
      */
     private void showBook(Book book){
-        Log.i(DEBUG_TAG, "Display book: " + settings.getBookFile(book,book.getFileType()).getAbsolutePath());
+        Log.i(DEBUG_TAG, "Display book: " + settings.getBookFile(book, book.getFileType()).getAbsolutePath());
         try {
             //TODO: put reader into setting for different File type
             Runtime.getRuntime().exec("/usr/bin/firefox "+settings.getBookFile(book,book.getFileType()).getAbsolutePath());
