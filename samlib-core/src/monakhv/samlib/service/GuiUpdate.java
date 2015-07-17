@@ -27,8 +27,8 @@ import java.util.List;
  * Special Interface to send update information to the GUI
  */
 public interface GuiUpdate {
-    void makeUpdateAuthors();
-    void makeUpdateBooks();
+    void makeUpdate(boolean isBoth);
+
     /**
      * Send update status
      * @param total Total number if Author we need checkout

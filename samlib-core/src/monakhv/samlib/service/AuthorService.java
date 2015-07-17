@@ -99,7 +99,7 @@ public class AuthorService {
                     loadBook(a);
                 }
 
-                guiUpdate.makeUpdateAuthors();
+                guiUpdate.makeUpdate(false);
             }
 
             try {
@@ -142,8 +142,7 @@ public class AuthorService {
         int i = authorController.markRead(a);
 
         Log.d(DEBUG_TAG, "Update author status: " + i);
-        guiUpdate.makeUpdateAuthors();
-        guiUpdate.makeUpdateBooks();
+        guiUpdate.makeUpdate(true);
         return true;
 
     }
@@ -170,7 +169,7 @@ public class AuthorService {
             Author a = authorController.getById(book.getAuthor().getId());
             authorController.testMarkRead(a);
         }
-        guiUpdate.makeUpdateAuthors();
+        guiUpdate.makeUpdate(false);//book reread is into Adapter methods
 
     }
     /**
@@ -183,8 +182,8 @@ public class AuthorService {
         Log.d(DEBUG_TAG, "Author id " + id + " deleted, status " + res);
         if (res == 1){
             ++numberOfDeleted;
-            guiUpdate.makeUpdateAuthors();
-            guiUpdate.makeUpdateBooks();
+            guiUpdate.makeUpdate(true);
+
         }
 
 
@@ -205,7 +204,7 @@ public class AuthorService {
                 ++numberOfAdded;
             }
         }
-        guiUpdate.makeUpdateAuthors();
+        guiUpdate.makeUpdate(false);
         guiUpdate.sendResult(ACTION_ADD, numberOfAdded, numberOfDeleted, doubleAdd, urls.size(), author_id);
     }
     private Author loadAuthor(HttpClientController http, AuthorController sql, String url) {
@@ -275,7 +274,7 @@ public class AuthorService {
     public void makeUpdateTags() {
 
         authorController.updateAuthorTags();
-        guiUpdate.makeUpdateAuthors();
+        guiUpdate.makeUpdate(false);
         guiUpdate.makeUpdateTagList();
     }
 

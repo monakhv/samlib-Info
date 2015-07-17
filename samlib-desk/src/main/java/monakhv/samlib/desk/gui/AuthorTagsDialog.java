@@ -130,7 +130,7 @@ public class AuthorTagsDialog extends JDialog {
         }
         AuthorController aSQL = new AuthorController(sql);
         aSQL.syncTags(author,tags);
-        callBack.makeUpdateAuthors();
+        callBack.makeUpdate(false);
         setVisible(false);
     }
 
@@ -280,7 +280,7 @@ public class AuthorTagsDialog extends JDialog {
             makePanel();
             setPanel(author);
             authCtl.updateAuthorTags();
-            callBack.makeUpdateAuthors();
+            callBack.makeUpdate(false);
             callBack.makeUpdateTagList();
         }
     }
@@ -298,7 +298,7 @@ public class AuthorTagsDialog extends JDialog {
                         makePanel();
                         setPanel(author);
                         authCtl.updateAuthorTags();
-                        callBack.makeUpdateAuthors();
+                        callBack.makeUpdate(false);
                         callBack.makeUpdateTagList();
                     }
                 },tag.getName());

@@ -45,11 +45,18 @@ new FormModel {
 					}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
 						"gridx": 6
 					} )
+					add( new FormComponent( "javax.swing.JButton" ) {
+						name: "buttonRefresh"
+						"text": new FormMessage( null, "MainForm.buttonRefresh.text" )
+						addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "buttonRefreshActionPerformed", false ) )
+					}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
+						"gridx": 20
+					} )
 				}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
 					"gridWidth": 3
 				} )
 				add( new FormContainer( "javax.swing.JScrollPane", new FormLayoutManager( class javax.swing.JScrollPane ) ) {
-					name: "scrollPane1"
+					name: "authorScrollPane"
 					"horizontalScrollBarPolicy": 31
 					add( new FormComponent( "javax.swing.JList" ) {
 						name: "jAuthorList"

@@ -37,7 +37,7 @@ public class BookRow extends JPanel {
         try {
             description.setText("<html>"+book.getDescription()+"</html>");
         }
-        catch (RuntimeException e ){
+        catch (Exception e ){
             description.setContentType("text/plain");
             description.setText(book.getDescription());
         }

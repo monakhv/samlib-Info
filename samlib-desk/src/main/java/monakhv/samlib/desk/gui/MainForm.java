@@ -42,7 +42,7 @@ import monakhv.samlib.service.GuiUpdate;
 public class MainForm extends JFrame implements GuiUpdate{
     private static final String DEBUG_TAG="MainForm";
     private ResourceBundle bndl = ResourceBundle.getBundle("samlibDesk");
-    private final DefaultListModel<Author> authorsModel;
+    private final AuthorListModel authorsModel;
     private final AuthorService service;
 
     private final SQLController sql;
@@ -70,7 +70,7 @@ public class MainForm extends JFrame implements GuiUpdate{
             sql1 =null;
         }
         sql = sql1;
-        authorsModel = new DefaultListModel<>();
+        authorsModel = new AuthorListModel();
 //        booksModel = new DefaultListModel<>();
 
         this.addWindowListener(new WindowAdapter() {
@@ -122,7 +122,7 @@ public class MainForm extends JFrame implements GuiUpdate{
                     Log.i(DEBUG_TAG, "selection " + lsm.getMinSelectionIndex() + " - " + lsm.getMaxSelectionIndex());
                     return;
                 }
-                selectedAuthor=authorsModel.get(lsm.getMaxSelectionIndex());
+                selectedAuthor=authorsModel.getElementAt(lsm.getMaxSelectionIndex());
                 Log.i(DEBUG_TAG, "selection " +selectedAuthor.getName()+"  "+e.getValueIsAdjusting()+" - "+selectedAuthor.getTag2Authors().size());
                 loadBookList(selectedAuthor);
             }
@@ -149,17 +149,8 @@ public class MainForm extends JFrame implements GuiUpdate{
      */
     private void addSortedAuthorList() {
         AuthorController ctl = new AuthorController(DaoController.getInstance(sql));
-         authorsModel.removeAllElements();
-
         authorList=ctl.getAll(selectedTag.getId(),sortOrder);
-
-
-
-        for (Author a : authorList ){
-            authorsModel.addElement(a);
-
-
-        }
+        authorsModel.update(authorList);
 
     }
 
@@ -233,7 +224,7 @@ public class MainForm extends JFrame implements GuiUpdate{
             return;
         }
         jAuthorList.setSelectedIndex(index);
-        selectedAuthor=authorsModel.elementAt(index);
+        selectedAuthor=authorsModel.getElementAt(index);
         authorPopup.setLabel(selectedAuthor.getName());
         authorPopup.show(e.getComponent(), e.getX(), e.getY());
 
@@ -306,6 +297,18 @@ public class MainForm extends JFrame implements GuiUpdate{
 
     }
 
+    private void buttonRefreshActionPerformed() {
+        Log.d(DEBUG_TAG,"refresh: list size "+authorList.size());
+        Log.d(DEBUG_TAG,"refresh: model size "+jAuthorList.getModel().getSize());
+
+
+        Log.d(DEBUG_TAG,"refresh: selected "+selectedAuthor.getName());
+        jAuthorList.invalidate();
+        jAuthorList.revalidate();
+        jAuthorList.repaint();
+        redraw();
+    }
+
 
 
     private void initComponents() {
@@ -322,7 +325,8 @@ public class MainForm extends JFrame implements GuiUpdate{
         buttonUpdate = new JButton();
         cBTags = new JComboBox<>();
         progressBar1 = new JProgressBar();
-        scrollPane1 = new JScrollPane();
+        buttonRefresh = new JButton();
+        authorScrollPane = new JScrollPane();
         jAuthorList = new JList();
         panel1 = new JPanel();
         lbProgress = new JLabel();
@@ -413,8 +417,8 @@ public class MainForm extends JFrame implements GuiUpdate{
                     }
                 });
                 toolBar.add(buttonUpdate, new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0,
-                    GridBagConstraints.CENTER, GridBagConstraints.BOTH,
-                    new Insets(0, 0, 5, 5), 0, 0));
+                        GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                        new Insets(0, 0, 5, 5), 0, 0));
 
                 //---- cBTags ----
                 cBTags.addActionListener(new ActionListener() {
@@ -427,14 +431,26 @@ public class MainForm extends JFrame implements GuiUpdate{
                     GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                     new Insets(0, 0, 5, 5), 0, 0));
                 toolBar.add(progressBar1, new GridBagConstraints(6, 0, 1, 1, 0.0, 0.0,
+                        GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                        new Insets(0, 0, 5, 5), 0, 0));
+
+                //---- buttonRefresh ----
+                buttonRefresh.setText(bundle.getString("MainForm.buttonRefresh.text"));
+                buttonRefresh.addActionListener(new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        buttonRefreshActionPerformed();
+                    }
+                });
+                toolBar.add(buttonRefresh, new GridBagConstraints(20, 0, 1, 1, 0.0, 0.0,
                     GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                     new Insets(0, 0, 5, 5), 0, 0));
             }
             panelMain.add(toolBar, CC.xywh(1, 1, 3, 1));
 
-            //======== scrollPane1 ========
+            //======== authorScrollPane ========
             {
-                scrollPane1.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+                authorScrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
 
                 //---- jAuthorList ----
                 jAuthorList.setComponentPopupMenu(null);
@@ -444,9 +460,9 @@ public class MainForm extends JFrame implements GuiUpdate{
                         jAuthorListMouseClicked(e);
                     }
                 });
-                scrollPane1.setViewportView(jAuthorList);
+                authorScrollPane.setViewportView(jAuthorList);
             }
-            panelMain.add(scrollPane1, CC.xy(1, 2));
+            panelMain.add(authorScrollPane, CC.xy(1, 2));
 
             //======== panel1 ========
             {
@@ -548,7 +564,8 @@ public class MainForm extends JFrame implements GuiUpdate{
     private JButton buttonUpdate;
     private JComboBox<TagComboItem> cBTags;
     private JProgressBar progressBar1;
-    private JScrollPane scrollPane1;
+    private JButton buttonRefresh;
+    private JScrollPane authorScrollPane;
     private JList jAuthorList;
     private JPanel panel1;
     private JLabel lbProgress;
@@ -564,20 +581,20 @@ public class MainForm extends JFrame implements GuiUpdate{
     // JFormDesigner - End of variables declaration  //GEN-END:variables
 
     @Override
-    public void makeUpdateAuthors() {
-        Log.d(DEBUG_TAG,"makeUpdateAuthors");
-        addSortedAuthorList();
-        redraw();
+    public void makeUpdate(boolean isBoth){
+        Log.d(DEBUG_TAG, "makeUpdate: isBoth = "+isBoth);
+        addSortedAuthorList();//refresh authors
+        if (isBoth){
+            loadBookList(selectedAuthor);
+
+        }
+
     }
 
-    @Override
-    public void makeUpdateBooks() {
-        loadBookList(selectedAuthor);
-        redraw();
-    }
 
     @Override
     public void makeUpdateTagList() {
+        Log.d(DEBUG_TAG, "makeUpdateTagList");
         createTagSelector();
         redraw();
     }

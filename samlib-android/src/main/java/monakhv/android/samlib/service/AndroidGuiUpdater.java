@@ -39,8 +39,9 @@ public class AndroidGuiUpdater implements GuiUpdate {
     public static final String ACTION_PROGRESS = "PROGRESS";
     public static final String ACTION_REFRESH = "ACTION_REFRESH";
     public static final String ACTION_REFRESH_OBJECT = "ACTION_REFRESH_OBJECT";
+
     public static final int     ACTION_REFRESH_AUTHORS = 10;
-    public static final int     ACTION_REFRESH_BOOKS     = 20;
+    public static final int     ACTION_REFRESH_BOTH     = 20;//authors & books
     public static final int     ACTION_REFRESH_TAGS        = 30;
     public static final String CALLER_TYPE = "CALLER_TYPE";
     public static final int CALLER_IS_ACTIVITY = 1;
@@ -61,15 +62,22 @@ public class AndroidGuiUpdater implements GuiUpdate {
     }
 
     @Override
-    public void makeUpdateAuthors() {
+    public void makeUpdate(boolean isBoth){
         Intent broadcastIntent = new Intent();
         broadcastIntent.addCategory(Intent.CATEGORY_DEFAULT);
         broadcastIntent.setAction(ACTION_RESP);
         broadcastIntent.putExtra(ACTION, ACTION_REFRESH);
-        broadcastIntent.putExtra(ACTION_REFRESH_OBJECT,ACTION_REFRESH_AUTHORS);
-        context.sendBroadcast(broadcastIntent);
+        if (isBoth){
+            broadcastIntent.putExtra(ACTION_REFRESH_OBJECT,ACTION_REFRESH_BOTH);
+        }
+        else {
+            broadcastIntent.putExtra(ACTION_REFRESH_OBJECT,ACTION_REFRESH_AUTHORS);
+        }
 
+        context.sendBroadcast(broadcastIntent);
     }
+
+
     @Override
     public void makeUpdateTagList() {
         Intent broadcastIntent = new Intent();
@@ -107,16 +115,7 @@ public class AndroidGuiUpdater implements GuiUpdate {
 
     }
 
-    @Override
-    public void makeUpdateBooks() {
-        Intent broadcastIntent = new Intent();
-        broadcastIntent.addCategory(Intent.CATEGORY_DEFAULT);
-        broadcastIntent.setAction(ACTION_RESP);
-        broadcastIntent.putExtra(ACTION, ACTION_REFRESH);
-        broadcastIntent.putExtra(ACTION_REFRESH_OBJECT, ACTION_REFRESH_BOOKS);
-        context.sendBroadcast(broadcastIntent);
 
-    }
 
     @Override
     public void sendAuthorUpdateProgress(int total, int iCurrent, String name) {

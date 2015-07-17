@@ -29,11 +29,11 @@ import java.util.Date;
 public class AuthorRenderer extends DefaultListCellRenderer {
     private static final String DEBUG_TAG = "AuthorRenderer";
 
-    private final AuthorRow pan = new AuthorRow();
+    private final AuthorRow pan ;
 
 
     public AuthorRenderer() {
-
+        pan = new AuthorRow();
     }
 
     @Override
@@ -57,5 +57,23 @@ public class AuthorRenderer extends DefaultListCellRenderer {
         return pan;
 
 
+    }
+
+    @Override
+    public void revalidate() {
+        super.revalidate();
+        if (pan==null){
+            return;
+        }
+        pan.revalidate();
+    }
+
+    @Override
+    public void repaint() {
+        super.repaint();
+        if (pan == null){
+            return;
+        }
+        pan.repaint();
     }
 }

@@ -618,11 +618,12 @@ public class MainActivity extends MyBaseAbstractActivity  implements
                 if (action.equalsIgnoreCase(AndroidGuiUpdater.ACTION_REFRESH)){
 
                     int iObject = intent.getIntExtra(AndroidGuiUpdater.ACTION_REFRESH_OBJECT, AndroidGuiUpdater.ACTION_REFRESH_AUTHORS);
-                    if (iObject == AndroidGuiUpdater.ACTION_REFRESH_AUTHORS){
+                    if ((iObject == AndroidGuiUpdater.ACTION_REFRESH_AUTHORS) ||
+                            (iObject == AndroidGuiUpdater.ACTION_REFRESH_BOTH)){
                         authorFragment.refresh();
                     }
 
-                    if (twoPain && !isTagShow &&  (iObject == AndroidGuiUpdater.ACTION_REFRESH_BOOKS)){
+                    if (twoPain && !isTagShow &&  (iObject == AndroidGuiUpdater.ACTION_REFRESH_BOTH)){
                         bookFragment.refresh();
                     }
                     if (twoPain &&   (iObject == AndroidGuiUpdater.ACTION_REFRESH_TAGS)){
