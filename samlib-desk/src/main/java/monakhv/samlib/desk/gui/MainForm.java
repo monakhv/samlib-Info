@@ -39,8 +39,8 @@ import monakhv.samlib.service.GuiUpdate;
 /**
  * @author Dmitry Monakhov
  */
-public class MainForm extends JFrame implements GuiUpdate{
-    private static final String DEBUG_TAG="MainForm";
+public class MainForm extends JFrame implements GuiUpdate {
+    private static final String DEBUG_TAG = "MainForm";
     private ResourceBundle bndl = ResourceBundle.getBundle("samlibDesk");
     private final AuthorListModel authorsModel;
     private final AuthorService service;
@@ -49,9 +49,9 @@ public class MainForm extends JFrame implements GuiUpdate{
     private final Settings settings;
     private BookList bkList;
     //private String selection=null;
-    private String sortOrder=SQLController.COL_isnew + " DESC, " + SQLController.COL_NAME;
+    private String sortOrder = SQLController.COL_isnew + " DESC, " + SQLController.COL_NAME;
     private Author selectedAuthor;
-    private TagComboItem selectedTag= TagComboItem.ALL;
+    private TagComboItem selectedTag = TagComboItem.ALL;
     private List<Author> authorList;
     private AuthorTagsDialog authorTags;
 
@@ -59,15 +59,15 @@ public class MainForm extends JFrame implements GuiUpdate{
      * Spercial container for Combo Box  wiget
      */
 
-    public MainForm( Settings settings ) {
-        this.settings=settings;
+    public MainForm(Settings settings) {
+        this.settings = settings;
         SQLController sql1;
 
         try {
-            sql1 = SQLController.getInstance( settings.getDataDirectoryPath()  );
+            sql1 = SQLController.getInstance(settings.getDataDirectoryPath());
         } catch (Exception e) {
-            Log.e(DEBUG_TAG,"Error SQL init");
-            sql1 =null;
+            Log.e(DEBUG_TAG, "Error SQL init");
+            sql1 = null;
         }
         sql = sql1;
         authorsModel = new AuthorListModel();
@@ -81,7 +81,7 @@ public class MainForm extends JFrame implements GuiUpdate{
             }
         });
         setTitle(bndl.getString("MainForm.Title.text"));
-        authorTags = new AuthorTagsDialog(this,DaoController.getInstance(sql),this);
+        authorTags = new AuthorTagsDialog(this, DaoController.getInstance(sql), this);
 
 
         initComponents();
@@ -93,15 +93,13 @@ public class MainForm extends JFrame implements GuiUpdate{
         jAuthorList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 
 
-
-
         createTagSelector();
 
 
         //TODO: we can move the constant 20 to settings
         bookScrolPanel.getVerticalScrollBar().setUnitIncrement(20);
 
-        bkList = new BookList(bookPanel, new BookList.CallBack(){
+        bkList = new BookList(bookPanel, new BookList.CallBack() {
 
             @Override
             public void bookClick(MouseEvent e, Book book) {
@@ -115,33 +113,32 @@ public class MainForm extends JFrame implements GuiUpdate{
                 JList lsm = (JList) e.getSource();
 
 
-                if (lsm.isSelectionEmpty()|| !e.getValueIsAdjusting() ) {
+                if (lsm.isSelectionEmpty() || !e.getValueIsAdjusting()) {
                     return;
                 }
                 if (lsm.getMinSelectionIndex() != lsm.getMaxSelectionIndex()) {
                     Log.i(DEBUG_TAG, "selection " + lsm.getMinSelectionIndex() + " - " + lsm.getMaxSelectionIndex());
                     return;
                 }
-                selectedAuthor=authorsModel.getElementAt(lsm.getMaxSelectionIndex());
-                Log.i(DEBUG_TAG, "selection " +selectedAuthor.getName()+"  "+e.getValueIsAdjusting()+" - "+selectedAuthor.getTag2Authors().size());
+                selectedAuthor = authorsModel.getElementAt(lsm.getMaxSelectionIndex());
+                Log.i(DEBUG_TAG, "selection " + selectedAuthor.getName() + "  " + e.getValueIsAdjusting() + " - " + selectedAuthor.getTag2Authors().size());
                 loadBookList(selectedAuthor);
             }
         });
 
-        service = new AuthorService(DaoController.getInstance(sql),this,settings );
+        service = new AuthorService(DaoController.getInstance(sql), this, settings);
 
     }
 
-    private void createTagSelector(){
+    private void createTagSelector() {
         cBTags.removeAllItems();
         cBTags.addItem(TagComboItem.ALL);
         cBTags.addItem(TagComboItem.NEW);
         TagController tagCtl = new TagController(DaoController.getInstance(sql));
-        for (Tag tag : tagCtl.getAll()){
+        for (Tag tag : tagCtl.getAll()) {
             cBTags.addItem(new TagComboItem(tag));
         }
     }
-
 
 
     /**
@@ -149,30 +146,31 @@ public class MainForm extends JFrame implements GuiUpdate{
      */
     private void addSortedAuthorList() {
         AuthorController ctl = new AuthorController(DaoController.getInstance(sql));
-        authorList=ctl.getAll(selectedTag.getId(),sortOrder);
+        authorList = ctl.getAll(selectedTag.getId(), sortOrder);
         authorsModel.update(authorList);
 
     }
 
     /**
      * Construct Book List
+     *
      * @param a author
      */
-    private void loadBookList(Author a){
+    private void loadBookList(Author a) {
         BookController ctl = new BookController(DaoController.getInstance(sql));
 
-        if (a != null){
+        if (a != null) {
             bkList.load(ctl.getAll(a, SQLController.COL_BOOK_ISNEW + " DESC, " + SQLController.COL_BOOK_DATE + " DESC"));
         }
 
 
         //bookPanel.setComponentPopupMenu(bookPopup);
-        //redraw();
-
+        redraw();
 
 
     }
-    private void redraw(){
+
+    private void redraw() {
         this.getContentPane().validate();
         this.getContentPane().repaint();
     }
@@ -184,7 +182,7 @@ public class MainForm extends JFrame implements GuiUpdate{
 
 
     private void buttonUpdateActionPerformed(ActionEvent e) {
-        if (authorList.isEmpty()){
+        if (authorList.isEmpty()) {
             return;
         }
         buttonUpdate.setEnabled(false);
@@ -192,7 +190,7 @@ public class MainForm extends JFrame implements GuiUpdate{
         progressBar1.setMinimum(0);
         progressBar1.setMaximum(authorList.size());
         progressBar1.setValue(0);
-        CheckUpdateWorker worker = new CheckUpdateWorker(service,authorList);
+        CheckUpdateWorker worker = new CheckUpdateWorker(service, authorList);
         worker.execute();
 
     }
@@ -204,11 +202,11 @@ public class MainForm extends JFrame implements GuiUpdate{
     private void cBTagsActionPerformed(ActionEvent e) {
 
         JComboBox cb = (JComboBox) e.getSource();
-        selectedTag= (TagComboItem) cb.getSelectedItem();
-        if (selectedTag == null){
+        selectedTag = (TagComboItem) cb.getSelectedItem();
+        if (selectedTag == null) {
             return;
         }
-        Log.d(DEBUG_TAG,"Tag: "+selectedTag.toString());
+        Log.d(DEBUG_TAG, "Tag: " + selectedTag.toString());
         addSortedAuthorList();
         redraw();
     }
@@ -216,15 +214,15 @@ public class MainForm extends JFrame implements GuiUpdate{
     private void jAuthorListMouseClicked(MouseEvent e) {
 
         int butNum = e.getButton();
-        if (butNum ==1){//left mouse button clicks are ignored
+        if (butNum == 1) {//left mouse button clicks are ignored
             return;
         }
         int index = jAuthorList.locationToIndex(e.getPoint());
-        if (index <0){
+        if (index < 0) {
             return;
         }
         jAuthorList.setSelectedIndex(index);
-        selectedAuthor=authorsModel.getElementAt(index);
+        selectedAuthor = authorsModel.getElementAt(index);
         authorPopup.setLabel(selectedAuthor.getName());
         authorPopup.show(e.getComponent(), e.getX(), e.getY());
 
@@ -232,22 +230,21 @@ public class MainForm extends JFrame implements GuiUpdate{
 
     private void makeBookClick(MouseEvent e, Book book) {
         Log.i(DEBUG_TAG, "Book: " + book.getTitle() + "  - " + e.getButton());
-        if (e.getButton() == 1 && e.getClickCount()==2){
+        if (e.getButton() == 1 && e.getClickCount() == 2) {
             book.setFileType(settings.getFileType());
             DataExportImport dd = new DataExportImport(settings);
 
-            if (dd.needUpdateFile(book)){
+            if (dd.needUpdateFile(book)) {
                 this.setCursor(new Cursor(Cursor.WAIT_CURSOR));
-                LoadBookWorker worker = new LoadBookWorker(service,book.getId());
+                LoadBookWorker worker = new LoadBookWorker(service, book.getId());
                 worker.execute();
 
-            }
-            else {
+            } else {
                 showBook(book);
             }
 
         }
-        if (e.getButton() != 1){
+        if (e.getButton() != 1) {
             bookPopup.show(e.getComponent(), e.getX(), e.getY());
         }
 
@@ -255,18 +252,18 @@ public class MainForm extends JFrame implements GuiUpdate{
     }
 
     private void menuAuthorMakeReadActionPerformed(ActionEvent e) {
-        ReadAuthorWorker worker = new ReadAuthorWorker(service,selectedAuthor);
+        ReadAuthorWorker worker = new ReadAuthorWorker(service, selectedAuthor);
         worker.execute();
     }
 
     private void menuAuthorDeleteActionPerformed(ActionEvent e) {
-        int  answer = JOptionPane.showConfirmDialog(
+        int answer = JOptionPane.showConfirmDialog(
                 this,
                 bndl.getString("MainForm.confirmAuthorDelete"),
                 selectedAuthor.getName(),
                 JOptionPane.YES_NO_OPTION
         );
-        if (answer==JOptionPane.YES_OPTION){
+        if (answer == JOptionPane.YES_OPTION) {
             service.makeAuthorDel(selectedAuthor.getId());
             selectedAuthor = null;
 
@@ -274,8 +271,8 @@ public class MainForm extends JFrame implements GuiUpdate{
     }
 
     private void menuToolsAddActionPerformed(ActionEvent e) {
-        AddTextValue addAuthor= new AddTextValue(this,"http://samlib.ot.ru",bndl.getString("MainForm.AddAuthor.Title.text"),
-                new AddTextValue.CallBack(){
+        AddTextValue addAuthor = new AddTextValue(this, "http://samlib.ot.ru", bndl.getString("MainForm.AddAuthor.Title.text"),
+                new AddTextValue.CallBack() {
 
                     @Override
                     public void okClick(String answer) {
@@ -298,17 +295,16 @@ public class MainForm extends JFrame implements GuiUpdate{
     }
 
     private void buttonRefreshActionPerformed() {
-        Log.d(DEBUG_TAG,"refresh: list size "+authorList.size());
-        Log.d(DEBUG_TAG,"refresh: model size "+jAuthorList.getModel().getSize());
+        Log.d(DEBUG_TAG, "refresh: list size " + authorList.size());
+        Log.d(DEBUG_TAG, "refresh: model size " + jAuthorList.getModel().getSize());
 
 
-        Log.d(DEBUG_TAG,"refresh: selected "+selectedAuthor.getName());
+        Log.d(DEBUG_TAG, "refresh: selected " + selectedAuthor.getName());
         jAuthorList.invalidate();
         jAuthorList.revalidate();
         jAuthorList.repaint();
         redraw();
     }
-
 
 
     private void initComponents() {
@@ -397,16 +393,16 @@ public class MainForm extends JFrame implements GuiUpdate{
             panelMain.setMinimumSize(new Dimension(800, 100));
             panelMain.setBorder(Borders.DLU4);
             panelMain.setLayout(new FormLayout(
-                "[200dlu,default]:grow, 5dlu, [350dlu,default]:grow(0.8), default",
-                "default, fill:[400dlu,default]:grow, $lgap, default"));
+                    "[200dlu,default]:grow, 5dlu, [350dlu,default]:grow(0.8), default",
+                    "default, fill:[400dlu,default]:grow, $lgap, default"));
 
             //======== toolBar ========
             {
                 toolBar.setLayout(new GridBagLayout());
-                ((GridBagLayout)toolBar.getLayout()).columnWidths = new int[] {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-                ((GridBagLayout)toolBar.getLayout()).rowHeights = new int[] {0, 5, 0};
-                ((GridBagLayout)toolBar.getLayout()).columnWeights = new double[] {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0E-4};
-                ((GridBagLayout)toolBar.getLayout()).rowWeights = new double[] {0.0, 0.0, 1.0E-4};
+                ((GridBagLayout) toolBar.getLayout()).columnWidths = new int[]{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+                ((GridBagLayout) toolBar.getLayout()).rowHeights = new int[]{0, 5, 0};
+                ((GridBagLayout) toolBar.getLayout()).columnWeights = new double[]{0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0E-4};
+                ((GridBagLayout) toolBar.getLayout()).rowWeights = new double[]{0.0, 0.0, 1.0E-4};
 
                 //---- buttonUpdate ----
                 buttonUpdate.setText(bundle.getString("MainForm.buttonUpdate.text"));
@@ -417,8 +413,8 @@ public class MainForm extends JFrame implements GuiUpdate{
                     }
                 });
                 toolBar.add(buttonUpdate, new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0,
-                    GridBagConstraints.CENTER, GridBagConstraints.BOTH,
-                    new Insets(0, 0, 5, 5), 0, 0));
+                        GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                        new Insets(0, 0, 5, 5), 0, 0));
 
                 //---- cBTags ----
                 cBTags.addActionListener(new ActionListener() {
@@ -428,11 +424,11 @@ public class MainForm extends JFrame implements GuiUpdate{
                     }
                 });
                 toolBar.add(cBTags, new GridBagConstraints(2, 0, 2, 1, 0.0, 0.0,
-                    GridBagConstraints.CENTER, GridBagConstraints.BOTH,
-                    new Insets(0, 0, 5, 5), 0, 0));
+                        GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                        new Insets(0, 0, 5, 5), 0, 0));
                 toolBar.add(progressBar1, new GridBagConstraints(6, 0, 1, 1, 0.0, 0.0,
-                    GridBagConstraints.CENTER, GridBagConstraints.BOTH,
-                    new Insets(0, 0, 5, 5), 0, 0));
+                        GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                        new Insets(0, 0, 5, 5), 0, 0));
 
                 //---- buttonRefresh ----
                 buttonRefresh.setText(bundle.getString("MainForm.buttonRefresh.text"));
@@ -443,8 +439,8 @@ public class MainForm extends JFrame implements GuiUpdate{
                     }
                 });
                 toolBar.add(buttonRefresh, new GridBagConstraints(20, 0, 1, 1, 0.0, 0.0,
-                    GridBagConstraints.CENTER, GridBagConstraints.BOTH,
-                    new Insets(0, 0, 5, 5), 0, 0));
+                        GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                        new Insets(0, 0, 5, 5), 0, 0));
             }
             panelMain.add(toolBar, CC.xywh(1, 1, 3, 1));
 
@@ -468,16 +464,16 @@ public class MainForm extends JFrame implements GuiUpdate{
             {
                 panel1.setBorder(new EtchedBorder());
                 panel1.setLayout(new GridBagLayout());
-                ((GridBagLayout)panel1.getLayout()).columnWidths = new int[] {0, 0, 0};
-                ((GridBagLayout)panel1.getLayout()).rowHeights = new int[] {0, 0, 0, 0};
-                ((GridBagLayout)panel1.getLayout()).columnWeights = new double[] {0.0, 0.0, 1.0E-4};
-                ((GridBagLayout)panel1.getLayout()).rowWeights = new double[] {0.0, 0.0, 0.0, 1.0E-4};
+                ((GridBagLayout) panel1.getLayout()).columnWidths = new int[]{0, 0, 0};
+                ((GridBagLayout) panel1.getLayout()).rowHeights = new int[]{0, 0, 0, 0};
+                ((GridBagLayout) panel1.getLayout()).columnWeights = new double[]{0.0, 0.0, 1.0E-4};
+                ((GridBagLayout) panel1.getLayout()).rowWeights = new double[]{0.0, 0.0, 0.0, 1.0E-4};
 
                 //---- lbProgress ----
                 lbProgress.setText(bundle.getString("MainForm.lbProgress.text"));
                 panel1.add(lbProgress, new GridBagConstraints(0, 0, 2, 1, 0.0, 0.0,
-                    GridBagConstraints.CENTER, GridBagConstraints.BOTH,
-                    new Insets(0, 0, 5, 0), 0, 0));
+                        GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                        new Insets(0, 0, 5, 0), 0, 0));
             }
             panelMain.add(panel1, CC.xywh(1, 4, 3, 1));
 
@@ -491,10 +487,10 @@ public class MainForm extends JFrame implements GuiUpdate{
                 //======== bookPanel ========
                 {
                     bookPanel.setLayout(new GridBagLayout());
-                    ((GridBagLayout)bookPanel.getLayout()).columnWidths = new int[] {0, 0, 0};
-                    ((GridBagLayout)bookPanel.getLayout()).rowHeights = new int[] {0, 0, 0, 0};
-                    ((GridBagLayout)bookPanel.getLayout()).columnWeights = new double[] {0.0, 0.0, 1.0E-4};
-                    ((GridBagLayout)bookPanel.getLayout()).rowWeights = new double[] {0.0, 0.0, 0.0, 1.0E-4};
+                    ((GridBagLayout) bookPanel.getLayout()).columnWidths = new int[]{0, 0, 0};
+                    ((GridBagLayout) bookPanel.getLayout()).rowHeights = new int[]{0, 0, 0, 0};
+                    ((GridBagLayout) bookPanel.getLayout()).columnWeights = new double[]{0.0, 0.0, 1.0E-4};
+                    ((GridBagLayout) bookPanel.getLayout()).rowWeights = new double[]{0.0, 0.0, 0.0, 1.0E-4};
                 }
                 bookScrolPanel.setViewportView(bookPanel);
             }
@@ -581,10 +577,10 @@ public class MainForm extends JFrame implements GuiUpdate{
     // JFormDesigner - End of variables declaration  //GEN-END:variables
 
     @Override
-    public void makeUpdate(boolean isBoth){
+    public void makeUpdate(boolean isBoth) {
         Log.d(DEBUG_TAG, "makeUpdate: isBoth = " + isBoth);
         addSortedAuthorList();//refresh authors
-        if (isBoth){
+        if (isBoth) {
             loadBookList(selectedAuthor);
 
         }
@@ -602,12 +598,11 @@ public class MainForm extends JFrame implements GuiUpdate{
     @Override
     public void finishBookLoad(boolean result, AbstractSettings.FileType ft, long book_id) {
         this.setCursor(Cursor.DEFAULT_CURSOR);
-        if (result){
+        if (result) {
             AuthorController ctl = new AuthorController(DaoController.getInstance(sql));
             showBook(ctl.getBookController().getById(book_id));
-        }
-        else {
-            showError(bndl.getString("MainForm.message.BookLoadError") );
+        } else {
+            showError(bndl.getString("MainForm.message.BookLoadError"));
         }
 
     }
@@ -623,10 +618,9 @@ public class MainForm extends JFrame implements GuiUpdate{
         buttonUpdate.setEnabled(true);
         progressBar1.setValue(0);
         progressBar1.setString("");
-        if ( result){
+        if (result) {
             showMessage(bndl.getString("MainForm.message.UpdateSuccess"));
-        }
-        else {
+        } else {
             showError(bndl.getString("MainForm.message.UpdateError"));
         }
 
@@ -640,37 +634,40 @@ public class MainForm extends JFrame implements GuiUpdate{
 
     /**
      * Show book
+     *
      * @param book book to read
      */
-    private void showBook(Book book){
+    private void showBook(Book book) {
         Log.i(DEBUG_TAG, "Display book: " + settings.getBookFile(book, book.getFileType()).getAbsolutePath());
         try {
             //TODO: put reader into setting for different File type
-            Runtime.getRuntime().exec("/usr/bin/firefox "+settings.getBookFile(book,book.getFileType()).getAbsolutePath());
+            Runtime.getRuntime().exec("/usr/bin/firefox " + settings.getBookFile(book, book.getFileType()).getAbsolutePath());
         } catch (IOException e) {
-            Log.e(DEBUG_TAG,"Error Open Book");
+            Log.e(DEBUG_TAG, "Error Open Book");
         }
     }
 
     /**
      * Show error
+     *
      * @param msg message to display
      */
-    private void showError(String msg){
-        Log.e(DEBUG_TAG,msg);
+    private void showError(String msg) {
+        Log.e(DEBUG_TAG, msg);
         lbProgress.setForeground(Color.RED);
         lbProgress.setText(msg);
     }
+
     /**
      * Show Text message
+     *
      * @param msg message to display
      */
-    private void showMessage(String msg){
-        Log.e(DEBUG_TAG,msg);
+    private void showMessage(String msg) {
+        Log.e(DEBUG_TAG, msg);
         lbProgress.setForeground(Color.BLACK);
         lbProgress.setText(msg);
     }
-
 
 
 }
