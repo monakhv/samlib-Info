@@ -227,11 +227,39 @@ public abstract class AbstractDataExportImport {
 
 
     }
+
+    /**
+     * Import database
+     *
+     * @param backupDB database file to import
+     * @return true if he import is successful
+     */
     public  boolean importDB(File backupDB ) {
         File currentDB = getDataBase();
 
         try {
             fileCopy(backupDB, currentDB);
+        } catch (FileNotFoundException ex) {
+            Log.e(DEBUG_TAG, "Error to Import DB: ", ex);
+            return false;
+        } catch (IOException ex) {
+            Log.e(DEBUG_TAG, "Error to Import DB: ", ex);
+            return false;
+        }
+        return true;
+
+    }
+
+    /**
+     * Export current database
+     * @param directory destination directory to export database to
+     * @return tru if the import is successful
+     */
+    public boolean exportDB(File directory){
+        File currentDB = getDataBase();
+        File dest = new File( directory,DB_PREFIX+DB_EXT);
+        try {
+            fileCopy(currentDB, dest);
         } catch (FileNotFoundException ex) {
             Log.e(DEBUG_TAG, "Error to Import DB: ", ex);
             return false;

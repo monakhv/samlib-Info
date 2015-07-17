@@ -135,9 +135,22 @@ new FormModel {
 						addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "menuToolsAddActionPerformed", true ) )
 					} )
 					add( new FormComponent( "javax.swing.JMenuItem" ) {
-						name: "menuToosImport"
-						"text": new FormMessage( null, "MainForm.menuToosImport.text" )
+						name: "menuToosImportDB"
+						"text": new FormMessage( null, "MainForm.menuToosImportDB.text" )
 						addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "menuToosImportActionPerformed", false ) )
+					} )
+					add( new FormComponent( "javax.swing.JMenuItem" ) {
+						name: "menuToolsExportDB"
+						"text": new FormMessage( null, "MainForm.menuToolsExportDB.text" )
+						addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "menuToolsExportDBActionPerformed", false ) )
+					} )
+					add( new FormComponent( "javax.swing.JMenuItem" ) {
+						name: "menuToolsImportList"
+						"text": new FormMessage( null, "MainForm.menuToolsImportList.text" )
+					} )
+					add( new FormComponent( "javax.swing.JMenuItem" ) {
+						name: "menuToolsExportList"
+						"text": new FormMessage( null, "MainForm.menuToolsExportList.text" )
 					} )
 				} )
 			}
