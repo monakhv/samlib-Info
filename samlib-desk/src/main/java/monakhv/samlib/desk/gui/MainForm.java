@@ -232,7 +232,7 @@ public class MainForm extends JFrame implements GuiUpdate{
 
     private void makeBookClick(MouseEvent e, Book book) {
         Log.i(DEBUG_TAG, "Book: " + book.getTitle() + "  - " + e.getButton());
-        if (e.getButton() == 1 ){
+        if (e.getButton() == 1 && e.getClickCount()==2){
             book.setFileType(settings.getFileType());
             DataExportImport dd = new DataExportImport(settings);
 
@@ -247,7 +247,7 @@ public class MainForm extends JFrame implements GuiUpdate{
             }
 
         }
-        else {
+        if (e.getButton() != 1){
             bookPopup.show(e.getComponent(), e.getX(), e.getY());
         }
 
@@ -417,8 +417,8 @@ public class MainForm extends JFrame implements GuiUpdate{
                     }
                 });
                 toolBar.add(buttonUpdate, new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0,
-                        GridBagConstraints.CENTER, GridBagConstraints.BOTH,
-                        new Insets(0, 0, 5, 5), 0, 0));
+                    GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                    new Insets(0, 0, 5, 5), 0, 0));
 
                 //---- cBTags ----
                 cBTags.addActionListener(new ActionListener() {
@@ -431,8 +431,8 @@ public class MainForm extends JFrame implements GuiUpdate{
                     GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                     new Insets(0, 0, 5, 5), 0, 0));
                 toolBar.add(progressBar1, new GridBagConstraints(6, 0, 1, 1, 0.0, 0.0,
-                        GridBagConstraints.CENTER, GridBagConstraints.BOTH,
-                        new Insets(0, 0, 5, 5), 0, 0));
+                    GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                    new Insets(0, 0, 5, 5), 0, 0));
 
                 //---- buttonRefresh ----
                 buttonRefresh.setText(bundle.getString("MainForm.buttonRefresh.text"));
@@ -607,7 +607,7 @@ public class MainForm extends JFrame implements GuiUpdate{
             showBook(ctl.getBookController().getById(book_id));
         }
         else {
-            showError("Book Load Error");
+            showError(bndl.getString("MainForm.message.BookLoadError") );
         }
 
     }
@@ -615,7 +615,7 @@ public class MainForm extends JFrame implements GuiUpdate{
     @Override
     public void sendAuthorUpdateProgress(int total, int iCurrent, String name) {
         progressBar1.setValue(iCurrent);
-        showError(bndl.getString("MainForm.message.Update") + "  " + name);
+        showMessage(bndl.getString("MainForm.message.Update") + "  " + name);
     }
 
     @Override
@@ -624,7 +624,7 @@ public class MainForm extends JFrame implements GuiUpdate{
         progressBar1.setValue(0);
         progressBar1.setString("");
         if ( result){
-            showError(bndl.getString("MainForm.message.UpdateSuccess"));
+            showMessage(bndl.getString("MainForm.message.UpdateSuccess"));
         }
         else {
             showError(bndl.getString("MainForm.message.UpdateError"));
@@ -658,6 +658,16 @@ public class MainForm extends JFrame implements GuiUpdate{
      */
     private void showError(String msg){
         Log.e(DEBUG_TAG,msg);
+        lbProgress.setForeground(Color.RED);
+        lbProgress.setText(msg);
+    }
+    /**
+     * Show Text message
+     * @param msg message to display
+     */
+    private void showMessage(String msg){
+        Log.e(DEBUG_TAG,msg);
+        lbProgress.setForeground(Color.BLACK);
         lbProgress.setText(msg);
     }
 
