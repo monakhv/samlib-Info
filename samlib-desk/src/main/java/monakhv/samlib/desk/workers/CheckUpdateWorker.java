@@ -1,7 +1,7 @@
 package monakhv.samlib.desk.workers;
 
 import monakhv.samlib.db.entity.Author;
-import monakhv.samlib.service.AuthorService;
+import monakhv.samlib.service.SamlibService;
 
 import javax.swing.*;
 import java.util.List;
@@ -24,10 +24,10 @@ import java.util.List;
  * 16.07.15.
  */
 public class CheckUpdateWorker extends SwingWorker<Void,Void> {
-    private AuthorService service;
+    private SamlibService service;
     private List<Author> authors;
 
-    public CheckUpdateWorker(AuthorService service, List<Author> authors) {
+    public CheckUpdateWorker(SamlibService service, List<Author> authors) {
         this.service = service;
         this.authors = authors;
     }

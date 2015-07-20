@@ -36,7 +36,7 @@ import monakhv.samlib.desk.workers.CheckUpdateWorker;
 import monakhv.samlib.desk.workers.LoadBookWorker;
 import monakhv.samlib.desk.workers.ReadAuthorWorker;
 import monakhv.samlib.log.Log;
-import monakhv.samlib.service.AuthorService;
+import monakhv.samlib.service.SamlibService;
 import monakhv.samlib.service.GuiUpdate;
 
 /**
@@ -46,7 +46,7 @@ public class MainForm extends JFrame implements GuiUpdate {
     private static final String DEBUG_TAG = "MainForm";
     private ResourceBundle bndl = ResourceBundle.getBundle("samlibDesk");
     private final AuthorListModel authorsModel;
-    private final AuthorService service;
+    private final SamlibService service;
 
     private final SQLController sql;
     private final Settings settings;
@@ -129,7 +129,7 @@ public class MainForm extends JFrame implements GuiUpdate {
             }
         });
 
-        service = new AuthorService(DaoController.getInstance(sql), this, settings);
+        service = new SamlibService(DaoController.getInstance(sql), this, settings);
 
     }
 
@@ -290,6 +290,15 @@ public class MainForm extends JFrame implements GuiUpdate {
 
 
     }
+    private void menuToolsSearchActionPerformed() {
+        AuthorSearch search = new AuthorSearch(this,settings);
+        search.setVisible(true);
+
+        // TODO add your code here
+        //
+
+
+    }
 
     private void menuAuthorTagsActionPerformed(ActionEvent e) {
         authorTags.setPanel(selectedAuthor);
@@ -386,6 +395,8 @@ public class MainForm extends JFrame implements GuiUpdate {
     }
 
 
+
+
     private void initComponents() {
         // JFormDesigner - Component initialization - DO NOT MODIFY  //GEN-BEGIN:initComponents
         ResourceBundle bundle = ResourceBundle.getBundle("samlibDesk");
@@ -395,7 +406,8 @@ public class MainForm extends JFrame implements GuiUpdate {
         menuItemExit = new JMenuItem();
         menuTools = new JMenu();
         menuToolsAdd = new JMenuItem();
-        menuToosImportDB = new JMenuItem();
+        menuToolsSearch = new JMenuItem();
+        menuToolsImportDB = new JMenuItem();
         menuToolsExportDB = new JMenuItem();
         menuToolsImportList = new JMenuItem();
         menuToolsExportList = new JMenuItem();
@@ -467,15 +479,25 @@ public class MainForm extends JFrame implements GuiUpdate {
                 });
                 menuTools.add(menuToolsAdd);
 
-                //---- menuToosImportDB ----
-                menuToosImportDB.setText(bundle.getString("MainForm.menuToosImportDB.text"));
-                menuToosImportDB.addActionListener(new ActionListener() {
+                //---- menuToolsSearch ----
+                menuToolsSearch.setText(bundle.getString("MainForm.menuToolsSearch.text"));
+                menuToolsSearch.addActionListener(new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        menuToolsSearchActionPerformed();
+                    }
+                });
+                menuTools.add(menuToolsSearch);
+
+                //---- menuToolsImportDB ----
+                menuToolsImportDB.setText(bundle.getString("MainForm.menuToolsImportDB.text"));
+                menuToolsImportDB.addActionListener(new ActionListener() {
                     @Override
                     public void actionPerformed(ActionEvent e) {
                         menuToosImportActionPerformed();
                     }
                 });
-                menuTools.add(menuToosImportDB);
+                menuTools.add(menuToolsImportDB);
 
                 //---- menuToolsExportDB ----
                 menuToolsExportDB.setText(bundle.getString("MainForm.menuToolsExportDB.text"));
@@ -517,16 +539,16 @@ public class MainForm extends JFrame implements GuiUpdate {
             panelMain.setMinimumSize(new Dimension(800, 100));
             panelMain.setBorder(Borders.DLU4);
             panelMain.setLayout(new FormLayout(
-                    "[200dlu,default]:grow, 5dlu, [350dlu,default]:grow(0.8), default",
-                    "default, fill:[400dlu,default]:grow, $lgap, default"));
+                "[200dlu,default]:grow, 5dlu, [350dlu,default]:grow(0.8), default",
+                "default, fill:[400dlu,default]:grow, $lgap, default"));
 
             //======== toolBar ========
             {
                 toolBar.setLayout(new GridBagLayout());
-                ((GridBagLayout) toolBar.getLayout()).columnWidths = new int[]{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-                ((GridBagLayout) toolBar.getLayout()).rowHeights = new int[]{0, 5, 0};
-                ((GridBagLayout) toolBar.getLayout()).columnWeights = new double[]{0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0E-4};
-                ((GridBagLayout) toolBar.getLayout()).rowWeights = new double[]{0.0, 0.0, 1.0E-4};
+                ((GridBagLayout)toolBar.getLayout()).columnWidths = new int[] {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+                ((GridBagLayout)toolBar.getLayout()).rowHeights = new int[] {0, 5, 0};
+                ((GridBagLayout)toolBar.getLayout()).columnWeights = new double[] {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0E-4};
+                ((GridBagLayout)toolBar.getLayout()).rowWeights = new double[] {0.0, 0.0, 1.0E-4};
 
                 //---- buttonUpdate ----
                 buttonUpdate.setText(bundle.getString("MainForm.buttonUpdate.text"));
@@ -537,8 +559,8 @@ public class MainForm extends JFrame implements GuiUpdate {
                     }
                 });
                 toolBar.add(buttonUpdate, new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0,
-                        GridBagConstraints.CENTER, GridBagConstraints.BOTH,
-                        new Insets(0, 0, 5, 5), 0, 0));
+                    GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                    new Insets(0, 0, 5, 5), 0, 0));
 
                 //---- cBTags ----
                 cBTags.addActionListener(new ActionListener() {
@@ -548,11 +570,11 @@ public class MainForm extends JFrame implements GuiUpdate {
                     }
                 });
                 toolBar.add(cBTags, new GridBagConstraints(2, 0, 2, 1, 0.0, 0.0,
-                        GridBagConstraints.CENTER, GridBagConstraints.BOTH,
-                        new Insets(0, 0, 5, 5), 0, 0));
+                    GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                    new Insets(0, 0, 5, 5), 0, 0));
                 toolBar.add(progressBar1, new GridBagConstraints(6, 0, 1, 1, 0.0, 0.0,
-                        GridBagConstraints.CENTER, GridBagConstraints.BOTH,
-                        new Insets(0, 0, 5, 5), 0, 0));
+                    GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                    new Insets(0, 0, 5, 5), 0, 0));
 
                 //---- buttonRefresh ----
                 buttonRefresh.setText(bundle.getString("MainForm.buttonRefresh.text"));
@@ -563,8 +585,8 @@ public class MainForm extends JFrame implements GuiUpdate {
                     }
                 });
                 toolBar.add(buttonRefresh, new GridBagConstraints(20, 0, 1, 1, 0.0, 0.0,
-                        GridBagConstraints.CENTER, GridBagConstraints.BOTH,
-                        new Insets(0, 0, 5, 5), 0, 0));
+                    GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                    new Insets(0, 0, 5, 5), 0, 0));
             }
             panelMain.add(toolBar, CC.xywh(1, 1, 3, 1));
 
@@ -588,16 +610,16 @@ public class MainForm extends JFrame implements GuiUpdate {
             {
                 panel1.setBorder(new EtchedBorder());
                 panel1.setLayout(new GridBagLayout());
-                ((GridBagLayout) panel1.getLayout()).columnWidths = new int[]{0, 0, 0};
-                ((GridBagLayout) panel1.getLayout()).rowHeights = new int[]{0, 0, 0, 0};
-                ((GridBagLayout) panel1.getLayout()).columnWeights = new double[]{0.0, 0.0, 1.0E-4};
-                ((GridBagLayout) panel1.getLayout()).rowWeights = new double[]{0.0, 0.0, 0.0, 1.0E-4};
+                ((GridBagLayout)panel1.getLayout()).columnWidths = new int[] {0, 0, 0};
+                ((GridBagLayout)panel1.getLayout()).rowHeights = new int[] {0, 0, 0, 0};
+                ((GridBagLayout)panel1.getLayout()).columnWeights = new double[] {0.0, 0.0, 1.0E-4};
+                ((GridBagLayout)panel1.getLayout()).rowWeights = new double[] {0.0, 0.0, 0.0, 1.0E-4};
 
                 //---- lbProgress ----
                 lbProgress.setText(bundle.getString("MainForm.lbProgress.text"));
                 panel1.add(lbProgress, new GridBagConstraints(0, 0, 2, 1, 0.0, 0.0,
-                        GridBagConstraints.CENTER, GridBagConstraints.BOTH,
-                        new Insets(0, 0, 5, 0), 0, 0));
+                    GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                    new Insets(0, 0, 5, 0), 0, 0));
             }
             panelMain.add(panel1, CC.xywh(1, 4, 3, 1));
 
@@ -611,10 +633,10 @@ public class MainForm extends JFrame implements GuiUpdate {
                 //======== bookPanel ========
                 {
                     bookPanel.setLayout(new GridBagLayout());
-                    ((GridBagLayout) bookPanel.getLayout()).columnWidths = new int[]{0, 0, 0};
-                    ((GridBagLayout) bookPanel.getLayout()).rowHeights = new int[]{0, 0, 0, 0};
-                    ((GridBagLayout) bookPanel.getLayout()).columnWeights = new double[]{0.0, 0.0, 1.0E-4};
-                    ((GridBagLayout) bookPanel.getLayout()).rowWeights = new double[]{0.0, 0.0, 0.0, 1.0E-4};
+                    ((GridBagLayout)bookPanel.getLayout()).columnWidths = new int[] {0, 0, 0};
+                    ((GridBagLayout)bookPanel.getLayout()).rowHeights = new int[] {0, 0, 0, 0};
+                    ((GridBagLayout)bookPanel.getLayout()).columnWeights = new double[] {0.0, 0.0, 1.0E-4};
+                    ((GridBagLayout)bookPanel.getLayout()).rowWeights = new double[] {0.0, 0.0, 0.0, 1.0E-4};
                 }
                 bookScrolPanel.setViewportView(bookPanel);
             }
@@ -679,7 +701,8 @@ public class MainForm extends JFrame implements GuiUpdate {
     private JMenuItem menuItemExit;
     private JMenu menuTools;
     private JMenuItem menuToolsAdd;
-    private JMenuItem menuToosImportDB;
+    private JMenuItem menuToolsSearch;
+    private JMenuItem menuToolsImportDB;
     private JMenuItem menuToolsExportDB;
     private JMenuItem menuToolsImportList;
     private JMenuItem menuToolsExportList;

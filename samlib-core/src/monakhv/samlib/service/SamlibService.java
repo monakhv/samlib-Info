@@ -20,6 +20,7 @@ import monakhv.samlib.data.AbstractSettings;
 import monakhv.samlib.db.AuthorController;
 import monakhv.samlib.db.DaoBuilder;
 import monakhv.samlib.db.entity.Author;
+import monakhv.samlib.db.entity.AuthorCard;
 import monakhv.samlib.db.entity.Book;
 import monakhv.samlib.db.entity.SamLibConfig;
 import monakhv.samlib.exception.SamlibParseException;
@@ -27,8 +28,10 @@ import monakhv.samlib.http.HttpClientController;
 import monakhv.samlib.log.Log;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
+import java.text.Collator;
+import java.text.ParseException;
+import java.text.RuleBasedCollator;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -37,10 +40,10 @@ import java.util.concurrent.TimeUnit;
  *
  * @author monakhv
  */
-public class AuthorService {
-    private static final String DEBUG_TAG         = "AuthorService";
-    public static final String ACTION_ADD          = "AuthorService.AddAuthorServiceIntent_ACTION_ADD";
-    public static final String ACTION_DELETE    = "AuthorService.AddAuthorServiceIntent_ACTION_DELETE";
+public class SamlibService {
+    private static final String DEBUG_TAG         = "SamlibService";
+    public static final String ACTION_ADD          = "SamlibService.AddAuthorServiceIntent_ACTION_ADD";
+    public static final String ACTION_DELETE    = "SamlibService.AddAuthorServiceIntent_ACTION_DELETE";
 
     public static final long SLEEP_INTERVAL_SECONDS=1;
     private  int numberOfAdded=0;
@@ -53,7 +56,7 @@ public class AuthorService {
     private final GuiUpdate guiUpdate;
     private final AbstractSettings settingsHelper;
 
-    public AuthorService(DaoBuilder sql, GuiUpdate guiUpdate, AbstractSettings settingsHelper) {
+    public SamlibService(DaoBuilder sql, GuiUpdate guiUpdate, AbstractSettings settingsHelper) {
         this.guiUpdate = guiUpdate;
         this.settingsHelper = settingsHelper;
         authorController = new AuthorController(sql);
@@ -207,6 +210,83 @@ public class AuthorService {
         }
 
         guiUpdate.sendResult(ACTION_ADD, numberOfAdded, numberOfDeleted, doubleAdd, urls.size(), author_id);
+    }
+
+    /**
+     * Make author search according to the first part aof theAuthor name
+     * @param pattern part of the author name
+     * @param http HttpClientController
+     * @return List of found authors
+     * @throws IOException
+     * @throws SamlibParseException
+     */
+    public static List<AuthorCard> makeSearch(String pattern,HttpClientController http ) throws IOException, SamlibParseException{
+        Log.i(DEBUG_TAG, "Search author with pattern: " + pattern);
+        List<AuthorCard> result = new ArrayList<>();
+
+        int page = 1;
+
+        HashMap<String, ArrayList<AuthorCard>> colAthors = http.searchAuthors(pattern, page);
+        RuleBasedCollator russianCollator =  (RuleBasedCollator) Collator.getInstance(new Locale("ru", "RU"));
+
+        try {
+            russianCollator = new RuleBasedCollator(SamLibConfig.COLLATION_RULES);
+        } catch (ParseException ex) {
+            Log.e(DEBUG_TAG, "Collator error", ex);
+
+        }
+
+        russianCollator.setStrength(Collator.IDENTICAL);
+        russianCollator.setDecomposition(Collator.NO_DECOMPOSITION);
+
+
+        while (colAthors != null) {//page cycle while we find anything
+
+            String[] keys = colAthors.keySet().toArray(new String[1]);
+
+            Arrays.sort(keys, russianCollator);
+            int ires = Arrays.binarySearch(keys, pattern, russianCollator);
+            Log.d(DEBUG_TAG, "Page number:" +page+   "    search result " + ires + "   length is " + keys.length);
+
+            int istart;
+            if (ires < 0) {
+                istart = -ires - 1;
+            } else {
+                istart = ires;
+            }
+            for (int i = istart; i < keys.length; i++) {
+                String skey = keys[i];
+                if (skey.toLowerCase().startsWith(pattern.toLowerCase())) {
+                    for (AuthorCard ac : colAthors.get(skey)) {
+
+                        result.add(ac);
+
+                        if (result.size() >= SamLibConfig.SEARCH_LIMIT) {
+                            return result;
+                        }
+                    }
+
+                } else {
+                    Log.d(DEBUG_TAG, "Search for " + pattern + " stop by substring  -   " + skey + "   " + keys.length + "         " + istart + "  -  " + ires);
+
+
+//                        for (String s : keys) {
+//                            Log.d(DEBUG_TAG, ">>- " + s);
+//                        }
+
+                    return result;
+                }
+            }
+//            for (String s : keys) {
+//                Log.d(DEBUG_TAG, ">> " + s);
+//            }
+
+            ++page;
+            colAthors = http.searchAuthors(pattern, page);
+        }
+        Log.d(DEBUG_TAG, "Results: " + result.size());
+
+        return result;
     }
     private Author loadAuthor(HttpClientController http, AuthorController sql, String url) {
         Author a;

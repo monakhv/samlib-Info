@@ -9,7 +9,7 @@ import monakhv.samlib.data.AbstractSettings;
 import monakhv.samlib.db.entity.Author;
 import monakhv.samlib.log.Log;
 import monakhv.samlib.service.GuiUpdate;
-import monakhv.samlib.service.AuthorService;
+import monakhv.samlib.service.SamlibService;
 
 import java.util.List;
 
@@ -198,7 +198,7 @@ public class AndroidGuiUpdater implements GuiUpdate {
 //        broadcastIntent.putExtra(AuthorEditorServiceIntent.RESULT_DOUBLE_NUMBER,doubleAdd);
         broadcastIntent.putExtra(RESULT_AUTHOR_ID, author_id);
         CharSequence msg="";
-        if (action.equals(AuthorService.ACTION_ADD)){//ADD Action
+        if (action.equals(SamlibService.ACTION_ADD)){//ADD Action
 
             if (totalToAdd == 1){//add single author
                 if (numberOfAdded ==1 ) {
@@ -221,7 +221,7 @@ public class AndroidGuiUpdater implements GuiUpdate {
         }//end ADD Action
 
 
-        if (action.equals(AuthorService.ACTION_DELETE)){
+        if (action.equals(SamlibService.ACTION_DELETE)){
             if (numberOfDeleted == 1){
                 msg=context.getText(R.string.del_success);
             }

@@ -39,7 +39,7 @@ import monakhv.android.samlib.sortorder.RadioItems;
 import monakhv.samlib.db.TagController;
 import monakhv.samlib.db.entity.SamLibConfig;
 import monakhv.samlib.db.entity.Tag;
-import monakhv.samlib.service.AuthorService;
+import monakhv.samlib.service.SamlibService;
 
 
 import java.util.ArrayList;
@@ -631,7 +631,7 @@ public class MainActivity extends MyBaseAbstractActivity  implements
                     }
 
                 }
-                if (action.equals(AuthorService.ACTION_ADD)) {
+                if (action.equals(SamlibService.ACTION_ADD)) {
 
                     long id = intent.getLongExtra(AndroidGuiUpdater.RESULT_AUTHOR_ID, 0);
                     Log.d(DEBUG_TAG, "onReceive: author add, id = "+id);
@@ -644,7 +644,7 @@ public class MainActivity extends MyBaseAbstractActivity  implements
                     onAuthorSelected(id);
 
                 }
-                if (action.equals(AuthorService.ACTION_DELETE)) {
+                if (action.equals(SamlibService.ACTION_DELETE)) {
                     int duration = Toast.LENGTH_SHORT;
                     CharSequence msg = intent.getCharSequenceExtra(AndroidGuiUpdater.TOAST_STRING);
                     Toast toast = Toast.makeText(context, msg, duration);

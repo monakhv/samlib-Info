@@ -38,7 +38,7 @@ import monakhv.samlib.db.entity.Author;
 import monakhv.samlib.db.entity.Book;
 import monakhv.samlib.log.Log;
 import monakhv.samlib.service.GuiUpdate;
-import monakhv.samlib.service.AuthorService;
+import monakhv.samlib.service.SamlibService;
 
 /**
  * Service to making check for author updates Can be called from activity or
@@ -121,7 +121,7 @@ public class UpdateServiceIntent extends MyServiceIntent {
         }
 
 
-        AuthorService service = new SpecialAuthorService(getHelper(), guiUpdate, settings);
+        SamlibService service = new SpecialSamlibService(getHelper(), guiUpdate, settings);
 
 
         PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
@@ -169,9 +169,9 @@ public class UpdateServiceIntent extends MyServiceIntent {
     /**
      * Special Service with loadBook method
      */
-    public class SpecialAuthorService extends AuthorService {
+    public class SpecialSamlibService extends SamlibService {
 
-        public SpecialAuthorService(DaoBuilder sql, GuiUpdate guiUpdate, AbstractSettings settingsHelper) {
+        public SpecialSamlibService(DaoBuilder sql, GuiUpdate guiUpdate, AbstractSettings settingsHelper) {
             super(sql, guiUpdate, settingsHelper);
         }
 

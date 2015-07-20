@@ -1,6 +1,6 @@
 package monakhv.samlib.desk.workers;
 
-import monakhv.samlib.service.AuthorService;
+import monakhv.samlib.service.SamlibService;
 
 import javax.swing.*;
 import java.util.ArrayList;
@@ -23,10 +23,10 @@ import java.util.ArrayList;
  * 20.07.15.
  */
 public class AddAuthorWorker extends SwingWorker<Void,Void> {
-    private AuthorService service;
+    private SamlibService service;
     private ArrayList<String> authors;
 
-    public AddAuthorWorker(AuthorService service, ArrayList<String> authors) {
+    public AddAuthorWorker(SamlibService service, ArrayList<String> authors) {
         this.service = service;
         this.authors = authors;
     }

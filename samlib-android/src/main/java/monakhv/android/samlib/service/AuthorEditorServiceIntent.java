@@ -9,7 +9,7 @@ import java.util.ArrayList;
 
 import monakhv.android.samlib.data.SettingsHelper;
 import monakhv.samlib.log.Log;
-import monakhv.samlib.service.AuthorService;
+import monakhv.samlib.service.SamlibService;
 
 /*
  * Copyright 2014  Dmitry Monakhov
@@ -50,12 +50,12 @@ public class AuthorEditorServiceIntent extends MyServiceIntent {
 
         String action = intent.getStringExtra(EXTRA_ACTION_TYPE);
         Context context = this.getApplicationContext();
-        AuthorService service = new AuthorService(getHelper(),new AndroidGuiUpdater(context,0), new SettingsHelper(context));
+        SamlibService service = new SamlibService(getHelper(),new AndroidGuiUpdater(context,0), new SettingsHelper(context));
 
         Log.d(DEBUG_TAG, "Got intent");
 
 
-        if (action.equalsIgnoreCase(AuthorService.ACTION_ADD)){
+        if (action.equalsIgnoreCase(SamlibService.ACTION_ADD)){
             Log.d(DEBUG_TAG, "Making Add Author");
 
             ArrayList<String> ll =intent.getStringArrayListExtra(EXTRA_ADD_AUTHOR_DATA);
@@ -70,7 +70,7 @@ public class AuthorEditorServiceIntent extends MyServiceIntent {
             return;
 
         }
-        if (action.equals(AuthorService.ACTION_DELETE)){
+        if (action.equals(SamlibService.ACTION_DELETE)){
             Log.d(DEBUG_TAG, "Making DEL Author");
             int id =intent.getIntExtra(EXTRA_OBJECT_ID,-1);
             if (id <0){
@@ -139,7 +139,7 @@ public class AuthorEditorServiceIntent extends MyServiceIntent {
     public static void addAuthor(Context ctx, ArrayList<String> urls) {
         Log.v(DEBUG_TAG,"Starting add service");
         Intent service = new Intent(ctx,AuthorEditorServiceIntent.class );
-        service.putExtra(EXTRA_ACTION_TYPE, AuthorService.ACTION_ADD);
+        service.putExtra(EXTRA_ACTION_TYPE, SamlibService.ACTION_ADD);
         service.putStringArrayListExtra(EXTRA_ADD_AUTHOR_DATA, urls);
         ctx.startService(service);
 
@@ -147,7 +147,7 @@ public class AuthorEditorServiceIntent extends MyServiceIntent {
     public static void delAuthor(Context ctx,int id){
         Log.v(DEBUG_TAG,"Starting del service");
         Intent service = new Intent(ctx,AuthorEditorServiceIntent.class );
-        service.putExtra(EXTRA_ACTION_TYPE, AuthorService.ACTION_DELETE);
+        service.putExtra(EXTRA_ACTION_TYPE, SamlibService.ACTION_DELETE);
         service.putExtra(EXTRA_OBJECT_ID, id);
         ctx.startService(service);
 

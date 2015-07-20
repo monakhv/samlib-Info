@@ -20,17 +20,9 @@ import android.content.Context;
 import android.content.Intent;
 
 
-
-
-import monakhv.android.samlib.DownloadReceiver;
-
-import monakhv.android.samlib.R;
 import monakhv.android.samlib.data.SettingsHelper;
-import monakhv.samlib.db.AuthorController;
-import monakhv.samlib.db.entity.Book;
-import monakhv.samlib.http.HttpClientController;
 import monakhv.samlib.log.Log;
-import monakhv.samlib.service.AuthorService;
+import monakhv.samlib.service.SamlibService;
 import monakhv.samlib.service.GuiUpdate;
 
 /**
@@ -59,7 +51,7 @@ public class DownloadBookServiceIntent extends MyServiceIntent {
         currentCaller = intent.getIntExtra(AndroidGuiUpdater.CALLER_TYPE,AndroidGuiUpdater.CALLER_IS_RECEIVER);//do not send update by default
 
         GuiUpdate guiUpdate = new AndroidGuiUpdater(this,currentCaller);
-        AuthorService service = new AuthorService(getHelper(),guiUpdate,helper );
+        SamlibService service = new SamlibService(getHelper(),guiUpdate,helper );
 
         service.downloadBook(book_id);
 
