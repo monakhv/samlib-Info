@@ -14,6 +14,8 @@ import javax.swing.*;
 import javax.swing.border.*;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+import javax.swing.filechooser.FileFilter;
+import javax.swing.filechooser.FileNameExtensionFilter;
 
 import com.jgoodies.forms.factories.*;
 import com.jgoodies.forms.layout.*;
@@ -29,6 +31,7 @@ import monakhv.samlib.db.AuthorController;
 import monakhv.samlib.db.BookController;
 import monakhv.samlib.desk.sql.DaoController;
 import monakhv.samlib.db.TagController;
+import monakhv.samlib.desk.workers.AddAuthorWorker;
 import monakhv.samlib.desk.workers.CheckUpdateWorker;
 import monakhv.samlib.desk.workers.LoadBookWorker;
 import monakhv.samlib.desk.workers.ReadAuthorWorker;
@@ -308,21 +311,75 @@ public class MainForm extends JFrame implements GuiUpdate {
 
     private void menuToosImportActionPerformed() {
         JFileChooser chooser = new JFileChooser();
+        chooser.setDialogTitle(bndl.getString("MainForm.ChooserDBOpen"));
+        FileFilter filter = new FileNameExtensionFilter("SQLite database", "db", "sqlite");
+        chooser.addChoosableFileFilter(filter);
         int returnVal = chooser.showOpenDialog(this);
         if (returnVal == JFileChooser.APPROVE_OPTION) {
             DataExportImport dei = new DataExportImport(settings);
-            dei.importDB(chooser.getSelectedFile());
+            showResult(
+                    dei.importDB(chooser.getSelectedFile()),
+                    bndl.getString("MainForm.message.ImportSuccess") + ": " + chooser.getSelectedFile().getAbsolutePath(),
+                    bndl.getString("MainForm.message.ImportError")
+            );
+
             addSortedAuthorList();
+            makeUpdateTagList();
+
         }
 
     }
 
     private void menuToolsExportDBActionPerformed() {
         JFileChooser chooser = new JFileChooser();
+        chooser.setDialogTitle(bndl.getString("MainForm.ChooserDirectoryToExport"));
         chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
         if (chooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
             DataExportImport dei = new DataExportImport(settings);
-            dei.exportDB(chooser.getSelectedFile());
+            String fn = dei.exportDB(chooser.getSelectedFile());
+
+            showResult(
+                    fn != null,
+                    bndl.getString("MainForm.message.ExportSuccess") + ": " + chooser.getSelectedFile().getAbsolutePath() + Settings.sep + fn,
+                    bndl.getString("MainForm.message.ExportError")
+            );
+
+
+        }
+
+    }
+
+    private void menuToolsExportListActionPerformed() {
+        JFileChooser chooser = new JFileChooser();
+        chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+        chooser.setDialogTitle(bndl.getString("MainForm.ChooserDirectoryToExport"));
+        if (chooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
+            DataExportImport dei = new DataExportImport(settings);
+            String fn = dei.exportAuthorList(DaoController.getInstance(sql), chooser.getSelectedFile());
+
+            showResult(
+                    fn != null,
+                    bndl.getString("MainForm.message.ExportListSuccess") + ": " + chooser.getSelectedFile().getAbsolutePath() + Settings.sep + fn,
+                    bndl.getString("MainForm.message.ExportListError")
+            );
+
+        }
+    }
+
+    private void menuToolsImportListActionPerformed() {
+        JFileChooser chooser = new JFileChooser();
+        chooser.setDialogTitle(bndl.getString("MainForm.ChooserDBOpen"));
+        FileFilter filter = new FileNameExtensionFilter("Author List", "txt", "html", "htm");
+        chooser.addChoosableFileFilter(filter);
+        int returnVal = chooser.showOpenDialog(this);
+        if (returnVal == JFileChooser.APPROVE_OPTION) {
+            ArrayList<String> urls = DataExportImport.importAuthorList(chooser.getSelectedFile());
+            if (urls == null) {
+                showError(bndl.getString("MainForm.message.ImportListError"));
+                return;
+            }
+            AddAuthorWorker worker = new AddAuthorWorker(service, urls);
+            worker.execute();
 
         }
 
@@ -432,10 +489,23 @@ public class MainForm extends JFrame implements GuiUpdate {
 
                 //---- menuToolsImportList ----
                 menuToolsImportList.setText(bundle.getString("MainForm.menuToolsImportList.text"));
+                menuToolsImportList.addActionListener(new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        menuToolsImportListActionPerformed();
+                    }
+                });
                 menuTools.add(menuToolsImportList);
 
                 //---- menuToolsExportList ----
                 menuToolsExportList.setText(bundle.getString("MainForm.menuToolsExportList.text"));
+                menuToolsExportList.addActionListener(new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        menuToolsExportListActionPerformed();
+                        menuToolsExportListActionPerformed();
+                    }
+                });
                 menuTools.add(menuToolsExportList);
             }
             menuBar1.add(menuTools);
@@ -447,16 +517,16 @@ public class MainForm extends JFrame implements GuiUpdate {
             panelMain.setMinimumSize(new Dimension(800, 100));
             panelMain.setBorder(Borders.DLU4);
             panelMain.setLayout(new FormLayout(
-                "[200dlu,default]:grow, 5dlu, [350dlu,default]:grow(0.8), default",
-                "default, fill:[400dlu,default]:grow, $lgap, default"));
+                    "[200dlu,default]:grow, 5dlu, [350dlu,default]:grow(0.8), default",
+                    "default, fill:[400dlu,default]:grow, $lgap, default"));
 
             //======== toolBar ========
             {
                 toolBar.setLayout(new GridBagLayout());
-                ((GridBagLayout)toolBar.getLayout()).columnWidths = new int[] {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-                ((GridBagLayout)toolBar.getLayout()).rowHeights = new int[] {0, 5, 0};
-                ((GridBagLayout)toolBar.getLayout()).columnWeights = new double[] {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0E-4};
-                ((GridBagLayout)toolBar.getLayout()).rowWeights = new double[] {0.0, 0.0, 1.0E-4};
+                ((GridBagLayout) toolBar.getLayout()).columnWidths = new int[]{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+                ((GridBagLayout) toolBar.getLayout()).rowHeights = new int[]{0, 5, 0};
+                ((GridBagLayout) toolBar.getLayout()).columnWeights = new double[]{0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0E-4};
+                ((GridBagLayout) toolBar.getLayout()).rowWeights = new double[]{0.0, 0.0, 1.0E-4};
 
                 //---- buttonUpdate ----
                 buttonUpdate.setText(bundle.getString("MainForm.buttonUpdate.text"));
@@ -467,8 +537,8 @@ public class MainForm extends JFrame implements GuiUpdate {
                     }
                 });
                 toolBar.add(buttonUpdate, new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0,
-                    GridBagConstraints.CENTER, GridBagConstraints.BOTH,
-                    new Insets(0, 0, 5, 5), 0, 0));
+                        GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                        new Insets(0, 0, 5, 5), 0, 0));
 
                 //---- cBTags ----
                 cBTags.addActionListener(new ActionListener() {
@@ -478,11 +548,11 @@ public class MainForm extends JFrame implements GuiUpdate {
                     }
                 });
                 toolBar.add(cBTags, new GridBagConstraints(2, 0, 2, 1, 0.0, 0.0,
-                    GridBagConstraints.CENTER, GridBagConstraints.BOTH,
-                    new Insets(0, 0, 5, 5), 0, 0));
+                        GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                        new Insets(0, 0, 5, 5), 0, 0));
                 toolBar.add(progressBar1, new GridBagConstraints(6, 0, 1, 1, 0.0, 0.0,
-                    GridBagConstraints.CENTER, GridBagConstraints.BOTH,
-                    new Insets(0, 0, 5, 5), 0, 0));
+                        GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                        new Insets(0, 0, 5, 5), 0, 0));
 
                 //---- buttonRefresh ----
                 buttonRefresh.setText(bundle.getString("MainForm.buttonRefresh.text"));
@@ -493,8 +563,8 @@ public class MainForm extends JFrame implements GuiUpdate {
                     }
                 });
                 toolBar.add(buttonRefresh, new GridBagConstraints(20, 0, 1, 1, 0.0, 0.0,
-                    GridBagConstraints.CENTER, GridBagConstraints.BOTH,
-                    new Insets(0, 0, 5, 5), 0, 0));
+                        GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                        new Insets(0, 0, 5, 5), 0, 0));
             }
             panelMain.add(toolBar, CC.xywh(1, 1, 3, 1));
 
@@ -518,16 +588,16 @@ public class MainForm extends JFrame implements GuiUpdate {
             {
                 panel1.setBorder(new EtchedBorder());
                 panel1.setLayout(new GridBagLayout());
-                ((GridBagLayout)panel1.getLayout()).columnWidths = new int[] {0, 0, 0};
-                ((GridBagLayout)panel1.getLayout()).rowHeights = new int[] {0, 0, 0, 0};
-                ((GridBagLayout)panel1.getLayout()).columnWeights = new double[] {0.0, 0.0, 1.0E-4};
-                ((GridBagLayout)panel1.getLayout()).rowWeights = new double[] {0.0, 0.0, 0.0, 1.0E-4};
+                ((GridBagLayout) panel1.getLayout()).columnWidths = new int[]{0, 0, 0};
+                ((GridBagLayout) panel1.getLayout()).rowHeights = new int[]{0, 0, 0, 0};
+                ((GridBagLayout) panel1.getLayout()).columnWeights = new double[]{0.0, 0.0, 1.0E-4};
+                ((GridBagLayout) panel1.getLayout()).rowWeights = new double[]{0.0, 0.0, 0.0, 1.0E-4};
 
                 //---- lbProgress ----
                 lbProgress.setText(bundle.getString("MainForm.lbProgress.text"));
                 panel1.add(lbProgress, new GridBagConstraints(0, 0, 2, 1, 0.0, 0.0,
-                    GridBagConstraints.CENTER, GridBagConstraints.BOTH,
-                    new Insets(0, 0, 5, 0), 0, 0));
+                        GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                        new Insets(0, 0, 5, 0), 0, 0));
             }
             panelMain.add(panel1, CC.xywh(1, 4, 3, 1));
 
@@ -541,10 +611,10 @@ public class MainForm extends JFrame implements GuiUpdate {
                 //======== bookPanel ========
                 {
                     bookPanel.setLayout(new GridBagLayout());
-                    ((GridBagLayout)bookPanel.getLayout()).columnWidths = new int[] {0, 0, 0};
-                    ((GridBagLayout)bookPanel.getLayout()).rowHeights = new int[] {0, 0, 0, 0};
-                    ((GridBagLayout)bookPanel.getLayout()).columnWeights = new double[] {0.0, 0.0, 1.0E-4};
-                    ((GridBagLayout)bookPanel.getLayout()).rowWeights = new double[] {0.0, 0.0, 0.0, 1.0E-4};
+                    ((GridBagLayout) bookPanel.getLayout()).columnWidths = new int[]{0, 0, 0};
+                    ((GridBagLayout) bookPanel.getLayout()).rowHeights = new int[]{0, 0, 0, 0};
+                    ((GridBagLayout) bookPanel.getLayout()).columnWeights = new double[]{0.0, 0.0, 1.0E-4};
+                    ((GridBagLayout) bookPanel.getLayout()).rowWeights = new double[]{0.0, 0.0, 0.0, 1.0E-4};
                 }
                 bookScrolPanel.setViewportView(bookPanel);
             }
@@ -676,12 +746,7 @@ public class MainForm extends JFrame implements GuiUpdate {
         buttonUpdate.setEnabled(true);
         progressBar1.setValue(0);
         progressBar1.setString("");
-        if (result) {
-            showMessage(bndl.getString("MainForm.message.UpdateSuccess"));
-        } else {
-            showError(bndl.getString("MainForm.message.UpdateError"));
-        }
-
+        showResult(result, bndl.getString("MainForm.message.UpdateSuccess"), bndl.getString("MainForm.message.UpdateError"));
 
     }
 
@@ -727,5 +792,12 @@ public class MainForm extends JFrame implements GuiUpdate {
         lbProgress.setText(msg);
     }
 
+    private void showResult(boolean result, String successMessage, String errorMessage) {
+        if (result) {
+            showMessage(successMessage);
+        } else {
+            showError(errorMessage);
+        }
+    }
 
 }

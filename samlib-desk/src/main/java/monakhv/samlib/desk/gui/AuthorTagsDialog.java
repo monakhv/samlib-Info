@@ -170,6 +170,7 @@ public class AuthorTagsDialog extends JDialog {
 
             //======== contentPanel ========
             {
+                contentPanel.setBorder(new EtchedBorder());
                 contentPanel.setLayout(new GridBagLayout());
                 ((GridBagLayout)contentPanel.getLayout()).columnWidths = new int[] {0, 0};
                 ((GridBagLayout)contentPanel.getLayout()).rowHeights = new int[] {0, 0};

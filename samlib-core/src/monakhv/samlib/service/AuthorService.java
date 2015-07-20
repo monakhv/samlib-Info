@@ -202,9 +202,10 @@ public class AuthorService {
             if (a != null) {
                 author_id=authorController.insert(a);
                 ++numberOfAdded;
+                guiUpdate.makeUpdate(false);
             }
         }
-        guiUpdate.makeUpdate(false);
+
         guiUpdate.sendResult(ACTION_ADD, numberOfAdded, numberOfDeleted, doubleAdd, urls.size(), author_id);
     }
     private Author loadAuthor(HttpClientController http, AuthorController sql, String url) {

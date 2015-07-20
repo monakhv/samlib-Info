@@ -147,10 +147,13 @@ new FormModel {
 					add( new FormComponent( "javax.swing.JMenuItem" ) {
 						name: "menuToolsImportList"
 						"text": new FormMessage( null, "MainForm.menuToolsImportList.text" )
+						addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "menuToolsImportListActionPerformed", false ) )
 					} )
 					add( new FormComponent( "javax.swing.JMenuItem" ) {
 						name: "menuToolsExportList"
 						"text": new FormMessage( null, "MainForm.menuToolsExportList.text" )
+						addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "menuToolsExportListActionPerformed", false ) )
+						addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "menuToolsExportListActionPerformed", false ) )
 					} )
 				} )
 			}

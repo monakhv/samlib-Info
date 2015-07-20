@@ -81,28 +81,30 @@ public abstract class AbstractDataExportImport {
     }
     public String exportDB() {
 
+        return exportDB(backupDIR);
+    }
+    /**
+     * Export current database
+     * @param directory destination directory to export database to
+     * @return tru if the import is successful
+     */
+    public String exportDB(File directory){
         String backupDBPath = null;
         try {
 
 
-
-            boolean mkres = backupDIR.mkdir();
-            if (! mkres){
-                Log.e(DEBUG_TAG, "Can not  create directory " + backupDIR.toString());
-            }
-
-            if (backupDIR.canWrite()) {
+            if (directory.canWrite()) {
                 backupDBPath = DB_PREFIX + "_" + getTimesuffix() + DB_EXT;
                 File currentDB = getDataBase();
-                File backupDB = new File(backupDIR, backupDBPath);
+                File backupDB = new File(directory, backupDBPath);
 
-                Log.d(DEBUG_TAG, "Copy to: " + backupDB.getAbsolutePath() + "   Can write: " + backupDB.canWrite());
+                Log.d(DEBUG_TAG, "Copy to: " + directory.getAbsolutePath() + "   Can write: " + directory.canWrite());
 
                 fileCopy(currentDB, backupDB);
 
             }
             else {
-                Log.e(DEBUG_TAG, "Can not write to "+backupDIR.toString() );
+                Log.e(DEBUG_TAG, "Can not write to "+directory.toString() );
             }
         } catch (Exception e) {
             Log.e(DEBUG_TAG, "Error to Copy DB: ", e);
@@ -175,14 +177,13 @@ public abstract class AbstractDataExportImport {
      *
      * @return File Name where the list of urls is stored
      */
-    public  String exportAuthorList(DaoBuilder helper) {
+    public String exportAuthorList(DaoBuilder helper,File dir) {
         String backupTxtPath = null;
         try {
-            @SuppressWarnings("UnusedDeclaration")
-            boolean mkdir = backupDIR.mkdir();
-            if (backupDIR.canWrite()) {
+
+            if (dir.canWrite()) {
                 backupTxtPath = TXT_PREFIX + "_" + getTimesuffix() + TXT_EXT;
-                File backupTxt = new File(backupDIR, backupTxtPath);
+                File backupTxt = new File(dir, backupTxtPath);
 
                 BufferedWriter bw = new BufferedWriter(new FileWriter(backupTxt));
 
@@ -202,6 +203,9 @@ public abstract class AbstractDataExportImport {
         }
         return backupTxtPath;
 
+    }
+    public  String exportAuthorList(DaoBuilder helper) {
+        return exportAuthorList(helper,backupDIR);
     }
     public List<String> getAuthorUrls(DaoBuilder helper){
         List<String> res = new ArrayList<>();
@@ -250,26 +254,7 @@ public abstract class AbstractDataExportImport {
 
     }
 
-    /**
-     * Export current database
-     * @param directory destination directory to export database to
-     * @return tru if the import is successful
-     */
-    public boolean exportDB(File directory){
-        File currentDB = getDataBase();
-        File dest = new File( directory,DB_PREFIX+DB_EXT);
-        try {
-            fileCopy(currentDB, dest);
-        } catch (FileNotFoundException ex) {
-            Log.e(DEBUG_TAG, "Error to Import DB: ", ex);
-            return false;
-        } catch (IOException ex) {
-            Log.e(DEBUG_TAG, "Error to Import DB: ", ex);
-            return false;
-        }
-        return true;
 
-    }
 
 
     /**
@@ -298,6 +283,12 @@ public abstract class AbstractDataExportImport {
 
     public  ArrayList<String> importAuthorList(String fileToImport) {
         File backupTxt = new File(backupDIR, fileToImport);
+
+        return importAuthorList(backupTxt);
+
+    }
+    public static  ArrayList<String> importAuthorList( File backupTxt) {
+
         ArrayList<String> urls = new ArrayList<>();
         try {
             BufferedReader in = new BufferedReader(new FileReader(backupTxt));
@@ -318,10 +309,6 @@ public abstract class AbstractDataExportImport {
             Log.e(DEBUG_TAG, "Error Import URL list ", ex);
             return null;
         }
-
-//        if (!urls.isEmpty()){
-//            AuthorEditorServiceIntent.addAuthor(context,urls);
-//        }
 
         return urls;
 
