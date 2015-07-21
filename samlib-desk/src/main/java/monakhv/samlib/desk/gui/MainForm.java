@@ -22,6 +22,7 @@ import com.jgoodies.forms.layout.*;
 import monakhv.samlib.data.AbstractSettings;
 import monakhv.samlib.db.SQLController;
 import monakhv.samlib.db.entity.Author;
+import monakhv.samlib.db.entity.AuthorCard;
 import monakhv.samlib.db.entity.Book;
 import monakhv.samlib.db.entity.Tag;
 import monakhv.samlib.desk.Main;
@@ -35,6 +36,8 @@ import monakhv.samlib.desk.workers.AddAuthorWorker;
 import monakhv.samlib.desk.workers.CheckUpdateWorker;
 import monakhv.samlib.desk.workers.LoadBookWorker;
 import monakhv.samlib.desk.workers.ReadAuthorWorker;
+import monakhv.samlib.exception.SamlibParseException;
+import monakhv.samlib.http.HttpClientController;
 import monakhv.samlib.log.Log;
 import monakhv.samlib.service.SamlibService;
 import monakhv.samlib.service.GuiUpdate;
@@ -545,13 +548,13 @@ public class MainForm extends JFrame implements GuiUpdate {
             //======== toolBar ========
             {
                 toolBar.setLayout(new GridBagLayout());
-                ((GridBagLayout)toolBar.getLayout()).columnWidths = new int[] {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+                ((GridBagLayout)toolBar.getLayout()).columnWidths = new int[] {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 105, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
                 ((GridBagLayout)toolBar.getLayout()).rowHeights = new int[] {0, 5, 0};
                 ((GridBagLayout)toolBar.getLayout()).columnWeights = new double[] {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0E-4};
                 ((GridBagLayout)toolBar.getLayout()).rowWeights = new double[] {0.0, 0.0, 1.0E-4};
 
                 //---- buttonUpdate ----
-                buttonUpdate.setText(bundle.getString("MainForm.buttonUpdate.text"));
+                buttonUpdate.setText(bundle.getString("MainForm.buttonRefresh.text"));
                 buttonUpdate.addActionListener(new ActionListener() {
                     @Override
                     public void actionPerformed(ActionEvent e) {
@@ -584,7 +587,7 @@ public class MainForm extends JFrame implements GuiUpdate {
                         buttonRefreshActionPerformed();
                     }
                 });
-                toolBar.add(buttonRefresh, new GridBagConstraints(20, 0, 1, 1, 0.0, 0.0,
+                toolBar.add(buttonRefresh, new GridBagConstraints(9, 0, 1, 1, 0.0, 0.0,
                     GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                     new Insets(0, 0, 5, 5), 0, 0));
             }

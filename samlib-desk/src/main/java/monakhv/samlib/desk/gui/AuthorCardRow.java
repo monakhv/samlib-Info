@@ -5,10 +5,15 @@
 package monakhv.samlib.desk.gui;
 
 import javax.swing.border.*;
+import com.jgoodies.forms.factories.*;
+import com.jgoodies.forms.layout.*;
 import monakhv.samlib.db.entity.AuthorCard;
 
-import java.awt.*;
+
+
+
 import javax.swing.*;
+
 
 /**
  * @author Dmitry Monakhov
@@ -16,21 +21,19 @@ import javax.swing.*;
 public class AuthorCardRow extends JPanel {
     public AuthorCardRow() {
         initComponents();
+        scrollPane1.removeMouseWheelListener(scrollPane1.getMouseWheelListeners()[0]);
+     }
+    public AuthorCardRow(AuthorCard authorCard) {
+        this();
+        load(authorCard);
     }
     public void load(AuthorCard authorCard){
-        name.setText(authorCard.getName());
+        name.setText("<html>"+authorCard.getName()+"</html>");
         title.setText(authorCard.getTitle());
         url.setText(authorCard.getUrl());
 
-
-        try {
-            description.setContentType("text/html");
-            description.setText("<html>"+authorCard.getDescription()+"</html>");
-        }
-        catch (Exception e ){
-            description.setContentType("text/plain");
-            description.setText(authorCard.getDescription());
-        }
+        //description.setEditorKit(new WrapEditorKit());
+        description.setText(authorCard.getDescription());
 
 
         String ss = Integer.toString(authorCard.getSize()) + "K/" + Integer.toString(authorCard.getCount());
@@ -49,51 +52,35 @@ public class AuthorCardRow extends JPanel {
 
         //======== this ========
         setBorder(new EtchedBorder());
-        setLayout(new GridBagLayout());
-        ((GridBagLayout)getLayout()).columnWidths = new int[] {0, 0, 0};
-        ((GridBagLayout)getLayout()).rowHeights = new int[] {0, 0, 0, 0, 0};
-        ((GridBagLayout)getLayout()).columnWeights = new double[] {1.0, 0.0, 1.0E-4};
-        ((GridBagLayout)getLayout()).rowWeights = new double[] {0.0, 0.0, 0.0, 1.0, 1.0E-4};
+        setLayout(new FormLayout(
+            "[pref,150dlu]:grow, $lcgap, pref",
+            "3*(fill:pref, $lgap), fill:[30px,pref]:grow"));
 
         //---- name ----
         name.setText("text");
         name.setFont(name.getFont().deriveFont(name.getFont().getSize() + 6f));
-        add(name, new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0,
-            GridBagConstraints.CENTER, GridBagConstraints.BOTH,
-            new Insets(0, 0, 5, 5), 0, 0));
+        add(name, CC.xy(1, 1));
 
         //---- sizeCount ----
         sizeCount.setText("text");
-        add(sizeCount, new GridBagConstraints(1, 0, 1, 3, 0.0, 0.0,
-            GridBagConstraints.CENTER, GridBagConstraints.BOTH,
-            new Insets(0, 0, 5, 0), 0, 0));
+        add(sizeCount, CC.xywh(3, 1, 1, 5));
 
         //---- url ----
         url.setText("text");
-        add(url, new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0,
-            GridBagConstraints.CENTER, GridBagConstraints.BOTH,
-            new Insets(0, 0, 5, 5), 0, 0));
+        add(url, CC.xy(1, 3));
 
         //---- title ----
         title.setText("text");
-        add(title, new GridBagConstraints(0, 2, 1, 1, 0.0, 0.0,
-            GridBagConstraints.CENTER, GridBagConstraints.BOTH,
-            new Insets(0, 0, 5, 5), 0, 0));
+        add(title, CC.xy(1, 5));
 
         //======== scrollPane1 ========
         {
             scrollPane1.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
             scrollPane1.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER);
             scrollPane1.setBorder(null);
-            scrollPane1.setWheelScrollingEnabled(false);
-
-            //---- description ----
-            description.setContentType("text/html");
             scrollPane1.setViewportView(description);
         }
-        add(scrollPane1, new GridBagConstraints(0, 3, 2, 1, 0.0, 0.0,
-            GridBagConstraints.CENTER, GridBagConstraints.BOTH,
-            new Insets(0, 0, 0, 0), 0, 0));
+        add(scrollPane1, CC.xy(1, 7));
         // JFormDesigner - End of component initialization  //GEN-END:initComponents
     }
 

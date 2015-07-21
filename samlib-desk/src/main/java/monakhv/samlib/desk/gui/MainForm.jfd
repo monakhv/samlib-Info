@@ -17,7 +17,7 @@ new FormModel {
 				"minimumSize": new java.awt.Dimension( 800, 100 )
 				"border": sfield com.jgoodies.forms.factories.Borders DLU4_BORDER
 				add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.GridBagLayout ) {
-					"$columnSpecs": "0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0"
+					"$columnSpecs": "0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 100, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0"
 					"$rowSpecs": "0, 5"
 					"$hGap": 5
 					"$vGap": 5
@@ -27,7 +27,7 @@ new FormModel {
 					name: "toolBar"
 					add( new FormComponent( "javax.swing.JButton" ) {
 						name: "buttonUpdate"
-						"text": new FormMessage( null, "MainForm.buttonUpdate.text" )
+						"text": new FormMessage( null, "MainForm.buttonRefresh.text" )
 						addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "buttonUpdateActionPerformed", true ) )
 					}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) )
 					add( new FormComponent( "javax.swing.JComboBox" ) {
@@ -50,7 +50,7 @@ new FormModel {
 						"text": new FormMessage( null, "MainForm.buttonRefresh.text" )
 						addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "buttonRefreshActionPerformed", false ) )
 					}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
-						"gridx": 20
+						"gridx": 9
 					} )
 				}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
 					"gridWidth": 3

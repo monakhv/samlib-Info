@@ -11,11 +11,13 @@ import javax.swing.border.*;
 import com.jgoodies.forms.factories.*;
 import com.jgoodies.forms.layout.*;
 import monakhv.samlib.db.entity.Book;
+import monakhv.samlib.log.Log;
 
 /**
  * @author Dmitry Monakhov
  */
 public class BookRow extends JPanel {
+    private static final String DEBUG_TAG="BookRow";
 
     private final static ImageIcon GREEN_ICON = new ImageIcon(AuthorRenderer.class.getResource("/pics/16x16/bullet_green.png"));
     private final static ImageIcon BLACK_ICON = new ImageIcon(AuthorRenderer.class.getResource("/pics/16x16/bullet_black.png"));
@@ -34,6 +36,7 @@ public class BookRow extends JPanel {
         this.book = book;
         title.setText("<html>"+book.getTitle()+"</html>");
         description.setContentType("text/html");
+        Log.d(DEBUG_TAG, "description: " + book.getDescription() + "<");
         try {
             description.setText("<html>"+book.getDescription()+"</html>");
         }
@@ -139,6 +142,11 @@ public class BookRow extends JPanel {
     private JScrollPane scrollPane1;
     private JTextPane description;
 
+
+    // JFormDesigner - End of variables declaration  //GEN-END:variables
+
+
+
     public void setCallBackClickListener(final BookList.CallBack callBackClickListener) {
 
         panel1.addMouseListener(new MouseAdapter() {
@@ -161,5 +169,4 @@ public class BookRow extends JPanel {
         });
 
     }
-    // JFormDesigner - End of variables declaration  //GEN-END:variables
 }

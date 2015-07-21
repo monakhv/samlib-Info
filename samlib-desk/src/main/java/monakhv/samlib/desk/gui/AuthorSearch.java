@@ -5,7 +5,6 @@
 package monakhv.samlib.desk.gui;
 
 
-import monakhv.samlib.db.entity.Author;
 import monakhv.samlib.db.entity.AuthorCard;
 import monakhv.samlib.desk.data.Settings;
 import monakhv.samlib.http.HttpClientController;
@@ -26,17 +25,18 @@ public class AuthorSearch extends JDialog {
     private static final String DEBUG_TAG="AuthorSearch";
     private List<AuthorCard> authorCards;
     private final Settings settings;
-    private final AuthorCardListModel model;
-    private final Frame frame;
+
+
     public AuthorSearch(Frame owner,Settings settings) {
         super(owner);
         initComponents();
         this.settings=settings;
         authorCards = new ArrayList<>();
-        model = new AuthorCardListModel();
-        this.frame = owner;
-        jlAuthorList.setCellRenderer(new AuthorCardRenderer());
-        jlAuthorList.setModel(model);
+
+
+        //TODO: we can move the constant 20 to settings
+        scrollPane1.getVerticalScrollBar().setUnitIncrement(20);
+
 
     }
 
@@ -46,6 +46,10 @@ public class AuthorSearch extends JDialog {
     }
 
     private void buttonSearchActionPerformed() {
+        makeSearch();
+    }
+
+    private void makeSearch(){
         String pat = tFsearch.getText();
 
         if (pat == null){
@@ -56,8 +60,12 @@ public class AuthorSearch extends JDialog {
         }
         Log.i(DEBUG_TAG,"Run search pattern: "+pat);
         SearchWorker worker = new SearchWorker( pat);
-        frame.setCursor(Cursor.WAIT_CURSOR);
+        this.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
         worker.execute();
+    }
+
+    private void tFsearchActionPerformed() {
+        makeSearch();
     }
 
     private void initComponents() {
@@ -69,7 +77,7 @@ public class AuthorSearch extends JDialog {
         tFsearch = new JTextField();
         buttonSearch = new JButton();
         scrollPane1 = new JScrollPane();
-        jlAuthorList = new JList();
+        authorSearchPanel = new JPanel();
         buttonBar = new JPanel();
         cancelButton = new JButton();
 
@@ -98,6 +106,14 @@ public class AuthorSearch extends JDialog {
                     ((GridBagLayout)panel1.getLayout()).rowHeights = new int[] {0, 0, 0, 0};
                     ((GridBagLayout)panel1.getLayout()).columnWeights = new double[] {1.0, 0.0, 1.0E-4};
                     ((GridBagLayout)panel1.getLayout()).rowWeights = new double[] {0.0, 0.0, 0.0, 1.0E-4};
+
+                    //---- tFsearch ----
+                    tFsearch.addActionListener(new ActionListener() {
+                        @Override
+                        public void actionPerformed(ActionEvent e) {
+                            tFsearchActionPerformed();
+                        }
+                    });
                     panel1.add(tFsearch, new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0,
                         GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                         new Insets(0, 0, 5, 5), 0, 0));
@@ -120,7 +136,20 @@ public class AuthorSearch extends JDialog {
 
                 //======== scrollPane1 ========
                 {
-                    scrollPane1.setViewportView(jlAuthorList);
+                    scrollPane1.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+                    scrollPane1.setAutoscrolls(true);
+                    scrollPane1.setDoubleBuffered(true);
+                    scrollPane1.setComponentPopupMenu(null);
+
+                    //======== authorSearchPanel ========
+                    {
+                        authorSearchPanel.setLayout(new GridBagLayout());
+                        ((GridBagLayout)authorSearchPanel.getLayout()).columnWidths = new int[] {0, 0, 0};
+                        ((GridBagLayout)authorSearchPanel.getLayout()).rowHeights = new int[] {0, 0, 0, 0};
+                        ((GridBagLayout)authorSearchPanel.getLayout()).columnWeights = new double[] {0.0, 0.0, 1.0E-4};
+                        ((GridBagLayout)authorSearchPanel.getLayout()).rowWeights = new double[] {0.0, 0.0, 0.0, 1.0E-4};
+                    }
+                    scrollPane1.setViewportView(authorSearchPanel);
                 }
                 contentPanel.add(scrollPane1, new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0,
                     GridBagConstraints.CENTER, GridBagConstraints.BOTH,
@@ -162,7 +191,7 @@ public class AuthorSearch extends JDialog {
     private JTextField tFsearch;
     private JButton buttonSearch;
     private JScrollPane scrollPane1;
-    private JList jlAuthorList;
+    private JPanel authorSearchPanel;
     private JPanel buttonBar;
     private JButton cancelButton;
     // JFormDesigner - End of variables declaration  //GEN-END:variables
@@ -189,63 +218,35 @@ public class AuthorSearch extends JDialog {
         @Override
         protected void done() {
 
-            model.update(authorCards);
+            makeAuthorList(authorSearchPanel,authorCards);
 
-            frame.setCursor(Cursor.DEFAULT_CURSOR);
+            setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
         }
     }
 
-    private class AuthorCardListModel  extends AbstractListModel<AuthorCard> {
-        private List<AuthorCard> data;
+    public void makeAuthorList(JPanel panel,List<AuthorCard> authorCards ){
+        panel.removeAll();
+        panel.setLayout(new BoxLayout(panel, BoxLayout.PAGE_AXIS));
+        for (final AuthorCard authorCard: authorCards){
+            AuthorCardRow row = new AuthorCardRow(authorCard);
 
-        public AuthorCardListModel(){
-            data = new ArrayList<>();
-        }
-        @Override
-        public int getSize() {
-            return data.size();
-        }
+            Dimension preferredSize = row.getPreferredSize();
+            Dimension maxSize = row.getMaximumSize();
+            row.setMaximumSize(new Dimension(maxSize.width, preferredSize.height + 10));
 
-        @Override
-        public AuthorCard getElementAt(int index) {
-            return data.get(index);
-        }
-        public void update(List<AuthorCard> data){
-            this.data=data;
-            fireContentsChanged(this,0,data.size()-1);
-        }
-    }
-    private class AuthorCardRenderer extends DefaultListCellRenderer {
-        private final AuthorCardRow pan ;
-
-
-        public AuthorCardRenderer() {
-            pan = new AuthorCardRow();
+            panel.add(row);
         }
 
-        @Override
-        public Component getListCellRendererComponent(JList list,
-                                                      Object value,
-                                                      int index,
-                                                      boolean isSelected,
-                                                      boolean hasFocus) {
+        Component comp = Box.createVerticalGlue();
+        panel.add(comp);
+
+        panel.revalidate();
+        getContentPane().validate();
+        getContentPane().repaint();
 
 
-            if (value != null) {
-                if (value instanceof AuthorCard) {
-                    final AuthorCard a = (AuthorCard) value;
-                    pan.load(a);
-                }
 
-            }
-
-            //pan.setSelected(isSelected,list);
-
-            pan.setEnabled(list.isEnabled());
-            return pan;
-
-
-        }
 
     }
+
 }
