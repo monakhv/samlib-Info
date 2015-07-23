@@ -499,7 +499,7 @@ public class AuthorFragment extends Fragment implements
 
     /**
      * Get selection string for author search
-     * @return
+     * @return Selected ag
      */
     public int getSelection() {
         return selectedTag;

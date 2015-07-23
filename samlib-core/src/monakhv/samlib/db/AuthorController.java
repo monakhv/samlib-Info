@@ -1,11 +1,10 @@
 package monakhv.samlib.db;
 
-import com.j256.ormlite.dao.CloseableIterator;
+
 import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.dao.ForeignCollection;
 import com.j256.ormlite.stmt.PreparedQuery;
 import com.j256.ormlite.stmt.QueryBuilder;
-import com.j256.ormlite.support.DatabaseResults;
 import monakhv.samlib.db.entity.*;
 import monakhv.samlib.log.Log;
 
@@ -319,21 +318,7 @@ public class AuthorController implements AbstractController<Author> {
         return query(prep);
     }
 
-    public DatabaseResults getRowResults(int isel, String rowSort){
-        PreparedQuery<Author> prep = getPrepared(isel, rowSort);
-        if (prep == null){
-            Log.e(DEBUG_TAG, "getRowResults: prepare error: iSel = " + isel + "   rowSort = " + rowSort);
-            return null;
-        }
-        try {
-            CloseableIterator<Author> iterator = dao.iterator(prep);
-            return iterator.getRawResults();
-        } catch (SQLException e) {
-            Log.e(DEBUG_TAG, "getRowResults: get Results error");
-            return null;
-        }
 
-    }
 
     private PreparedQuery<Author> getPrepared(int isel, String rowSort){
         QueryBuilder<Author, Integer> statement = dao.queryBuilder();
