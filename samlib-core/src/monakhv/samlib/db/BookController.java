@@ -1,14 +1,12 @@
 package monakhv.samlib.db;
 
-import com.j256.ormlite.dao.CloseableIterator;
+
 import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.stmt.DeleteBuilder;
 import com.j256.ormlite.stmt.PreparedQuery;
 import com.j256.ormlite.stmt.QueryBuilder;
-import com.j256.ormlite.support.DatabaseResults;
 import monakhv.samlib.db.entity.Author;
 import monakhv.samlib.db.entity.Book;
-import monakhv.samlib.db.entity.SamLibConfig;
 import monakhv.samlib.log.Log;
 
 

@@ -2,12 +2,9 @@ package monakhv.android.samlib.adapter;
 
 import android.content.Context;
 import android.support.v4.content.AsyncTaskLoader;
-import android.util.Log;
 import monakhv.android.samlib.sql.DatabaseHelper;
 import monakhv.samlib.db.AuthorController;
 import monakhv.samlib.db.entity.Author;
-import monakhv.samlib.db.entity.Book;
-import monakhv.samlib.db.entity.SamLibConfig;
 
 import java.util.List;
 
@@ -28,40 +25,28 @@ import java.util.List;
  *
  * 23.07.15.
  */
-public class BookLoader extends AsyncTaskLoader<List<Book>> {
-    private final String DEBUG_TAG="BookLoader";
-    private List<Book> mBooks;
+public class AuthorLoader extends AsyncTaskLoader<List<Author>> {
     private final AuthorController authorController;
-    private long id;
-    private String order;
+    private int mTagId;
+    private String mOrder;
 
-    public BookLoader(final Context context,final DatabaseHelper databaseHelper,long id, String order) {
+    private List<Author> mAuthors;
+    public AuthorLoader(final Context context,final DatabaseHelper databaseHelper,int tagId, String order) {
+
         super(context);
-        this.id = id;
-        this.order = order;
-        authorController=new AuthorController(databaseHelper);
+        mTagId = tagId;
+        mOrder = order;
+        authorController = new AuthorController(databaseHelper);
     }
 
     @Override
-    public List<Book> loadInBackground() {
-        if (id == SamLibConfig.SELECTED_BOOK_ID){
-            return authorController.getBookController().getSelected(order);
-        }
-        else {
-            Author a= authorController.getById(id);
-
-            if (a == null){
-                Log.e(DEBUG_TAG, "loadInBackground: author is not defined");
-                return null;
-            }
-            return authorController.getBookController().getAll(a,order);
-        }
+    public List<Author> loadInBackground() {
+        return authorController.getAll(mTagId,mOrder);
     }
-
     @Override
     protected void onStartLoading() {
-        if (mBooks != null){
-            deliverResult(mBooks);
+        if (mAuthors != null){
+            deliverResult(mAuthors);
         }
         else {
             forceLoad();
@@ -70,9 +55,9 @@ public class BookLoader extends AsyncTaskLoader<List<Book>> {
 
     @Override
     protected void onReset() {
-        if (mBooks != null){
-            mBooks.clear();
-            mBooks=null;
+        if (mAuthors != null){
+            mAuthors.clear();
+            mAuthors=null;
         }
     }
 }

@@ -5,12 +5,14 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.database.Cursor;
+
 
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.Loader;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -25,9 +27,11 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 
-import com.j256.ormlite.android.AndroidDatabaseResults;
-import monakhv.android.samlib.adapter.AuthorCursorAdapter;
+import monakhv.android.samlib.adapter.AuthorAdapter;
 
+
+import monakhv.android.samlib.adapter.AuthorLoader;
+import monakhv.android.samlib.adapter.RecyclerAdapter;
 import monakhv.android.samlib.data.SettingsHelper;
 import monakhv.android.samlib.dialogs.ContextMenuDialog;
 import monakhv.android.samlib.dialogs.EnterStringDialog;
@@ -41,7 +45,6 @@ import monakhv.android.samlib.service.UpdateServiceIntent;
 import monakhv.android.samlib.sortorder.AuthorSortOrder;
 
 import monakhv.android.samlib.sql.DatabaseHelper;
-import monakhv.samlib.db.AuthorController;
 import monakhv.samlib.db.entity.Author;
 import monakhv.samlib.db.entity.SamLibConfig;
 
@@ -51,6 +54,8 @@ import uk.co.senab.actionbarpulltorefresh.library.DefaultHeaderTransformer;
 import uk.co.senab.actionbarpulltorefresh.library.Options;
 import uk.co.senab.actionbarpulltorefresh.library.listeners.OnRefreshListener;
 
+
+import java.util.List;
 
 import static monakhv.android.samlib.ActivityUtils.getClipboardText;
 
@@ -71,11 +76,16 @@ import static monakhv.android.samlib.ActivityUtils.getClipboardText;
  *
  * 12/5/14.
  */
-public class AuthorFragment extends Fragment implements OnRefreshListener, ListSwipeListener.SwipeCallBack {
+public class AuthorFragment extends Fragment implements
+        OnRefreshListener,
+        ListSwipeListener.SwipeCallBack,
+        RecyclerAdapter.CallBack,
+        LoaderManager.LoaderCallbacks<List<Author>>{
     private static final String DEBUG_TAG = "AuthorFragment";
+    private static final int AUTHOR_LOADER_ID=201;
 
     private RecyclerView authorRV;
-    private AuthorCursorAdapter adapter;
+    private AuthorAdapter adapter;
 
 
     private AuthorSortOrder order;
@@ -91,15 +101,17 @@ public class AuthorFragment extends Fragment implements OnRefreshListener, ListS
     private SettingsHelper settingsHelper;
     private int selectedTag;
 
+
+
     public interface Callbacks {
-        public DatabaseHelper getDatabaseHelper();
-        public void onAuthorSelected(long id);
+        DatabaseHelper getDatabaseHelper();
+        void onAuthorSelected(long id);
 
-        public void selectBookSortOrder();
+        void selectBookSortOrder();
 
-        public void onTitleChange(String lTitle);
+        void onTitleChange(String lTitle);
 
-        public void cleanBookSelection();
+        void cleanBookSelection();
     }
 
     private  Callbacks mCallbacks;
@@ -111,7 +123,7 @@ public class AuthorFragment extends Fragment implements OnRefreshListener, ListS
         settingsHelper= new SettingsHelper(getActivity().getApplicationContext());
         order = AuthorSortOrder.valueOf(settingsHelper.getAuthorSortOrderString());
         detector = new GestureDetector(getActivity(), new ListSwipeListener(this));
-        Log.d(DEBUG_TAG,"onCreate");
+        Log.d(DEBUG_TAG, "onCreate");
     }
 
     @Override
@@ -153,11 +165,12 @@ public class AuthorFragment extends Fragment implements OnRefreshListener, ListS
                 return false;
             }
         });
-        adapter = new AuthorCursorAdapter((MyBaseAbstractActivity) getActivity(),getCursor());
+        adapter = new AuthorAdapter( getActivity(),mCallbacks.getDatabaseHelper(),this);
 
         authorRV.setAdapter(adapter);
         adapter.registerAdapterDataObserver(observer);
         makeEmptyView();
+        getLoaderManager().initLoader(AUTHOR_LOADER_ID,null,this);
 
 
         return view;
@@ -192,20 +205,29 @@ public class AuthorFragment extends Fragment implements OnRefreshListener, ListS
         }
     };
 
+    @Override
+    public void reloadAdapter() {
+        updateAdapter();
+    }
 
-    private Cursor getCursor() {
-        AuthorController sql = new AuthorController(mCallbacks.getDatabaseHelper());
-        AndroidDatabaseResults res = (AndroidDatabaseResults) sql.getRowResults(selectedTag,order.getOrder());
-        if (res == null){
-            Log.e(DEBUG_TAG,"getCursor error");
-            return null;
-        }
-        return res.getRawCursor();
+    @Override
+    public Loader<List<Author>> onCreateLoader(int id, Bundle args) {
+        return new AuthorLoader(getActivity(),mCallbacks.getDatabaseHelper(),selectedTag,order.getOrder());
+    }
+
+    @Override
+    public void onLoadFinished(Loader<List<Author>> loader, List<Author> data) {
+        adapter.setData(data);
 
     }
 
+    @Override
+    public void onLoaderReset(Loader<List<Author>> loader) {
+        adapter.setData(null);
+    }
+
      private void updateAdapter() {
-        adapter.changeCursor(getCursor());
+        getLoaderManager().restartLoader(AUTHOR_LOADER_ID,null,this);
         makeEmptyView();
     }
     private void makeEmptyView(){
@@ -260,16 +282,16 @@ public class AuthorFragment extends Fragment implements OnRefreshListener, ListS
     @Override
     public boolean singleClick(MotionEvent e) {
         int position = authorRV.getChildAdapterPosition(authorRV.findChildViewUnder(e.getX(), e.getY()));
-//        Author a = sql.getById(adapter.getItemId(position));
-//        makeToast(a.getName());
+        adapter.toggleSelection(position);
+        Author author = adapter.getSelected();
         Log.d(DEBUG_TAG,"Selected position: "+position);
-        if (position<0){
-            Log.d(DEBUG_TAG,"Coordinates: "+e.getX()+" - "+e.getY());
+        if (author == null){
+            Log.e(DEBUG_TAG,"position: "+position+"  Author is NULL");
             return false;
         }
-        adapter.toggleSelection(position);
+
         authorRV.playSoundEffect(SoundEffectConstants.CLICK);
-        mCallbacks.onAuthorSelected(adapter.getItemId(position));
+        mCallbacks.onAuthorSelected(author.getId());
         return true;
         //return false;
 
@@ -536,7 +558,7 @@ public class AuthorFragment extends Fragment implements OnRefreshListener, ListS
     public void onDestroy() {
         super.onDestroy();
         if (adapter != null){
-            adapter.clear();
+            //adapter.clear();
             adapter.unregisterAdapterDataObserver( observer);
         }
     }

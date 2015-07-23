@@ -1,6 +1,7 @@
 package monakhv.android.samlib.adapter;
 
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 
 import java.util.List;
 
@@ -22,6 +23,7 @@ import java.util.List;
  * 23.07.15.
  */
 public abstract class RecyclerAdapter <T,VH extends android.support.v7.widget.RecyclerView.ViewHolder> extends RecyclerView.Adapter<VH>{
+    private static final String DEBUG_TAG="RecyclerAdapter";
     public interface CallBack {
         void reloadAdapter();
     }
@@ -92,6 +94,15 @@ public abstract class RecyclerAdapter <T,VH extends android.support.v7.widget.Re
 
     public int getSelectedPosition() {
         return selected;
+    }
+    public T getSelected() {
+        int pos = getSelectedPosition();
+        if (pos == NOT_SELECTED) {
+            Log.e(DEBUG_TAG, "getSelected: position is NOT_SELECTED");
+            return null;
+        }
+
+        return mData.get(pos);
     }
 
 

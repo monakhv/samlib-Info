@@ -159,15 +159,7 @@ public class BookAdapter   extends RecyclerAdapter<Book,BookAdapter.ViewHolder> 
 
 
 
-    public Book getSelected() {
-        int pos = getSelectedPosition();
-        if (pos == NOT_SELECTED) {
-            Log.e(DEBUG_TAG,"getSelected: position is NOT_SELECTED");
-            return null;
-        }
 
-        return mData.get(pos);
-    }
 
     /**
      * Mark selected book as read

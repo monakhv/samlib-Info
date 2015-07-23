@@ -304,12 +304,12 @@ public class AuthorController implements AbstractController<Author> {
      * SamLibConfig.TAG_AUTHOR_NEW - authors with new books
      *
      *
-     * @param isel ALL, New or TAG-id
+     * @param iselectTag ALL, New or TAG-id
      * @param rowSort -- SQL order part statement - can be null
      * @return list of the authors
      */
-    public List<Author> getAll(int isel, String rowSort){
-        PreparedQuery<Author> prep = getPrepared(isel, rowSort);
+    public List<Author> getAll(int iselectTag, String rowSort){
+        PreparedQuery<Author> prep = getPrepared(iselectTag, rowSort);
 
         if (prep == null){
             Log.e(DEBUG_TAG, "getAll: prepare error");
