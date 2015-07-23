@@ -141,10 +141,16 @@ public class BookController implements AbstractController<Book> {
         return null;
     }
 
+    /**
+     * Get Books of given author
+     * @param author the Author
+     * @param order Sort order in row format
+     * @return List of the books
+     */
     public List<Book> getAll(Author author, String order) {
         List<Book> res;
         QueryBuilder<Book, Integer> qb = dao.queryBuilder();
-        qb.orderBy(SQLController.COL_BOOK_ISNEW, false);//new is first by default
+
 
         if (order != null) {
             qb.orderByRaw(order);
@@ -169,38 +175,20 @@ public class BookController implements AbstractController<Book> {
 
     }
 
-    public DatabaseResults getRowResult(Author author, String order) {
 
+    /**
+     * Get Selected Book
+     * @param order Sort order if not null
+     * @return List of selected books
+     */
+    public List<Book>  getSelected( String order) {
         QueryBuilder<Book, Integer> qb = dao.queryBuilder();
-        qb.orderBy(SQLController.COL_BOOK_ISNEW, false);//new is first by default
-
-        if (order != null) {
-            qb.orderByRaw(order);
-        }
-        try {
-            PreparedQuery<Book> prep = getPrepared(qb,author);
-            CloseableIterator<Book> iterator = dao.iterator(prep);
-            return iterator.getRawResults();
-
-        } catch (SQLException e) {
-            Log.e(DEBUG_TAG,"getRowResult: error",e);
-            return null;
-        }
-
-    }
-    public DatabaseResults getRowResultSelected( String order) {
-
-        QueryBuilder<Book, Integer> qb = dao.queryBuilder();
-        qb.orderBy(SQLController.COL_BOOK_ISNEW, false);//new is first by default
-
         if (order != null) {
             qb.orderByRaw(order);
         }
         try {
             qb.where().eq(SQLController.COL_BOOK_GROUP_ID, Book.SELECTED_GROUP_ID);
-
-            CloseableIterator<Book> iterator = dao.iterator(qb.prepare());
-            return iterator.getRawResults();
+            return dao.query(qb.prepare());
 
         } catch (SQLException e) {
             Log.e(DEBUG_TAG,"getRowResultSelected: error",e);

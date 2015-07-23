@@ -4,11 +4,12 @@ import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
-import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.Loader;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -22,9 +23,11 @@ import android.widget.AdapterView;
 import android.widget.TextView;
 
 
-import com.j256.ormlite.android.AndroidDatabaseResults;
-import monakhv.android.samlib.adapter.BookCursorAdapter;
+import monakhv.android.samlib.adapter.BookAdapter;
 
+
+import monakhv.android.samlib.adapter.BookLoader;
+import monakhv.android.samlib.adapter.RecyclerAdapter;
 import monakhv.android.samlib.data.DataExportImport;
 import monakhv.android.samlib.data.SettingsHelper;
 import monakhv.android.samlib.dialogs.ContextMenuDialog;
@@ -36,10 +39,10 @@ import monakhv.android.samlib.service.DownloadBookServiceIntent;
 import monakhv.android.samlib.sortorder.BookSortOrder;
 
 import monakhv.android.samlib.sql.DatabaseHelper;
-import monakhv.samlib.db.AuthorController;
-import monakhv.samlib.db.entity.Author;
 import monakhv.samlib.db.entity.Book;
 import monakhv.samlib.db.entity.SamLibConfig;
+
+import java.util.List;
 
 /*
  * Copyright 2014  Dmitry Monakhov
@@ -58,19 +61,28 @@ import monakhv.samlib.db.entity.SamLibConfig;
  *
  * 12/11/14.
  */
-public class BookFragment extends Fragment implements ListSwipeListener.SwipeCallBack {
+public class BookFragment extends Fragment implements
+        ListSwipeListener.SwipeCallBack, LoaderManager.LoaderCallbacks<List<Book>>,
+        RecyclerAdapter.CallBack{
     public void refresh() {
-        adapter.refresh();
+        updateAdapter();
     }
 
+    @Override
+    public void reloadAdapter() {
+        updateAdapter();
+    }
+
+
     public interface Callbacks {
-        public DatabaseHelper getDatabaseHelper();
+        DatabaseHelper getDatabaseHelper();
     }
     private static final String DEBUG_TAG = "BookFragment";
     public static final String AUTHOR_ID = "AUTHOR_ID";
+    private static final int BOOK_LOADER_ID=190;
     private RecyclerView bookRV;
     private long author_id;
-    private BookCursorAdapter adapter;
+    private BookAdapter adapter;
     private Book book = null;//for context menu
     private BookSortOrder order;
     private GestureDetector detector;
@@ -124,10 +136,7 @@ public class BookFragment extends Fragment implements ListSwipeListener.SwipeCal
         emptyText = (TextView) view.findViewById(R.id.id_empty_book_text);
 
 
-
-
-
-        adapter = new BookCursorAdapter((MyBaseAbstractActivity)getActivity(), getCursor());
+        adapter = new BookAdapter(getActivity(),mCallbacks.getDatabaseHelper(),this);
         adapter.setAuthor_id(author_id);
         bookRV.setHasFixedSize(true);
         bookRV.setLayoutManager(new LinearLayoutManager(getActivity()));
@@ -145,34 +154,26 @@ public class BookFragment extends Fragment implements ListSwipeListener.SwipeCal
 
         makeEmpty();
         adapter.registerAdapterDataObserver(observer);
+        getLoaderManager().initLoader(BOOK_LOADER_ID,null,this);
         return view;
     }
 
-    private Cursor getCursor(){
-
-        AuthorController aCtl = new AuthorController(mCallbacks.getDatabaseHelper());
-
-        if (author_id == SamLibConfig.SELECTED_BOOK_ID){
-            AndroidDatabaseResults res  =(AndroidDatabaseResults) aCtl.getBookController().getRowResultSelected(order.getOrder());
-            return res.getRawCursor();
-        }
-
-        Author a= aCtl.getById(author_id);
-
-        if (a == null){
-            Log.e(DEBUG_TAG,"getCursor: author is not defined");
-            return null;
-        }
-
-
-        AndroidDatabaseResults res  = (AndroidDatabaseResults) aCtl.getBookController().getRowResult(a, order.getOrder());
-        if (res == null){
-            Log.e(DEBUG_TAG,"getCursor: nul results");
-            return null;
-        }
-        return res.getRawCursor();
-
+    @Override
+    public Loader<List<Book>> onCreateLoader(int id, Bundle args) {
+        return new BookLoader(getActivity(), mCallbacks.getDatabaseHelper(),author_id,order.getOrder());
     }
+
+    @Override
+    public void onLoadFinished(Loader<List<Book>> loader, List<Book> data) {
+        adapter.setData(data);
+    }
+
+    @Override
+    public void onLoaderReset(Loader<List<Book>> loader) {
+        adapter.setData(null);
+    }
+
+
     private RecyclerView.AdapterDataObserver observer = new RecyclerView.AdapterDataObserver() {
         @Override
         public void onChanged() {
@@ -213,8 +214,7 @@ public class BookFragment extends Fragment implements ListSwipeListener.SwipeCal
             settings = new SettingsHelper(ctx);
             order = BookSortOrder.valueOf(settings.getBookSortOrderString());
         }
-        String so = order.getOrder();
-        adapter.changeCursor(getCursor());
+        getLoaderManager().restartLoader(BOOK_LOADER_ID, null, this);
     }
 
     /**
@@ -499,7 +499,7 @@ public class BookFragment extends Fragment implements ListSwipeListener.SwipeCal
     public void onDestroy() {
         super.onDestroy();
         if (adapter != null) {
-            adapter.clear();
+            //adapter.clear();
             adapter.unregisterAdapterDataObserver(observer);
         }
     }
