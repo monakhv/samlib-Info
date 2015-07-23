@@ -67,12 +67,13 @@ public class MainActivity extends MyBaseAbstractActivity  implements
         AuthorTagFragment.AuthorTagCallback, BookFragment.Callbacks{
 
     private static final String DEBUG_TAG = "MainActivity";
-    //    private static final String STATE_SELECTION = "STATE_SELECTION";
-//    private static final String STATE_AUTHOR_POS = "STATE_AUTHOR_ID";
+
     public static final int ARCHIVE_ACTIVITY = 1;
     public static final int SEARCH_ACTIVITY = 2;
     public static final int PREFS_ACTIVITY = 3;
-    public static final String CLEAN_NOTIFICATION = "CLEAN_NOTIFICATION";
+    public static final String  CLEAN_NOTIFICATION = "CLEAN_NOTIFICATION";
+    public static final String  SELECTED_TAG_ID= "SELECTED_TAG_ID";
+    public static final String  PROGRESS_STRING= "PROGRESS_STRING";
     private UpdateActivityReceiver updateReceiver;
     private AuthorFragment authorFragment;
     private BookFragment bookFragment;
@@ -98,6 +99,7 @@ public class MainActivity extends MyBaseAbstractActivity  implements
     private int selectedTagId=SamLibConfig.TAG_AUTHOR_ALL;
     private long author_id=0;
     private TagController tagSQL;
+    private String progressString;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -363,6 +365,22 @@ public class MainActivity extends MyBaseAbstractActivity  implements
         }
         drResult.setSelectionByIdentifier(selectedTagId + tagsShift);
     }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putInt(SELECTED_TAG_ID, selectedTagId);
+        outState.putString(PROGRESS_STRING,progressString);
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+        selectedTagId=savedInstanceState.getInt(SELECTED_TAG_ID,SamLibConfig.TAG_AUTHOR_ALL);
+        progressString=savedInstanceState.getString(PROGRESS_STRING);
+
+    }
+
     @Override
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
@@ -406,6 +424,9 @@ public class MainActivity extends MyBaseAbstractActivity  implements
         //getSupportActionBar().setTitle(R.string.app_name);
        // authorFragment.refresh(null, null);
 
+        if (progressString != null){
+            authorFragment.updateProgress(progressString);
+        }
         authorFragment.refresh();
         refreshTags();
 
@@ -610,10 +631,13 @@ public class MainActivity extends MyBaseAbstractActivity  implements
                     Toast toast = Toast.makeText(context, intent.getCharSequenceExtra(AndroidGuiUpdater.TOAST_STRING), duration);
                     toast.show();
 
+                    progressString=null;
                     authorFragment.onRefreshComplete();
+
                 }//
                 if (action.equalsIgnoreCase(AndroidGuiUpdater.ACTION_PROGRESS)) {
-                    authorFragment.updateProgress(intent.getStringExtra(AndroidGuiUpdater.TOAST_STRING));
+                    progressString=intent.getStringExtra(AndroidGuiUpdater.TOAST_STRING);
+                    authorFragment.updateProgress(progressString);
                 }
                 if (action.equalsIgnoreCase(AndroidGuiUpdater.ACTION_REFRESH)){
 
