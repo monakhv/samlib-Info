@@ -1,6 +1,7 @@
 package monakhv.samlib.desk.data;
 
 import monakhv.samlib.data.AbstractSettings;
+import monakhv.samlib.db.entity.SamLibConfig;
 import monakhv.samlib.http.Proxy;
 import monakhv.samlib.log.Log;
 
@@ -25,7 +26,7 @@ import java.util.Properties;
  * 2/13/15.
  */
 public class Settings extends AbstractSettings {
-    private static final String DEBUG_TAG = "SettingsHelper";
+    private static final String DEBUG_TAG = "Settings";
     private static final String CONFIG_DIR = ".samlib-info";
 
     private static final String PROPERTY_FILE = "samlib-info.properties";
@@ -216,6 +217,11 @@ public class Settings extends AbstractSettings {
         }
         dataDirectory.mkdirs();
         return dataDirectory;
+    }
+
+    @Override
+    public String getCollationRule() {
+        return SamLibConfig.COLLATION_RULES_OLD;
     }
 
     @Override

@@ -57,7 +57,8 @@ public abstract class AbstractSettings {
     public abstract Proxy getProxy();
     public abstract void log(String debugTag, String s);//special logging for debug
     public abstract void log(String debugTag, String s, Exception e);//special logging for debug
-    public abstract  File getDataDirectory();
+    public abstract  File getDataDirectory();//where to store books
+    public abstract String getCollationRule();//get Collation rule string
 
     /**
      *
@@ -145,7 +146,7 @@ public abstract class AbstractSettings {
      */
     public  String[] getBookFileVersions(Book book){
         File dir =  new File(getDataDirectory(), BOOKS_DIR +sep+    book.getUri()    );
-        List<String> files = new ArrayList<String>();
+        List<String> files = new ArrayList<>();
         for (String fn : dir.list()){
             if (fn.endsWith(book.getFileType().ext)){
                 files.add(fn);

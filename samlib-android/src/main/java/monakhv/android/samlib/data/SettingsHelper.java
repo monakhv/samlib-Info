@@ -679,6 +679,11 @@ public class SettingsHelper extends AbstractSettings implements SharedPreference
         return ff;
     }
 
+    @Override
+    public String getCollationRule() {
+        return SamLibConfig.COLLATION_RULES_NEW;
+    }
+
     public String getUpdateTag() {
         return prefs.getString(context.getString(R.string.pref_key_update_tag),
                 Integer.toString(SamLibConfig.TAG_AUTHOR_ALL));

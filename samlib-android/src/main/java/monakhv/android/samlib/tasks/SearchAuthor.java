@@ -21,14 +21,8 @@ import android.os.AsyncTask;
 
 import java.io.IOException;
 import java.io.Serializable;
-import java.text.Collator;
-import java.text.ParseException;
-import java.text.RuleBasedCollator;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
+
 
 
 import monakhv.android.samlib.R;
@@ -37,7 +31,6 @@ import monakhv.android.samlib.search.SearchAuthorActivity.SearchReceiver;
 import monakhv.samlib.exception.SamlibParseException;
 import monakhv.samlib.db.entity.AuthorCard;
 import monakhv.samlib.db.entity.SamLibConfig;
-import monakhv.samlib.http.HttpClientController;
 import monakhv.samlib.log.Log;
 import monakhv.samlib.service.SamlibService;
 
@@ -55,7 +48,7 @@ public class SearchAuthor extends AsyncTask<String, Void, Boolean> {
         Good(0);
         private final int imessage;
 
-        private ResultStatus(int imesg) {
+        ResultStatus(int imesg) {
             imessage = imesg;
         }
 
@@ -67,8 +60,6 @@ public class SearchAuthor extends AsyncTask<String, Void, Boolean> {
     private ResultStatus status;
     private static final String DEBUG_TAG = "SearchAuthor";
     private Context context = null;
-    private  final HttpClientController http ;
-
 
     private  List<AuthorCard> result;
     private final SettingsHelper settings;
@@ -78,7 +69,6 @@ public class SearchAuthor extends AsyncTask<String, Void, Boolean> {
 
         context = ctx;
         settings = new SettingsHelper(context);
-        http = HttpClientController.getInstance(settings);
 
     }
 
@@ -89,7 +79,7 @@ public class SearchAuthor extends AsyncTask<String, Void, Boolean> {
         for (String pattern : params) {
 
             try {
-                result = SamlibService.makeSearch(pattern,http);
+                result = SamlibService.makeSearch(pattern,settings);
                 if (result.isEmpty()){
                     status = ResultStatus.Empty;
                 }

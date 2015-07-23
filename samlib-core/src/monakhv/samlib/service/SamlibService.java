@@ -215,22 +215,22 @@ public class SamlibService {
     /**
      * Make author search according to the first part aof theAuthor name
      * @param pattern part of the author name
-     * @param http HttpClientController
+     * @param settings Settings
      * @return List of found authors
      * @throws IOException
      * @throws SamlibParseException
      */
-    public static List<AuthorCard> makeSearch(String pattern,HttpClientController http ) throws IOException, SamlibParseException{
+    public static List<AuthorCard> makeSearch(String pattern,AbstractSettings settings ) throws IOException, SamlibParseException{
         Log.i(DEBUG_TAG, "Search author with pattern: " + pattern);
         List<AuthorCard> result = new ArrayList<>();
 
         int page = 1;
-
+        HttpClientController http = HttpClientController.getInstance(settings);
         HashMap<String, ArrayList<AuthorCard>> colAthors = http.searchAuthors(pattern, page);
         RuleBasedCollator russianCollator =  (RuleBasedCollator) Collator.getInstance(new Locale("ru", "RU"));
 
         try {
-            russianCollator = new RuleBasedCollator(SamLibConfig.COLLATION_RULES);
+            russianCollator = new RuleBasedCollator(settings.getCollationRule());
         } catch (ParseException ex) {
             Log.e(DEBUG_TAG, "Collator error", ex);
 

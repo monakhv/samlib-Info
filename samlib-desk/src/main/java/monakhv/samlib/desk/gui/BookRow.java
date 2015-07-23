@@ -141,8 +141,6 @@ public class BookRow extends JPanel {
     private JLabel form;
     private JScrollPane scrollPane1;
     private JTextPane description;
-
-
     // JFormDesigner - End of variables declaration  //GEN-END:variables
 
 
