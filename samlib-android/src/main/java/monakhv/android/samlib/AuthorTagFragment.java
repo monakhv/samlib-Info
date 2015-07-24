@@ -241,7 +241,7 @@ public class AuthorTagFragment extends Fragment {
         sql.syncTags(a, tags);
         helper.requestBackup();
         a=sql.getById(author_id);
-        Log.d(DEBUG_TAG, "okClick:   " + a.getName() + ": " + a.getAll_tags_name()+"  -  "+a.getTagIds().size()+" = "+a.getTag2Authors().size());
+        Log.d(DEBUG_TAG, "okClick:   " + a.getName() + ": " + a.getAll_tags_name() + "  -  " + a.getTagIds().size() + " = " + a.getTag2Authors().size());
         for (Integer ii : a.getTagIds()){
             Log.d(DEBUG_TAG, "okClick:   tagId -" +ii);
         }
@@ -357,6 +357,27 @@ public class AuthorTagFragment extends Fragment {
         } else {
             v.setVisibility(View.GONE);
         }
+    }
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        inflater.inflate(R.menu.tags_menu, menu);
+        super.onCreateOptionsMenu(menu, inflater);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int sel = item.getItemId();
+        if (sel == android.R.id.home ){
+            callBack.onFinish(getAuthor_id());
+            return true;
+        }
+
+        if (sel == R.id.add_option_item) {
+            panelFlip();
+            return true;
+
+        }
+        return super.onOptionsItemSelected(item);
     }
 
 

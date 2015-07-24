@@ -16,12 +16,7 @@ import android.support.v4.content.Loader;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
-import android.view.GestureDetector;
-import android.view.LayoutInflater;
-import android.view.MotionEvent;
-import android.view.SoundEffectConstants;
-import android.view.View;
-import android.view.ViewGroup;
+import android.view.*;
 import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -80,9 +75,9 @@ public class AuthorFragment extends Fragment implements
         OnRefreshListener,
         ListSwipeListener.SwipeCallBack,
         RecyclerAdapter.CallBack,
-        LoaderManager.LoaderCallbacks<List<Author>>{
+        LoaderManager.LoaderCallbacks<List<Author>> {
     private static final String DEBUG_TAG = "AuthorFragment";
-    private static final int AUTHOR_LOADER_ID=201;
+    private static final int AUTHOR_LOADER_ID = 201;
 
     private RecyclerView authorRV;
     private AuthorAdapter adapter;
@@ -99,28 +94,26 @@ public class AuthorFragment extends Fragment implements
     private View empty;
     private boolean canUpdate;
     private SettingsHelper settingsHelper;
-    private int selectedTag;
-
+    private int selectedTag = SamLibConfig.TAG_AUTHOR_ALL;
 
 
     public interface Callbacks {
         DatabaseHelper getDatabaseHelper();
-        void onAuthorSelected(long id);
 
-        void selectBookSortOrder();
+        void onAuthorSelected(long id);
 
         void onTitleChange(String lTitle);
 
         void cleanBookSelection();
     }
 
-    private  Callbacks mCallbacks;
+    private Callbacks mCallbacks;
 
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        settingsHelper= new SettingsHelper(getActivity().getApplicationContext());
+        settingsHelper = new SettingsHelper(getActivity().getApplicationContext());
         order = AuthorSortOrder.valueOf(settingsHelper.getAuthorSortOrderString());
         detector = new GestureDetector(getActivity(), new ListSwipeListener(this));
         Log.d(DEBUG_TAG, "onCreate");
@@ -137,20 +130,19 @@ public class AuthorFragment extends Fragment implements
     }
 
     private View view;
+
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        Log.d(DEBUG_TAG,"onCreateView");
-        canUpdate=true;
+        Log.d(DEBUG_TAG, "onCreateView");
+        canUpdate = true;
         view = inflater.inflate(R.layout.author_fragment,
                 container, false);
         authorRV = (RecyclerView) view.findViewById(R.id.authorRV);
         empty = view.findViewById(R.id.add_author_panel);
 
 
-
         authorRV.setHasFixedSize(true);
         authorRV.setLayoutManager(new LinearLayoutManager(getActivity()));
-
 
 
         authorRV.addItemDecoration(new DividerItemDecoration(getActivity(), DividerItemDecoration.VERTICAL_LIST));
@@ -165,18 +157,19 @@ public class AuthorFragment extends Fragment implements
                 return false;
             }
         });
-        adapter = new AuthorAdapter( getActivity(),mCallbacks.getDatabaseHelper(),this);
+        adapter = new AuthorAdapter(getActivity(), mCallbacks.getDatabaseHelper(), this);
 
         authorRV.setAdapter(adapter);
         adapter.registerAdapterDataObserver(observer);
         makeEmptyView();
-        getLoaderManager().initLoader(AUTHOR_LOADER_ID,null,this);
+        getLoaderManager().initLoader(AUTHOR_LOADER_ID, null, this);
 
 
         return view;
 
     }
-    public void makePulToRefresh(){
+
+    public void makePulToRefresh() {
 
         mPullToRefreshLayout = (PullToRefreshLayout) view.findViewById(R.id.ptr_layout);
 
@@ -196,11 +189,11 @@ public class AuthorFragment extends Fragment implements
         updateTextView = (TextView) dht.getHeaderView().findViewById(R.id.ptr_text);
     }
 
-    private RecyclerView.AdapterDataObserver observer= new RecyclerView.AdapterDataObserver() {
+    private RecyclerView.AdapterDataObserver observer = new RecyclerView.AdapterDataObserver() {
         @Override
         public void onChanged() {
             super.onChanged();
-            Log.d(DEBUG_TAG,"Observed: makeEmpty");
+            Log.d(DEBUG_TAG, "Observed: makeEmpty");
             makeEmptyView();
         }
     };
@@ -212,7 +205,7 @@ public class AuthorFragment extends Fragment implements
 
     @Override
     public Loader<List<Author>> onCreateLoader(int id, Bundle args) {
-        return new AuthorLoader(getActivity(),mCallbacks.getDatabaseHelper(),selectedTag,order.getOrder());
+        return new AuthorLoader(getActivity(), mCallbacks.getDatabaseHelper(), selectedTag, order.getOrder());
     }
 
     @Override
@@ -226,17 +219,17 @@ public class AuthorFragment extends Fragment implements
         adapter.setData(null);
     }
 
-     private void updateAdapter() {
-        getLoaderManager().restartLoader(AUTHOR_LOADER_ID,null,this);
+    private void updateAdapter() {
+        getLoaderManager().restartLoader(AUTHOR_LOADER_ID, null, this);
         makeEmptyView();
     }
-    private void makeEmptyView(){
 
-        if (adapter.getItemCount()==0){
+    private void makeEmptyView() {
+
+        if (adapter.getItemCount() == 0) {
             authorRV.setVisibility(View.GONE);
             empty.setVisibility(View.VISIBLE);
-        }
-        else {
+        } else {
             authorRV.setVisibility(View.VISIBLE);
             empty.setVisibility(View.GONE);
         }
@@ -251,17 +244,17 @@ public class AuthorFragment extends Fragment implements
         }
 
         if (updateAuthor) {
-            UpdateServiceIntent.makeUpdateAuthor(getActivity(),author.getId());
+            UpdateServiceIntent.makeUpdateAuthor(getActivity(), author.getId());
 
         } else {
-            UpdateServiceIntent.makeUpdate(getActivity(),selectedTag);
+            UpdateServiceIntent.makeUpdate(getActivity(), selectedTag);
 
         }
     }
 
     void onRefreshComplete() {
-        Log.d(DEBUG_TAG,"Stop updating state");
-        canUpdate=false;
+        Log.d(DEBUG_TAG, "Stop updating state");
+        canUpdate = false;
         mPullToRefreshLayout.setRefreshing(false);
         mPullToRefreshLayout.setRefreshComplete();
         updateTextView.setGravity(android.view.Gravity.CENTER);
@@ -271,8 +264,8 @@ public class AuthorFragment extends Fragment implements
 
     void updateProgress(String stringExtra) {
 
-        if ( !mPullToRefreshLayout.isRefreshing() && canUpdate){
-            Log.d(DEBUG_TAG,"Restore refreshing state");
+        if (!mPullToRefreshLayout.isRefreshing() && canUpdate) {
+            Log.d(DEBUG_TAG, "Restore refreshing state");
             mPullToRefreshLayout.setRefreshing(true);
         }
         updateTextView.setGravity(android.view.Gravity.CENTER_VERTICAL);
@@ -284,9 +277,9 @@ public class AuthorFragment extends Fragment implements
         int position = authorRV.getChildAdapterPosition(authorRV.findChildViewUnder(e.getX(), e.getY()));
         adapter.toggleSelection(position);
         Author author = adapter.getSelected();
-        Log.d(DEBUG_TAG,"Selected position: "+position);
-        if (author == null){
-            Log.e(DEBUG_TAG,"position: "+position+"  Author is NULL");
+        Log.d(DEBUG_TAG, "Selected position: " + position);
+        if (author == null) {
+            Log.e(DEBUG_TAG, "position: " + position + "  Author is NULL");
             return false;
         }
 
@@ -300,7 +293,7 @@ public class AuthorFragment extends Fragment implements
     @Override
     public boolean swipeRight(MotionEvent e) {
         int position = authorRV.getChildPosition(authorRV.findChildViewUnder(e.getX(), e.getY()));
-        adapter.toggleSelection(position,false);
+        adapter.toggleSelection(position, false);
 
         author = adapter.getSelected();
 
@@ -308,7 +301,7 @@ public class AuthorFragment extends Fragment implements
             return false;
         }
 
-       adapter.makeSelectedRead();
+        adapter.makeSelectedRead();
         return true;
 
     }
@@ -445,7 +438,7 @@ public class AuthorFragment extends Fragment implements
             switch (which) {
                 case Dialog.BUTTON_POSITIVE:
                     if (author != null) {
-                        AuthorEditorServiceIntent.delAuthor(getActivity().getApplicationContext(),author.getId());
+                        AuthorEditorServiceIntent.delAuthor(getActivity().getApplicationContext(), author.getId());
                         mCallbacks.cleanBookSelection();
                     }
                     break;
@@ -455,7 +448,8 @@ public class AuthorFragment extends Fragment implements
 
         }
     };
-    public void searchOrAdd(){
+
+    public void searchOrAdd() {
         View v = getActivity().findViewById(R.id.add_author_panel);
 
         v.setVisibility(View.VISIBLE);
@@ -478,11 +472,12 @@ public class AuthorFragment extends Fragment implements
 
     /**
      * Show author list according selected tag
-     * @param tag_id tag-id
+     *
+     * @param tag_id  tag-id
      * @param tg_name tag name
      */
-    public void selectTag(int tag_id, String tg_name){
-        selectedTag=tag_id;
+    public void selectTag(int tag_id, String tg_name) {
+        selectedTag = tag_id;
 
 
         if (tag_id == SamLibConfig.TAG_AUTHOR_ALL) {
@@ -499,6 +494,7 @@ public class AuthorFragment extends Fragment implements
 
     /**
      * Get selection string for author search
+     *
      * @return Selected ag
      */
     public int getSelection() {
@@ -506,13 +502,14 @@ public class AuthorFragment extends Fragment implements
     }
 
 
-    public void selectAuthor(long id){
+    public void selectAuthor(long id) {
 
-        boolean res=adapter.findAndSelect(id);
-        if (!res){
-            Log.e(DEBUG_TAG,"selectAuthor: id not found - "+id);
+        boolean res = adapter.findAndSelect(id);
+        if (!res) {
+            Log.e(DEBUG_TAG, "selectAuthor: id not found - " + id);
         }
     }
+
     void cleanSelection() {
         adapter.cleanSelection();
     }
@@ -521,7 +518,7 @@ public class AuthorFragment extends Fragment implements
      * update sort order and selection parameters and restart loader
      *
      * @param selectedTag selection tag id
-     * @param so        sort order string
+     * @param so          sort order string
      */
     public void refresh(int selectedTag, AuthorSortOrder so) {
         Log.d(DEBUG_TAG, "set Selection: " + selectedTag);
@@ -535,7 +532,7 @@ public class AuthorFragment extends Fragment implements
         updateAdapter();
     }
 
-    public void refresh(){
+    public void refresh() {
         updateAdapter();
     }
 
@@ -557,16 +554,16 @@ public class AuthorFragment extends Fragment implements
     @Override
     public void onDestroy() {
         super.onDestroy();
-        if (adapter != null){
+        if (adapter != null) {
             //adapter.clear();
-            adapter.unregisterAdapterDataObserver( observer);
+            adapter.unregisterAdapterDataObserver(observer);
         }
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        canUpdate=true;
+        canUpdate = true;
     }
 
     @Override
@@ -574,5 +571,30 @@ public class AuthorFragment extends Fragment implements
         onRefreshComplete();
         super.onPause();
 
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        inflater.inflate(R.menu.options_menu, menu);
+        super.onCreateOptionsMenu(menu, inflater);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int sel = item.getItemId();
+        if (sel == R.id.menu_refresh) {
+            startRefresh();
+
+        }
+
+        if (sel == R.id.selected_option_item) {
+//            if (isTagShow){//if tags
+//                onFinish(author_id);//go to books
+//            }
+            Log.d(DEBUG_TAG, "go to Selected");
+            cleanSelection();
+            mCallbacks.onAuthorSelected(SamLibConfig.SELECTED_BOOK_ID);
+        }
+        return super.onOptionsItemSelected(item);
     }
 }

@@ -55,6 +55,7 @@ public class AuthorTagsActivity extends MyBaseAbstractActivity implements Author
 
 
         authorTagFragment = (AuthorTagFragment) getSupportFragmentManager().findFragmentById(R.id.tagsFragment);
+        authorTagFragment.setHasOptionsMenu(true);
 
     }
 
@@ -79,31 +80,6 @@ public class AuthorTagsActivity extends MyBaseAbstractActivity implements Author
 
 
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        MenuInflater menuInflater = getMenuInflater();
-        menuInflater.inflate(R.menu.tags_menu, menu);
-
-        return super.onCreateOptionsMenu(menu);
-
-
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        int sel = item.getItemId();
-        if (sel == android.R.id.home ){
-            onFinish(authorTagFragment.getAuthor_id());
-            return true;
-        }
-
-        if (sel == R.id.add_option_item) {
-            authorTagFragment.panelFlip();
-            return true;
-
-        }
-        return super.onOptionsItemSelected(item);
-    }
 
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {

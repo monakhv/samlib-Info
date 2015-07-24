@@ -13,12 +13,7 @@ import android.support.v4.content.Loader;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
-import android.view.GestureDetector;
-import android.view.LayoutInflater;
-import android.view.MotionEvent;
-import android.view.SoundEffectConstants;
-import android.view.View;
-import android.view.ViewGroup;
+import android.view.*;
 import android.widget.AdapterView;
 import android.widget.TextView;
 
@@ -76,6 +71,7 @@ public class BookFragment extends Fragment implements
 
     public interface Callbacks {
         DatabaseHelper getDatabaseHelper();
+        void showTags(long author_id);
     }
     private static final String DEBUG_TAG = "BookFragment";
     public static final String AUTHOR_ID = "AUTHOR_ID";
@@ -502,5 +498,23 @@ public class BookFragment extends Fragment implements
             //adapter.clear();
             adapter.unregisterAdapterDataObserver(observer);
         }
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        inflater.inflate(R.menu.books_menu, menu);
+        super.onCreateOptionsMenu(menu, inflater);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int sel = item.getItemId();
+        if (sel == R.id.menu_books_tags  && author_id >0 ) {
+            mCallbacks.showTags(author_id);
+        }
+        if (sel == R.id.menu_books_sort) {
+            selectSortOrder();
+        }
+        return super.onOptionsItemSelected(item);
     }
 }

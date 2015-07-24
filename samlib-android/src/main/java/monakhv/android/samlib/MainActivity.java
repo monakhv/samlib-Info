@@ -7,14 +7,14 @@ import android.content.IntentFilter;
 
 
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.KeyEvent;
-import android.view.Menu;
-import android.view.MenuItem;
+
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.CompoundButton;
@@ -62,18 +62,18 @@ import java.util.ArrayList;
  *
  * 12/5/14.
  */
-public class MainActivity extends MyBaseAbstractActivity  implements
+public class MainActivity extends MyBaseAbstractActivity implements
         AuthorFragment.Callbacks, Drawer.OnDrawerItemClickListener, OnCheckedChangeListener,
-        AuthorTagFragment.AuthorTagCallback, BookFragment.Callbacks{
+        AuthorTagFragment.AuthorTagCallback, BookFragment.Callbacks {
 
     private static final String DEBUG_TAG = "MainActivity";
 
     public static final int ARCHIVE_ACTIVITY = 1;
     public static final int SEARCH_ACTIVITY = 2;
     public static final int PREFS_ACTIVITY = 3;
-    public static final String  CLEAN_NOTIFICATION = "CLEAN_NOTIFICATION";
-    public static final String  SELECTED_TAG_ID= "SELECTED_TAG_ID";
-    public static final String  PROGRESS_STRING= "PROGRESS_STRING";
+    public static final String CLEAN_NOTIFICATION = "CLEAN_NOTIFICATION";
+    public static final String SELECTED_TAG_ID = "SELECTED_TAG_ID";
+    public static final String PROGRESS_STRING = "PROGRESS_STRING";
     private UpdateActivityReceiver updateReceiver;
     private AuthorFragment authorFragment;
     private BookFragment bookFragment;
@@ -83,7 +83,7 @@ public class MainActivity extends MyBaseAbstractActivity  implements
 
     private boolean twoPain;
     private Toolbar toolbar;
-    private boolean isTagShow=false;
+    private boolean isTagShow = false;
 
 
     private Drawer.Result drResult;
@@ -95,9 +95,8 @@ public class MainActivity extends MyBaseAbstractActivity  implements
     private final int menu_selected = 11;
     private final int tagsShift = 100;
 
-    private    RadioItems authorSort,bookSort;
-    private int selectedTagId=SamLibConfig.TAG_AUTHOR_ALL;
-    private long author_id=0;
+    private RadioItems authorSort, bookSort;
+    private int selectedTagId = SamLibConfig.TAG_AUTHOR_ALL;
     private TagController tagSQL;
     private String progressString;
 
@@ -119,8 +118,7 @@ public class MainActivity extends MyBaseAbstractActivity  implements
         }
 
         authorFragment = (AuthorFragment) getSupportFragmentManager().findFragmentById(R.id.authorFragment);
-
-
+        authorFragment.setHasOptionsMenu(true);
 
 
         toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -130,26 +128,24 @@ public class MainActivity extends MyBaseAbstractActivity  implements
         twoPain = findViewById(R.id.two_pain) != null;
         if (twoPain) {
             Log.d(DEBUG_TAG, "onCreate: two pane");
-            isTagShow=false;
+            isTagShow = false;
             Fragment fragment = getSupportFragmentManager().findFragmentById(R.id.listBooksFragment);
-            if (fragment == null){
+            if (fragment == null) {
                 Log.d(DEBUG_TAG, "Initial construction: add BookFragment");
                 bookFragment= new BookFragment();
                 final FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
                 ft.add(R.id.listBooksFragment, bookFragment);
                 ft.commit();
                 tagFragment = new AuthorTagFragment();
-            }
-            else {
-                if (fragment instanceof AuthorTagFragment){
+            } else {
+                if (fragment instanceof AuthorTagFragment) {
                     Log.d(DEBUG_TAG, "Secondary construction: create BookFragment");
                     tagFragment = (AuthorTagFragment) fragment;
-                    bookFragment= new BookFragment();
+                    bookFragment = new BookFragment();
                     final FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
                     ft.replace(R.id.listBooksFragment, bookFragment);
                     ft.commit();
-                }
-                else {
+                } else {
                     Log.d(DEBUG_TAG, "Secondary construction: create AuthorTagFragment");
                     tagFragment = new AuthorTagFragment();
                     bookFragment = (BookFragment) fragment;
@@ -157,6 +153,8 @@ public class MainActivity extends MyBaseAbstractActivity  implements
                 }
 
             }
+            bookFragment.setHasOptionsMenu(true);
+            tagFragment.setHasOptionsMenu(true);
 
 
         } else {
@@ -170,11 +168,11 @@ public class MainActivity extends MyBaseAbstractActivity  implements
     /**
      * Create MaterialDrawer
      */
-    private void createDrawer(){
+    private void createDrawer() {
         ArrayList<IDrawerItem> items = new ArrayList<>();
 
-        items.add(new PrimaryDrawerItem().withName(R.string.menu_search).withIcon(FontAwesome.Icon.faw_search_plus).withIdentifier(menu_add_search) );
-        items.add(new PrimaryDrawerItem().withName(R.string.menu_selected_go).withIcon(FontAwesome.Icon.faw_star).withIdentifier(menu_selected) );
+        items.add(new PrimaryDrawerItem().withName(R.string.menu_search).withIcon(FontAwesome.Icon.faw_search_plus).withIdentifier(menu_add_search));
+        items.add(new PrimaryDrawerItem().withName(R.string.menu_selected_go).withIcon(FontAwesome.Icon.faw_star).withIdentifier(menu_selected));
         //Begin author group
         items.add(new SectionDrawerItem().withName(R.string.menu_tags));
         items.add(new SecondaryDrawerItem().withName(R.string.filter_all).withIdentifier(SamLibConfig.TAG_AUTHOR_ALL + tagsShift)
@@ -183,12 +181,11 @@ public class MainActivity extends MyBaseAbstractActivity  implements
                 .withTag(getString(R.string.filter_new)));
 
 
-
         tagSQL.getAll();
 
-        for  (Tag tag: tagSQL.getAll()) {
+        for (Tag tag : tagSQL.getAll()) {
             items.add(new SecondaryDrawerItem().withName(tag.getName())
-                    .withIdentifier( tagsShift + tag.getId())
+                    .withIdentifier(tagsShift + tag.getId())
                     .withTag(tag.getName()));
         }
         //end author group
@@ -196,16 +193,16 @@ public class MainActivity extends MyBaseAbstractActivity  implements
 
         items.add(new SectionDrawerItem().withName(R.string.dialog_title_sort_author));
 
-        authorSort = new RadioItems(this,menu_sort_author,AuthorSortOrder.values()
-                ,authorFragment.getSortOrder().name());
+        authorSort = new RadioItems(this, menu_sort_author, AuthorSortOrder.values()
+                , authorFragment.getSortOrder().name());
 
         items.addAll(authorSort.getItems());
 
 
         if (twoPain) {
             items.add(new SectionDrawerItem().withName(R.string.dialog_title_sort_book));
-            bookSort = new RadioItems(this,menu_sort_books, BookSortOrder.values()
-                    ,settingsHelper.getBookSortOrderString());
+            bookSort = new RadioItems(this, menu_sort_books, BookSortOrder.values()
+                    , settingsHelper.getBookSortOrderString());
             items.addAll(bookSort.getItems());
 
         }
@@ -215,7 +212,6 @@ public class MainActivity extends MyBaseAbstractActivity  implements
 
         items.add(new PrimaryDrawerItem().withName(R.string.menu_archive).withIcon(FontAwesome.Icon.faw_archive).withIdentifier(menu_data));
         items.add(new PrimaryDrawerItem().withName(R.string.menu_settings).withIcon(FontAwesome.Icon.faw_cog).withIdentifier(menu_settings));
-
 
 
         drResult = new Drawer()
@@ -234,79 +230,46 @@ public class MainActivity extends MyBaseAbstractActivity  implements
     }
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        if (twoPain){
-            getMenuInflater().inflate(R.menu.options_menu_tablet, menu);
-        }
-        else {
-            getMenuInflater().inflate(R.menu.options_menu, menu);
-        }
+    public void showTags(long author_id) {
+        Log.d(DEBUG_TAG, "go to Tags");
+        if (tagFragment == null) {
+            Log.d(DEBUG_TAG, "Making fragment");
+            tagFragment = new AuthorTagFragment();
 
-        return super.onCreateOptionsMenu(menu);
+        }
+        tagFragment.setAuthor_id(author_id);
+        final FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+        ft.replace(R.id.listBooksFragment, tagFragment);
+        ft.addToBackStack(null);
+        ft.commit();
+        isTagShow = true;
+
+
     }
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        int sel = item.getItemId();
-        if (sel == R.id.menu_refresh) {
-            authorFragment.startRefresh();
-
-        }
-
-        if (sel == R.id.selected_option_item) {
-            if (isTagShow){//if tags
-                onFinish(author_id);//go to books
-            }
-            Log.d(DEBUG_TAG, "go to Selected");
-            authorFragment.cleanSelection();
-            onAuthorSelected(SamLibConfig.SELECTED_BOOK_ID);
-        }
-        if (sel == R.id.tags_option_item){
-            if (author_id >0 && !isTagShow){
-                Log.d(DEBUG_TAG, "go to Tags");
-
-                if (tagFragment == null){
-                    Log.d(DEBUG_TAG, "Making fragment");
-                    tagFragment =new AuthorTagFragment();
-
-                }
-                tagFragment.setAuthor_id(author_id);
-                final FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-                ft.replace(R.id.listBooksFragment, tagFragment);
-                ft.addToBackStack(null);
-                ft.commit();
-                isTagShow=true;
-
-            }
-        }
-        return super.onOptionsItemSelected(item);
-    }
 
     @Override
     public void onCheckedChanged(IDrawerItem iDrawerItem, CompoundButton compoundButton, boolean b) {
         String sTag = (String) iDrawerItem.getTag();
         int iDent = iDrawerItem.getIdentifier();
         Log.i(DEBUG_TAG, "Check change: tag - " + sTag + " - " + iDent + " - " + b);
-
-
-
     }
 
 
     @Override
     public void onItemClick(AdapterView<?> adapterView, View view, int i, long l, IDrawerItem iDrawerItem) {
-        int ident =iDrawerItem.getIdentifier();
-        Log.i(DEBUG_TAG,"Identifier: "+ident);
-        if (ident > 90){//tag selection section
-            selectedTagId=ident - tagsShift;
+        int ident = iDrawerItem.getIdentifier();
+        Log.i(DEBUG_TAG, "Identifier: " + ident);
+        if (ident > 90) {//tag selection section
+            selectedTagId = ident - tagsShift;
             authorFragment.selectTag(selectedTagId, (String) iDrawerItem.getTag());
         }
-        if (ident==menu_selected){
+        if (ident == menu_selected) {
             authorFragment.cleanSelection();
             onAuthorSelected(SamLibConfig.SELECTED_BOOK_ID);
             restoreTagSelection();
         }
-        if (ident == menu_settings){
+        if (ident == menu_settings) {
             Log.d(DEBUG_TAG, "go to Settings");
             Intent prefsIntent = new Intent(getApplicationContext(),
                     SamlibPreferencesActivity.class);
@@ -315,7 +278,7 @@ public class MainActivity extends MyBaseAbstractActivity  implements
             drResult.closeDrawer();
             startActivityForResult(prefsIntent, MainActivity.PREFS_ACTIVITY);
         }
-        if (ident == menu_data){
+        if (ident == menu_data) {
             Log.d(DEBUG_TAG, "go to Archive");
             Intent prefsIntent = new Intent(getApplicationContext(),
                     ArchiveActivity.class);
@@ -323,17 +286,16 @@ public class MainActivity extends MyBaseAbstractActivity  implements
             drResult.closeDrawer();
             startActivityForResult(prefsIntent, MainActivity.ARCHIVE_ACTIVITY);
         }
-        if (ident == menu_add_search){
+        if (ident == menu_add_search) {
             drResult.setSelectionByIdentifier(SamLibConfig.TAG_AUTHOR_ALL + tagsShift);
             authorFragment.searchOrAdd();
         }
-        if (ident == menu_sort_author){
+        if (ident == menu_sort_author) {
             SecondaryDrawerItem sItem = (SecondaryDrawerItem) iDrawerItem;
-            if (sItem.getBadge()!= null && sItem.getBadge().equals(RadioItems.SELECT_BADGE)){//do nothing just select all and close
+            if (sItem.getBadge() != null && sItem.getBadge().equals(RadioItems.SELECT_BADGE)) {//do nothing just select all and close
                 restoreTagSelection();
                 drResult.closeDrawer();
-            }
-            else {
+            } else {
                 String sTag = (String) sItem.getTag();
                 authorSort.selectItem(sTag);
                 authorFragment.setSortOrder(AuthorSortOrder.valueOf(sTag));
@@ -342,13 +304,12 @@ public class MainActivity extends MyBaseAbstractActivity  implements
             }
 
         }
-        if (ident == menu_sort_books){
+        if (ident == menu_sort_books) {
             SecondaryDrawerItem sItem = (SecondaryDrawerItem) iDrawerItem;
-            if (sItem.getBadge()!= null && sItem.getBadge().equals(RadioItems.SELECT_BADGE)){//do nothing just select all and close
+            if (sItem.getBadge() != null && sItem.getBadge().equals(RadioItems.SELECT_BADGE)) {//do nothing just select all and close
                 restoreTagSelection();
                 drResult.closeDrawer();
-            }
-            else {
+            } else {
                 String sTag = (String) sItem.getTag();
                 bookSort.selectItem(sTag);
                 bookFragment.setSortOrder(BookSortOrder.valueOf(sTag));
@@ -359,9 +320,10 @@ public class MainActivity extends MyBaseAbstractActivity  implements
         }
 
     }
-    private void restoreTagSelection(){
-        if (tagSQL.getById(selectedTagId)==null){
-            selectedTagId=SamLibConfig.TAG_AUTHOR_ALL;
+
+    private void restoreTagSelection() {
+        if (tagSQL.getById(selectedTagId) == null) {
+            selectedTagId = SamLibConfig.TAG_AUTHOR_ALL;
         }
         drResult.setSelectionByIdentifier(selectedTagId + tagsShift);
     }
@@ -370,14 +332,14 @@ public class MainActivity extends MyBaseAbstractActivity  implements
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putInt(SELECTED_TAG_ID, selectedTagId);
-        outState.putString(PROGRESS_STRING,progressString);
+        outState.putString(PROGRESS_STRING, progressString);
     }
 
     @Override
-    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+    protected void onRestoreInstanceState(@NonNull Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
-        selectedTagId=savedInstanceState.getInt(SELECTED_TAG_ID,SamLibConfig.TAG_AUTHOR_ALL);
-        progressString=savedInstanceState.getString(PROGRESS_STRING);
+        selectedTagId = savedInstanceState.getInt(SELECTED_TAG_ID, SamLibConfig.TAG_AUTHOR_ALL);
+        progressString = savedInstanceState.getString(PROGRESS_STRING);
 
     }
 
@@ -416,15 +378,15 @@ public class MainActivity extends MyBaseAbstractActivity  implements
             if (bookFragment == null) {
                 Log.e(DEBUG_TAG, "Fragment is NULL for two pane layout!!");
             }
-            downloadReceiver = new DownloadReceiver(bookFragment,getDatabaseHelper());
+            downloadReceiver = new DownloadReceiver(bookFragment, getDatabaseHelper());
             IntentFilter filter = new IntentFilter(DownloadReceiver.ACTION_RESP);
             filter.addCategory(Intent.CATEGORY_DEFAULT);
             registerReceiver(downloadReceiver, filter);
         }
         //getSupportActionBar().setTitle(R.string.app_name);
-       // authorFragment.refresh(null, null);
+        // authorFragment.refresh(null, null);
 
-        if (progressString != null){
+        if (progressString != null) {
             authorFragment.updateProgress(progressString);
         }
         authorFragment.refresh();
@@ -483,14 +445,17 @@ public class MainActivity extends MyBaseAbstractActivity  implements
 
     @Override
     public void onAuthorSelected(long id) {
-        author_id=id;
+
         Log.d(DEBUG_TAG, "onAuthorSelected: go to Books");
         if (twoPain) {
             Log.i(DEBUG_TAG, "Two fragments Layout - set author_id: " + id);
             bookFragment.setAuthorId(id);
-            if (isTagShow){
+            if (isTagShow) {
                 tagFragment.setAuthor_id(id);
                 tagFragment.loadTagData();
+                if (id==SamLibConfig.SELECTED_BOOK_ID){
+                    onFinish(id);
+                }
             }
         } else {
             Log.i(DEBUG_TAG, "One fragment Layout - set author_id: " + id);
@@ -503,10 +468,6 @@ public class MainActivity extends MyBaseAbstractActivity  implements
 
     }
 
-    @Override
-    public void selectBookSortOrder() {
-        bookFragment.selectSortOrder();
-    }
 
     @Override
     public void onTitleChange(String lTitle) {
@@ -581,7 +542,7 @@ public class MainActivity extends MyBaseAbstractActivity  implements
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if ((keyCode == KeyEvent.KEYCODE_BACK)) { //Back key pressed
 
-            if (drResult!= null && drResult.isDrawerOpen()){
+            if (drResult != null && drResult.isDrawerOpen()) {
                 drResult.closeDrawer();
                 return true;
             }
@@ -589,7 +550,7 @@ public class MainActivity extends MyBaseAbstractActivity  implements
             if (authorFragment.getSelection() != SamLibConfig.TAG_AUTHOR_ALL) {
                 authorFragment.refresh(SamLibConfig.TAG_AUTHOR_ALL, null);
                 onTitleChange(getString(R.string.app_name));
-                selectedTagId=SamLibConfig.TAG_AUTHOR_ALL;
+                selectedTagId = SamLibConfig.TAG_AUTHOR_ALL;
                 restoreTagSelection();
             } else {
                 finish();
@@ -607,18 +568,14 @@ public class MainActivity extends MyBaseAbstractActivity  implements
         final FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
         ft.replace(R.id.listBooksFragment, bookFragment);
         ft.commit();
-        isTagShow=false;
+        isTagShow = false;
     }
-
-
 
 
     /**
      * Receive updates from Update Service
      */
     public class UpdateActivityReceiver extends BroadcastReceiver {
-
-
 
 
         @Override
@@ -631,26 +588,26 @@ public class MainActivity extends MyBaseAbstractActivity  implements
                     Toast toast = Toast.makeText(context, intent.getCharSequenceExtra(AndroidGuiUpdater.TOAST_STRING), duration);
                     toast.show();
 
-                    progressString=null;
+                    progressString = null;
                     authorFragment.onRefreshComplete();
 
                 }//
                 if (action.equalsIgnoreCase(AndroidGuiUpdater.ACTION_PROGRESS)) {
-                    progressString=intent.getStringExtra(AndroidGuiUpdater.TOAST_STRING);
+                    progressString = intent.getStringExtra(AndroidGuiUpdater.TOAST_STRING);
                     authorFragment.updateProgress(progressString);
                 }
-                if (action.equalsIgnoreCase(AndroidGuiUpdater.ACTION_REFRESH)){
+                if (action.equalsIgnoreCase(AndroidGuiUpdater.ACTION_REFRESH)) {
 
                     int iObject = intent.getIntExtra(AndroidGuiUpdater.ACTION_REFRESH_OBJECT, AndroidGuiUpdater.ACTION_REFRESH_AUTHORS);
                     if ((iObject == AndroidGuiUpdater.ACTION_REFRESH_AUTHORS) ||
-                            (iObject == AndroidGuiUpdater.ACTION_REFRESH_BOTH)){
+                            (iObject == AndroidGuiUpdater.ACTION_REFRESH_BOTH)) {
                         authorFragment.refresh();
                     }
 
-                    if (twoPain && !isTagShow &&  (iObject == AndroidGuiUpdater.ACTION_REFRESH_BOTH)){
+                    if (twoPain && !isTagShow && (iObject == AndroidGuiUpdater.ACTION_REFRESH_BOTH)) {
                         bookFragment.refresh();
                     }
-                    if (twoPain &&   (iObject == AndroidGuiUpdater.ACTION_REFRESH_TAGS)){
+                    if (twoPain && (iObject == AndroidGuiUpdater.ACTION_REFRESH_TAGS)) {
                         refreshTags();
                     }
 
@@ -658,7 +615,7 @@ public class MainActivity extends MyBaseAbstractActivity  implements
                 if (action.equals(SamlibService.ACTION_ADD)) {
 
                     long id = intent.getLongExtra(AndroidGuiUpdater.RESULT_AUTHOR_ID, 0);
-                    Log.d(DEBUG_TAG, "onReceive: author add, id = "+id);
+                    Log.d(DEBUG_TAG, "onReceive: author add, id = " + id);
                     int duration = Toast.LENGTH_SHORT;
                     CharSequence msg = intent.getCharSequenceExtra(AndroidGuiUpdater.TOAST_STRING);
                     Toast toast = Toast.makeText(context, msg, duration);

@@ -65,6 +65,7 @@ public class BooksActivity extends MyAbstractAnimActivity implements BookFragmen
         }
 
         listFragment = (BookFragment) getSupportFragmentManager().findFragmentById(R.id.listBooksFragment);
+        listFragment.setHasOptionsMenu(true);
 
     }
 
@@ -85,26 +86,15 @@ public class BooksActivity extends MyAbstractAnimActivity implements BookFragmen
         super.onSaveInstanceState(bundle);
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.books_menu, menu);
-        return super.onCreateOptionsMenu(menu);
-    }
+
 
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        int sel = item.getItemId();
-        if (sel == R.id.menu_books_tags  && author_id >0 ) {
-            Intent intent = new Intent(this, AuthorTagsActivity.class);
-            intent.putExtra(AuthorTagsActivity.AUTHOR_ID,author_id);
-            //intent.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
-            startActivityForResult(intent, TAGS_ACTIVITY);
-        }
-        if (sel == R.id.menu_books_sort) {
-            listFragment.selectSortOrder();
-        }
+    public void showTags(long author_id) {
+        Intent intent = new Intent(this, AuthorTagsActivity.class);
+        intent.putExtra(AuthorTagsActivity.AUTHOR_ID,author_id);
+        //intent.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
+        startActivityForResult(intent, TAGS_ACTIVITY);
 
-        return super.onOptionsItemSelected(item);
     }
 
     @Override
@@ -142,6 +132,7 @@ public class BooksActivity extends MyAbstractAnimActivity implements BookFragmen
         super.onPause();
         unregisterReceiver(receiver);
     }
+
 
 
 }
