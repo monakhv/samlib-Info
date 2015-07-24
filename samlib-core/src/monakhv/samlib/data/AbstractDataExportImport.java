@@ -120,15 +120,32 @@ public abstract class AbstractDataExportImport {
      *
      * @throws IOException
      */
-    private static void fileCopy(File srcFile, File dstFile) throws  IOException {
+    private static void fileCopy(File srcFile, File dstFile) throws IOException {
         if (srcFile.exists()) {
-            FileChannel src = new FileInputStream(srcFile).getChannel();
-            FileChannel dst = new FileOutputStream(dstFile).getChannel();
-            dst.transferFrom(src, 0, src.size());
-            src.close();
-            dst.close();
+            FileChannel src=null;
+            FileChannel dst=null;
+            try {
+                src = new FileInputStream(srcFile).getChannel();
+                dst = new FileOutputStream(dstFile).getChannel();
+                dst.transferFrom(src, 0, src.size());
+            }
+            finally {
+                close(src);
+                close(dst);
+            }
+
+
         }
 
+    }
+    private static void close(Closeable closeable){
+        if (closeable != null){
+            try {
+                closeable.close();
+            } catch (IOException e) {
+                Log.e(DEBUG_TAG,"Close error",e);
+            }
+        }
     }
     private static String getTimesuffix() {
         SimpleDateFormat df = new SimpleDateFormat(DATE_FORMAT);
@@ -179,27 +196,30 @@ public abstract class AbstractDataExportImport {
      */
     public String exportAuthorList(DaoBuilder helper,File dir) {
         String backupTxtPath = null;
+        BufferedWriter bw =null;
         try {
 
             if (dir.canWrite()) {
                 backupTxtPath = TXT_PREFIX + "_" + getTimesuffix() + TXT_EXT;
                 File backupTxt = new File(dir, backupTxtPath);
 
-                BufferedWriter bw = new BufferedWriter(new FileWriter(backupTxt));
+                bw = new BufferedWriter(new FileWriter(backupTxt));
 
                 for (String u : getAuthorUrls(helper)) {
                     bw.write(u);
                     bw.newLine();
                 }
                 bw.flush();
-                bw.close();
-
             }
 
 
         } catch (Exception e) {
             Log.e(DEBUG_TAG, "Error export author urls: ", e);
             return null;
+        }
+        finally {
+
+            close(bw);
         }
         return backupTxtPath;
 
@@ -290,8 +310,9 @@ public abstract class AbstractDataExportImport {
     public static  ArrayList<String> importAuthorList( File backupTxt) {
 
         ArrayList<String> urls = new ArrayList<>();
+        BufferedReader in=null;
         try {
-            BufferedReader in = new BufferedReader(new FileReader(backupTxt));
+            in = new BufferedReader(new FileReader(backupTxt));
             String inputLine = in.readLine();
             while (inputLine != null) {
                 String resstr =  SamLibConfig.getParsedUrl(inputLine);
@@ -308,6 +329,9 @@ public abstract class AbstractDataExportImport {
         } catch (IOException ex) {
             Log.e(DEBUG_TAG, "Error Import URL list ", ex);
             return null;
+        }
+        finally {
+            close(in);
         }
 
         return urls;
