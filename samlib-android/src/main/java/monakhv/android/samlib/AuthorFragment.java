@@ -19,6 +19,7 @@ import android.util.Log;
 import android.view.*;
 import android.widget.AdapterView;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 
@@ -81,6 +82,7 @@ public class AuthorFragment extends Fragment implements
     private static final int AUTHOR_LOADER_ID = 201;
 
     private RecyclerView authorRV;
+    private ProgressBar mProgressBar;
     private AuthorAdapter adapter;
 
 
@@ -89,7 +91,7 @@ public class AuthorFragment extends Fragment implements
     private GestureDetector detector;
     private boolean updateAuthor = false;//true update the only selected author
     private Author author = null;//for context menu selection
-    private TextView updateTextView;
+    private TextView updateTextView,emptyTagAuthor;
     private ContextMenuDialog contextMenu;
 
     private View empty;
@@ -140,6 +142,8 @@ public class AuthorFragment extends Fragment implements
                 container, false);
         authorRV = (RecyclerView) view.findViewById(R.id.authorRV);
         empty = view.findViewById(R.id.add_author_panel);
+        mProgressBar = (ProgressBar) view.findViewById(R.id.authorProgress);
+        emptyTagAuthor= (TextView) view.findViewById(R.id.emptyTagAuthor);
 
 
         authorRV.setHasFixedSize(true);
@@ -161,8 +165,12 @@ public class AuthorFragment extends Fragment implements
         adapter = new AuthorAdapter( this);
 
         authorRV.setAdapter(adapter);
-        adapter.registerAdapterDataObserver(observer);
-        makeEmptyView();
+
+
+        mProgressBar.setVisibility(View.VISIBLE);
+        authorRV.setVisibility(View.GONE);
+        empty.setVisibility(View.GONE);
+        emptyTagAuthor.setVisibility(View.GONE);
         getLoaderManager().initLoader(AUTHOR_LOADER_ID, null, this);
 
 
@@ -190,14 +198,7 @@ public class AuthorFragment extends Fragment implements
         updateTextView = (TextView) dht.getHeaderView().findViewById(R.id.ptr_text);
     }
 
-    private RecyclerView.AdapterDataObserver observer = new RecyclerView.AdapterDataObserver() {
-        @Override
-        public void onChanged() {
-            super.onChanged();
-            Log.d(DEBUG_TAG, "Observed: makeEmpty");
-            makeEmptyView();
-        }
-    };
+
 
     @Override
     public void makeNewFlip(int id) {
@@ -212,6 +213,23 @@ public class AuthorFragment extends Fragment implements
     @Override
     public void onLoadFinished(Loader<List<Author>> loader, List<Author> data) {
         adapter.setData(data);
+        mProgressBar.setVisibility(View.GONE);
+        if (adapter.getItemCount() == 0 ){
+            authorRV.setVisibility(View.GONE);
+            if (selectedTag == SamLibConfig.TAG_AUTHOR_ALL){
+                empty.setVisibility(View.VISIBLE);
+                emptyTagAuthor.setVisibility(View.GONE);
+            }
+            else {
+                empty.setVisibility(View.GONE);
+                emptyTagAuthor.setVisibility(View.VISIBLE);
+            }
+        }
+        else {
+            empty.setVisibility(View.GONE);
+            emptyTagAuthor.setVisibility(View.GONE);
+            authorRV.setVisibility(View.VISIBLE);
+        }
 
     }
 
@@ -221,19 +239,9 @@ public class AuthorFragment extends Fragment implements
     }
 
     private void updateAdapter() {
+        mProgressBar.setVisibility(View.VISIBLE);
         getLoaderManager().restartLoader(AUTHOR_LOADER_ID, null, this);
-        makeEmptyView();
-    }
 
-    private void makeEmptyView() {
-
-        if (adapter.getItemCount() == 0) {
-            authorRV.setVisibility(View.GONE);
-            empty.setVisibility(View.VISIBLE);
-        } else {
-            authorRV.setVisibility(View.VISIBLE);
-            empty.setVisibility(View.GONE);
-        }
     }
 
     @Override
@@ -560,10 +568,7 @@ public class AuthorFragment extends Fragment implements
     @Override
     public void onDestroy() {
         super.onDestroy();
-        if (adapter != null) {
-            //adapter.clear();
-            adapter.unregisterAdapterDataObserver(observer);
-        }
+        getLoaderManager().destroyLoader(AUTHOR_LOADER_ID);
     }
 
     @Override
