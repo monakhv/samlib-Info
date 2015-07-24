@@ -497,6 +497,7 @@ public class BookFragment extends Fragment implements
         if (adapter != null) {
             //adapter.clear();
             adapter.unregisterAdapterDataObserver(observer);
+            getLoaderManager().destroyLoader(BOOK_LOADER_ID);
         }
     }
 
