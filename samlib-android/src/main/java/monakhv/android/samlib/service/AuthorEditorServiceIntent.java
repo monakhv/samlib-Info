@@ -112,17 +112,6 @@ public class AuthorEditorServiceIntent extends MyServiceIntent {
 
     }
 
-
-
-
-
-
-
-
-
-
-
-
     /**
      * Public method to add single user
      *  Used to add User directly or by search

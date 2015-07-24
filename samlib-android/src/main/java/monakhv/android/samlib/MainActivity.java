@@ -231,18 +231,14 @@ public class MainActivity extends MyBaseAbstractActivity implements
 
     @Override
     public void showTags(long author_id) {
-        Log.d(DEBUG_TAG, "go to Tags");
-        if (tagFragment == null) {
-            Log.d(DEBUG_TAG, "Making fragment");
-            tagFragment = new AuthorTagFragment();
+        Log.d(DEBUG_TAG, "go to Tags author_id = "+author_id);
 
-        }
-        tagFragment.setAuthor_id(author_id);
         final FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
         ft.replace(R.id.listBooksFragment, tagFragment);
         ft.addToBackStack(null);
         ft.commit();
         isTagShow = true;
+
 
 
     }
@@ -446,12 +442,10 @@ public class MainActivity extends MyBaseAbstractActivity implements
         if (twoPain) {
             Log.i(DEBUG_TAG, "Two fragments Layout - set author_id: " + id);
             bookFragment.setAuthorId(id);
-            if (isTagShow) {
-                tagFragment.setAuthor_id(id);
-                tagFragment.loadTagData();
-                if (id==SamLibConfig.SELECTED_BOOK_ID){
-                    onFinish(id);
-                }
+            tagFragment.setAuthor_id(id);
+
+            if (isTagShow && (id==SamLibConfig.SELECTED_BOOK_ID)) {
+                onFinish(id);
             }
         } else {
             Log.i(DEBUG_TAG, "One fragment Layout - set author_id: " + id);
@@ -631,6 +625,7 @@ public class MainActivity extends MyBaseAbstractActivity implements
     }
 
     private void refreshTags() {
+        Log.d(DEBUG_TAG,"making refresh tags");
         createDrawer();
         authorFragment.makePulToRefresh();
     }
