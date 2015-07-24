@@ -25,7 +25,7 @@ import java.util.List;
 public abstract class RecyclerAdapter <T,VH extends android.support.v7.widget.RecyclerView.ViewHolder> extends RecyclerView.Adapter<VH>{
     private static final String DEBUG_TAG="RecyclerAdapter";
     public interface CallBack {
-        void reloadAdapter();
+        void makeNewFlip(int id);
     }
 
     protected List<T> mData;
@@ -35,9 +35,7 @@ public abstract class RecyclerAdapter <T,VH extends android.support.v7.widget.Re
         mCallBack = callBack;
     }
 
-    protected void reQuery() {
-        mCallBack.reloadAdapter();
-    }
+
 
     public void setData(List<T> data) {
         mData = data;

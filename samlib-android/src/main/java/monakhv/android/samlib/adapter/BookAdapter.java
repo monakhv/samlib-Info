@@ -13,9 +13,6 @@ import monakhv.android.samlib.R;
 import monakhv.android.samlib.animation.Flip3D;
 import monakhv.android.samlib.animation.FlipIcon;
 import monakhv.android.samlib.data.SettingsHelper;
-import monakhv.android.samlib.service.AuthorEditorServiceIntent;
-import monakhv.android.samlib.sql.DatabaseHelper;
-import monakhv.samlib.db.AuthorController;
 import monakhv.samlib.db.entity.Book;
 import monakhv.samlib.db.entity.SamLibConfig;
 
@@ -42,18 +39,16 @@ import java.util.HashMap;
 public class BookAdapter   extends RecyclerAdapter<Book,BookAdapter.ViewHolder> {
     private static final String DEBUG_TAG="BookAdapter";
     private final SettingsHelper settingsHelper;
-    private final AuthorController sql;
-    private final Context mContext;
+
     private long author_id;
     private final HashMap<Integer,FlipIcon> flips;
 
-    public BookAdapter(Context mContext,DatabaseHelper databaseHelper,RecyclerAdapter.CallBack callBack ) {
+    public BookAdapter(Context mContext,RecyclerAdapter.CallBack callBack ) {
         super(callBack);
-        this.mContext = mContext;
+
 
         settingsHelper = new SettingsHelper( mContext);
         flips = new HashMap<>();
-        sql=new AuthorController(databaseHelper);
 
     }
 
@@ -104,13 +99,13 @@ public class BookAdapter   extends RecyclerAdapter<Book,BookAdapter.ViewHolder> 
             listener = new Flip3D.animationFlip3DListener() {
                 @Override
                 public void onStart() {
-                    AuthorEditorServiceIntent.markBookReadFlip(mContext, book.getId());
+                    //AuthorEditorServiceIntent.markBookReadFlip(mContext, book.getId());
                 }
 
                 @Override
                 public void onEnd() {
                     Log.i(DEBUG_TAG, "Making book read!");
-                    reQuery();
+                    mCallBack.makeNewFlip(book.getId());
                 }
             };
             holder.flipIcon.setData(openBook,closeBook,listener,true);
@@ -119,13 +114,13 @@ public class BookAdapter   extends RecyclerAdapter<Book,BookAdapter.ViewHolder> 
             listener = new Flip3D.animationFlip3DListener() {
                 @Override
                 public void onStart() {
-                    AuthorEditorServiceIntent.markBookReadFlip(mContext, book.getId());
+                    //AuthorEditorServiceIntent.markBookReadFlip(mContext, book.getId());
                 }
 
                 @Override
                 public void onEnd() {
                     Log.i(DEBUG_TAG, "Making book new!!");
-                    reQuery();
+                    mCallBack.makeNewFlip(book.getId());
                 }
             };
             holder.flipIcon.setData(closeBook,openBook,listener,true);
@@ -156,11 +151,6 @@ public class BookAdapter   extends RecyclerAdapter<Book,BookAdapter.ViewHolder> 
     }
 
 
-
-
-
-
-
     /**
      * Mark selected book as read
      * @param animation if true make icon animation
@@ -178,17 +168,11 @@ public class BookAdapter   extends RecyclerAdapter<Book,BookAdapter.ViewHolder> 
                 Log.i(DEBUG_TAG,"Making book flip animation at position: "+getSelectedPosition());
 
             } else {
-                sql.getBookController().markRead(book);
-                sql.testMarkRead(sql.getById(book.getAuthor().getId()));
-                reQuery();
+                mCallBack.makeNewFlip(book.getId());
+
             }
         }
 
-    }
-
-    public void update(Book book) {
-        sql.getBookController().update(book);
-        reQuery();
     }
 
 

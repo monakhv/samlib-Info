@@ -1,6 +1,5 @@
 package monakhv.android.samlib.adapter;
 
-import android.content.Context;
 import android.graphics.Typeface;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -11,9 +10,6 @@ import android.widget.TextView;
 import monakhv.android.samlib.R;
 import monakhv.android.samlib.animation.Flip3D;
 import monakhv.android.samlib.animation.FlipIcon;
-import monakhv.android.samlib.service.AuthorEditorServiceIntent;
-import monakhv.android.samlib.sql.DatabaseHelper;
-import monakhv.samlib.db.AuthorController;
 import monakhv.samlib.db.entity.Author;
 
 import java.text.SimpleDateFormat;
@@ -46,15 +42,13 @@ public class AuthorAdapter extends RecyclerAdapter<Author, AuthorAdapter.ViewHol
     private Calendar now;
 
 
-    private final AuthorController authorController;
-    private Context mContext;
+    //private final AuthorController authorController;
+
     private final HashMap<Integer, FlipIcon> flips;
 
-    public AuthorAdapter(Context context, DatabaseHelper databaseHelper, RecyclerAdapter.CallBack callBack) {
+    public AuthorAdapter(RecyclerAdapter.CallBack callBack) {
         super(callBack);
 
-        mContext = context;
-        authorController = new AuthorController(databaseHelper);
         flips = new HashMap<>();
         df = new SimpleDateFormat(DATE_FORMAT);
         now = Calendar.getInstance();
@@ -93,8 +87,7 @@ public class AuthorAdapter extends RecyclerAdapter<Author, AuthorAdapter.ViewHol
                 @Override
                 public void onEnd() {
                     Log.i(DEBUG_TAG, "Making Author read!");
-                    AuthorEditorServiceIntent.markAuthorRead(mContext, author.getId());
-                    cleanSelection();
+                    mCallBack.makeNewFlip(author.getId());
                 }
             };
             holder.flipIcon.setData(R.drawable.author_new, oldBookResource, listener, false);
@@ -132,11 +125,6 @@ public class AuthorAdapter extends RecyclerAdapter<Author, AuthorAdapter.ViewHol
     }
 
 
-
-    public void update(Author author) {
-        authorController.update(author);
-    }
-
     public void makeSelectedRead() {
         Author author = getSelected();
         if (author == null) {
@@ -147,23 +135,24 @@ public class AuthorAdapter extends RecyclerAdapter<Author, AuthorAdapter.ViewHol
             if (ff != null) {
                 ff.makeFlip();
             } else {
-                AuthorEditorServiceIntent.markAuthorRead(mContext, author.getId());
-                cleanSelection();
+                mCallBack.makeNewFlip(author.getId());
             }
         }
 
 
     }
+
     /**
      * Find item with given id and select it
      *
-     * @param id
+     * @param id Author id
      * @return true if found
      */
-    public boolean findAndSelect(long id){
-        for(int i=0; i<getItemCount(); i++){
-            if (mData.get(i).getId() == id){
+    public boolean findAndSelect(long id) {
+        for (int i = 0; i < getItemCount(); i++) {
+            if (mData.get(i).getId() == id) {
                 toggleSelection(i);
+                notifyItemChanged(i);
                 return true;
             }
         }

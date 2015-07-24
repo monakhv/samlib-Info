@@ -40,6 +40,7 @@ import monakhv.android.samlib.service.UpdateServiceIntent;
 import monakhv.android.samlib.sortorder.AuthorSortOrder;
 
 import monakhv.android.samlib.sql.DatabaseHelper;
+import monakhv.samlib.db.AuthorController;
 import monakhv.samlib.db.entity.Author;
 import monakhv.samlib.db.entity.SamLibConfig;
 
@@ -157,7 +158,7 @@ public class AuthorFragment extends Fragment implements
                 return false;
             }
         });
-        adapter = new AuthorAdapter(getActivity(), mCallbacks.getDatabaseHelper(), this);
+        adapter = new AuthorAdapter( this);
 
         authorRV.setAdapter(adapter);
         adapter.registerAdapterDataObserver(observer);
@@ -199,8 +200,8 @@ public class AuthorFragment extends Fragment implements
     };
 
     @Override
-    public void reloadAdapter() {
-        updateAdapter();
+    public void makeNewFlip(int id) {
+        AuthorEditorServiceIntent.markAuthorRead(getActivity(),id);
     }
 
     @Override
@@ -386,13 +387,18 @@ public class AuthorFragment extends Fragment implements
             EnterStringDialog ddialog = new EnterStringDialog(getActivity(), new EnterStringDialog.ClickListener() {
                 public void okClick(String txt) {
                     author.setName(txt);
-                    adapter.update(author);
+                    updateAuthor(author);
                 }
             }, getText(R.string.dialog_title_edit_author).toString(), author.getName());
 
             ddialog.show();
         }
 
+    }
+    private void updateAuthor(Author author){
+        AuthorController sql = new AuthorController(mCallbacks.getDatabaseHelper());
+        sql.update(author);
+        updateAdapter();
     }
 
     void startRefresh() {

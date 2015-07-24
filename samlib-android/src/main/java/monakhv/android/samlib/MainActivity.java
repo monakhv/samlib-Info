@@ -363,9 +363,7 @@ public class MainActivity extends MyBaseAbstractActivity implements
         super.onResume();
 
         IntentFilter updateFilter = new IntentFilter(AndroidGuiUpdater.ACTION_RESP);
-
         updateFilter.addCategory(Intent.CATEGORY_DEFAULT);
-
         updateReceiver = new UpdateActivityReceiver();
 
 
@@ -391,8 +389,6 @@ public class MainActivity extends MyBaseAbstractActivity implements
         }
         authorFragment.refresh();
         refreshTags();
-
-
     }
 
     @Override
@@ -464,8 +460,6 @@ public class MainActivity extends MyBaseAbstractActivity implements
 
             startActivity(intent);
         }
-
-
     }
 
 
@@ -573,7 +567,7 @@ public class MainActivity extends MyBaseAbstractActivity implements
 
 
     /**
-     * Receive updates from Update Service
+     * Receive updates from  Services
      */
     public class UpdateActivityReceiver extends BroadcastReceiver {
 
@@ -633,8 +627,6 @@ public class MainActivity extends MyBaseAbstractActivity implements
                     toast.show();
                 }
             }
-
-
         }
     }
 

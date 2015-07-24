@@ -30,10 +30,12 @@ import monakhv.android.samlib.dialogs.MyMenuData;
 import monakhv.android.samlib.dialogs.SingleChoiceSelectDialog;
 import monakhv.android.samlib.recyclerview.DividerItemDecoration;
 import monakhv.android.samlib.service.AndroidGuiUpdater;
+import monakhv.android.samlib.service.AuthorEditorServiceIntent;
 import monakhv.android.samlib.service.DownloadBookServiceIntent;
 import monakhv.android.samlib.sortorder.BookSortOrder;
 
 import monakhv.android.samlib.sql.DatabaseHelper;
+import monakhv.samlib.db.AuthorController;
 import monakhv.samlib.db.entity.Book;
 import monakhv.samlib.db.entity.SamLibConfig;
 
@@ -59,13 +61,15 @@ import java.util.List;
 public class BookFragment extends Fragment implements
         ListSwipeListener.SwipeCallBack, LoaderManager.LoaderCallbacks<List<Book>>,
         RecyclerAdapter.CallBack{
+    private AuthorController sql;
+
     public void refresh() {
         updateAdapter();
     }
 
     @Override
-    public void reloadAdapter() {
-        updateAdapter();
+    public void makeNewFlip(int id) {
+        AuthorEditorServiceIntent.markBookReadFlip(getActivity(),id);
     }
 
 
@@ -119,6 +123,7 @@ public class BookFragment extends Fragment implements
                     "Activity must implement fragment's callbacks.");
         }
         mCallbacks = (Callbacks) activity;
+        sql = new AuthorController(mCallbacks.getDatabaseHelper());
     }
 
     @Override
@@ -132,7 +137,7 @@ public class BookFragment extends Fragment implements
         emptyText = (TextView) view.findViewById(R.id.id_empty_book_text);
 
 
-        adapter = new BookAdapter(getActivity(),mCallbacks.getDatabaseHelper(),this);
+        adapter = new BookAdapter(getActivity(),this);
         adapter.setAuthor_id(author_id);
         bookRV.setHasFixedSize(true);
         bookRV.setLayoutManager(new LinearLayoutManager(getActivity()));
@@ -334,11 +339,11 @@ public class BookFragment extends Fragment implements
         }
         if (item == menu_selected) {
             book.setGroup_id(Book.SELECTED_GROUP_ID);
-            adapter.update(book);
+            updateBook(book);
         }
         if (item == menu_deselected) {
             book.setGroup_id(0);
-            adapter.update(book);
+            updateBook(book);
         }
         if (item == menu_reload) {
 
@@ -359,7 +364,7 @@ public class BookFragment extends Fragment implements
                 settings.makePreserved(book);
                 book.setPreserve(true);
             }
-            adapter.update(book);
+            updateBook(book);
 
         }
         if (item == menu_choose_version) {
@@ -517,5 +522,10 @@ public class BookFragment extends Fragment implements
             selectSortOrder();
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    private void updateBook(Book book){
+        sql.getBookController().update(book);
+        updateAdapter();
     }
 }

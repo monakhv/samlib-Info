@@ -172,7 +172,7 @@ public class SamlibService {
             Author a = authorController.getById(book.getAuthor().getId());
             authorController.testMarkRead(a);
         }
-        guiUpdate.makeUpdate(false);//book reread is into Adapter methods
+        guiUpdate.makeUpdate(true);//book reread is into Adapter methods
 
     }
     /**
