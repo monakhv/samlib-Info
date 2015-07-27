@@ -15,6 +15,7 @@ import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.*;
 import android.widget.AdapterView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 
@@ -88,8 +89,9 @@ public class BookFragment extends Fragment implements
     private GestureDetector detector;
     private SettingsHelper settings;
     ProgressDialog progress;
+    private ProgressBar mProgressBar;
     ContextMenuDialog contextMenuDialog;
-    //private String selection;
+
     private TextView emptyText;
     private DataExportImport dataExportImport;
     private SingleChoiceSelectDialog dialog = null;
@@ -135,6 +137,7 @@ public class BookFragment extends Fragment implements
         Log.i(DEBUG_TAG, "Done making view");
         bookRV = (RecyclerView) view.findViewById(R.id.bookRV);
         emptyText = (TextView) view.findViewById(R.id.id_empty_book_text);
+        mProgressBar = (ProgressBar) view.findViewById(R.id.bookProgress);
 
 
         adapter = new BookAdapter(getActivity(),this);
@@ -153,8 +156,9 @@ public class BookFragment extends Fragment implements
             }
         });
 
-        makeEmpty();
-        adapter.registerAdapterDataObserver(observer);
+        emptyText.setVisibility(View.GONE);
+        bookRV.setVisibility(View.GONE);
+        mProgressBar.setVisibility(View.VISIBLE);
         getLoaderManager().initLoader(BOOK_LOADER_ID,null,this);
         return view;
     }
@@ -167,6 +171,8 @@ public class BookFragment extends Fragment implements
     @Override
     public void onLoadFinished(Loader<List<Book>> loader, List<Book> data) {
         adapter.setData(data);
+        mProgressBar.setVisibility(View.GONE);
+        makeEmpty();
     }
 
     @Override
@@ -175,14 +181,6 @@ public class BookFragment extends Fragment implements
     }
 
 
-    private RecyclerView.AdapterDataObserver observer = new RecyclerView.AdapterDataObserver() {
-        @Override
-        public void onChanged() {
-            super.onChanged();
-            Log.d(DEBUG_TAG, "Observed: makeEmpty");
-            makeEmpty();
-        }
-    };
 
 
 
@@ -224,11 +222,15 @@ public class BookFragment extends Fragment implements
      * @param id Author id or special parameters
      */
     public void setAuthorId(long id) {
+        emptyText.setVisibility(View.GONE);
+        bookRV.setVisibility(View.GONE);
+        mProgressBar.setVisibility(View.VISIBLE);
         author_id = id;
 
-        updateAdapter();
-        makeEmpty();
         adapter.setAuthor_id(id);
+        updateAdapter();
+
+
         adapter.cleanSelection();
     }
 
@@ -499,11 +501,7 @@ public class BookFragment extends Fragment implements
     @Override
     public void onDestroy() {
         super.onDestroy();
-        if (adapter != null) {
-            //adapter.clear();
-            adapter.unregisterAdapterDataObserver(observer);
-            getLoaderManager().destroyLoader(BOOK_LOADER_ID);
-        }
+        getLoaderManager().destroyLoader(BOOK_LOADER_ID);
     }
 
     @Override

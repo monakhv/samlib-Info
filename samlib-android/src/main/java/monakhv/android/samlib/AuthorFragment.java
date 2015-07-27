@@ -229,6 +229,11 @@ public class AuthorFragment extends Fragment implements
             empty.setVisibility(View.GONE);
             emptyTagAuthor.setVisibility(View.GONE);
             authorRV.setVisibility(View.VISIBLE);
+            if (author != null){
+                selectAuthor(author.getId());
+
+            }
+
         }
 
     }
@@ -240,6 +245,7 @@ public class AuthorFragment extends Fragment implements
 
     private void updateAdapter() {
         mProgressBar.setVisibility(View.VISIBLE);
+        author=adapter.getSelected();
         getLoaderManager().restartLoader(AUTHOR_LOADER_ID, null, this);
 
     }
@@ -518,10 +524,11 @@ public class AuthorFragment extends Fragment implements
 
     public void selectAuthor(long id) {
 
-        boolean res = adapter.findAndSelect(id);
-        if (!res) {
+        int pos = adapter.findAndSelect(id);
+        if (pos <0) {
             Log.e(DEBUG_TAG, "selectAuthor: id not found - " + id);
         }
+        authorRV.smoothScrollToPosition(pos);
     }
 
     void cleanSelection() {

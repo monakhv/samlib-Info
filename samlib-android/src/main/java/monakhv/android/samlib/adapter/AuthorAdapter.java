@@ -148,15 +148,15 @@ public class AuthorAdapter extends RecyclerAdapter<Author, AuthorAdapter.ViewHol
      * @param id Author id
      * @return true if found
      */
-    public boolean findAndSelect(long id) {
+    public int findAndSelect(long id) {
         for (int i = 0; i < getItemCount(); i++) {
             if (mData.get(i).getId() == id) {
                 toggleSelection(i);
                 notifyItemChanged(i);
-                return true;
+                return i;
             }
         }
-        return false;
+        return NOT_SELECTED;
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
