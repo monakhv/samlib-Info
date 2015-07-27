@@ -11,6 +11,7 @@ import java.util.Map;
 
 import monakhv.android.samlib.data.SettingsHelper;
 
+import monakhv.android.samlib.sql.DatabaseHelper;
 import monakhv.samlib.db.AuthorController;
 import monakhv.samlib.db.DaoBuilder;
 import monakhv.samlib.db.entity.Author;
@@ -49,10 +50,10 @@ public class AuthorStatePrefs {
     private DaoBuilder dao;
 
 
-    private AuthorStatePrefs(Context context) {
+    private AuthorStatePrefs(Context context ,DatabaseHelper helper) {
 
         this.context = context;
-        this.dao=dao;
+        this.dao=helper;
         this.prefs = getPrefs();
         this.settings = new SettingsHelper(this.context);
     }
@@ -126,20 +127,20 @@ public class AuthorStatePrefs {
         return context.getSharedPreferences(fn, Context.MODE_PRIVATE);
     }
 
-    static AuthorStatePrefs getInstance(Context ctx) {
+    static AuthorStatePrefs getInstance(Context ctx,DatabaseHelper helper) {
         if (instance == null) {
-            instance = new AuthorStatePrefs(ctx);
+            instance = new AuthorStatePrefs(ctx,helper);
         }
         return instance;
     }
 
-    public static void load(Context ctx) {
-        AuthorStatePrefs ins = getInstance(ctx);
+    public static void load(Context ctx,DatabaseHelper helper) {
+        AuthorStatePrefs ins = getInstance(ctx,helper);
         ins.load();
     }
 
-    public static void restore(Context ctx) {
-        AuthorStatePrefs ins = getInstance(ctx);
+    public static void restore(Context ctx,DatabaseHelper helper) {
+        AuthorStatePrefs ins = getInstance(ctx,helper);
         ins.restore();
     }
 

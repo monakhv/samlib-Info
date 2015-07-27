@@ -71,14 +71,14 @@ public class SamLibBackupAgentHelper extends BackupAgentHelper {
 
     @Override
     public void onBackup(ParcelFileDescriptor oldState, BackupDataOutput data, ParcelFileDescriptor newState) throws IOException {
-        AuthorStatePrefs.load(this);
+        AuthorStatePrefs.load(this, getDatabaseHelper());
         super.onBackup(oldState, data, newState);
     }
 
     @Override
     public void onRestore(BackupDataInput data, int appVersionCode, ParcelFileDescriptor newState) throws IOException {
         super.onRestore(data, appVersionCode, newState);
-        AuthorStatePrefs.restore(this);
+        AuthorStatePrefs.restore(this, getDatabaseHelper());
     }
 
     @Override
