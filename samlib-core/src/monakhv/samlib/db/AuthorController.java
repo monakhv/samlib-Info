@@ -307,7 +307,7 @@ public class AuthorController implements AbstractController<Author> {
      * @param rowSort -- SQL order part statement - can be null
      * @return list of the authors
      */
-    public List<Author> getAll(int iselectTag, String rowSort){
+    public synchronized List<Author> getAll(int iselectTag, String rowSort){
         PreparedQuery<Author> prep = getPrepared(iselectTag, rowSort);
 
         if (prep == null){

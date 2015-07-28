@@ -145,7 +145,7 @@ public class BookController implements AbstractController<Book> {
      * @param order Sort order in row format
      * @return List of the books
      */
-    public List<Book> getAll(Author author, String order) {
+    public synchronized List<Book> getAll(Author author, String order) {
         List<Book> res;
         QueryBuilder<Book, Integer> qb = dao.queryBuilder();
 
