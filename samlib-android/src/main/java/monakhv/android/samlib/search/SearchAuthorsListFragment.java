@@ -56,7 +56,7 @@ public class SearchAuthorsListFragment extends ListFragment implements ListSwipe
 
     static public final String AUTHOR_URL = "AUTHOR_URL";
     static private final String KEY_RESULT_DATA = "RESULT_DATA";
-    static private final String DEBUG_TAG = "SearchAuthorsListFragment";
+    static private final String DEBUG_TAG = "SearchAuthorsFragment";
     private SearchAuthorAdapter adapter;
     private String pattern;
     ProgressDialog progress;
@@ -72,7 +72,7 @@ public class SearchAuthorsListFragment extends ListFragment implements ListSwipe
         pattern = getActivity().getIntent().getExtras().getString(SearchAuthorActivity.EXTRA_PATTERN);
 
         if (result == null) {
-            result = new ArrayList<AuthorCard>();
+            result = new ArrayList<>();
             search(pattern);
         }
         adapter = new SearchAuthorAdapter(getActivity());

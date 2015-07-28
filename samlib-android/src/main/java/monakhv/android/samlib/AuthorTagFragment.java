@@ -248,7 +248,7 @@ public class AuthorTagFragment extends Fragment {
         AuthorEditorServiceIntent.updateAllAuthorsTags(getActivity());
         helper.requestBackup();
         a=sql.getById(author_id);
-        Log.d(DEBUG_TAG, "okClick:   " + a.getName() + ": " + a.getAll_tags_name() + "  -  " + a.getTagIds().size() + " = " + a.getTag2Authors().size());
+        //Log.d(DEBUG_TAG, "okClick:   " + a.getName() + ": " + a.getAll_tags_name() + "  -  " + a.getTagIds().size() + " = " + a.getTag2Authors().size());
         for (Integer ii : a.getTagIds()){
             Log.d(DEBUG_TAG, "okClick:   tagId -" +ii);
         }
