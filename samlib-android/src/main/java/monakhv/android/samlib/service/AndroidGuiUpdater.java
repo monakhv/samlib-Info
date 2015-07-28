@@ -119,6 +119,9 @@ public class AndroidGuiUpdater implements GuiUpdate {
 
     @Override
     public void sendAuthorUpdateProgress(int total, int iCurrent, String name) {
+        if (currentCaller == CALLER_IS_RECEIVER) {//Call as a regular service
+            return;//we do not send update for regular service
+        }
         String str = " ["+iCurrent+"/"+total+"]:   "+name;
         Intent broadcastIntent = new Intent();
         broadcastIntent.addCategory(Intent.CATEGORY_DEFAULT);
