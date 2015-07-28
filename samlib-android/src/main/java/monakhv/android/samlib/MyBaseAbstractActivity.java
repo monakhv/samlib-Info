@@ -1,7 +1,6 @@
 package monakhv.android.samlib;
 
 import android.content.Context;
-import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import com.j256.ormlite.android.apptools.OpenHelperManager;
 import com.j256.ormlite.support.ConnectionSource;
