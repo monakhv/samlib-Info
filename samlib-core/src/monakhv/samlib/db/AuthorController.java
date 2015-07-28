@@ -90,6 +90,9 @@ public class AuthorController implements AbstractController<Author> {
      */
     @Override
     public int update(Author author) {
+        if (! author.isBookLoaded()){
+            loadBooks(author);
+        }
 
         int res;
 
@@ -406,5 +409,6 @@ public class AuthorController implements AbstractController<Author> {
 
     public void loadBooks(Author a) {
         a.setBooks(getBookController().getBooksByAuthor(a));
+        a.setBookLoaded(true);
     }
 }

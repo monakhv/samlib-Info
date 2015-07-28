@@ -54,6 +54,7 @@ public class Author  implements Serializable{
     @DatabaseField(columnName = SQLController.COL_ALL_TAGS_NAME)
     private String all_tags_name;
     private List<Integer> tagIds;
+    private boolean bookLoaded=false;
 
     /**
      * Just empty constructor with empty book list and current updated time
@@ -136,6 +137,14 @@ public class Author  implements Serializable{
 
     public void setTag2Authors(ForeignCollection<Tag2Author> tag2Authors) {
         this.tag2Authors = tag2Authors;
+    }
+
+    public boolean isBookLoaded() {
+        return bookLoaded;
+    }
+
+    public void setBookLoaded(boolean bookLoaded) {
+        this.bookLoaded = bookLoaded;
     }
 
     @Override
