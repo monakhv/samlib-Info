@@ -163,6 +163,7 @@ public class MainActivity extends MyBaseAbstractActivity implements
 
         tagSQL = new TagController(getDatabaseHelper());
         //createDrawer();
+        refreshTags();
     }
 
     /**
@@ -383,8 +384,8 @@ public class MainActivity extends MyBaseAbstractActivity implements
         if (progressString != null) {
             authorFragment.updateProgress(progressString);
         }
-        authorFragment.refresh();
-        refreshTags();
+        //authorFragment.refresh();
+        //refreshTags();
     }
 
     @Override

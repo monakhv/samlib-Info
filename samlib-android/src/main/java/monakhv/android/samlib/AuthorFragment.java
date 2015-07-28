@@ -98,6 +98,7 @@ public class AuthorFragment extends Fragment implements
     private boolean canUpdate;
     private SettingsHelper settingsHelper;
     private int selectedTag = SamLibConfig.TAG_AUTHOR_ALL;
+    private int aId=-1;//preserve selection
 
 
     public interface Callbacks {
@@ -229,13 +230,11 @@ public class AuthorFragment extends Fragment implements
             empty.setVisibility(View.GONE);
             emptyTagAuthor.setVisibility(View.GONE);
             authorRV.setVisibility(View.VISIBLE);
-            if (author != null){
-                selectAuthor(author.getId());
-
+            if (aId >0){
+                selectAuthor(aId);
+                aId=-1;
             }
-
         }
-
     }
 
     @Override
@@ -244,8 +243,11 @@ public class AuthorFragment extends Fragment implements
     }
 
     private void updateAdapter() {
-        mProgressBar.setVisibility(View.VISIBLE);
-        author=adapter.getSelected();
+        //mProgressBar.setVisibility(View.VISIBLE);
+        if (adapter.getSelected() != null){
+            aId=adapter.getSelected().getId();
+        }
+
         getLoaderManager().restartLoader(AUTHOR_LOADER_ID, null, this);
 
     }
@@ -289,16 +291,20 @@ public class AuthorFragment extends Fragment implements
 
     @Override
     public boolean singleClick(MotionEvent e) {
+        authorRV.playSoundEffect(SoundEffectConstants.CLICK);
         int position = authorRV.getChildAdapterPosition(authorRV.findChildViewUnder(e.getX(), e.getY()));
-        adapter.toggleSelection(position);
-        Author author = adapter.getSelected();
+
         Log.d(DEBUG_TAG, "Selected position: " + position);
+        adapter.toggleSelection(position);
+        authorRV.refreshDrawableState();
+        Author author = adapter.getSelected();
+
         if (author == null) {
             Log.e(DEBUG_TAG, "position: " + position + "  Author is NULL");
             return false;
         }
 
-        authorRV.playSoundEffect(SoundEffectConstants.CLICK);
+
         mCallbacks.onAuthorSelected(author.getId());
         return true;
         //return false;
@@ -523,6 +529,7 @@ public class AuthorFragment extends Fragment implements
 
 
     public void selectAuthor(long id) {
+        Log.d(DEBUG_TAG,"selectAuthor: id = "+id);
 
         int pos = adapter.findAndSelect(id);
         if (pos <0) {
@@ -542,7 +549,7 @@ public class AuthorFragment extends Fragment implements
      * @param so          sort order string
      */
     public void refresh(int selectedTag, AuthorSortOrder so) {
-        Log.d(DEBUG_TAG, "set Selection: " + selectedTag);
+        Log.d(DEBUG_TAG, "refresh: set Selection: " + selectedTag);
         cleanSelection();
         this.selectedTag = selectedTag;
         if (so != null) {
@@ -554,6 +561,7 @@ public class AuthorFragment extends Fragment implements
     }
 
     public void refresh() {
+        Log.d(DEBUG_TAG, "refresh: call ");
         updateAdapter();
     }
 
@@ -610,7 +618,7 @@ public class AuthorFragment extends Fragment implements
 //                onFinish(author_id);//go to books
 //            }
             Log.d(DEBUG_TAG, "go to Selected");
-            cleanSelection();
+            //cleanSelection();
             mCallbacks.onAuthorSelected(SamLibConfig.SELECTED_BOOK_ID);
         }
         return super.onOptionsItemSelected(item);
