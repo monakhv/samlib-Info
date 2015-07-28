@@ -24,6 +24,7 @@ import android.widget.Toast;
 
 import com.mikepenz.iconics.typeface.FontAwesome;
 import com.mikepenz.materialdrawer.Drawer;
+import com.mikepenz.materialdrawer.DrawerBuilder;
 import com.mikepenz.materialdrawer.model.*;
 import com.mikepenz.materialdrawer.model.interfaces.IDrawerItem;
 import com.mikepenz.materialdrawer.model.interfaces.OnCheckedChangeListener;
@@ -86,7 +87,7 @@ public class MainActivity extends MyBaseAbstractActivity implements
     private boolean isTagShow = false;
 
 
-    private Drawer.Result drResult;
+    private Drawer drResult;
     private final int menu_add_search = 1;
     private final int menu_settings = 3;
     private final int menu_data = 5;
@@ -215,7 +216,7 @@ public class MainActivity extends MyBaseAbstractActivity implements
         items.add(new PrimaryDrawerItem().withName(R.string.menu_settings).withIcon(FontAwesome.Icon.faw_cog).withIdentifier(menu_settings));
 
 
-        drResult = new Drawer()
+        drResult = new DrawerBuilder()
                 .withActivity(this)
                 .withToolbar(toolbar)
                 .withActionBarDrawerToggle(true)
@@ -254,9 +255,12 @@ public class MainActivity extends MyBaseAbstractActivity implements
 
 
     @Override
-    public void onItemClick(AdapterView<?> adapterView, View view, int i, long l, IDrawerItem iDrawerItem) {
+    public boolean onItemClick(AdapterView<?> adapterView, View view, int i, long l, IDrawerItem iDrawerItem) {
+        if (view == null){
+            return true;
+        }
         int ident = iDrawerItem.getIdentifier();
-        Log.i(DEBUG_TAG, "onItemClick: Identifier = " + ident+" position = "+i);
+        Log.i(DEBUG_TAG, "onItemClick: Identifier = " + ident);
         if (ident > 90) {//tag selection section
             selectedTagId = ident - tagsShift;
             Log.d(DEBUG_TAG, "onItemClick: select tag = "+selectedTagId);
@@ -317,6 +321,7 @@ public class MainActivity extends MyBaseAbstractActivity implements
             }
 
         }
+        return false;
 
     }
 
@@ -324,7 +329,7 @@ public class MainActivity extends MyBaseAbstractActivity implements
         if (tagSQL.getById(selectedTagId) == null) {
             selectedTagId = SamLibConfig.TAG_AUTHOR_ALL;
         }
-        drResult.setSelectionByIdentifier(selectedTagId + tagsShift);
+        drResult.setSelectionByIdentifier(selectedTagId + tagsShift,false);
     }
 
     @Override
@@ -611,7 +616,8 @@ public class MainActivity extends MyBaseAbstractActivity implements
                     CharSequence msg = intent.getCharSequenceExtra(AndroidGuiUpdater.TOAST_STRING);
                     Toast toast = Toast.makeText(context, msg, duration);
 
-                    authorFragment.selectAuthor(id);
+                    authorFragment.refresh(id);
+
                     toast.show();
                     onAuthorSelected(id);
 

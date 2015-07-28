@@ -91,14 +91,14 @@ public class AuthorFragment extends Fragment implements
     private GestureDetector detector;
     private boolean updateAuthor = false;//true update the only selected author
     private Author author = null;//for context menu selection
-    private TextView updateTextView,emptyTagAuthor;
+    private TextView updateTextView, emptyTagAuthor;
     private ContextMenuDialog contextMenu;
 
     private View empty;
     private boolean canUpdate;
     private SettingsHelper settingsHelper;
     private int selectedTag = SamLibConfig.TAG_AUTHOR_ALL;
-    private int aId=-1;//preserve selection
+    private int aId = -1;//preserve selection
 
 
     public interface Callbacks {
@@ -144,7 +144,7 @@ public class AuthorFragment extends Fragment implements
         authorRV = (RecyclerView) view.findViewById(R.id.authorRV);
         empty = view.findViewById(R.id.add_author_panel);
         mProgressBar = (ProgressBar) view.findViewById(R.id.authorProgress);
-        emptyTagAuthor= (TextView) view.findViewById(R.id.emptyTagAuthor);
+        emptyTagAuthor = (TextView) view.findViewById(R.id.emptyTagAuthor);
 
 
         authorRV.setHasFixedSize(true);
@@ -163,7 +163,7 @@ public class AuthorFragment extends Fragment implements
                 return false;
             }
         });
-        adapter = new AuthorAdapter( this);
+        adapter = new AuthorAdapter(this);
 
         authorRV.setAdapter(adapter);
 
@@ -200,10 +200,9 @@ public class AuthorFragment extends Fragment implements
     }
 
 
-
     @Override
     public void makeNewFlip(int id) {
-        AuthorEditorServiceIntent.markAuthorRead(getActivity(),id);
+        AuthorEditorServiceIntent.markAuthorRead(getActivity(), id);
     }
 
     @Override
@@ -215,24 +214,22 @@ public class AuthorFragment extends Fragment implements
     public void onLoadFinished(Loader<List<Author>> loader, List<Author> data) {
         adapter.setData(data);
         mProgressBar.setVisibility(View.GONE);
-        if (adapter.getItemCount() == 0 ){
+        if (adapter.getItemCount() == 0) {
             authorRV.setVisibility(View.GONE);
-            if (selectedTag == SamLibConfig.TAG_AUTHOR_ALL){
+            if (selectedTag == SamLibConfig.TAG_AUTHOR_ALL) {
                 empty.setVisibility(View.VISIBLE);
                 emptyTagAuthor.setVisibility(View.GONE);
-            }
-            else {
+            } else {
                 empty.setVisibility(View.GONE);
                 emptyTagAuthor.setVisibility(View.VISIBLE);
             }
-        }
-        else {
+        } else {
             empty.setVisibility(View.GONE);
             emptyTagAuthor.setVisibility(View.GONE);
             authorRV.setVisibility(View.VISIBLE);
-            if (aId >0){
+            if (aId > 0) {
                 selectAuthor(aId);
-                aId=-1;
+                aId = -1;
             }
         }
     }
@@ -244,10 +241,17 @@ public class AuthorFragment extends Fragment implements
 
     private void updateAdapter() {
         //mProgressBar.setVisibility(View.VISIBLE);
-        if (adapter.getSelected() != null){
-            aId=adapter.getSelected().getId();
+        if (adapter.getSelected() != null) {
+            aId = adapter.getSelected().getId();
         }
 
+        getLoaderManager().restartLoader(AUTHOR_LOADER_ID, null, this);
+
+    }
+
+    private void updateAdapter(int id) {
+        //mProgressBar.setVisibility(View.VISIBLE);
+        aId = id;
         getLoaderManager().restartLoader(AUTHOR_LOADER_ID, null, this);
 
     }
@@ -416,7 +420,8 @@ public class AuthorFragment extends Fragment implements
         }
 
     }
-    private void updateAuthor(Author author){
+
+    private void updateAuthor(Author author) {
         AuthorController sql = new AuthorController(mCallbacks.getDatabaseHelper());
         sql.update(author);
         updateAdapter();
@@ -530,10 +535,10 @@ public class AuthorFragment extends Fragment implements
 
 
     public void selectAuthor(long id) {
-        Log.d(DEBUG_TAG,"selectAuthor: id = "+id);
+        Log.d(DEBUG_TAG, "selectAuthor: id = " + id);
 
         int pos = adapter.findAndSelect(id);
-        if (pos <0) {
+        if (pos < 0) {
             Log.e(DEBUG_TAG, "selectAuthor: id not found - " + id);
             return;
         }
@@ -566,6 +571,12 @@ public class AuthorFragment extends Fragment implements
         Log.d(DEBUG_TAG, "refresh: call ");
         updateAdapter();
     }
+
+    public void refresh(long id) {
+        Log.d(DEBUG_TAG, "refresh: call for add ");
+        updateAdapter((int) id);
+    }
+
 
     /**
      * set sort order and restart loader to make is  actual
