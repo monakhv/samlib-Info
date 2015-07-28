@@ -1,17 +1,10 @@
 #
-# generated on 2015/07/27 05:11:00
+# generated on 2015/07/28 01:00:34
 #
 # --table-start--
 dataClass=monakhv.samlib.db.entity.Author
 tableName=Author
 # --table-fields-start--
-# --field-start--
-fieldName=books
-columnName=COL_BOOKS
-foreignCollection=true
-foreignCollectionEager=true
-foreignCollectionColumnName=COL_BOOKS
-# --field-end--
 # --field-start--
 fieldName=name
 columnName=NAME
@@ -36,7 +29,6 @@ generatedId=true
 # --field-start--
 fieldName=tag2Authors
 foreignCollection=true
-foreignCollectionEager=true
 # --field-end--
 # --field-start--
 fieldName=all_tags_name

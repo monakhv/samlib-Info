@@ -158,7 +158,7 @@ public class AddAuthorRestore extends AsyncTask<String, Void, Boolean> {
             return null;
         }
         try {
-            a = http.addAuthor(text, sql.getEmptyObject());
+            a = http.addAuthor(text, new Author());
         } catch (IOException ex) {
             Log.e(DEBUG_TAG, "DownLoad Error for URL: " + text, ex);
 

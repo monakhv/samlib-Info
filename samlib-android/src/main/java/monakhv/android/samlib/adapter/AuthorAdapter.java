@@ -137,6 +137,7 @@ public class AuthorAdapter extends RecyclerAdapter<Author, AuthorAdapter.ViewHol
             } else {
                 mCallBack.makeNewFlip(author.getId());
             }
+            toggleSelection(NOT_SELECTED,false);//clean selection
         }
 
 

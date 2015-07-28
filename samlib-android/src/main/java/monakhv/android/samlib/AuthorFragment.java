@@ -294,13 +294,13 @@ public class AuthorFragment extends Fragment implements
         authorRV.playSoundEffect(SoundEffectConstants.CLICK);
         int position = authorRV.getChildAdapterPosition(authorRV.findChildViewUnder(e.getX(), e.getY()));
 
-        Log.d(DEBUG_TAG, "Selected position: " + position);
+        Log.d(DEBUG_TAG, "singleClick: Selected position: " + position);
         adapter.toggleSelection(position);
         authorRV.refreshDrawableState();
         Author author = adapter.getSelected();
 
         if (author == null) {
-            Log.e(DEBUG_TAG, "position: " + position + "  Author is NULL");
+            Log.e(DEBUG_TAG, "singleClick: position: " + position + "  Author is NULL");
             return false;
         }
 
@@ -313,7 +313,7 @@ public class AuthorFragment extends Fragment implements
 
     @Override
     public boolean swipeRight(MotionEvent e) {
-        int position = authorRV.getChildPosition(authorRV.findChildViewUnder(e.getX(), e.getY()));
+        int position = authorRV.getChildAdapterPosition(authorRV.findChildViewUnder(e.getX(), e.getY()));
         adapter.toggleSelection(position, false);
 
         author = adapter.getSelected();
@@ -329,10 +329,11 @@ public class AuthorFragment extends Fragment implements
 
     @Override
     public boolean swipeLeft(MotionEvent e) {
-        int position = authorRV.getChildPosition(authorRV.findChildViewUnder(e.getX(), e.getY()));
+        int position = authorRV.getChildAdapterPosition(authorRV.findChildViewUnder(e.getX(), e.getY()));
         adapter.toggleSelection(position);
 
         author = adapter.getSelected();
+        adapter.cleanSelection();
 
         if (author == null) {
             return false;
@@ -352,7 +353,7 @@ public class AuthorFragment extends Fragment implements
 
     @Override
     public void longPress(MotionEvent e) {
-        int position = authorRV.getChildPosition(authorRV.findChildViewUnder(e.getX(), e.getY()));
+        int position = authorRV.getChildAdapterPosition(authorRV.findChildViewUnder(e.getX(), e.getY()));
         adapter.toggleSelection(position);
 
         author = adapter.getSelected();
@@ -476,9 +477,9 @@ public class AuthorFragment extends Fragment implements
     };
 
     public void searchOrAdd() {
-        View v = getActivity().findViewById(R.id.add_author_panel);
 
-        v.setVisibility(View.VISIBLE);
+
+        empty.setVisibility(View.VISIBLE);
 
         String txt = null;
         try {
@@ -534,6 +535,7 @@ public class AuthorFragment extends Fragment implements
         int pos = adapter.findAndSelect(id);
         if (pos <0) {
             Log.e(DEBUG_TAG, "selectAuthor: id not found - " + id);
+            return;
         }
         authorRV.smoothScrollToPosition(pos);
     }

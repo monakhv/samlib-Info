@@ -107,7 +107,7 @@ public class BookFragment extends Fragment implements
         } else {
             author_id = getActivity().getIntent().getExtras().getLong(AUTHOR_ID, 0);
         }
-        Log.i(DEBUG_TAG, "author_id = " + author_id);
+        Log.i(DEBUG_TAG, "onCreate: author_id = " + author_id);
 
         detector = new GestureDetector(getActivity(), new ListSwipeListener(this));
 
@@ -171,6 +171,7 @@ public class BookFragment extends Fragment implements
     @Override
     public void onLoadFinished(Loader<List<Book>> loader, List<Book> data) {
         adapter.setData(data);
+        Log.d(DEBUG_TAG,"onLoadFinished: adapter size = "+adapter.getItemCount());
         mProgressBar.setVisibility(View.GONE);
         makeEmpty();
     }

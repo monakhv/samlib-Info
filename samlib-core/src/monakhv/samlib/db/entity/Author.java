@@ -36,9 +36,9 @@ import java.util.List;
  */
 @DatabaseTable(tableName = SQLController.TABLE_AUTHOR)
 public class Author  implements Serializable{
-    public static final String COL_BOOKS="COL_BOOKS";
-    @ForeignCollectionField(eager =true, columnName =COL_BOOKS )
-    protected ForeignCollection<Book> books;
+
+
+    protected List<Book> books;
     @DatabaseField(columnName = SQLController.COL_NAME)
     protected String name;
     @DatabaseField(columnName = SQLController.COL_mtime)
@@ -49,7 +49,7 @@ public class Author  implements Serializable{
     protected boolean isNew = false;
     @DatabaseField(columnName = SQLController.COL_ID, generatedId = true)
     protected int id;
-    @ForeignCollectionField(eager = true)
+    @ForeignCollectionField
     private ForeignCollection<Tag2Author> tag2Authors;
     @DatabaseField(columnName = SQLController.COL_ALL_TAGS_NAME)
     private String all_tags_name;
@@ -60,7 +60,7 @@ public class Author  implements Serializable{
      */
     public Author() {
         updateDate = Calendar.getInstance().getTime().getTime();
-        //books = new ArrayList<Book>();
+        books = new ArrayList<>();
 
     }
 
@@ -72,11 +72,11 @@ public class Author  implements Serializable{
         this.id = id;
     }
 
-    public ForeignCollection<Book> getBooks() {
+    public List<Book> getBooks() {
         return books;
     }
 
-    public void setBooks(ForeignCollection<Book> books) {
+    public void setBooks(List<Book> books) {
         this.books = books;
     }
 
@@ -192,10 +192,10 @@ public class Author  implements Serializable{
      * @return true if we need update Author info into data base
      */
     private boolean testUpdate(Author newA) {
-        
+
         boolean res=false;
         for (Book b : newA.books) {
-            if (books.contains(b)) {//old book                
+            if (books.contains(b)) {//old book
                 b.setIsNew(false);
             }
             else {//new book

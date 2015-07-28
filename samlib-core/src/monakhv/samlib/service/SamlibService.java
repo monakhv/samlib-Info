@@ -75,10 +75,10 @@ public class SamlibService {
         int total = authors.size();
         int iCurrent = 0;//to send update information to pull-to-refresh
         for (Author a : authors) {//main author cycle
-            guiUpdate.sendAuthorUpdateProgress(total,++iCurrent,a.getName());
-
+            guiUpdate.sendAuthorUpdateProgress(total, ++iCurrent, a.getName());
+            authorController.loadBooks(a);
             String url = a.getUrl();
-            Author newA=authorController.getEmptyObject();
+            Author newA=new Author();
             try {
                 newA = http.getAuthorByURL(url,newA);
             } catch (IOException ex) {//here we abort cycle author and total update
@@ -102,7 +102,7 @@ public class SamlibService {
                     loadBook(a);
                 }
 
-                guiUpdate.makeUpdate(false);
+                guiUpdate.makeUpdate(true);
             }
 
             try {
@@ -161,6 +161,7 @@ public class SamlibService {
             Log.e(DEBUG_TAG,"makeBookReadFlip: book not found id = "+id);
             return;
         }
+        Log.d(DEBUG_TAG,"makeBookReadFlip: book_id = "+id+" author_id = "+book.getAuthor().getId());
 
         if (book.isIsNew()){
             authorController.getBookController().markRead(book);
@@ -308,7 +309,7 @@ public class SamlibService {
             return null;
         }
         try {
-            a = http.addAuthor(text,sql.getEmptyObject());
+            a = http.addAuthor(text,new Author());
         } catch (IOException ex) {
             Log.e(DEBUG_TAG, "DownLoad Error for URL: " + text, ex);
 

@@ -2,7 +2,6 @@ package monakhv.samlib.db;
 
 
 import com.j256.ormlite.dao.Dao;
-import com.j256.ormlite.dao.ForeignCollection;
 import com.j256.ormlite.stmt.PreparedQuery;
 import com.j256.ormlite.stmt.QueryBuilder;
 import monakhv.samlib.db.entity.*;
@@ -60,22 +59,7 @@ public class AuthorController implements AbstractController<Author> {
 
     }
 
-    /**
-     * Make new Author object with zero-length Foreign Collection Field
-     * @return new Author object
-     */
-    public Author getEmptyObject(){
-        Author a = new Author();
 
-        try {
-            ForeignCollection<Book> books = dao.getEmptyForeignCollection(Author.COL_BOOKS);
-            a.setBooks(books);
-        } catch (SQLException e) {
-            Log.e(DEBUG_TAG,"foreign collection error",e);
-        }
-
-        return a;
-    }
 
     /**
      * Mark Author and all it's book as read
@@ -84,10 +68,11 @@ public class AuthorController implements AbstractController<Author> {
      * @return id of the Author
      */
     public int markRead(Author a) {
+        loadBooks(a);
         a.setIsNew(false);
         int ires = update(a);
-        List<Book> books = bookCtl.getAll(a,null);
-        for (Book book : books) {
+
+        for (Book book : a.getBooks()) {
             if (book.isIsNew()) {
                 book.setIsNew(false);
                 bookCtl.update(book);
@@ -277,6 +262,7 @@ public class AuthorController implements AbstractController<Author> {
         updateAuthorTags(getAll());
     }
     public void updateTags(Author author){
+        loadBooks(author);
         if (author.getTag2Authors()==null){
             Log.e(DEBUG_TAG,"updateTags: T2A Collection is NULL for Author "+ author.getName());
             return;
@@ -390,8 +376,9 @@ public class AuthorController implements AbstractController<Author> {
      * @return true if the  author has at least one unread book
      */
     public boolean getReadStatus(Author a){
-        List<Book> books = bookCtl.getBooksByAuthor(a);
-        for (Book book : books) {
+        loadBooks(a);
+
+        for (Book book : a.getBooks()) {
             if (book.isIsNew()) {
                 return true;
             }
@@ -408,7 +395,7 @@ public class AuthorController implements AbstractController<Author> {
      */
     public boolean syncTags(Author author, List<Tag>tags){
 
-        boolean bres =t2aCtl.sync(author,tags);
+        boolean bres =t2aCtl.sync(author, tags);
         author=getById(author.getId());
         if (bres){
             Log.d(DEBUG_TAG,"syncTags: making update for All_Tags_String for "+author.getName());
@@ -417,4 +404,7 @@ public class AuthorController implements AbstractController<Author> {
         return  bres;
     }
 
+    public void loadBooks(Author a) {
+        a.setBooks(getBookController().getBooksByAuthor(a));
+    }
 }
