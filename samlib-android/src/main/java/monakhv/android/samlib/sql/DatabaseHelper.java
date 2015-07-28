@@ -7,6 +7,7 @@ import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.stmt.QueryBuilder;
 import com.j256.ormlite.support.ConnectionSource;
 import com.j256.ormlite.table.TableUtils;
+import monakhv.android.samlib.R;
 import monakhv.samlib.db.DaoBuilder;
 import monakhv.samlib.db.SQLController;
 import monakhv.samlib.db.entity.Author;
@@ -45,7 +46,7 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper implements DaoBuilde
     private Dao<Tag,Integer>     tagDao;
     private Dao<Tag2Author, Integer>        t2aDao;
     public DatabaseHelper(Context context){
-        super(context, SQLController.DB_NAME, null, SQLController.DB_VERSION);
+        super(context, SQLController.DB_NAME, null, SQLController.DB_VERSION, R.raw.ormlite_config);
 
     }
     @Override
