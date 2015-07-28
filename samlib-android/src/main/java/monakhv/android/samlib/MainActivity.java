@@ -232,7 +232,7 @@ public class MainActivity extends MyBaseAbstractActivity implements
 
     @Override
     public void showTags(long author_id) {
-        Log.d(DEBUG_TAG, "go to Tags author_id = "+author_id);
+        Log.d(DEBUG_TAG, "showTags: go to Tags author_id = "+author_id);
 
         final FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
         ft.replace(R.id.listBooksFragment, tagFragment);
@@ -249,16 +249,17 @@ public class MainActivity extends MyBaseAbstractActivity implements
     public void onCheckedChanged(IDrawerItem iDrawerItem, CompoundButton compoundButton, boolean b) {
         String sTag = (String) iDrawerItem.getTag();
         int iDent = iDrawerItem.getIdentifier();
-        Log.i(DEBUG_TAG, "Check change: tag - " + sTag + " - " + iDent + " - " + b);
+        Log.i(DEBUG_TAG, "onCheckedChanged: tag - " + sTag + " - " + iDent + " - " + b);
     }
 
 
     @Override
     public void onItemClick(AdapterView<?> adapterView, View view, int i, long l, IDrawerItem iDrawerItem) {
         int ident = iDrawerItem.getIdentifier();
-        Log.i(DEBUG_TAG, "Identifier: " + ident);
+        Log.i(DEBUG_TAG, "onItemClick: Identifier = " + ident+" position = "+i);
         if (ident > 90) {//tag selection section
             selectedTagId = ident - tagsShift;
+            Log.d(DEBUG_TAG, "onItemClick: select tag = "+selectedTagId);
             authorFragment.selectTag(selectedTagId, (String) iDrawerItem.getTag());
         }
         if (ident == menu_selected) {
@@ -267,7 +268,7 @@ public class MainActivity extends MyBaseAbstractActivity implements
             restoreTagSelection();
         }
         if (ident == menu_settings) {
-            Log.d(DEBUG_TAG, "go to Settings");
+            Log.d(DEBUG_TAG, "onItemClick: go to Settings");
             Intent prefsIntent = new Intent(getApplicationContext(),
                     SamlibPreferencesActivity.class);
             //prefsIntent.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
@@ -276,7 +277,7 @@ public class MainActivity extends MyBaseAbstractActivity implements
             startActivityForResult(prefsIntent, MainActivity.PREFS_ACTIVITY);
         }
         if (ident == menu_data) {
-            Log.d(DEBUG_TAG, "go to Archive");
+            Log.d(DEBUG_TAG, "onItemClick: go to Archive");
             Intent prefsIntent = new Intent(getApplicationContext(),
                     ArchiveActivity.class);
             restoreTagSelection();
@@ -284,6 +285,7 @@ public class MainActivity extends MyBaseAbstractActivity implements
             startActivityForResult(prefsIntent, MainActivity.ARCHIVE_ACTIVITY);
         }
         if (ident == menu_add_search) {
+            Log.d(DEBUG_TAG, "onItemClick: go to add or search");
             drResult.setSelectionByIdentifier(SamLibConfig.TAG_AUTHOR_ALL + tagsShift);
             authorFragment.searchOrAdd();
         }
