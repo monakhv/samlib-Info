@@ -120,6 +120,7 @@ public class SamlibService {
             guiUpdate.finishUpdate(true,updatedAuthors);
 
         }
+        authorController.cleanBooks();
 
     }
     /**

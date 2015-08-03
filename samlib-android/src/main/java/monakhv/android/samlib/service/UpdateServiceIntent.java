@@ -102,9 +102,9 @@ public class UpdateServiceIntent extends MyServiceIntent {
             }
 
         }
-        if (idx == SamLibConfig.TAG_AUTHOR_ID) {
+        if (idx == SamLibConfig.TAG_AUTHOR_ID) {//Check update for the only Author
 
-            int id = intent.getIntExtra(SELECT_ID, 0);
+            int id = intent.getIntExtra(SELECT_ID, 0);//author_id
             Author author = ctl.getById(id);
             if (author != null) {
                 authors = new ArrayList<>();

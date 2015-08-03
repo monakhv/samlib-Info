@@ -47,18 +47,16 @@ public class AuthorController implements AbstractController<Author> {
     private final Dao<Tag2Author, Integer> t2aDao;
 
 
-
     public AuthorController(DaoBuilder sql) {
 
         dao = sql.getAuthorDao();
         t2aDao = sql.getT2aDao();
         this.bookCtl = new BookController(sql);
-        this.t2aCtl=new Tag2AuthorController(sql);
+        this.t2aCtl = new Tag2AuthorController(sql);
         this.tagCtl = new TagController(sql);
 
 
     }
-
 
 
     /**
@@ -85,14 +83,12 @@ public class AuthorController implements AbstractController<Author> {
 
     /**
      * Update Author object
+     *
      * @param author Author to update
      * @return id
      */
     @Override
     public int update(Author author) {
-        if (! author.isBookLoaded()){
-            loadBooks(author);
-        }
 
         int res;
 
@@ -102,6 +98,10 @@ public class AuthorController implements AbstractController<Author> {
             Log.e(DEBUG_TAG, "can not update: ", e);
             return -1;
         }
+        if (!author.isBookLoaded()) {//books are not loaded since update the author only without books
+            return res ;
+        }
+
 
         //Books of the author update
         BookCollection oldBooks = new BookCollection(bookCtl.getAll(author, null));//old books from BD
@@ -131,6 +131,7 @@ public class AuthorController implements AbstractController<Author> {
 
     /**
      * Make persist new Author object
+     *
      * @param author Author to persist
      * @return id
      */
@@ -155,6 +156,7 @@ public class AuthorController implements AbstractController<Author> {
 
     /**
      * Delete author object from Data base
+     *
      * @param author Author to delete
      * @return id
      */
@@ -168,7 +170,7 @@ public class AuthorController implements AbstractController<Author> {
 
         //Delete Author
 
-        int res ;
+        int res;
 
         try {
             res = dao.delete(author);
@@ -191,29 +193,24 @@ public class AuthorController implements AbstractController<Author> {
 
         QueryBuilder<Author, Integer> statement = dao.queryBuilder();
 
-        List<Author> rr=query(getPrepared(statement, SQLController.COL_URL, url));
+        List<Author> rr = query(getPrepared(statement, SQLController.COL_URL, url));
 
-        if (rr== null || rr.size() != 1) {
-
+        if (rr == null || rr.size() != 1) {
             return null;
-
         }
         return rr.get(0);
     }
 
 
-
-
-    private List<Author> query(PreparedQuery<Author> prep){
+    private List<Author> query(PreparedQuery<Author> prep) {
         List<Author> rr;
 
 
-
-        if (prep == null){
-            Log.e(DEBUG_TAG,"query: prepare error");
+        if (prep == null) {
+            Log.e(DEBUG_TAG, "query: prepare error");
         }
         try {
-            rr=dao.query(prep);
+            rr = dao.query(prep);
         } catch (SQLException e) {
             Log.e(DEBUG_TAG, "query: query error");
             return null;
@@ -221,28 +218,30 @@ public class AuthorController implements AbstractController<Author> {
 
         return rr;
     }
+
     /**
-     *  Very general method to make SQL query like this
-     *  <i>Select * from Author WHERE x=y</i>
-     * @param cb QueryBuilder could be make sorted calls
+     * Very general method to make SQL query like this
+     * <i>Select * from Author WHERE x=y</i>
+     *
+     * @param cb         QueryBuilder could be make sorted calls
      * @param ColumnName Column name for WHERE or null when select ALL items
-     * @param object Object for WHERE =
+     * @param object     Object for WHERE =
      * @return preparedQuery
      */
-    private PreparedQuery<Author> getPrepared(QueryBuilder<Author,Integer>  cb,String ColumnName, Object object){
+    private PreparedQuery<Author> getPrepared(QueryBuilder<Author, Integer> cb, String ColumnName, Object object) {
 
         try {
             if (ColumnName != null) {
                 if (ColumnName.equalsIgnoreCase(SQLController.COL_ID) && object instanceof QueryBuilder) {
-                    Log.d(DEBUG_TAG,"PreparedQuery: running where IN query");
+                    //Log.d(DEBUG_TAG, "PreparedQuery: running where IN query");
                     cb.where().in(ColumnName, (QueryBuilder<Tag2Author, Integer>) object);
                 } else {
                     Log.d(DEBUG_TAG, "PreparedQuery: running where EQ query");
                     cb.where().eq(ColumnName, object);
                 }
             }
-            return  cb.prepare();
-        }catch (SQLException e) {
+            return cb.prepare();
+        } catch (SQLException e) {
             Log.e(DEBUG_TAG, "getPrepared  error: " + cb.toString(), e);
             return null;
         }
@@ -256,27 +255,29 @@ public class AuthorController implements AbstractController<Author> {
      *
      * @param authors list of the authors
      */
-    public void updateAuthorTags(List<Author> authors){
-        for (Author author : authors ){
+    public void updateAuthorTags(List<Author> authors) {
+        for (Author author : authors) {
             updateTags(author);
         }
     }
-    public void updateAuthorTags(){
+
+    public void updateAuthorTags() {
         updateAuthorTags(getAll());
     }
-    public void updateTags(Author author){
-        loadBooks(author);
-        if (author.getTag2Authors()==null){
-            Log.e(DEBUG_TAG,"updateTags: T2A Collection is NULL for Author "+ author.getName());
+
+    public void updateTags(Author author) {
+
+        if (author.getTag2Authors() == null) {
+            Log.e(DEBUG_TAG, "updateTags: T2A Collection is NULL for Author " + author.getName());
             return;
         }
         int num = author.getTag2Authors().size();
-        int i =1;
+        int i = 1;
         StringBuilder sb = new StringBuilder();
-        Log.d(DEBUG_TAG,"updateTags: author "+author.getName()+" has "+num+" tags");
-        for (Tag2Author t2a : author.getTag2Authors()){
+        //Log.d(DEBUG_TAG, "updateTags: author " + author.getName() + " has " + num + " tags");
+        for (Tag2Author t2a : author.getTag2Authors()) {
             sb.append(tagCtl.getById(t2a.getTag().getId()).getName());
-            if (i<num){
+            if (i < num) {
                 sb.append(", ");
             }
             ++i;
@@ -287,19 +288,18 @@ public class AuthorController implements AbstractController<Author> {
 
     /**
      * the main method to query authors
-     *
+     * <p/>
      * SamLibConfig.TAG_AUTHOR_ALL - all authors
      * SamLibConfig.TAG_AUTHOR_NEW - authors with new books
      *
-     *
      * @param iselectTag ALL, New or TAG-id
-     * @param rowSort -- SQL order part statement - can be null
+     * @param rowSort    -- SQL order part statement - can be null
      * @return list of the authors
      */
-    public synchronized List<Author> getAll(int iselectTag, String rowSort){
+    public synchronized List<Author> getAll(int iselectTag, String rowSort) {
         PreparedQuery<Author> prep = getPrepared(iselectTag, rowSort);
 
-        if (prep == null){
+        if (prep == null) {
             Log.e(DEBUG_TAG, "getAll: prepare error");
             return null;
         }
@@ -308,32 +308,31 @@ public class AuthorController implements AbstractController<Author> {
     }
 
 
-
-    private PreparedQuery<Author> getPrepared(int isel, String rowSort){
+    private PreparedQuery<Author> getPrepared(int isel, String rowSort) {
         QueryBuilder<Author, Integer> statement = dao.queryBuilder();
-        if (rowSort != null){
+        if (rowSort != null) {
             statement.orderByRaw(rowSort);
         }
-        if (isel == SamLibConfig.TAG_AUTHOR_ALL){//return ALL Authors
-            Log.d(DEBUG_TAG,"getPrepared: query ALL Authors");
+        if (isel == SamLibConfig.TAG_AUTHOR_ALL) {//return ALL Authors
+            //Log.d(DEBUG_TAG, "getPrepared: query ALL Authors");
             return getPrepared(statement, null, null);
         }
-        if (isel == SamLibConfig.TAG_AUTHOR_NEW){//return Authors with new Books
+        if (isel == SamLibConfig.TAG_AUTHOR_NEW) {//return Authors with new Books
             return getPrepared(statement, SQLController.COL_isnew, true);
         }
         Tag tag = tagCtl.getById(isel);
-        if (tag == null){
-            Log.e(DEBUG_TAG,"getPrepared: wrong tag: "+isel+"<");
+        if (tag == null) {
+            Log.e(DEBUG_TAG, "getPrepared: wrong tag: " + isel + "<");
             return null;
         }
-        QueryBuilder<Tag2Author,Integer> t2aqb = t2aDao.queryBuilder();
+        QueryBuilder<Tag2Author, Integer> t2aqb = t2aDao.queryBuilder();
         t2aqb.selectColumns(SQLController.COL_T2A_AUTHORID);
 
         try {
-            t2aqb.where().eq(SQLController.COL_T2A_TAGID,tag);
+            t2aqb.where().eq(SQLController.COL_T2A_TAGID, tag);
 
         } catch (SQLException e) {
-            Log.e(DEBUG_TAG,"getPrepared:  SQL Error");
+            Log.e(DEBUG_TAG, "getPrepared:  SQL Error");
             return null;
         }
         return getPrepared(statement, SQLController.COL_ID, t2aqb);
@@ -345,9 +344,9 @@ public class AuthorController implements AbstractController<Author> {
         Integer dd = (int) id;
         Author a;
         try {
-            a= dao.queryForId(dd);
+            a = dao.queryForId(dd);
         } catch (SQLException e) {
-            Log.e(DEBUG_TAG,"getById - Error",e);
+            Log.e(DEBUG_TAG, "getById - Error", e);
             return null;
         }
 
@@ -363,7 +362,7 @@ public class AuthorController implements AbstractController<Author> {
     /**
      * Set author new status according to the its book status
      *
-     * @param a   Author object
+     * @param a Author object
      * @return true if the author has unread books
      */
     public boolean testMarkRead(Author a) {
@@ -373,12 +372,13 @@ public class AuthorController implements AbstractController<Author> {
         return false;
     }
 
-     /**
+    /**
      * Whether the author has unread books or not
+     *
      * @param a Author object
      * @return true if the  author has at least one unread book
      */
-    public boolean getReadStatus(Author a){
+    public boolean getReadStatus(Author a) {
         loadBooks(a);
 
         for (Book book : a.getBooks()) {
@@ -392,23 +392,40 @@ public class AuthorController implements AbstractController<Author> {
 
     /**
      * Making tags for the Author according to th given list
+     *
      * @param author the Author
-     * @param tags list of tags
+     * @param tags   list of tags
      * @return true if  database sync was done
      */
-    public boolean syncTags(Author author, List<Tag>tags){
+    public boolean syncTags(Author author, List<Tag> tags) {
 
-        boolean bres =t2aCtl.sync(author, tags);
-        author=getById(author.getId());
-        if (bres){
-            Log.d(DEBUG_TAG,"syncTags: making update for All_Tags_String for "+author.getName());
+        boolean bres = t2aCtl.sync(author, tags);
+        author = getById(author.getId());
+        if (bres) {
+            //Log.d(DEBUG_TAG, "syncTags: making update for All_Tags_String for " + author.getName());
             updateTags(author);
         }
-        return  bres;
+        return bres;
     }
 
+    /**
+     * Find books of the author and load them into object
+     * @param a Author object to load books for
+     */
     public void loadBooks(Author a) {
         a.setBooks(getBookController().getBooksByAuthor(a));
         a.setBookLoaded(true);
+    }
+
+    /**
+     * Ugly hack to cleanup database
+     * DELETE from Book where author_id=0
+     */
+    public void cleanBooks(){
+        try {
+            dao.executeRawNoArgs("DELETE from "+SQLController.TABLE_BOOKS+"  where " + SQLController.COL_BOOK_AUTHOR_ID+" = 0");
+        } catch (SQLException e) {
+            Log.e(DEBUG_TAG,"Delete clean books: ",e);
+        }
     }
 }
