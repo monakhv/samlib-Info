@@ -233,11 +233,12 @@ public class MainActivity extends MyBaseAbstractActivity implements
 
     @Override
     public void showTags(long author_id) {
-        Log.d(DEBUG_TAG, "showTags: go to Tags author_id = "+author_id);
+        Log.d(DEBUG_TAG, "showTags: go to Tags author_id = " + author_id);
 
         final FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
         ft.replace(R.id.listBooksFragment, tagFragment);
         ft.addToBackStack(null);
+        ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
         ft.commit();
         isTagShow = true;
 
@@ -563,6 +564,7 @@ public class MainActivity extends MyBaseAbstractActivity implements
         Log.d(DEBUG_TAG, "Return to Books");
         final FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
         ft.replace(R.id.listBooksFragment, bookFragment);
+        ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_CLOSE);
         ft.commit();
         isTagShow = false;
     }
