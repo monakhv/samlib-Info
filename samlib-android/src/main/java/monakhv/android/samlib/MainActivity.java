@@ -103,6 +103,7 @@ public class MainActivity extends MyBaseAbstractActivity implements
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        Log.d(DEBUG_TAG,"onCreate");
         settingsHelper = new SettingsHelper(this);
         setTheme(settingsHelper.getTheme());
         super.onCreate(savedInstanceState);
@@ -326,6 +327,9 @@ public class MainActivity extends MyBaseAbstractActivity implements
 
     }
 
+    /**
+     * Restore selection of the tag into Drawer
+     */
     private void restoreTagSelection() {
         if (tagSQL.getById(selectedTagId) == null) {
             selectedTagId = SamLibConfig.TAG_AUTHOR_ALL;
@@ -335,6 +339,7 @@ public class MainActivity extends MyBaseAbstractActivity implements
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
+        Log.d(DEBUG_TAG,"onSaveInstanceState");
         super.onSaveInstanceState(outState);
         outState.putInt(SELECTED_TAG_ID, selectedTagId);
         outState.putString(PROGRESS_STRING, progressString);
@@ -342,10 +347,12 @@ public class MainActivity extends MyBaseAbstractActivity implements
 
     @Override
     protected void onRestoreInstanceState(@NonNull Bundle savedInstanceState) {
+        Log.d(DEBUG_TAG,"onRestoreInstanceState");
         super.onRestoreInstanceState(savedInstanceState);
         selectedTagId = savedInstanceState.getInt(SELECTED_TAG_ID, SamLibConfig.TAG_AUTHOR_ALL);
         progressString = savedInstanceState.getString(PROGRESS_STRING);
-
+        authorFragment.selectTag(selectedTagId,tagSQL.getById(selectedTagId).getName());
+        restoreTagSelection();
     }
 
     @Override
@@ -365,6 +372,7 @@ public class MainActivity extends MyBaseAbstractActivity implements
 
     @Override
     protected void onResume() {
+        Log.d(DEBUG_TAG,"onResume");
         super.onResume();
 
         IntentFilter updateFilter = new IntentFilter(AndroidGuiUpdater.ACTION_RESP);
@@ -636,7 +644,7 @@ public class MainActivity extends MyBaseAbstractActivity implements
     }
 
     private void refreshTags() {
-        Log.d(DEBUG_TAG,"making refresh tags");
+        Log.d(DEBUG_TAG,"refreshTags: making refresh tags");
         createDrawer();
         authorFragment.makePulToRefresh();
     }
