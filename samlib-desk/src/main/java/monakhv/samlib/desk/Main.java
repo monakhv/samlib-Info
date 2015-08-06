@@ -1,13 +1,11 @@
 package monakhv.samlib.desk;
 
-import monakhv.samlib.db.SQLController;
+
 import monakhv.samlib.desk.data.Settings;
 import monakhv.samlib.desk.gui.MainForm;
 
 import java.sql.SQLException;
-import java.text.Collator;
-import java.text.RuleBasedCollator;
-import java.util.Locale;
+
 
 /*
  * Copyright 2015  Dmitry Monakhov
