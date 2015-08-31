@@ -10,6 +10,7 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
+import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -159,7 +160,8 @@ public class BookFragment extends Fragment implements
         emptyText.setVisibility(View.GONE);
         bookRV.setVisibility(View.GONE);
         mProgressBar.setVisibility(View.VISIBLE);
-        getLoaderManager().initLoader(BOOK_LOADER_ID,null,this);
+        getLoaderManager().initLoader(BOOK_LOADER_ID, null, this);
+        bookRV.setItemAnimator(new DefaultItemAnimator());
         return view;
     }
 

@@ -347,12 +347,15 @@ public class MainActivity extends MyBaseAbstractActivity implements
 
     @Override
     protected void onRestoreInstanceState(@NonNull Bundle savedInstanceState) {
-        Log.d(DEBUG_TAG,"onRestoreInstanceState");
+        Log.d(DEBUG_TAG, "onRestoreInstanceState");
         super.onRestoreInstanceState(savedInstanceState);
         selectedTagId = savedInstanceState.getInt(SELECTED_TAG_ID, SamLibConfig.TAG_AUTHOR_ALL);
         progressString = savedInstanceState.getString(PROGRESS_STRING);
-        authorFragment.selectTag(selectedTagId,tagSQL.getById(selectedTagId).getName());
-        restoreTagSelection();
+        Tag tag = tagSQL.getById(selectedTagId);
+        if (tag != null){
+            authorFragment.selectTag(selectedTagId,tag.getName());
+            restoreTagSelection();
+        }
     }
 
     @Override
