@@ -1,7 +1,7 @@
 package monakhv.android.samlib;
 
 import android.content.Context;
-import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 import com.j256.ormlite.android.apptools.OpenHelperManager;
 import com.j256.ormlite.support.ConnectionSource;
 import monakhv.android.samlib.sql.DatabaseHelper;
@@ -24,7 +24,7 @@ import monakhv.android.samlib.sql.DatabaseHelper;
  *
  * 12/11/14.
  */
-public class MyBaseAbstractActivity extends ActionBarActivity {
+public class MyBaseAbstractActivity extends AppCompatActivity {
     private volatile DatabaseHelper helper;
 
 

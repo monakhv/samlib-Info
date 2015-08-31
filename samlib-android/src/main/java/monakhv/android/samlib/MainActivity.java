@@ -547,27 +547,57 @@ public class MainActivity extends MyBaseAbstractActivity implements
     }
 
     @Override
-    public boolean onKeyDown(int keyCode, KeyEvent event) {
-        if ((keyCode == KeyEvent.KEYCODE_BACK)) { //Back key pressed
-
-            if (drResult != null && drResult.isDrawerOpen()) {
-                drResult.closeDrawer();
-                return true;
-            }
-
-            if (authorFragment.getSelection() != SamLibConfig.TAG_AUTHOR_ALL) {
-                authorFragment.refresh(SamLibConfig.TAG_AUTHOR_ALL, null);
-                onTitleChange(getString(R.string.app_name));
-                selectedTagId = SamLibConfig.TAG_AUTHOR_ALL;
-                restoreTagSelection();
-            } else {
-                finish();
-            }
-
-            return true;
+    public void onBackPressed() {
+        Log.d(DEBUG_TAG,"onBackPressed");
+        if (drResult != null && drResult.isDrawerOpen()) {
+            drResult.closeDrawer();
+            return ;
         }
-        return super.onKeyDown(keyCode, event);
+        if (authorFragment.getSelection() != SamLibConfig.TAG_AUTHOR_ALL) {
+            authorFragment.refresh(SamLibConfig.TAG_AUTHOR_ALL, null);
+            onTitleChange(getString(R.string.app_name));
+            selectedTagId = SamLibConfig.TAG_AUTHOR_ALL;
+            restoreTagSelection();
+        } else {
+            finish();
+        }
+
     }
+
+//    @Override
+//    public boolean onKeyDown(int keyCode, KeyEvent event) {
+//        Log.d(DEBUG_TAG,"onKeyDown");
+//        if (keyCode == KeyEvent.KEYCODE_MENU){
+//            Log.d(DEBUG_TAG,"onKeyDown - MENU");
+//            return false;
+//        }
+//        return super.onKeyDown(keyCode, event);
+//    }
+
+//    @Override
+//    public boolean onKeyDown(int keyCode, KeyEvent event) {
+//        Log.d(DEBUG_TAG,"onKeyDown");
+//        if ((keyCode == KeyEvent.KEYCODE_BACK)) { //Back key pressed
+//            Log.d(DEBUG_TAG,"onKeyDown - BACK");
+//
+//            if (drResult != null && drResult.isDrawerOpen()) {
+//                drResult.closeDrawer();
+//                return true;
+//            }
+//
+//            if (authorFragment.getSelection() != SamLibConfig.TAG_AUTHOR_ALL) {
+//                authorFragment.refresh(SamLibConfig.TAG_AUTHOR_ALL, null);
+//                onTitleChange(getString(R.string.app_name));
+//                selectedTagId = SamLibConfig.TAG_AUTHOR_ALL;
+//                restoreTagSelection();
+//            } else {
+//                finish();
+//            }
+//
+//            return true;
+//        }
+//        return super.onKeyDown(keyCode, event);
+//    }
 
     @Override
     public void onFinish(long id) {

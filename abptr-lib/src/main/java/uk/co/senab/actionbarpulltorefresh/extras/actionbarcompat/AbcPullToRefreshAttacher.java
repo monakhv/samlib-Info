@@ -21,6 +21,7 @@ import android.content.Context;
 import android.os.Build;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.FrameLayout;
 
@@ -84,7 +85,7 @@ class AbcPullToRefreshAttacher extends uk.co.senab.actionbarpulltorefresh.librar
          */
         public Context getContextForInflater(Activity activity) {
             Context context = null;
-            ActionBar ab = ((ActionBarActivity) activity).getSupportActionBar();
+            ActionBar ab = ((AppCompatActivity) activity).getSupportActionBar();
             if (ab != null) {
                 context = ab.getThemedContext();
             }
