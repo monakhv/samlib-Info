@@ -2,7 +2,7 @@ package monakhv.samlib.desk.data;
 
 import monakhv.samlib.data.AbstractSettings;
 import monakhv.samlib.db.entity.SamLibConfig;
-import monakhv.samlib.http.Proxy;
+import monakhv.samlib.http.ProxyData;
 import monakhv.samlib.log.Log;
 
 import java.io.*;
@@ -188,13 +188,13 @@ public class Settings extends AbstractSettings {
     }
 
     @Override
-    public Proxy getProxy() {
+    public ProxyData getProxy() {
         if (!proxyUse) {
             return null;
         }
         int proxyPort = Integer.parseInt(proxyStrPort);
 
-        return new Proxy(proxyHost, proxyPort, proxyUser, proxyPassword);
+        return new ProxyData(proxyHost, proxyPort, proxyUser, proxyPassword);
     }
 
     @Override

@@ -1,7 +1,7 @@
 package monakhv.samlib.data;
 
 import monakhv.samlib.db.entity.Book;
-import monakhv.samlib.http.Proxy;
+import monakhv.samlib.http.ProxyData;
 import monakhv.samlib.log.Log;
 
 import java.io.File;
@@ -54,7 +54,7 @@ public abstract class AbstractSettings {
 
 
     public abstract String getFirstMirror();
-    public abstract Proxy getProxy();
+    public abstract ProxyData getProxy();
     public abstract void log(String debugTag, String s);//special logging for debug
     public abstract void log(String debugTag, String s, Exception e);//special logging for debug
     public abstract  File getDataDirectory();//where to store books

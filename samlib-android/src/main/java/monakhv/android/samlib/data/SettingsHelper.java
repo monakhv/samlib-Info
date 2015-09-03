@@ -48,7 +48,7 @@ import monakhv.samlib.data.AbstractSettings;
 import monakhv.samlib.db.SQLController;
 import monakhv.samlib.db.entity.Book;
 import monakhv.samlib.db.entity.SamLibConfig;
-import monakhv.samlib.http.Proxy;
+import monakhv.samlib.http.ProxyData;
 
 /**
  * @author monakhv
@@ -412,7 +412,7 @@ public class SettingsHelper extends AbstractSettings implements SharedPreference
         }
     }
 
-    public Proxy getProxy(){
+    public ProxyData getProxy(){
 
         boolean useProxy = prefs.getBoolean(context.getString(R.string.pref_key_use_proxy_flag), false);
         if (! useProxy){
@@ -434,7 +434,7 @@ public class SettingsHelper extends AbstractSettings implements SharedPreference
             Log.e(DEBUG_TAG, "Parse proxy port exception: " + proxyPort);
             pp = 3128;
         }
-        Proxy proxy=new Proxy(host,pp,user,password);
+        ProxyData proxy=new ProxyData(host,pp,user,password);
 
         return proxy;
     }
