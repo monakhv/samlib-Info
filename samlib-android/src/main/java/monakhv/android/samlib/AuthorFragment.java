@@ -240,8 +240,11 @@ public class AuthorFragment extends Fragment implements
         adapter.setData(null);
     }
 
+    /**
+     * Update Author List preserve currently selected Author
+     */
     private void updateAdapter() {
-        //mProgressBar.setVisibility(View.VISIBLE);
+
         if (adapter.getSelected() != null) {
             aId = adapter.getSelected().getId();
         }
@@ -250,8 +253,11 @@ public class AuthorFragment extends Fragment implements
 
     }
 
+    /**
+     * Update Author list and make Author selection
+     * @param id Author id to select
+     */
     private void updateAdapter(int id) {
-        //mProgressBar.setVisibility(View.VISIBLE);
         aId = id;
         getLoaderManager().restartLoader(AUTHOR_LOADER_ID, null, this);
 
@@ -260,7 +266,7 @@ public class AuthorFragment extends Fragment implements
     @Override
     public void onRefreshStarted(View view) {
         Log.d(DEBUG_TAG, "Start update service");
-        adapter.cleanSelection();
+        adapter.cleanSelection();//clean selection before check updates
 
         if (getActivity() == null) {
             return;//try to prevent some ANR reports
