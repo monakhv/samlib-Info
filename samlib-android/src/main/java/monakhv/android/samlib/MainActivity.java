@@ -13,7 +13,6 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.util.Log;
-import android.view.KeyEvent;
 
 import android.view.View;
 import android.widget.AdapterView;
@@ -44,6 +43,7 @@ import monakhv.samlib.service.SamlibService;
 
 
 import java.util.ArrayList;
+import java.util.Calendar;
 
 
 /*
@@ -75,6 +75,7 @@ public class MainActivity extends MyBaseAbstractActivity implements
     public static final String CLEAN_NOTIFICATION = "CLEAN_NOTIFICATION";
     public static final String SELECTED_TAG_ID = "SELECTED_TAG_ID";
     public static final String PROGRESS_STRING = "PROGRESS_STRING";
+    public static final String PROGRESS_TIME = "PROGRESS_TIME";
     private UpdateActivityReceiver updateReceiver;
     private AuthorFragment authorFragment;
     private BookFragment bookFragment;
@@ -339,10 +340,11 @@ public class MainActivity extends MyBaseAbstractActivity implements
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
-        Log.d(DEBUG_TAG,"onSaveInstanceState");
+        Log.d(DEBUG_TAG, "onSaveInstanceState");
         super.onSaveInstanceState(outState);
         outState.putInt(SELECTED_TAG_ID, selectedTagId);
         outState.putString(PROGRESS_STRING, progressString);
+        outState.putLong(PROGRESS_TIME, Calendar.getInstance().getTimeInMillis());
     }
 
     @Override
@@ -350,7 +352,15 @@ public class MainActivity extends MyBaseAbstractActivity implements
         Log.d(DEBUG_TAG, "onRestoreInstanceState");
         super.onRestoreInstanceState(savedInstanceState);
         selectedTagId = savedInstanceState.getInt(SELECTED_TAG_ID, SamLibConfig.TAG_AUTHOR_ALL);
-        progressString = savedInstanceState.getString(PROGRESS_STRING);
+        long upt =savedInstanceState.getLong(PROGRESS_TIME);
+
+        if   ( ( Calendar.getInstance().getTimeInMillis() - upt)   < 3000 ){
+            progressString = savedInstanceState.getString(PROGRESS_STRING);
+        }
+        else {
+            progressString = null;
+        }
+
         Tag tag = tagSQL.getById(selectedTagId);
         if (tag != null){
             authorFragment.selectTag(selectedTagId,tag.getName());
