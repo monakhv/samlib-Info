@@ -260,6 +260,7 @@ public class AuthorFragment extends Fragment implements
     @Override
     public void onRefreshStarted(View view) {
         Log.d(DEBUG_TAG, "Start update service");
+        adapter.cleanSelection();
 
         if (getActivity() == null) {
             return;//try to prevent some ANR reports
@@ -535,6 +536,10 @@ public class AuthorFragment extends Fragment implements
     }
 
 
+    /**
+     * Restore Author selection
+     * @param id id of Author to make selected
+     */
     public void selectAuthor(long id) {
         Log.d(DEBUG_TAG, "selectAuthor: id = " + id);
 
