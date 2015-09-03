@@ -55,8 +55,11 @@ public class ProxyData {
 
         httpclient.setProxy(proxy);
 
-        final String credential = Credentials.basic(user, password);
+        if (user == null || user.equalsIgnoreCase("")) {
+            return;//do not make credentials for empty users
+        }
 
+        final String credential = Credentials.basic(user, password);
 
         httpclient.setAuthenticator(new com.squareup.okhttp.Authenticator() {
             @Override
