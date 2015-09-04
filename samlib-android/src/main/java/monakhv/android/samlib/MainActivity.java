@@ -119,6 +119,7 @@ public class MainActivity extends MyBaseAbstractActivity implements
             CleanNotificationData.start(this);
             //bundle = null;
         }
+        progressString=null;
 
         authorFragment = (AuthorFragment) getSupportFragmentManager().findFragmentById(R.id.authorFragment);
         authorFragment.setHasOptionsMenu(true);
