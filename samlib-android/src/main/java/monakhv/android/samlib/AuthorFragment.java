@@ -301,6 +301,9 @@ public class AuthorFragment extends Fragment implements
         updateTextView.setText(stringExtra);
     }
 
+    public boolean isRefreshing(){
+        return mPullToRefreshLayout.isRefreshing();
+    }
     @Override
     public boolean singleClick(MotionEvent e) {
         authorRV.playSoundEffect(SoundEffectConstants.CLICK);

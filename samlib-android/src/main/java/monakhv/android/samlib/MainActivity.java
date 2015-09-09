@@ -344,7 +344,10 @@ public class MainActivity extends MyBaseAbstractActivity implements
         Log.d(DEBUG_TAG, "onSaveInstanceState");
         super.onSaveInstanceState(outState);
         outState.putInt(SELECTED_TAG_ID, selectedTagId);
-        outState.putString(PROGRESS_STRING, progressString);
+        if (authorFragment.isRefreshing()){
+            outState.putString(PROGRESS_STRING, progressString);
+        }
+
         outState.putLong(PROGRESS_TIME, Calendar.getInstance().getTimeInMillis());
     }
 
