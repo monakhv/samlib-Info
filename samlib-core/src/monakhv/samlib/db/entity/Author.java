@@ -17,7 +17,13 @@ package monakhv.samlib.db.entity;
 
 
 
-import monakhv.samlib.data.SettingsHelper;
+import com.j256.ormlite.dao.ForeignCollection;
+import com.j256.ormlite.field.DatabaseField;
+import com.j256.ormlite.field.ForeignCollectionField;
+import com.j256.ormlite.table.DatabaseTable;
+import monakhv.samlib.data.AbstractSettings;
+import monakhv.samlib.db.SQLController;
+
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -28,27 +34,35 @@ import java.util.List;
  *
  * @author monakhv
  */
+@DatabaseTable(tableName = SQLController.TABLE_AUTHOR)
 public class Author  implements Serializable{
-    
+
+
     protected List<Book> books;
+    @DatabaseField(columnName = SQLController.COL_NAME)
     protected String name;
+    @DatabaseField(columnName = SQLController.COL_mtime)
     protected long updateDate;
+    @DatabaseField(columnName = SQLController.COL_URL)
     protected String url;
+    @DatabaseField(columnName = SQLController.COL_isnew)
     protected boolean isNew = false;
+    @DatabaseField(columnName = SQLController.COL_ID, generatedId = true)
     protected int id;
-    
-    private List<Integer> tags_id;
-    private List<String>  tags_name;
+    @ForeignCollectionField
+    private ForeignCollection<Tag2Author> tag2Authors;
+    @DatabaseField(columnName = SQLController.COL_ALL_TAGS_NAME)
     private String all_tags_name;
+    private List<Integer> tagIds;
+    private boolean bookLoaded=false;
 
     /**
      * Just empty constructor with empty book list and current updated time
      */
     public Author() {
         updateDate = Calendar.getInstance().getTime().getTime();
-        books = new ArrayList<Book>();
-        tags_id = new ArrayList<Integer>();
-        tags_name = new ArrayList<String>();
+        books = new ArrayList<>();
+
     }
 
     public int getId() {
@@ -107,20 +121,30 @@ public class Author  implements Serializable{
         this.all_tags_name = all_tags_name;
     }
 
-    public List<Integer> getTags_id() {
-        return tags_id;
+    public List<Integer> getTagIds() {
+        if (tagIds == null ){
+            tagIds = new ArrayList<>();
+            for (Tag2Author t2a: tag2Authors){
+                tagIds.add(t2a.getTag().getId());
+            }
+        }
+        return tagIds;
     }
 
-    public void setTags_id(List<Integer> tags_id) {
-        this.tags_id = tags_id;
+    public ForeignCollection<Tag2Author> getTag2Authors() {
+        return tag2Authors;
     }
 
-    public List<String> getTags_name() {
-        return tags_name;
+    public void setTag2Authors(ForeignCollection<Tag2Author> tag2Authors) {
+        this.tag2Authors = tag2Authors;
     }
 
-    public void setTags_name(List<String> tags_name) {
-        this.tags_name = tags_name;
+    public boolean isBookLoaded() {
+        return bookLoaded;
+    }
+
+    public void setBookLoaded(boolean bookLoaded) {
+        this.bookLoaded = bookLoaded;
     }
 
     @Override
@@ -151,7 +175,7 @@ public class Author  implements Serializable{
      * Get book url to open it using web browser
      * @return String of URL to open author home page
      */
-    public String getUrlForBrowser(SettingsHelper context){
+    public String getUrlForBrowser(AbstractSettings context){
         SamLibConfig sc = SamLibConfig.getInstance(context);
         return sc.getAuthorUrlForBrowser(this);
     }
@@ -177,10 +201,10 @@ public class Author  implements Serializable{
      * @return true if we need update Author info into data base
      */
     private boolean testUpdate(Author newA) {
-        
+
         boolean res=false;
         for (Book b : newA.books) {
-            if (books.contains(b)) {//old book                
+            if (books.contains(b)) {//old book
                 b.setIsNew(false);
             }
             else {//new book
@@ -206,6 +230,21 @@ public class Author  implements Serializable{
             return true;
         }
         return false;
+    }
+
+    public void setAll_tags_name(List<String> tagNames) {
+        int num = tagNames.size();
+        int i =1;
+        StringBuilder sb = new StringBuilder();
+        for (String tn : tagNames){
+            sb.append(tn);
+            if (i<num){
+                sb.append(", ");
+            }
+            ++i;
+        }
+        all_tags_name=sb.toString();
+
     }
 //    public void dump(){
 //        System.out.println(name);

@@ -23,7 +23,8 @@ import com.mikepenz.materialdrawer.model.interfaces.IDrawerItem;
  */
 public interface   SortOrder {
 
-    abstract String getTitle(Context ctx);
-    abstract String getTag();
+    abstract String getTitle(Context ctx);//Title for GUI use
+    abstract String getTag();//KEY for Radio button use
+    abstract String getOrder();//SQL ROW Sort order
 
 }

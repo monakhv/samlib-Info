@@ -15,10 +15,10 @@
  */
 package monakhv.samlib.db;
 
-import java.io.IOException;
+
 import java.sql.*;
 
-import monakhv.samlib.db.entity.Author;
+
 
 /**
  *
@@ -30,6 +30,7 @@ import monakhv.samlib.db.entity.Author;
  * Version - 4: Tags for the authors
  * Version - 5: Remove samlib URL from the  Author url to use several mirrors
  * Version - 6:add option column for Book table
+ * Version - 7:add ALL_TAGS_STRING column for Author Table
  * 
  */
 public class SQLController {
@@ -46,7 +47,8 @@ public class SQLController {
     }
 
     public static final String DB_NAME   = "AUTHOR_DATA";
-    public static final int    DB_VERSION = 6;
+    public static final String DB_EXT = ".db";
+    public static final int    DB_VERSION = 7;
     
     public static final String COL_ID = "_id";
     public static final String COL_NAME = "NAME";
@@ -54,7 +56,7 @@ public class SQLController {
     public static final String COL_mtime = "MTIME";
     public static final String COL_books = "BOOKS";
     public static final String COL_isnew = "ISNEW";
-    public static final String COL_TGNAMES ="tags_name";
+    public static final String COL_ALL_TAGS_NAME ="ALL_TAGS_NAME";
     public static final String COL_TGIDS =     "tags_id";
     
     public static final String COL_BOOK_LINK                         ="LINK";
@@ -92,7 +94,8 @@ public class SQLController {
             COL_NAME+" text, "+
             COL_URL   +" text UNIQUE NOT NULL, "+
             COL_isnew+" BOOLEAN DEFAULT '0' NOT NULL,"+
-            COL_mtime+" timestamp "+
+            COL_mtime+" timestamp, "+
+            COL_ALL_TAGS_NAME+" text"+
             //COL_books+" blob"+
             ");";
     public static final String WHERE_PAT="_WHERE_";
@@ -149,7 +152,8 @@ public class SQLController {
     public static final String DB_IDX4 = "CREATE INDEX  if not exists tag_author     ON Tag2Author(TAG_ID,AUTHOR_ID);";
     ///public static final String ALTER2_1 = "ALTER TABLE  "+TABLE_AUTHOR+" DROP COLUMN "+COL_books+" ;";//Not Supported by SQLight
     public static final String ALTER2_2 = "UPDATE   "+TABLE_AUTHOR+" SET  "+COL_isnew+" =0;";
-    public static final String ALTER6_1="ALTER TABLE "+TABLE_BOOKS+" ADD COLUMN "+COL_BOOK_OPT+" INTEGER;";
+    public static final String ALTER6_1=  "ALTER TABLE "+TABLE_BOOKS+" ADD COLUMN "+COL_BOOK_OPT+" INTEGER;";
+    public static final String ALTER7_1 = "ALTER TABLE   "+TABLE_AUTHOR+" ADD COLUMN  "+COL_ALL_TAGS_NAME+" text;";
 
     public static final String INSERT_AUTHOR ="INSERT INTO " + TABLE_AUTHOR +" ( "+
             COL_NAME +","+
@@ -165,11 +169,13 @@ public class SQLController {
              " WHERE "+ COL_ID+"=?";
     private static SQLController instance = null;
     private final Connection bd;
+    private final String dbUrl;
 
 
     private SQLController(String data_path ) throws ClassNotFoundException, SQLException {
         Class.forName(CLASS_NAME);
-        bd = DriverManager.getConnection(CONNECT_STRING_PREFIX+data_path+"/"+DB_NAME+".sqlite");
+        dbUrl=CONNECT_STRING_PREFIX+data_path+"/"+DB_NAME+DB_EXT;
+        bd = DriverManager.getConnection(dbUrl);
         Statement st = bd.createStatement();
         st.execute(DB_CREATE_AUTHOR);
         st.execute(DB_CREATE_BOOKS);
@@ -188,7 +194,9 @@ public class SQLController {
 
     }
 
-        
+    public String getDbUrl() {
+        return dbUrl;
+    }
 
     /**
      * Make low level SQL query

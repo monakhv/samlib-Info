@@ -20,13 +20,17 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
 
-import monakhv.samlib.data.SettingsHelper;
+import com.j256.ormlite.field.DatabaseField;
+import com.j256.ormlite.table.DatabaseTable;
+import monakhv.samlib.data.AbstractSettings;
+import monakhv.samlib.db.SQLController;
 import monakhv.samlib.exception.BookParseException;
 
 /**
  *
  * @author monakhv
  */
+@DatabaseTable(tableName = SQLController.TABLE_BOOKS)
 public class Book implements Serializable {
 
     public static final int SELECTED_GROUP_ID=1;
@@ -42,20 +46,34 @@ public class Book implements Serializable {
     private static final int BOOK_DESCRIPTION = 8;
 
     private static final int OPT_PRESERVE=1<<1;
+    @DatabaseField(columnName = SQLController.COL_BOOK_TITLE)
     protected String title;
+    @DatabaseField(columnName = SQLController.COL_BOOK_AUTHOR)
     protected String authorName;
+    @DatabaseField(columnName = SQLController.COL_BOOK_LINK)
     protected String uri;
+    @DatabaseField(columnName = SQLController.COL_BOOK_DESCRIPTION)
     protected String description;
+    @DatabaseField(columnName = SQLController.COL_BOOK_FORM)
     protected String form;
+    @DatabaseField(columnName = SQLController.COL_BOOK_SIZE)
     protected long size;
+    @DatabaseField(columnName = SQLController.COL_BOOK_DATE)
     protected long updateDate;//read from samlib
+    @DatabaseField(columnName = SQLController.COL_BOOK_MTIME)
     protected long modifyTime;//change in BD
+    @DatabaseField(columnName = SQLController.COL_BOOK_ISNEW)
     protected boolean isNew;
+    @DatabaseField(columnName = SQLController.COL_ID, generatedId = true)
     protected int id;
+    @DatabaseField(columnName = SQLController.COL_BOOK_GROUP_ID)
     protected int group_id;
+    @DatabaseField(columnName = SQLController.COL_BOOK_OPT)
     private int options;
-    private long authorId;
-    private SettingsHelper.FileType fileType;
+    @DatabaseField(columnName = SQLController.COL_BOOK_AUTHOR_ID,foreign = true,canBeNull = false)
+    private Author author;
+
+    private AbstractSettings.FileType fileType;
 
     /**
      * Default constructor
@@ -64,7 +82,7 @@ public class Book implements Serializable {
         isNew = false;
         updateDate = Calendar.getInstance().getTime().getTime();
         modifyTime = Calendar.getInstance().getTime().getTime();
-        fileType= SettingsHelper.FileType.HTML;
+        fileType= AbstractSettings.FileType.HTML;
         options=0;
     }
 
@@ -154,11 +172,15 @@ public class Book implements Serializable {
     }
 
     public long getAuthorId() {
-        return authorId;
+        return author.getId();
     }
 
-    public void setAuthorId(long authorId) {
-        this.authorId = authorId;
+    public Author getAuthor() {
+        return author;
+    }
+
+    public void setAuthor(Author author) {
+        this.author = author;
     }
 
     public long getModifyTime() {
@@ -193,11 +215,11 @@ public class Book implements Serializable {
         this.group_id = group_id;
     }
 
-    public SettingsHelper.FileType getFileType() {
+    public AbstractSettings.FileType getFileType() {
         return fileType;
     }
 
-    public void setFileType(SettingsHelper.FileType fileType) {
+    public void setFileType(AbstractSettings.FileType fileType) {
         this.fileType = fileType;
     }
 
@@ -276,7 +298,7 @@ public class Book implements Serializable {
      * Get book url to open it using web browser
      * @return  String url to open book for reading
      */
-    public String getUrlForBrowser(SettingsHelper context){
+    public String getUrlForBrowser(AbstractSettings context){
         SamLibConfig sc = SamLibConfig.getInstance(context);
         return sc.getBookUrlForBrowser(this);
     }

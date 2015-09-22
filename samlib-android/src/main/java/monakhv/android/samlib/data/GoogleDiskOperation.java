@@ -93,7 +93,8 @@ public class GoogleDiskOperation extends ApiClientAsyncTask<Void, Void, Boolean>
         this.context = ctx;
         this.account = account;
         this.operation = operationType;
-        dataBase = DataExportImport.getDataBase(ctx);
+        DataExportImport dei = new DataExportImport(ctx);
+        dataBase = dei.getDataBase();
 
     }
 

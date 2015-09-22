@@ -21,14 +21,8 @@ import android.os.AsyncTask;
 
 import java.io.IOException;
 import java.io.Serializable;
-import java.text.Collator;
-import java.text.ParseException;
-import java.text.RuleBasedCollator;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
+
 
 
 import monakhv.android.samlib.R;
@@ -37,8 +31,8 @@ import monakhv.android.samlib.search.SearchAuthorActivity.SearchReceiver;
 import monakhv.samlib.exception.SamlibParseException;
 import monakhv.samlib.db.entity.AuthorCard;
 import monakhv.samlib.db.entity.SamLibConfig;
-import monakhv.samlib.http.HttpClientController;
 import monakhv.samlib.log.Log;
+import monakhv.samlib.service.SamlibService;
 
 /**
  *
@@ -54,7 +48,7 @@ public class SearchAuthor extends AsyncTask<String, Void, Boolean> {
         Good(0);
         private final int imessage;
 
-        private ResultStatus(int imesg) {
+        ResultStatus(int imesg) {
             imessage = imesg;
         }
 
@@ -66,11 +60,8 @@ public class SearchAuthor extends AsyncTask<String, Void, Boolean> {
     private ResultStatus status;
     private static final String DEBUG_TAG = "SearchAuthor";
     private Context context = null;
-    private RuleBasedCollator russianCollator;
-    private  HttpClientController http ;
 
-    private int inum = 0;//Result number
-    private final List<AuthorCard> result;
+    private  List<AuthorCard> result;
     private final SettingsHelper settings;
 
     public SearchAuthor(Context ctx) {
@@ -78,33 +69,24 @@ public class SearchAuthor extends AsyncTask<String, Void, Boolean> {
 
         context = ctx;
         settings = new SettingsHelper(context);
-        http = HttpClientController.getInstance(settings);
-        russianCollator =  (RuleBasedCollator) Collator.getInstance(new Locale("ru", "RU"));
 
-        try {
-            russianCollator = new RuleBasedCollator(SamLibConfig.COLLATION_RULES);
-        } catch (ParseException ex) {
-            Log.e(DEBUG_TAG, "Collator error", ex);
-
-        }
-        
-        russianCollator.setStrength(Collator.IDENTICAL);
-        russianCollator.setDecomposition(Collator.NO_DECOMPOSITION);
-        result = new ArrayList<AuthorCard>();
     }
 
     @Override
     protected Boolean doInBackground(String... params) {
 
+
         for (String pattern : params) {
+
             try {
-                if (!makeSearch(pattern)) {
-                    if (inum == 0) {
-                        status = ResultStatus.Empty;
-                    } else {
-                        status = ResultStatus.Limit;
-                    }
+                result = SamlibService.makeSearch(pattern,settings);
+                if (result.isEmpty()){
+                    status = ResultStatus.Empty;
                 }
+                else if (result.size() >= SamLibConfig.SEARCH_LIMIT){
+                    status = ResultStatus.Limit;
+                }
+
             } catch (IOException ex) {
                 Log.e(DEBUG_TAG, null, ex);
 
@@ -136,60 +118,6 @@ public class SearchAuthor extends AsyncTask<String, Void, Boolean> {
 
     }
 
-    private boolean makeSearch(String pattern) throws IOException, SamlibParseException {
-        Log.i(DEBUG_TAG, "Search author with pattern: " + pattern);
 
-        int page = 1;
-        HashMap<String, ArrayList<AuthorCard>> colAthors = http.searchAuthors(pattern, page);
-
-        while (colAthors != null) {//page cycle while we find anything
-
-            String[] keys = colAthors.keySet().toArray(new String[1]);
-           
-            Arrays.sort(keys, russianCollator);
-            int ires = Arrays.binarySearch(keys, pattern, russianCollator);
-            Log.d(DEBUG_TAG, "Page number:" +page+   "    search result " + ires + "   length is " + keys.length);
-
-            int istart;
-            if (ires < 0) {
-                istart = -ires - 1;
-            } else {
-                istart = ires;
-            }
-            for (int i = istart; i < keys.length; i++) {
-                String skey = keys[i];
-                if (skey.toLowerCase().startsWith(pattern.toLowerCase())) {
-                    for (AuthorCard ac : colAthors.get(skey)) {
-
-                        result.add(ac);
-                        ++inum;
-                        if (inum > SamLibConfig.SEARCH_LIMIT) {
-                            return false;
-                        }
-                    }
-
-                } else {
-                    Log.d(DEBUG_TAG, "Search for " + pattern + " stop by substring  -   " + skey + "   " + keys.length + "         " + istart + "  -  " + ires);
-
-                   
-//                        for (String s : keys) {
-//                            Log.d(DEBUG_TAG, ">>- " + s);
-//                        }
-                   
-                    return inum != 0;
-                }
-            }
-//            for (String s : keys) {
-//                Log.d(DEBUG_TAG, ">> " + s);
-//            }
-
-            ++page;
-            colAthors = http.searchAuthors(pattern, page);
-        }
-        Log.d(DEBUG_TAG, "Results: " + inum);
-
-        return inum != 0;
-
-    }
 
 }

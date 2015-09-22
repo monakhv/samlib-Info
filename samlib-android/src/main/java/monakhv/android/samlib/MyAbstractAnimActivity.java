@@ -1,9 +1,11 @@
 package monakhv.android.samlib;
 
 import android.os.Bundle;
-import android.support.v7.app.ActionBarActivity;
+
+
 
 import monakhv.android.samlib.data.SettingsHelper;
+
 
 
 /*
@@ -23,8 +25,9 @@ import monakhv.android.samlib.data.SettingsHelper;
  *
  * 12/11/14.
  */
-public class MyAbstractActivity extends ActionBarActivity {
+public class MyAbstractAnimActivity extends MyBaseAbstractActivity {
     protected SettingsHelper settingsHelper;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,7 +37,6 @@ public class MyAbstractActivity extends ActionBarActivity {
         if (settingsHelper.isAnimation()){
             overridePendingTransition(R.anim.pull_in_from_right, R.anim.hold);
         }
-
 
     }
 

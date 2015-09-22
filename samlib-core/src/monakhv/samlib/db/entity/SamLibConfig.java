@@ -17,7 +17,7 @@ package monakhv.samlib.db.entity;
 
 
 
-import monakhv.samlib.data.SettingsHelper;
+import monakhv.samlib.data.AbstractSettings;
 import monakhv.samlib.log.Log;
 
 import java.io.BufferedReader;
@@ -48,11 +48,16 @@ public class SamLibConfig {
     public static final   int      SELECTED_BOOK_ID=-1;//Special id for selected book 
     public static final   int       TAG_AUTHOR_ALL     =-1;
     public static final   int       TAG_AUTHOR_NEW  =-2;
+    public static final   int       TAG_AUTHOR_ID = -10;
     
-    public static final String COLLATION_RULES = "&' '<'-'<'_'<'.'<0<1<2<3<4<5<6<7<8<9<a,A<b,B<c,C<d,D<ð,Ð<e,E<f,F<g,G<h,H<i,I<j,J<k,K<l,L<m,M<n,N<o,O"
+    public static final String COLLATION_RULES_NEW = "&' '<'-'<'_'<','<';'<':'<'!'<'?'<'/'<'.'<0<1<2<3<4<5<6<7<8<9<a,A<b,B<c,C<d,D<ð,Ð<e,E<f,F<g,G<h,H<i,I<j,J<k,K<l,L<m,M<n,N<o,O"
                  + "<p,P<q,Q<r,R<s,S<t,T<u,U<v,V<w,W<x,X<y,Y<z,Z <а,А< б,Б<в,В<г,Г< д , Д<  е , Е<  ё , Ё< ж , Ж< з , З< и , И< й , Й< к , К< л ,Л<  м , М"
                  + "< н , Н< о , О< п , П< р , Р< с , С< т , Т< у , У< ф , Ф< х , Х< ц , Ц< ч , Ч< ш , Ш< щ , Щ< ъ , Ъ< ы , Ы< ь , Ь< э , Э< ю , Ю< я , Я";
-    
+
+
+    public static final String COLLATION_RULES_OLD = "<' '<'-'<'_'<','<';'<':'<'!'<'?'<'/'<'.'<0<1<2<3<4<5<6<7<8<9<a,A<b,B<c,C<d,D<ð,Ð<e,E<f,F<g,G<h,H<i,I<j,J<k,K<l,L<m,M<n,N<o,O"
+                 + "<p,P<q,Q<r,R<s,S<t,T<u,U<v,V<w,W<x,X<y,Y<z,Z <а,А< б,Б<в,В<г,Г< д , Д<  е , Е<  ё , Ё< ж , Ж< з , З< и , И< й , Й< к , К< л ,Л<  м , М"
+                 + "< н , Н< о , О< п , П< р , Р< с , С< т , Т< у , У< ф , Ф< х , Х< ц , Ц< ч , Ч< ш , Ш< щ , Щ< ъ , Ъ< ы , Ы< ь , Ь< э , Э< ю , Ю< я , Я";
     
     private static final  int      AUTHOR_PAGE_SIZE = 500;//page size for author search
     
@@ -97,7 +102,7 @@ public class SamLibConfig {
     private static final HashMap<String, String> ABC;
 
     static {
-        ABC = new HashMap<String, String>();
+        ABC = new HashMap<>();
         for (int i = 0; i < ABC_CODE.length; i++) {
             ABC.put(ABC_LETTER[i], ABC_CODE[i]);
         }
@@ -106,9 +111,9 @@ public class SamLibConfig {
     private static SamLibConfig instance = null;
 
     private final LinkedList<SamIzdat> linkedSZ;//actual list of Samizdat URLs
-    private SettingsHelper settings;
+    private AbstractSettings settings;
     
-    public static SamLibConfig getInstance(SettingsHelper settings){
+    public static SamLibConfig getInstance(AbstractSettings settings){
         if (instance == null){
             instance = new SamLibConfig(settings);
 
@@ -117,9 +122,9 @@ public class SamLibConfig {
     }
     
     
-    private SamLibConfig(SettingsHelper settings){
+    private SamLibConfig(AbstractSettings settings){
         this.settings=settings;
-        linkedSZ = new LinkedList<SamIzdat>();
+        linkedSZ = new LinkedList<>();
         refreshData( );
     }
 
@@ -154,7 +159,7 @@ public class SamLibConfig {
     /**
      * Small Internal class to store Samizdat mirrors data
      */
-        private static enum SamIzdat {
+        private enum SamIzdat {
         SamLib("SamLib","samlib.ru","81.176.66.171"),
         BudClub("BudClub","budclub.ru","194.63.140.119"),
          ZhurnalLib("ZhurnalLib","zhurnal.lib.ru","81.176.66.169");
@@ -164,7 +169,7 @@ public class SamLibConfig {
         private final Pattern pattern;//search url pattern
         private final String urlH;//Host URL for browser usage
         private final String urlIP;//For internal update usage
-        private SamIzdat(String name,String host, String ip) {
+        SamIzdat(String name, String host, String ip) {
 
             this.name = name;
 
@@ -209,7 +214,7 @@ public class SamLibConfig {
          * @param uu book url
          * @return  URL to download the book
          */
-        private String getBookURL(String uu,SettingsHelper.FileType fileType){
+        private String getBookURL(String uu,AbstractSettings.FileType fileType){
             switch (fileType){
                 case HTML:
                     return urlIP+REQUEST_BOOK_TEXT+uu;
@@ -355,7 +360,7 @@ public class SamLibConfig {
      * @return the list of url
      */
     public List<String> getAuthorRequestURL(Author a) {
-        List<String> res = new ArrayList<String>();
+        List<String> res = new ArrayList<>();
         Iterator<SamIzdat> itr = getIterator();
         while(itr.hasNext()){
             res.add(itr.next().getAuthorRequestURL(a.getUrl()));
@@ -365,7 +370,7 @@ public class SamLibConfig {
 
     /**
      * Get Default URL to use for browser  open intend
-     * @return
+     * @return Default URL to use for browser  open intend
      */
     private String getDefaultURL(){
         Iterator<SamIzdat> itr = getIterator();
@@ -378,7 +383,7 @@ public class SamLibConfig {
      * @return List of URL to make search
      */
     public List<String> getSearchAuthorURL(String pattern,int page){
-        List<String> res = new ArrayList<String>();
+        List<String> res = new ArrayList<>();
         Iterator<SamIzdat> itr = getIterator();
         while(itr.hasNext()){
             res.add(itr.next().getSearchAuthorURL(pattern, page));
@@ -392,7 +397,7 @@ public class SamLibConfig {
      * @return  List of URLs
      */
     public List<String> getBookUrl(Book b) {
-        List<String> res = new ArrayList<String>();
+        List<String> res = new ArrayList<>();
         Iterator<SamIzdat> itr = getIterator();
         while(itr.hasNext()){
             res.add(itr.next().getBookURL(b.getUri(),b.getFileType()));

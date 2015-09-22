@@ -6,51 +6,79 @@ package monakhv.samlib.desk.gui;
 
 import java.awt.*;
 import java.awt.event.*;
+
 import java.io.IOException;
+import java.util.*;
+import java.util.List;
 import javax.swing.*;
+import javax.swing.border.*;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+import javax.swing.filechooser.FileFilter;
+import javax.swing.filechooser.FileNameExtensionFilter;
 
 import com.jgoodies.forms.factories.*;
 import com.jgoodies.forms.layout.*;
+import monakhv.samlib.data.AbstractSettings;
 import monakhv.samlib.db.SQLController;
 import monakhv.samlib.db.entity.Author;
+import monakhv.samlib.db.entity.AuthorCard;
+import monakhv.samlib.db.entity.Book;
+import monakhv.samlib.db.entity.Tag;
 import monakhv.samlib.desk.Main;
+import monakhv.samlib.desk.data.DataExportImport;
 import monakhv.samlib.desk.data.Settings;
-import monakhv.samlib.desk.sql.AuthorController;
-import monakhv.samlib.desk.sql.BookController;
+import monakhv.samlib.db.AuthorController;
+import monakhv.samlib.db.BookController;
+import monakhv.samlib.desk.sql.DaoController;
+import monakhv.samlib.db.TagController;
+import monakhv.samlib.desk.workers.AddAuthorWorker;
+import monakhv.samlib.desk.workers.CheckUpdateWorker;
+import monakhv.samlib.desk.workers.LoadBookWorker;
+import monakhv.samlib.desk.workers.ReadAuthorWorker;
 import monakhv.samlib.exception.SamlibParseException;
 import monakhv.samlib.http.HttpClientController;
 import monakhv.samlib.log.Log;
+import monakhv.samlib.service.SamlibService;
+import monakhv.samlib.service.GuiUpdate;
 
 /**
  * @author Dmitry Monakhov
  */
-public class MainForm extends JFrame {
-    private static final String DEBUG_TAG="MainForm";
-    private final DefaultListModel<Author> authorsModel;
-    //private final DefaultListModel<Book> booksModel;
+public class MainForm extends JFrame implements GuiUpdate {
+    private static final String DEBUG_TAG = "MainForm";
+    private ResourceBundle bndl = ResourceBundle.getBundle("samlibDesk");
+    private final AuthorListModel authorsModel;
+    private final SamlibService service;
 
     private final SQLController sql;
-    private Settings settings;
+    private final Settings settings;
     private BookList bkList;
-    private String selection=null;
-    private String sortOrder=SQLController.COL_NAME;
+    //private String selection=null;
+    private String sortOrder = SQLController.COL_isnew + " DESC, " + SQLController.COL_NAME;
     private Author selectedAuthor;
+    private TagComboItem selectedTag = TagComboItem.ALL;
+    private List<Author> authorList;
+    private AuthorTagsDialog authorTags;
 
-    public MainForm( Settings settings ) {
-        this.settings=settings;
+    /**
+     * Spercial container for Combo Box  wiget
+     */
+
+    public MainForm(Settings settings) {
+        this.settings = settings;
         SQLController sql1;
 
         try {
-            sql1 = SQLController.getInstance( settings.getDataDirectoryPath()  );
+            sql1 = SQLController.getInstance(settings.getDataDirectoryPath());
         } catch (Exception e) {
-            Log.e(DEBUG_TAG,"Error SQL init");
-            sql1 =null;
+            Log.e(DEBUG_TAG, "Error SQL init");
+            sql1 = null;
         }
         sql = sql1;
-        authorsModel = new DefaultListModel<>();
+        authorsModel = new AuthorListModel();
 //        booksModel = new DefaultListModel<>();
+
         this.addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent e) {
@@ -58,6 +86,9 @@ public class MainForm extends JFrame {
                 Main.exit(1);
             }
         });
+        setTitle(bndl.getString("MainForm.Title.text"));
+        authorTags = new AuthorTagsDialog(this, DaoController.getInstance(sql), this);
+
 
         initComponents();
 
@@ -68,10 +99,19 @@ public class MainForm extends JFrame {
         jAuthorList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 
 
+        createTagSelector();
+
+
         //TODO: we can move the constant 20 to settings
         bookScrolPanel.getVerticalScrollBar().setUnitIncrement(20);
 
-        bkList = new BookList(bookPanel);
+        bkList = new BookList(bookPanel, new BookList.CallBack() {
+
+            @Override
+            public void bookClick(MouseEvent e, Book book) {
+                makeBookClick(e, book);
+            }
+        });
 
         jAuthorList.addListSelectionListener(new ListSelectionListener() {
             @Override
@@ -79,54 +119,66 @@ public class MainForm extends JFrame {
                 JList lsm = (JList) e.getSource();
 
 
-                if (lsm.isSelectionEmpty()|| !e.getValueIsAdjusting() ) {
+                if (lsm.isSelectionEmpty() || !e.getValueIsAdjusting()) {
                     return;
                 }
                 if (lsm.getMinSelectionIndex() != lsm.getMaxSelectionIndex()) {
                     Log.i(DEBUG_TAG, "selection " + lsm.getMinSelectionIndex() + " - " + lsm.getMaxSelectionIndex());
                     return;
                 }
-                selectedAuthor=authorsModel.get(lsm.getMaxSelectionIndex());
-                Log.i(DEBUG_TAG, "selection " +selectedAuthor.getName()+"  "+e.getValueIsAdjusting());
+                selectedAuthor = authorsModel.getElementAt(lsm.getMaxSelectionIndex());
+                Log.i(DEBUG_TAG, "selection " + selectedAuthor.getName() + "  " + e.getValueIsAdjusting() + " - " + selectedAuthor.getTag2Authors().size());
                 loadBookList(selectedAuthor);
             }
         });
 
-
+        service = new SamlibService(DaoController.getInstance(sql), this, settings);
 
     }
+
+    private void createTagSelector() {
+        cBTags.removeAllItems();
+        cBTags.addItem(TagComboItem.ALL);
+        cBTags.addItem(TagComboItem.NEW);
+        TagController tagCtl = new TagController(DaoController.getInstance(sql));
+        for (Tag tag : tagCtl.getAll()) {
+            cBTags.addItem(new TagComboItem(tag));
+        }
+    }
+
 
     /**
      * Construct Author list
      */
     private void addSortedAuthorList() {
-        AuthorController ctl = new AuthorController(sql);
-         authorsModel.removeAllElements();
-
-
-        for (Author a : ctl.getAll(selection,sortOrder) ){
-            authorsModel.addElement(a);
-        }
+        AuthorController ctl = new AuthorController(DaoController.getInstance(sql));
+        authorList = ctl.getAll(selectedTag.getId(), sortOrder);
+        authorsModel.update(authorList);
 
     }
 
     /**
      * Construct Book List
-     * @param a
+     *
+     * @param a author
      */
-    private void loadBookList(Author a){
-        BookController ctl = new BookController(sql);
+    private void loadBookList(Author a) {
+        BookController ctl = new BookController(DaoController.getInstance(sql));
 
-        if (a != null){
-            bkList.load(ctl.getAll(a, null));
+        if (a != null) {
+            bkList.load(ctl.getAll(a, SQLController.COL_BOOK_ISNEW + " DESC, " + SQLController.COL_BOOK_DATE + " DESC"));
         }
 
 
-        bookPanel.setComponentPopupMenu(bookPopup);
+        //bookPanel.setComponentPopupMenu(bookPopup);
+        redraw();
+
+
+    }
+
+    private void redraw() {
         this.getContentPane().validate();
         this.getContentPane().repaint();
-
-
     }
 
 
@@ -134,43 +186,253 @@ public class MainForm extends JFrame {
         Main.exit(0);
     }
 
-    private void reFreshActionPerformed(ActionEvent e) {
-        bookPanel.revalidate();
-        this.repaint();
-    }
 
     private void buttonUpdateActionPerformed(ActionEvent e) {
+        if (authorList.isEmpty()) {
+            return;
+        }
         buttonUpdate.setEnabled(false);
-        Update update = new Update();
-        update.execute();
+        progressBar1.setStringPainted(true);
+        progressBar1.setMinimum(0);
+        progressBar1.setMaximum(authorList.size());
+        progressBar1.setValue(0);
+        CheckUpdateWorker worker = new CheckUpdateWorker(service, authorList);
+        worker.execute();
+
     }
 
     private void menuItemSettingsActionPerformed(ActionEvent e) {
-        SettingsForm.show(this,settings);
+        SettingsForm.show(this, settings);
     }
+
+    private void cBTagsActionPerformed(ActionEvent e) {
+
+        JComboBox cb = (JComboBox) e.getSource();
+        selectedTag = (TagComboItem) cb.getSelectedItem();
+        if (selectedTag == null) {
+            return;
+        }
+        Log.d(DEBUG_TAG, "Tag: " + selectedTag.toString());
+        addSortedAuthorList();
+        redraw();
+    }
+
+    private void jAuthorListMouseClicked(MouseEvent e) {
+
+        int butNum = e.getButton();
+        if (butNum == 1) {//left mouse button clicks are ignored
+            return;
+        }
+        int index = jAuthorList.locationToIndex(e.getPoint());
+        if (index < 0) {
+            return;
+        }
+        jAuthorList.setSelectedIndex(index);
+        selectedAuthor = authorsModel.getElementAt(index);
+        authorPopup.setLabel(selectedAuthor.getName());
+        authorPopup.show(e.getComponent(), e.getX(), e.getY());
+
+    }
+
+    private void makeBookClick(MouseEvent e, Book book) {
+        Log.i(DEBUG_TAG, "Book: " + book.getTitle() + "  - " + e.getButton());
+        if (e.getButton() == 1 && e.getClickCount() == 2) {
+            book.setFileType(settings.getFileType());
+            DataExportImport dd = new DataExportImport(settings);
+
+            if (dd.needUpdateFile(book)) {
+                this.setCursor(new Cursor(Cursor.WAIT_CURSOR));
+                LoadBookWorker worker = new LoadBookWorker(service, book.getId());
+                worker.execute();
+
+            } else {
+                showBook(book);
+            }
+
+        }
+        if (e.getButton() != 1) {
+            bookPopup.show(e.getComponent(), e.getX(), e.getY());
+        }
+
+
+    }
+
+    private void menuAuthorMakeReadActionPerformed(ActionEvent e) {
+        ReadAuthorWorker worker = new ReadAuthorWorker(service, selectedAuthor);
+        worker.execute();
+    }
+
+    private void menuAuthorDeleteActionPerformed(ActionEvent e) {
+        int answer = JOptionPane.showConfirmDialog(
+                this,
+                bndl.getString("MainForm.confirmAuthorDelete"),
+                selectedAuthor.getName(),
+                JOptionPane.YES_NO_OPTION
+        );
+        if (answer == JOptionPane.YES_OPTION) {
+            service.makeAuthorDel(selectedAuthor.getId());
+            selectedAuthor = null;
+
+        }
+    }
+
+    private void menuToolsAddActionPerformed(ActionEvent e) {
+        AddTextValue addAuthor = new AddTextValue(this, "http://samlib.ot.ru", bndl.getString("MainForm.AddAuthor.Title.text"),
+                new AddTextValue.CallBack() {
+
+                    @Override
+                    public void okClick(String answer) {
+                        Log.i(DEBUG_TAG, "got value: " + answer);
+                        ArrayList<String> urls = new ArrayList<>();
+                        urls.add(answer);
+                        service.makeAuthorAdd(urls);
+
+                    }
+                });
+        addAuthor.setVisible(true);
+
+
+    }
+    private void menuToolsSearchActionPerformed() {
+        AuthorSearch search = new AuthorSearch(this,settings);
+        search.setVisible(true);
+
+        // TODO add your code here
+        //
+
+
+    }
+
+    private void menuAuthorTagsActionPerformed(ActionEvent e) {
+        authorTags.setPanel(selectedAuthor);
+        authorTags.setVisible(true);
+
+    }
+
+    private void buttonRefreshActionPerformed() {
+        Log.d(DEBUG_TAG, "refresh: list size " + authorList.size());
+        Log.d(DEBUG_TAG, "refresh: model size " + jAuthorList.getModel().getSize());
+
+
+        Log.d(DEBUG_TAG, "refresh: selected " + selectedAuthor.getName());
+        jAuthorList.invalidate();
+        jAuthorList.revalidate();
+        jAuthorList.repaint();
+        redraw();
+    }
+
+    private void menuToosImportActionPerformed() {
+        JFileChooser chooser = new JFileChooser();
+        chooser.setDialogTitle(bndl.getString("MainForm.ChooserDBOpen"));
+        FileFilter filter = new FileNameExtensionFilter("SQLite database", "db", "sqlite");
+        chooser.addChoosableFileFilter(filter);
+        int returnVal = chooser.showOpenDialog(this);
+        if (returnVal == JFileChooser.APPROVE_OPTION) {
+            DataExportImport dei = new DataExportImport(settings);
+            showResult(
+                    dei.importDB(chooser.getSelectedFile()),
+                    bndl.getString("MainForm.message.ImportSuccess") + ": " + chooser.getSelectedFile().getAbsolutePath(),
+                    bndl.getString("MainForm.message.ImportError")
+            );
+
+            addSortedAuthorList();
+            makeUpdateTagList();
+
+        }
+
+    }
+
+    private void menuToolsExportDBActionPerformed() {
+        JFileChooser chooser = new JFileChooser();
+        chooser.setDialogTitle(bndl.getString("MainForm.ChooserDirectoryToExport"));
+        chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+        if (chooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
+            DataExportImport dei = new DataExportImport(settings);
+            String fn = dei.exportDB(chooser.getSelectedFile());
+
+            showResult(
+                    fn != null,
+                    bndl.getString("MainForm.message.ExportSuccess") + ": " + chooser.getSelectedFile().getAbsolutePath() + Settings.sep + fn,
+                    bndl.getString("MainForm.message.ExportError")
+            );
+
+
+        }
+
+    }
+
+    private void menuToolsExportListActionPerformed() {
+        JFileChooser chooser = new JFileChooser();
+        chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+        chooser.setDialogTitle(bndl.getString("MainForm.ChooserDirectoryToExport"));
+        if (chooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
+            DataExportImport dei = new DataExportImport(settings);
+            String fn = dei.exportAuthorList(DaoController.getInstance(sql), chooser.getSelectedFile());
+
+            showResult(
+                    fn != null,
+                    bndl.getString("MainForm.message.ExportListSuccess") + ": " + chooser.getSelectedFile().getAbsolutePath() + Settings.sep + fn,
+                    bndl.getString("MainForm.message.ExportListError")
+            );
+
+        }
+    }
+
+    private void menuToolsImportListActionPerformed() {
+        JFileChooser chooser = new JFileChooser();
+        chooser.setDialogTitle(bndl.getString("MainForm.ChooserDBOpen"));
+        FileFilter filter = new FileNameExtensionFilter("Author List", "txt", "html", "htm");
+        chooser.addChoosableFileFilter(filter);
+        int returnVal = chooser.showOpenDialog(this);
+        if (returnVal == JFileChooser.APPROVE_OPTION) {
+            ArrayList<String> urls = DataExportImport.importAuthorList(chooser.getSelectedFile());
+            if (urls == null) {
+                showError(bndl.getString("MainForm.message.ImportListError"));
+                return;
+            }
+            AddAuthorWorker worker = new AddAuthorWorker(service, urls);
+            worker.execute();
+
+        }
+
+    }
+
 
 
 
     private void initComponents() {
         // JFormDesigner - Component initialization - DO NOT MODIFY  //GEN-BEGIN:initComponents
+        ResourceBundle bundle = ResourceBundle.getBundle("samlibDesk");
         menuBar1 = new JMenuBar();
         menu1 = new JMenu();
         menuItemSettings = new JMenuItem();
         menuItemExit = new JMenuItem();
+        menuTools = new JMenu();
+        menuToolsAdd = new JMenuItem();
+        menuToolsSearch = new JMenuItem();
+        menuToolsImportDB = new JMenuItem();
+        menuToolsExportDB = new JMenuItem();
+        menuToolsImportList = new JMenuItem();
+        menuToolsExportList = new JMenuItem();
         panelMain = new JPanel();
         toolBar = new JPanel();
         buttonUpdate = new JButton();
+        cBTags = new JComboBox<>();
         progressBar1 = new JProgressBar();
-        reFresh = new JButton();
-        scrollPane1 = new JScrollPane();
+        buttonRefresh = new JButton();
+        authorScrollPane = new JScrollPane();
         jAuthorList = new JList();
+        panel1 = new JPanel();
+        lbProgress = new JLabel();
         bookScrolPanel = new JScrollPane();
         bookPanel = new JPanel();
         bookPopup = new JPopupMenu();
-        menuItem3 = new JMenuItem();
         menuItem4 = new JMenuItem();
-        menuItem5 = new JMenuItem();
-        menuItem6 = new JMenuItem();
+        menuItem3 = new JMenuItem();
+        authorPopup = new JPopupMenu();
+        menuAuthorTags = new JMenuItem();
+        menuAuthorMakeRead = new JMenuItem();
+        menuAuthorDelete = new JMenuItem();
 
         //======== this ========
         setMinimumSize(new Dimension(20, 70));
@@ -185,7 +447,7 @@ public class MainForm extends JFrame {
                 menu1.setText("File");
 
                 //---- menuItemSettings ----
-                menuItemSettings.setText("\u041d\u0430\u0441\u0442\u0440\u043e\u0439\u043a\u0438");
+                menuItemSettings.setText(bundle.getString("MainForm.menu.settings"));
                 menuItemSettings.addActionListener(new ActionListener() {
                     @Override
                     public void actionPerformed(ActionEvent e) {
@@ -195,7 +457,7 @@ public class MainForm extends JFrame {
                 menu1.add(menuItemSettings);
 
                 //---- menuItemExit ----
-                menuItemExit.setText("Exit");
+                menuItemExit.setText(bundle.getString("MainForm.menu.exit"));
                 menuItemExit.addActionListener(new ActionListener() {
                     @Override
                     public void actionPerformed(ActionEvent e) {
@@ -205,6 +467,73 @@ public class MainForm extends JFrame {
                 menu1.add(menuItemExit);
             }
             menuBar1.add(menu1);
+
+            //======== menuTools ========
+            {
+                menuTools.setText(bundle.getString("MainForm.menuTools.text"));
+
+                //---- menuToolsAdd ----
+                menuToolsAdd.setText(bundle.getString("MainForm.menuToolsAdd.text"));
+                menuToolsAdd.addActionListener(new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        menuToolsAddActionPerformed(e);
+                    }
+                });
+                menuTools.add(menuToolsAdd);
+
+                //---- menuToolsSearch ----
+                menuToolsSearch.setText(bundle.getString("MainForm.menuToolsSearch.text"));
+                menuToolsSearch.addActionListener(new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        menuToolsSearchActionPerformed();
+                    }
+                });
+                menuTools.add(menuToolsSearch);
+
+                //---- menuToolsImportDB ----
+                menuToolsImportDB.setText(bundle.getString("MainForm.menuToolsImportDB.text"));
+                menuToolsImportDB.addActionListener(new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        menuToosImportActionPerformed();
+                    }
+                });
+                menuTools.add(menuToolsImportDB);
+
+                //---- menuToolsExportDB ----
+                menuToolsExportDB.setText(bundle.getString("MainForm.menuToolsExportDB.text"));
+                menuToolsExportDB.addActionListener(new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        menuToolsExportDBActionPerformed();
+                    }
+                });
+                menuTools.add(menuToolsExportDB);
+
+                //---- menuToolsImportList ----
+                menuToolsImportList.setText(bundle.getString("MainForm.menuToolsImportList.text"));
+                menuToolsImportList.addActionListener(new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        menuToolsImportListActionPerformed();
+                    }
+                });
+                menuTools.add(menuToolsImportList);
+
+                //---- menuToolsExportList ----
+                menuToolsExportList.setText(bundle.getString("MainForm.menuToolsExportList.text"));
+                menuToolsExportList.addActionListener(new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        menuToolsExportListActionPerformed();
+                        menuToolsExportListActionPerformed();
+                    }
+                });
+                menuTools.add(menuToolsExportList);
+            }
+            menuBar1.add(menuTools);
         }
         setJMenuBar(menuBar1);
 
@@ -219,13 +548,13 @@ public class MainForm extends JFrame {
             //======== toolBar ========
             {
                 toolBar.setLayout(new GridBagLayout());
-                ((GridBagLayout)toolBar.getLayout()).columnWidths = new int[] {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+                ((GridBagLayout)toolBar.getLayout()).columnWidths = new int[] {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 105, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
                 ((GridBagLayout)toolBar.getLayout()).rowHeights = new int[] {0, 5, 0};
                 ((GridBagLayout)toolBar.getLayout()).columnWeights = new double[] {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0E-4};
                 ((GridBagLayout)toolBar.getLayout()).rowWeights = new double[] {0.0, 0.0, 1.0E-4};
 
                 //---- buttonUpdate ----
-                buttonUpdate.setText("Update");
+                buttonUpdate.setText(bundle.getString("MainForm.buttonRefresh.text"));
                 buttonUpdate.addActionListener(new ActionListener() {
                     @Override
                     public void actionPerformed(ActionEvent e) {
@@ -235,33 +564,67 @@ public class MainForm extends JFrame {
                 toolBar.add(buttonUpdate, new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0,
                     GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                     new Insets(0, 0, 5, 5), 0, 0));
-                toolBar.add(progressBar1, new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0,
+
+                //---- cBTags ----
+                cBTags.addActionListener(new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        cBTagsActionPerformed(e);
+                    }
+                });
+                toolBar.add(cBTags, new GridBagConstraints(2, 0, 2, 1, 0.0, 0.0,
+                    GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                    new Insets(0, 0, 5, 5), 0, 0));
+                toolBar.add(progressBar1, new GridBagConstraints(6, 0, 1, 1, 0.0, 0.0,
                     GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                     new Insets(0, 0, 5, 5), 0, 0));
 
-                //---- reFresh ----
-                reFresh.setText("Refresh");
-                reFresh.addActionListener(new ActionListener() {
+                //---- buttonRefresh ----
+                buttonRefresh.setText(bundle.getString("MainForm.buttonRefresh.text"));
+                buttonRefresh.addActionListener(new ActionListener() {
                     @Override
                     public void actionPerformed(ActionEvent e) {
-                        reFreshActionPerformed(e);
+                        buttonRefreshActionPerformed();
                     }
                 });
-                toolBar.add(reFresh, new GridBagConstraints(24, 0, 1, 1, 0.0, 0.0,
+                toolBar.add(buttonRefresh, new GridBagConstraints(9, 0, 1, 1, 0.0, 0.0,
                     GridBagConstraints.CENTER, GridBagConstraints.BOTH,
-                    new Insets(0, 0, 5, 0), 0, 0));
+                    new Insets(0, 0, 5, 5), 0, 0));
             }
             panelMain.add(toolBar, CC.xywh(1, 1, 3, 1));
 
-            //======== scrollPane1 ========
+            //======== authorScrollPane ========
             {
-                scrollPane1.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+                authorScrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
 
                 //---- jAuthorList ----
                 jAuthorList.setComponentPopupMenu(null);
-                scrollPane1.setViewportView(jAuthorList);
+                jAuthorList.addMouseListener(new MouseAdapter() {
+                    @Override
+                    public void mouseClicked(MouseEvent e) {
+                        jAuthorListMouseClicked(e);
+                    }
+                });
+                authorScrollPane.setViewportView(jAuthorList);
             }
-            panelMain.add(scrollPane1, CC.xy(1, 2));
+            panelMain.add(authorScrollPane, CC.xy(1, 2));
+
+            //======== panel1 ========
+            {
+                panel1.setBorder(new EtchedBorder());
+                panel1.setLayout(new GridBagLayout());
+                ((GridBagLayout)panel1.getLayout()).columnWidths = new int[] {0, 0, 0};
+                ((GridBagLayout)panel1.getLayout()).rowHeights = new int[] {0, 0, 0, 0};
+                ((GridBagLayout)panel1.getLayout()).columnWeights = new double[] {0.0, 0.0, 1.0E-4};
+                ((GridBagLayout)panel1.getLayout()).rowWeights = new double[] {0.0, 0.0, 0.0, 1.0E-4};
+
+                //---- lbProgress ----
+                lbProgress.setText(bundle.getString("MainForm.lbProgress.text"));
+                panel1.add(lbProgress, new GridBagConstraints(0, 0, 2, 1, 0.0, 0.0,
+                    GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                    new Insets(0, 0, 5, 0), 0, 0));
+            }
+            panelMain.add(panel1, CC.xywh(1, 4, 3, 1));
 
             //======== bookScrolPanel ========
             {
@@ -272,8 +635,6 @@ public class MainForm extends JFrame {
 
                 //======== bookPanel ========
                 {
-                    bookPanel.setAutoscrolls(true);
-                    bookPanel.setComponentPopupMenu(bookPopup);
                     bookPanel.setLayout(new GridBagLayout());
                     ((GridBagLayout)bookPanel.getLayout()).columnWidths = new int[] {0, 0, 0};
                     ((GridBagLayout)bookPanel.getLayout()).rowHeights = new int[] {0, 0, 0, 0};
@@ -291,20 +652,48 @@ public class MainForm extends JFrame {
         //======== bookPopup ========
         {
 
-            //---- menuItem3 ----
-            menuItem3.setText("text");
-            bookPopup.add(menuItem3);
-
             //---- menuItem4 ----
-            menuItem4.setText("text");
+            menuItem4.setText("BookText2");
             bookPopup.add(menuItem4);
+
+            //---- menuItem3 ----
+            menuItem3.setText("Booktext1");
+            bookPopup.add(menuItem3);
         }
 
-        //---- menuItem5 ----
-        menuItem5.setText("text");
+        //======== authorPopup ========
+        {
 
-        //---- menuItem6 ----
-        menuItem6.setText("text");
+            //---- menuAuthorTags ----
+            menuAuthorTags.setText(bundle.getString("MainForm.menuAuthorTags.text"));
+            menuAuthorTags.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    menuAuthorTagsActionPerformed(e);
+                }
+            });
+            authorPopup.add(menuAuthorTags);
+
+            //---- menuAuthorMakeRead ----
+            menuAuthorMakeRead.setText(bundle.getString("MainForm.authorMenu.makeRead"));
+            menuAuthorMakeRead.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    menuAuthorMakeReadActionPerformed(e);
+                }
+            });
+            authorPopup.add(menuAuthorMakeRead);
+
+            //---- menuAuthorDelete ----
+            menuAuthorDelete.setText(bundle.getString("MainForm.menuAuthorDelete.text"));
+            menuAuthorDelete.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    menuAuthorDeleteActionPerformed(e);
+                }
+            });
+            authorPopup.add(menuAuthorDelete);
+        }
         // JFormDesigner - End of component initialization  //GEN-END:initComponents
     }
 
@@ -313,68 +702,128 @@ public class MainForm extends JFrame {
     private JMenu menu1;
     private JMenuItem menuItemSettings;
     private JMenuItem menuItemExit;
+    private JMenu menuTools;
+    private JMenuItem menuToolsAdd;
+    private JMenuItem menuToolsSearch;
+    private JMenuItem menuToolsImportDB;
+    private JMenuItem menuToolsExportDB;
+    private JMenuItem menuToolsImportList;
+    private JMenuItem menuToolsExportList;
     private JPanel panelMain;
     private JPanel toolBar;
     private JButton buttonUpdate;
+    private JComboBox<TagComboItem> cBTags;
     private JProgressBar progressBar1;
-    private JButton reFresh;
-    private JScrollPane scrollPane1;
+    private JButton buttonRefresh;
+    private JScrollPane authorScrollPane;
     private JList jAuthorList;
+    private JPanel panel1;
+    private JLabel lbProgress;
     private JScrollPane bookScrolPanel;
     private JPanel bookPanel;
     private JPopupMenu bookPopup;
-    private JMenuItem menuItem3;
     private JMenuItem menuItem4;
-    private JMenuItem menuItem5;
-    private JMenuItem menuItem6;
+    private JMenuItem menuItem3;
+    private JPopupMenu authorPopup;
+    private JMenuItem menuAuthorTags;
+    private JMenuItem menuAuthorMakeRead;
+    private JMenuItem menuAuthorDelete;
     // JFormDesigner - End of variables declaration  //GEN-END:variables
 
-
-    class Update extends SwingWorker<Void,Void>{
-
-        @Override
-        protected Void doInBackground() throws Exception {
-            AuthorController ctl = new AuthorController(sql);
-            HttpClientController http = HttpClientController.getInstance(settings);
-            for (Author a : ctl.getAll(selection,sortOrder) ){
-                String url = a.getUrl();
-
-                Author newA;
-
-
-                try {
-                    newA = http.getAuthorByURL(url);
-                }
-                catch (IOException ex ){
-                    Log.e(DEBUG_TAG, "Connection Error: "+url, ex);
-
-                    return null;
-
-                }
-                catch (SamlibParseException ex){
-                    Log.e(DEBUG_TAG, "Error parsing url: " + url + " skip update author ", ex);
-
-                    //++skippedAuthors;
-                    newA = a;
-                }
-
-                if (a.update(newA)) {//we have update for the author
-
-                    Log.i(DEBUG_TAG, "We need update author: " + a.getName());
-                    ctl.update(a);
-                }
-
-            }
-
-            return null;
-        }
-
-        @Override
-        protected void done() {
-            super.done();
-            buttonUpdate.setEnabled(true);
+    @Override
+    public void makeUpdate(boolean isBoth) {
+        Log.d(DEBUG_TAG, "makeUpdate: isBoth = " + isBoth);
+        addSortedAuthorList();//refresh authors
+        if (isBoth) {
             loadBookList(selectedAuthor);
 
         }
+
     }
+
+
+    @Override
+    public void makeUpdateTagList() {
+        Log.d(DEBUG_TAG, "makeUpdateTagList");
+        createTagSelector();
+        redraw();
+    }
+
+    @Override
+    public void finishBookLoad(boolean result, AbstractSettings.FileType ft, long book_id) {
+        this.setCursor(Cursor.DEFAULT_CURSOR);
+        if (result) {
+            AuthorController ctl = new AuthorController(DaoController.getInstance(sql));
+            showBook(ctl.getBookController().getById(book_id));
+        } else {
+            showError(bndl.getString("MainForm.message.BookLoadError"));
+        }
+
+    }
+
+    @Override
+    public void sendAuthorUpdateProgress(int total, int iCurrent, String name) {
+        progressBar1.setValue(iCurrent);
+        showMessage(bndl.getString("MainForm.message.Update") + "  " + name);
+    }
+
+    @Override
+    public void finishUpdate(boolean result, List<Author> updatedAuthors) {
+        buttonUpdate.setEnabled(true);
+        progressBar1.setValue(0);
+        progressBar1.setString("");
+        showResult(result, bndl.getString("MainForm.message.UpdateSuccess"), bndl.getString("MainForm.message.UpdateError"));
+
+    }
+
+    @Override
+    public void sendResult(String action, int numberOfAdded, int numberOfDeleted, int doubleAdd, int totalToAdd, long author_id) {
+
+    }
+
+    /**
+     * Show book
+     *
+     * @param book book to read
+     */
+    private void showBook(Book book) {
+        Log.i(DEBUG_TAG, "Display book: " + settings.getBookFile(book, book.getFileType()).getAbsolutePath());
+        try {
+            //TODO: put reader into setting for different File type
+            Runtime.getRuntime().exec("/usr/bin/firefox " + settings.getBookFile(book, book.getFileType()).getAbsolutePath());
+        } catch (IOException e) {
+            Log.e(DEBUG_TAG, "Error Open Book");
+        }
+    }
+
+    /**
+     * Show error
+     *
+     * @param msg message to display
+     */
+    private void showError(String msg) {
+        Log.e(DEBUG_TAG, msg);
+        lbProgress.setForeground(Color.RED);
+        lbProgress.setText(msg);
+    }
+
+    /**
+     * Show Text message
+     *
+     * @param msg message to display
+     */
+    private void showMessage(String msg) {
+        Log.e(DEBUG_TAG, msg);
+        lbProgress.setForeground(Color.BLACK);
+        lbProgress.setText(msg);
+    }
+
+    private void showResult(boolean result, String successMessage, String errorMessage) {
+        if (result) {
+            showMessage(successMessage);
+        } else {
+            showError(errorMessage);
+        }
+    }
+
 }

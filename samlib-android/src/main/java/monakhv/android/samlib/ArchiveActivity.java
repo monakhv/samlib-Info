@@ -34,7 +34,6 @@ import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
-import android.support.v7.app.ActionBarActivity;
 import android.text.Html;
 import android.util.Log;
 import android.view.MenuItem;
@@ -45,14 +44,17 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 
-
+import monakhv.android.samlib.service.AndroidGuiUpdater;
 import monakhv.android.samlib.service.AuthorEditorServiceIntent;
+import monakhv.samlib.service.SamlibService;
+
+import java.util.ArrayList;
 
 /**
  *
  * @author monakhv
  */
-public class ArchiveActivity extends ActionBarActivity {
+public class ArchiveActivity extends MyBaseAbstractActivity {
 
     public static final String UPDATE_KEY = "UPDATE_LIST_PARAM";
     public static final int UPDATE_LIST = 22;
@@ -171,7 +173,7 @@ public class ArchiveActivity extends ActionBarActivity {
 
     @SuppressWarnings("UnusedParameters")
     public void exportTxt(View v) {
-        String file = dataExportImport.exportAuthorList();
+        String file = dataExportImport.exportAuthorList(getDatabaseHelper());
         String text;
         if (file != null) {
             text = getString(R.string.res_export_txt_good) + " " + file;
@@ -205,12 +207,16 @@ public class ArchiveActivity extends ActionBarActivity {
 
     private void _importTxt(String file) {
         
-        boolean res = dataExportImport.importAuthorList(file);
-        progress = new ProgressDialog(this);
-        progress.setMessage(getText(R.string.arc_import_text_title));
-        progress.setCancelable(false);
-        progress.setIndeterminate(true);
-        progress.show();
+        ArrayList<String> urls =  dataExportImport.importAuthorList(file);
+        if (!urls.isEmpty()){
+            AuthorEditorServiceIntent.addAuthor(this,urls);
+            progress = new ProgressDialog(this);
+            progress.setMessage(getText(R.string.arc_import_text_title));
+            progress.setCancelable(false);
+            progress.setIndeterminate(true);
+            progress.show();
+        }
+
 
     }
     @Override
@@ -331,8 +337,8 @@ public class ArchiveActivity extends ActionBarActivity {
 
         @Override
         public void onReceive(Context context, Intent intent) {
-            CharSequence msg = intent.getCharSequenceExtra(AuthorEditorServiceIntent.RESULT_MESSAGE);
-            if (intent.getStringExtra(AuthorEditorServiceIntent.EXTRA_ACTION_TYPE).equals(AuthorEditorServiceIntent.ACTION_ADD))
+            CharSequence msg = intent.getCharSequenceExtra(AndroidGuiUpdater.TOAST_STRING);
+            if (intent.getStringExtra(AndroidGuiUpdater.ACTION).equals(SamlibService.ACTION_ADD))
             {
                 TextView tvMsg = new TextView(ArchiveActivity.this);
                 tvMsg.setText(Html.fromHtml(msg.toString()));

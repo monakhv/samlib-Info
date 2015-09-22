@@ -21,38 +21,18 @@ import android.content.Intent;
 import android.support.v7.widget.Toolbar;
 import android.view.*;
 import monakhv.android.samlib.data.SettingsHelper;
-import monakhv.android.samlib.dialogs.EnterStringDialog;
-import android.app.AlertDialog;
-import android.app.Dialog;
-import android.content.DialogInterface;
-import android.database.Cursor;
 import android.os.Bundle;
-import android.support.v4.widget.SimpleCursorAdapter;
-import android.support.v7.app.ActionBarActivity;
-import android.util.Log;
-import android.util.SparseBooleanArray;
-import android.widget.AdapterView;
-import android.widget.EditText;
-import android.widget.ListView;
-import android.widget.TextView;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
 
-import monakhv.android.samlib.sql.AuthorController;
-import monakhv.android.samlib.sql.AuthorProvider;
 
-import monakhv.android.samlib.sql.TagController;
-import monakhv.samlib.db.SQLController;
+
+import monakhv.samlib.db.AuthorController;
 import monakhv.samlib.db.entity.Author;
-import monakhv.samlib.db.entity.Tag;
 
 /**
  *
  * @author monakhv
  */
-public class AuthorTagsActivity extends ActionBarActivity implements AuthorTagFragment.AuthorTagCallback {
+public class AuthorTagsActivity extends MyBaseAbstractActivity implements AuthorTagFragment.AuthorTagCallback {
 
     public static final String AUTHOR_ID = "TAGS_AUTHOR_ID";
 
@@ -75,6 +55,7 @@ public class AuthorTagsActivity extends ActionBarActivity implements AuthorTagFr
 
 
         authorTagFragment = (AuthorTagFragment) getSupportFragmentManager().findFragmentById(R.id.tagsFragment);
+        authorTagFragment.setHasOptionsMenu(true);
 
     }
 
@@ -82,14 +63,14 @@ public class AuthorTagsActivity extends ActionBarActivity implements AuthorTagFr
     @Override
     protected void onResume() {
         super.onResume();
-        AuthorController sql = new AuthorController(this);
+        AuthorController sql = new AuthorController(getDatabaseHelper());
         Author a = sql.getById(authorTagFragment.getAuthor_id());
 
-        if (a.getTags_name().isEmpty()){
+        if (a.getTag2Authors().isEmpty()){
             getSupportActionBar().setTitle(a.getName() + ": NO TAGS" );
         }
         else {
-            getSupportActionBar().setTitle(a.getName() + ": " +authorTagFragment. join(a.getTags_name(), ", "));
+            getSupportActionBar().setTitle(a.getName() + ": " +a.getAll_tags_name());
         }
 
 
@@ -99,31 +80,6 @@ public class AuthorTagsActivity extends ActionBarActivity implements AuthorTagFr
 
 
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        MenuInflater menuInflater = getMenuInflater();
-        menuInflater.inflate(R.menu.tags_menu, menu);
-
-        return super.onCreateOptionsMenu(menu);
-
-
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        int sel = item.getItemId();
-        if (sel == android.R.id.home ){
-            onFinish(authorTagFragment.getAuthor_id());
-            return true;
-        }
-
-        if (sel == R.id.add_option_item) {
-            authorTagFragment.panelFlip();
-            return true;
-
-        }
-        return super.onOptionsItemSelected(item);
-    }
 
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {

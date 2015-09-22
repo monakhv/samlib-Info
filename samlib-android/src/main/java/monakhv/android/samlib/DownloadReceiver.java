@@ -8,7 +8,8 @@ import android.widget.Toast;
 
 
 import monakhv.android.samlib.data.SettingsHelper;
-import monakhv.android.samlib.sql.AuthorController;
+import monakhv.samlib.db.BookController;
+import monakhv.samlib.db.DaoBuilder;
 import monakhv.samlib.db.entity.Book;
 
 /*
@@ -37,9 +38,12 @@ public  class DownloadReceiver extends BroadcastReceiver {
     private static final String DEBUG_TAG = "DownloadReceiver";
 
     private BookFragment books;
+    private DaoBuilder sql;
+            ;
 
-    public DownloadReceiver(BookFragment books){
+    public DownloadReceiver(BookFragment books,DaoBuilder sql){
         this.books=books;
+        this.sql = sql;
     }
 
     @Override
@@ -50,8 +54,9 @@ public  class DownloadReceiver extends BroadcastReceiver {
 
         boolean res = intent.getBooleanExtra(RESULT, false);
 
-        AuthorController sql = new AuthorController(context);
-        Book book = sql.getBookController().getById(book_id);
+
+        BookController bCtl= new BookController(sql);
+        Book book = bCtl.getById(book_id);
         String ft = intent.getStringExtra(FILE_TYPE);
         book.setFileType(SettingsHelper.FileType.valueOf(ft));
 
@@ -73,5 +78,6 @@ public  class DownloadReceiver extends BroadcastReceiver {
             toast.show();
         }
     }
+
 
 }

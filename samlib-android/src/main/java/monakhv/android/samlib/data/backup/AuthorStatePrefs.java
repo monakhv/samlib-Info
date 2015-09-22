@@ -10,8 +10,10 @@ import java.util.Map;
 
 
 import monakhv.android.samlib.data.SettingsHelper;
-import monakhv.android.samlib.sql.AuthorController;
 
+import monakhv.android.samlib.sql.DatabaseHelper;
+import monakhv.samlib.db.AuthorController;
+import monakhv.samlib.db.DaoBuilder;
 import monakhv.samlib.db.entity.Author;
 import monakhv.android.samlib.tasks.AddAuthorRestore;
 
@@ -45,11 +47,13 @@ public class AuthorStatePrefs {
     private SharedPreferences prefs;
     private static AuthorStatePrefs instance;
     private SettingsHelper settings;
+    private DaoBuilder dao;
 
 
-    private AuthorStatePrefs(Context context) {
+    private AuthorStatePrefs(Context context ,DatabaseHelper helper) {
 
         this.context = context;
+        this.dao=helper;
         this.prefs = getPrefs();
         this.settings = new SettingsHelper(this.context);
     }
@@ -65,7 +69,7 @@ public class AuthorStatePrefs {
         editor.commit();
         settings.backup(prefs);
         editor = prefs.edit();
-        AuthorController sql = new AuthorController(context);
+        AuthorController sql = new AuthorController(dao);
         for (Author a : sql.getAll()) {
             editor.putString(a.getUrlForBrowser(settings), a.getAll_tags_name());
 
@@ -123,20 +127,20 @@ public class AuthorStatePrefs {
         return context.getSharedPreferences(fn, Context.MODE_PRIVATE);
     }
 
-    static AuthorStatePrefs getInstance(Context ctx) {
+    static AuthorStatePrefs getInstance(Context ctx,DatabaseHelper helper) {
         if (instance == null) {
-            instance = new AuthorStatePrefs(ctx);
+            instance = new AuthorStatePrefs(ctx,helper);
         }
         return instance;
     }
 
-    public static void load(Context ctx) {
-        AuthorStatePrefs ins = getInstance(ctx);
+    public static void load(Context ctx,DatabaseHelper helper) {
+        AuthorStatePrefs ins = getInstance(ctx,helper);
         ins.load();
     }
 
-    public static void restore(Context ctx) {
-        AuthorStatePrefs ins = getInstance(ctx);
+    public static void restore(Context ctx,DatabaseHelper helper) {
+        AuthorStatePrefs ins = getInstance(ctx,helper);
         ins.restore();
     }
 

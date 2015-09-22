@@ -16,15 +16,16 @@
 package monakhv.android.samlib;
 
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
 
 
 import android.support.v7.widget.Toolbar;
-import android.view.Menu;
-import android.view.MenuItem;
-import monakhv.android.samlib.sql.AuthorController;
+import monakhv.android.samlib.service.AndroidGuiUpdater;
+import monakhv.samlib.db.AuthorController;
 import monakhv.samlib.db.entity.Author;
 import monakhv.samlib.db.entity.SamLibConfig;
 import monakhv.samlib.log.Log;
@@ -32,12 +33,13 @@ import monakhv.samlib.log.Log;
 /**
  * @author monakhv
  */
-public class BooksActivity extends MyAbstractActivity {
+public class BooksActivity extends MyAbstractAnimActivity implements BookFragment.Callbacks {
     private static final String DEBUG_TAG = "BooksActivity";
     private static final int TAGS_ACTIVITY = 21;
     private long author_id = 0;
     private DownloadReceiver receiver;
     private BookFragment listFragment;
+    private UpdateActivityReceiver mUpdateActivityReceiver;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,6 +67,7 @@ public class BooksActivity extends MyAbstractActivity {
         }
 
         listFragment = (BookFragment) getSupportFragmentManager().findFragmentById(R.id.listBooksFragment);
+        listFragment.setHasOptionsMenu(true);
 
     }
 
@@ -85,33 +88,16 @@ public class BooksActivity extends MyAbstractActivity {
         super.onSaveInstanceState(bundle);
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.books_menu, menu);
-        return super.onCreateOptionsMenu(menu);
-    }
 
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        int sel = item.getItemId();
-        if (sel == R.id.menu_books_tags  && author_id >0 ) {
-            Intent intent = new Intent(this, AuthorTagsActivity.class);
-            intent.putExtra(AuthorTagsActivity.AUTHOR_ID,author_id);
-            //intent.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
-            startActivityForResult(intent, TAGS_ACTIVITY);
-        }
-        if (sel == R.id.menu_books_sort) {
-            listFragment.selectSortOrder();
-        }
+    public void showTags(long author_id) {
+        Intent intent = new Intent(this, AuthorTagsActivity.class);
+        intent.putExtra(AuthorTagsActivity.AUTHOR_ID, author_id);
+        //intent.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
+        startActivityForResult(intent, TAGS_ACTIVITY);
 
-        return super.onOptionsItemSelected(item);
     }
 
-    @Override
-    public void onOptionsMenuClosed(Menu menu) {
-
-        super.onOptionsMenuClosed(menu);
-    }
 
     @Override
     protected void onResume() {
@@ -119,7 +105,7 @@ public class BooksActivity extends MyAbstractActivity {
 
 
         if (author_id != SamLibConfig.SELECTED_BOOK_ID) {
-            AuthorController sql = new AuthorController(this);
+            AuthorController sql = new AuthorController(getDatabaseHelper());
             Author a = sql.getById(author_id);
             if (a != null) {
                 setTitle(a.getName());
@@ -130,10 +116,16 @@ public class BooksActivity extends MyAbstractActivity {
         }
 
 
-        receiver = new DownloadReceiver(listFragment);
+        receiver = new DownloadReceiver(listFragment, getDatabaseHelper());
         IntentFilter filter = new IntentFilter(DownloadReceiver.ACTION_RESP);
         filter.addCategory(Intent.CATEGORY_DEFAULT);
         registerReceiver(receiver, filter);
+
+        mUpdateActivityReceiver = new UpdateActivityReceiver();
+        IntentFilter updateFilter = new IntentFilter(AndroidGuiUpdater.ACTION_RESP);
+        updateFilter.addCategory(Intent.CATEGORY_DEFAULT);
+        registerReceiver(mUpdateActivityReceiver,updateFilter);
+
 
     }
 
@@ -141,6 +133,26 @@ public class BooksActivity extends MyAbstractActivity {
     protected void onPause() {
         super.onPause();
         unregisterReceiver(receiver);
+        unregisterReceiver(mUpdateActivityReceiver);
+    }
+
+    /**
+     * Receive updates from  Services
+     */
+    public class UpdateActivityReceiver extends BroadcastReceiver {
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String action = intent.getStringExtra(AndroidGuiUpdater.ACTION);
+            if (action != null) {
+                if (action.equalsIgnoreCase(AndroidGuiUpdater.ACTION_REFRESH)) {
+                    int iObject = intent.getIntExtra(AndroidGuiUpdater.ACTION_REFRESH_OBJECT, AndroidGuiUpdater.ACTION_REFRESH_AUTHORS);
+                    if (iObject == AndroidGuiUpdater.ACTION_REFRESH_BOTH) {
+                        listFragment.refresh();
+                    }
+                }
+            }
+        }
     }
 
 

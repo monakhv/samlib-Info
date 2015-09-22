@@ -16,18 +16,18 @@ import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
+import com.j256.ormlite.android.AndroidDatabaseResults;
 import monakhv.android.samlib.data.SettingsHelper;
 import monakhv.android.samlib.dialogs.EnterStringDialog;
-import monakhv.android.samlib.sql.AuthorController;
-import monakhv.android.samlib.sql.AuthorProvider;
-import monakhv.android.samlib.sql.TagController;
+import monakhv.android.samlib.service.AuthorEditorServiceIntent;
+import monakhv.android.samlib.sql.DatabaseHelper;
+import monakhv.samlib.db.AuthorController;
 import monakhv.samlib.db.SQLController;
+import monakhv.samlib.db.TagController;
 import monakhv.samlib.db.entity.Author;
 import monakhv.samlib.db.entity.Tag;
 
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
 import java.util.List;
 
 /*
@@ -49,7 +49,8 @@ import java.util.List;
  */
 public class AuthorTagFragment extends Fragment {
     public interface AuthorTagCallback{
-        public void onFinish(long id);
+        void onFinish(long id);
+        DatabaseHelper getDatabaseHelper();
     }
     private static final String DEBUG_TAG = "AuthorTagFragment";
     private long author_id=0;
@@ -88,13 +89,13 @@ public class AuthorTagFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.tags_fargment, container, false);
-        Log.i(DEBUG_TAG, "Done making view");
+        Log.i(DEBUG_TAG, "Done making view author_id = "+author_id);
 
         listView = (ListView) view.findViewById(R.id.listTags);
         listView.setAdapter(adapter);
         listView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
         listView.setItemsCanFocus(false);
-        loadTagData();
+
         registerForContextMenu(listView);
 
         Button bt;
@@ -124,6 +125,15 @@ public class AuthorTagFragment extends Fragment {
 
         return view;
     }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        Log.d(DEBUG_TAG, "onResume");
+        loadTagData();
+
+    }
+
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
@@ -173,10 +183,12 @@ public class AuthorTagFragment extends Fragment {
         public void onClick(DialogInterface dialog, int which) {
             switch (which) {
                 case Dialog.BUTTON_POSITIVE:
-                    TagController sql = new TagController(getActivity().getApplicationContext());
+                    TagController sql = new TagController(callBack.getDatabaseHelper());
                     if (cursor != null) {
-                        sql.delete(cursor.getInt(cursor.getColumnIndex(SQLController.COL_ID)));
+                        Tag tag = sql.getById(cursor.getInt(cursor.getColumnIndex(SQLController.COL_ID)));
+                        sql.delete(tag);
                         cursor = null;
+                        AuthorEditorServiceIntent.updateAllAuthorsTags(getActivity());
                         refreshList();
                     }
 
@@ -197,7 +209,7 @@ public class AuthorTagFragment extends Fragment {
             alert.show();
         }
         if (item.getItemId() == edit_menu_id && cursor != null) {
-            final TagController sql = new TagController(getActivity());
+            final TagController sql = new TagController(callBack.getDatabaseHelper());
             final Tag tag = sql.getById(cursor.getInt(cursor.getColumnIndex(SQLController.COL_ID)));
 
 
@@ -205,6 +217,7 @@ public class AuthorTagFragment extends Fragment {
                 public void okClick(String txt) {
                     tag.setName(txt);
                     sql.update(tag);
+                    AuthorEditorServiceIntent.updateAllAuthorsTags(getActivity());
                     refreshList();
                 }
             },getText(R.string.tag_edit_title).toString(),tag.getName());
@@ -219,24 +232,32 @@ public class AuthorTagFragment extends Fragment {
     public void okClick() {
 
         SparseBooleanArray checked = listView.getCheckedItemPositions();
-        List<Integer> tags = new ArrayList<Integer>();
+        List<Tag> tags = new ArrayList<>();
+        TagController tagCtl = new TagController(callBack.getDatabaseHelper());
         for (int i = 0; i < checked.size(); i++) {
             if (checked.valueAt(i)) {
                 Object o = listView.getItemAtPosition(checked.keyAt(i));
                 Cursor cur = (Cursor) o;//selected cursors
-                Log.i(DEBUG_TAG, "selected: " + cur.getString(cur.getColumnIndex(SQLController.COL_TAG_NAME)));
-                tags.add(cur.getInt(cur.getColumnIndex(SQLController.COL_ID)));
+                Log.d(DEBUG_TAG, "okClick: selected: " + cur.getString(cur.getColumnIndex(SQLController.COL_TAG_NAME)));
+                tags.add(tagCtl.getById(cur.getInt(cur.getColumnIndex(SQLController.COL_ID))));
             }
         }
-        AuthorController sql = new AuthorController(getActivity());
+        AuthorController sql = new AuthorController(callBack.getDatabaseHelper());
         Author a = sql.getById(author_id);
         sql.syncTags(a, tags);
+        AuthorEditorServiceIntent.updateAllAuthorsTags(getActivity());
         helper.requestBackup();
+        a=sql.getById(author_id);
+        //Log.d(DEBUG_TAG, "okClick:   " + a.getName() + ": " + a.getAll_tags_name() + "  -  " + a.getTagIds().size() + " = " + a.getTag2Authors().size());
+        for (Integer ii : a.getTagIds()){
+            Log.d(DEBUG_TAG, "okClick:   tagId -" +ii);
+        }
         cancelClick();
     }
 
     public void setAuthor_id(long author_id) {
         this.author_id = author_id;
+        loadTagData();
     }
 
     /**
@@ -245,21 +266,11 @@ public class AuthorTagFragment extends Fragment {
      * @return Cursor
      */
     private Cursor getCursor() {
-        return getActivity().getApplicationContext().getContentResolver().query(AuthorProvider.TAG_URI, null, null, null, SQLController.COL_TAG_NAME);
+        TagController tagSQL = new TagController(callBack.getDatabaseHelper());
+        AndroidDatabaseResults results = (AndroidDatabaseResults) tagSQL.getRowResult();
+        return results.getRawCursor();
     }
 
-    public static String join(Collection<?> col, String deliminator) {
-        StringBuilder sb = new StringBuilder();
-        Iterator<?> iterator = col.iterator();
-        if (iterator.hasNext()) {
-            sb.append(iterator.next().toString());
-        }
-        while (iterator.hasNext()) {
-            sb.append(deliminator);
-            sb.append(iterator.next().toString());
-        }
-        return sb.toString();
-    }
     /**
      * Add new Tag into DB
      *
@@ -272,10 +283,7 @@ public class AuthorTagFragment extends Fragment {
             return;
         }
         String text = editText.getText().toString();
-        if (text == null) {
-            Log.e(DEBUG_TAG, "add text is null");
-            return;
-        }
+
         if (text.equalsIgnoreCase("")) {
             Log.i(DEBUG_TAG, "can not add empty tag");
             return;
@@ -283,7 +291,7 @@ public class AuthorTagFragment extends Fragment {
 
         Log.i(DEBUG_TAG, "adding tag: " + text + " ...");
 
-        TagController sql = new TagController(getActivity().getApplicationContext());
+        TagController sql = new TagController(callBack.getDatabaseHelper());
         Tag tag = new Tag(text);
         sql.insert(tag);
 
@@ -302,21 +310,26 @@ public class AuthorTagFragment extends Fragment {
         adapter.swapCursor(getCursor());
     }
 
+
     /**
      * Mark selected tags for the author
      */
-    void loadTagData() {
+    private void loadTagData() {
+        if (listView == null){
+            return;
+        }
         int size =listView.getAdapter().getCount();
-        AuthorController sql = new AuthorController(getActivity());
+        AuthorController sql = new AuthorController(callBack.getDatabaseHelper());
         Author a = sql.getById(author_id);
         if (a==null){
+            Log.e(DEBUG_TAG,"loadTagData: author is NULL");
             return;
         }
         for (int i = 0; i < size; i++) {
             Cursor cur = (Cursor) listView.getAdapter().getItem(i);
             int tag_id = cur.getInt(cur.getColumnIndex(SQLController.COL_ID));
 
-            listView.setItemChecked(i, a.getTags_id().contains(tag_id));
+            listView.setItemChecked(i, a.getTagIds().contains(tag_id));
 
         }
 
@@ -341,6 +354,27 @@ public class AuthorTagFragment extends Fragment {
         } else {
             v.setVisibility(View.GONE);
         }
+    }
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        inflater.inflate(R.menu.tags_menu, menu);
+        super.onCreateOptionsMenu(menu, inflater);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int sel = item.getItemId();
+        if (sel == android.R.id.home ){
+            callBack.onFinish(getAuthor_id());
+            return true;
+        }
+
+        if (sel == R.id.add_option_item) {
+            panelFlip();
+            return true;
+
+        }
+        return super.onOptionsItemSelected(item);
     }
 
 

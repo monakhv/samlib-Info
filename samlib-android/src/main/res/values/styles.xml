@@ -54,7 +54,7 @@
     </style>
 
     <style name="Widget.Custom.PtrHeader.Light" parent="android:Widget">
-        <item name="ptrHeaderBackground">@color/primary_material_light</item>
+        <item name="ptrHeaderBackground">@color/action_bar_light</item>
         <item name="ptrPullText">@string/pull_to_refresh_pull_label</item>
         <item name="ptrRefreshingText">@string/pull_to_refresh_refreshing_label</item>
         <item name="ptrReleaseText">@string/pull_to_refresh_release_label</item>

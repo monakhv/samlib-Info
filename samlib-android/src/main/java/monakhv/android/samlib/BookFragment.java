@@ -1,41 +1,47 @@
 package monakhv.android.samlib;
 
+import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
-import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.Loader;
+import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
-import android.view.GestureDetector;
-import android.view.LayoutInflater;
-import android.view.MotionEvent;
-import android.view.SoundEffectConstants;
-import android.view.View;
-import android.view.ViewGroup;
+import android.view.*;
 import android.widget.AdapterView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 
-import monakhv.android.samlib.adapter.BookCursorAdapter;
+import monakhv.android.samlib.adapter.BookAdapter;
 
+
+import monakhv.android.samlib.adapter.BookLoader;
+import monakhv.android.samlib.adapter.RecyclerAdapter;
 import monakhv.android.samlib.data.DataExportImport;
 import monakhv.android.samlib.data.SettingsHelper;
 import monakhv.android.samlib.dialogs.ContextMenuDialog;
 import monakhv.android.samlib.dialogs.MyMenuData;
 import monakhv.android.samlib.dialogs.SingleChoiceSelectDialog;
 import monakhv.android.samlib.recyclerview.DividerItemDecoration;
+import monakhv.android.samlib.service.AndroidGuiUpdater;
+import monakhv.android.samlib.service.AuthorEditorServiceIntent;
 import monakhv.android.samlib.service.DownloadBookServiceIntent;
 import monakhv.android.samlib.sortorder.BookSortOrder;
-import monakhv.android.samlib.sql.AuthorProvider;
 
-import monakhv.samlib.db.SQLController;
+import monakhv.android.samlib.sql.DatabaseHelper;
+import monakhv.samlib.db.AuthorController;
 import monakhv.samlib.db.entity.Book;
 import monakhv.samlib.db.entity.SamLibConfig;
+
+import java.util.List;
 
 /*
  * Copyright 2014  Dmitry Monakhov
@@ -54,22 +60,43 @@ import monakhv.samlib.db.entity.SamLibConfig;
  *
  * 12/11/14.
  */
-public class BookFragment extends Fragment implements ListSwipeListener.SwipeCallBack {
+public class BookFragment extends Fragment implements
+        ListSwipeListener.SwipeCallBack, LoaderManager.LoaderCallbacks<List<Book>>,
+        RecyclerAdapter.CallBack{
+    private AuthorController sql;
+
+    public void refresh() {
+        updateAdapter();
+    }
+
+    @Override
+    public void makeNewFlip(int id) {
+        AuthorEditorServiceIntent.markBookReadFlip(getActivity(),id);
+    }
+
+
+    public interface Callbacks {
+        DatabaseHelper getDatabaseHelper();
+        void showTags(long author_id);
+    }
     private static final String DEBUG_TAG = "BookFragment";
     public static final String AUTHOR_ID = "AUTHOR_ID";
+    private static final int BOOK_LOADER_ID=190;
     private RecyclerView bookRV;
     private long author_id;
-    private BookCursorAdapter adapter;
+    private BookAdapter adapter;
     private Book book = null;//for context menu
     private BookSortOrder order;
     private GestureDetector detector;
     private SettingsHelper settings;
     ProgressDialog progress;
+    private ProgressBar mProgressBar;
     ContextMenuDialog contextMenuDialog;
-    private String selection;
+
     private TextView emptyText;
     private DataExportImport dataExportImport;
     private SingleChoiceSelectDialog dialog = null;
+    private Callbacks mCallbacks;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -81,7 +108,7 @@ public class BookFragment extends Fragment implements ListSwipeListener.SwipeCal
         } else {
             author_id = getActivity().getIntent().getExtras().getLong(AUTHOR_ID, 0);
         }
-        Log.i(DEBUG_TAG, "author_id = " + author_id);
+        Log.i(DEBUG_TAG, "onCreate: author_id = " + author_id);
 
         detector = new GestureDetector(getActivity(), new ListSwipeListener(this));
 
@@ -92,6 +119,17 @@ public class BookFragment extends Fragment implements ListSwipeListener.SwipeCal
 
 
     @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+        if (!(activity instanceof BookFragment.Callbacks)) {
+            throw new IllegalStateException(
+                    "Activity must implement fragment's callbacks.");
+        }
+        mCallbacks = (Callbacks) activity;
+        sql = new AuthorController(mCallbacks.getDatabaseHelper());
+    }
+
+    @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         Log.i(DEBUG_TAG, "onCreateView");
 
@@ -100,14 +138,10 @@ public class BookFragment extends Fragment implements ListSwipeListener.SwipeCal
         Log.i(DEBUG_TAG, "Done making view");
         bookRV = (RecyclerView) view.findViewById(R.id.bookRV);
         emptyText = (TextView) view.findViewById(R.id.id_empty_book_text);
-
-        setSelection();
-        Log.i(DEBUG_TAG, "selection = " + selection);
+        mProgressBar = (ProgressBar) view.findViewById(R.id.bookProgress);
 
 
-        Cursor c = getActivity().getContentResolver().query(AuthorProvider.BOOKS_URI, null, selection, null, order.getOrder());
-
-        adapter = new BookCursorAdapter(getActivity(), c);
+        adapter = new BookAdapter(getActivity(),this);
         adapter.setAuthor_id(author_id);
         bookRV.setHasFixedSize(true);
         bookRV.setLayoutManager(new LinearLayoutManager(getActivity()));
@@ -123,30 +157,35 @@ public class BookFragment extends Fragment implements ListSwipeListener.SwipeCal
             }
         });
 
-        makeEmpty();
-        adapter.registerAdapterDataObserver(observer);
+        emptyText.setVisibility(View.GONE);
+        bookRV.setVisibility(View.GONE);
+        mProgressBar.setVisibility(View.VISIBLE);
+        getLoaderManager().initLoader(BOOK_LOADER_ID, null, this);
+        bookRV.setItemAnimator(new DefaultItemAnimator());
         return view;
     }
 
-    private RecyclerView.AdapterDataObserver observer = new RecyclerView.AdapterDataObserver() {
-        @Override
-        public void onChanged() {
-            super.onChanged();
-            Log.d(DEBUG_TAG, "Observed: makeEmpty");
-            makeEmpty();
-        }
-    };
-
-    /**
-     * Construction selection string using author_id parameter
-     */
-    private void setSelection() {
-        if (author_id == SamLibConfig.SELECTED_BOOK_ID) {
-            selection = SQLController.COL_BOOK_GROUP_ID + "=" + Book.SELECTED_GROUP_ID;
-        } else {
-            selection = SQLController.COL_BOOK_AUTHOR_ID + "=" + author_id;
-        }
+    @Override
+    public Loader<List<Book>> onCreateLoader(int id, Bundle args) {
+        return new BookLoader(getActivity(), mCallbacks.getDatabaseHelper(),author_id,order.getOrder());
     }
+
+    @Override
+    public void onLoadFinished(Loader<List<Book>> loader, List<Book> data) {
+        adapter.setData(data);
+        Log.d(DEBUG_TAG,"onLoadFinished: adapter size = "+adapter.getItemCount());
+        mProgressBar.setVisibility(View.GONE);
+        makeEmpty();
+    }
+
+    @Override
+    public void onLoaderReset(Loader<List<Book>> loader) {
+        adapter.setData(null);
+    }
+
+
+
+
 
     /**
      * Make empty text view
@@ -177,8 +216,7 @@ public class BookFragment extends Fragment implements ListSwipeListener.SwipeCal
             settings = new SettingsHelper(ctx);
             order = BookSortOrder.valueOf(settings.getBookSortOrderString());
         }
-        String so = order.getOrder();
-        adapter.changeCursor(getActivity().getContentResolver().query(AuthorProvider.BOOKS_URI, null, selection, null, so));
+        getLoaderManager().restartLoader(BOOK_LOADER_ID, null, this);
     }
 
     /**
@@ -187,11 +225,15 @@ public class BookFragment extends Fragment implements ListSwipeListener.SwipeCal
      * @param id Author id or special parameters
      */
     public void setAuthorId(long id) {
+        emptyText.setVisibility(View.GONE);
+        bookRV.setVisibility(View.GONE);
+        mProgressBar.setVisibility(View.VISIBLE);
         author_id = id;
-        setSelection();
-        updateAdapter();
-        makeEmpty();
+
         adapter.setAuthor_id(id);
+        updateAdapter();
+
+
         adapter.cleanSelection();
     }
 
@@ -203,6 +245,7 @@ public class BookFragment extends Fragment implements ListSwipeListener.SwipeCal
 
         Book book = adapter.getSelected();
         if (book == null) {
+            Log.e(DEBUG_TAG,"singleClick: null book error position = "+position);
             return false;
         }
         loadBook(book);
@@ -301,11 +344,11 @@ public class BookFragment extends Fragment implements ListSwipeListener.SwipeCal
         }
         if (item == menu_selected) {
             book.setGroup_id(Book.SELECTED_GROUP_ID);
-            adapter.update(book);
+            updateBook(book);
         }
         if (item == menu_deselected) {
             book.setGroup_id(0);
-            adapter.update(book);
+            updateBook(book);
         }
         if (item == menu_reload) {
 
@@ -326,7 +369,7 @@ public class BookFragment extends Fragment implements ListSwipeListener.SwipeCal
                 settings.makePreserved(book);
                 book.setPreserve(true);
             }
-            adapter.update(book);
+            updateBook(book);
 
         }
         if (item == menu_choose_version) {
@@ -410,7 +453,7 @@ public class BookFragment extends Fragment implements ListSwipeListener.SwipeCal
             progress.setCancelable(true);
             progress.setIndeterminate(true);
             progress.show();
-            DownloadBookServiceIntent.start(getActivity(), book.getId(), true);
+            DownloadBookServiceIntent.start(getActivity(), book.getId(), AndroidGuiUpdater.CALLER_IS_ACTIVITY);
 
 
         } else {
@@ -461,9 +504,29 @@ public class BookFragment extends Fragment implements ListSwipeListener.SwipeCal
     @Override
     public void onDestroy() {
         super.onDestroy();
-        if (adapter != null) {
-            adapter.clear();
-            adapter.unregisterAdapterDataObserver(observer);
+        getLoaderManager().destroyLoader(BOOK_LOADER_ID);
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        inflater.inflate(R.menu.books_menu, menu);
+        super.onCreateOptionsMenu(menu, inflater);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int sel = item.getItemId();
+        if (sel == R.id.menu_books_tags  && author_id >0 ) {
+            mCallbacks.showTags(author_id);
         }
+        if (sel == R.id.menu_books_sort) {
+            selectSortOrder();
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    private void updateBook(Book book){
+        sql.getBookController().update(book);
+        updateAdapter();
     }
 }

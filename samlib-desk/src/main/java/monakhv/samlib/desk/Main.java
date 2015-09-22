@@ -1,10 +1,11 @@
 package monakhv.samlib.desk;
 
-import monakhv.samlib.db.SQLController;
+
 import monakhv.samlib.desk.data.Settings;
 import monakhv.samlib.desk.gui.MainForm;
 
 import java.sql.SQLException;
+
 
 /*
  * Copyright 2015  Dmitry Monakhov
@@ -25,13 +26,10 @@ import java.sql.SQLException;
  */
 public class Main {
     public Main() throws SQLException, ClassNotFoundException {
-        Settings settings = Settings.getInstance();
-        SQLController sql = SQLController.getInstance(settings.getDataDirectoryPath());
-
 
     }
     public static void main(String...args) throws SQLException, ClassNotFoundException {
-        Main mm = new Main();
+
         javax.swing.SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {

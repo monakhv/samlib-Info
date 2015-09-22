@@ -1,6 +1,6 @@
 package monakhv.samlib.log;
 
-import monakhv.samlib.data.SettingsHelper;
+import monakhv.samlib.data.AbstractSettings;
 
 /*
  * Copyright 2015  Dmitry Monakhov
@@ -21,9 +21,9 @@ import monakhv.samlib.data.SettingsHelper;
  */
 public class Log {
     protected static AbstractLogger logger;
-    protected static  SettingsHelper settingsHelper;
+    protected static AbstractSettings settingsHelper;
 
-    public static void  checkInit(AbstractLogger log,SettingsHelper sh){
+    public static void  checkInit(AbstractLogger log,AbstractSettings sh){
         if (logger == null || settingsHelper == null){
             logger=log;
             settingsHelper=sh;

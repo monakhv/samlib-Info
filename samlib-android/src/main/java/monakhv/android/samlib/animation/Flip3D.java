@@ -24,37 +24,40 @@ import monakhv.samlib.log.Log;
  *
  * 12/11/14.
  */
- public  class Flip3D {
+public class Flip3D {
     public interface animationFlip3DListener {
-        public void onStart();
-        public void onEnd();
+        void onStart();
+
+        void onEnd();
     }
 
-    private static final long ANIMATION_DURATION =500L;
+    private static final long ANIMATION_DURATION = 500L;
     private static final String DEBUG_TAG = "Flip3D";
     private final ImageView image1;
     private final ImageView image2;
     private animationFlip3DListener end;
 
     private boolean isFirstImage = true;
-    protected  void afterAnimationEnd() {
-        if (end != null){
+
+    protected void afterAnimationEnd() {
+        if (end != null) {
             end.onEnd();
         }
 
     }
 
-    Flip3D(ImageView img1, ImageView img2,animationFlip3DListener e) {
+    Flip3D(ImageView img1, ImageView img2, animationFlip3DListener e) {
         this.image1 = img1;
         this.image2 = img2;
         image1.setVisibility(View.VISIBLE);
         image2.setVisibility(View.GONE);
 
-       end=e;
+        end = e;
 
     }
+
     Flip3D(ImageView img1, ImageView img2) {
-        this(img1,img2,null);
+        this(img1, img2, null);
     }
 
 
@@ -63,9 +66,8 @@ import monakhv.samlib.log.Log;
 //    }
 
 
-
-    public void makeFlip(){
-        if (end != null){
+    public void makeFlip() {
+        if (end != null) {
             end.onStart();
         }
 
@@ -80,6 +82,7 @@ import monakhv.samlib.log.Log;
             isFirstImage = !isFirstImage;
         }
     }
+
     private void applyRotation(float start, float end) {
 // Find the center of image
         final float centerX = image1.getWidth() / 2.0f;
@@ -101,6 +104,7 @@ import monakhv.samlib.log.Log;
         }
 
     }
+
     private class DisplayNextView implements Animation.AnimationListener {
         private boolean mCurrentView;
         ImageView image1;
@@ -113,11 +117,11 @@ import monakhv.samlib.log.Log;
         }
 
         public void onAnimationStart(Animation animation) {
-            Log.d(DEBUG_TAG,"Animation start");
+            Log.d(DEBUG_TAG, "Animation start");
         }
 
         public void onAnimationEnd(Animation animation) {
-            Log.d(DEBUG_TAG,"Animation end - swap image");
+            Log.d(DEBUG_TAG, "Animation end - swap image");
             image1.post(new SwapViews(mCurrentView, image1, image2));
         }
 
@@ -162,13 +166,13 @@ import monakhv.samlib.log.Log;
                 rotation.setAnimationListener(new Animation.AnimationListener() {
                     @Override
                     public void onAnimationStart(Animation animation) {
-                        Log.d(DEBUG_TAG,"Second animation start");
+                        Log.d(DEBUG_TAG, "Second animation start");
 
                     }
 
                     @Override
                     public void onAnimationEnd(Animation animation) {
-                        Log.d(DEBUG_TAG,"Real animation end");
+                        Log.d(DEBUG_TAG, "Real animation end");
                         afterAnimationEnd();
                     }
 

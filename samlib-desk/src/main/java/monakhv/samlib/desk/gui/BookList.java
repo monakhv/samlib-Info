@@ -4,7 +4,7 @@ import monakhv.samlib.db.entity.Book;
 
 import javax.swing.*;
 import java.awt.*;
-import java.util.ArrayList;
+import java.awt.event.MouseEvent;
 import java.util.List;
 
 /*
@@ -25,37 +25,44 @@ import java.util.List;
  * 2/19/15.
  */
 public class BookList {
+    public interface CallBack {
+        void bookClick(MouseEvent e, Book book);
+    }
     private JPanel panel;
+    private CallBack callBack;
 
-    private List<Component> panels;
+    //private List<Component> panels;
 
-    public BookList(JPanel p){
-        panels = new ArrayList<>();
+    public BookList(JPanel p,CallBack callBack){
+        //panels = new ArrayList<>();
         this.panel=p;
+        this.callBack=callBack;
     }
 
     public void load(List<Book> books){
 
         panel.removeAll();
-        panels.clear();
+        //panels.clear();
 
         panel.setLayout(new BoxLayout(panel,BoxLayout.PAGE_AXIS));
 
 
-        for (Book book: books){
-            JPanel row = new BookRow(book);
+        for (final Book book: books){
+            BookRow row = new BookRow(book);
 
             Dimension preferredSize = row.getPreferredSize();
             Dimension maxSize = row.getMaximumSize();
-            row.setMaximumSize(new Dimension( maxSize.width,preferredSize.height+10));
+            row.setMaximumSize(new Dimension(maxSize.width, preferredSize.height + 10));
+            row.setCallBackClickListener(callBack);
+
 
             panel.add(row);
-            panels.add(row);
+            //panels.add(row);
         }
 
         Component comp = Box.createVerticalGlue();
         panel.add(comp);
-        panels.add(comp);
+        //panels.add(comp);
         panel.revalidate();
 
 

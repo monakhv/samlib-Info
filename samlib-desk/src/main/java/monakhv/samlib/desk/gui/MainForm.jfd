@@ -1,6 +1,9 @@
-JFDML JFormDesigner: "5.2.1.0.138" Java: "1.7.0_71" encoding: "UTF-8"
+JFDML JFormDesigner: "5.2.2.0.199" Java: "1.7.0_75" encoding: "UTF-8"
 
 new FormModel {
+	"i18n.bundleName": "samlibDesk"
+	"i18n.keyPrefix": "MainForm"
+	"i18n.autoExternalize": true
 	contentType: "form/swing"
 	root: new FormRoot {
 		add( new FormWindow( "javax.swing.JFrame", new FormLayoutManager( class java.awt.BorderLayout ) ) {
@@ -14,7 +17,7 @@ new FormModel {
 				"minimumSize": new java.awt.Dimension( 800, 100 )
 				"border": sfield com.jgoodies.forms.factories.Borders DLU4_BORDER
 				add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.GridBagLayout ) {
-					"$columnSpecs": "0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0"
+					"$columnSpecs": "0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 100, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0"
 					"$rowSpecs": "0, 5"
 					"$hGap": 5
 					"$vGap": 5
@@ -24,34 +27,65 @@ new FormModel {
 					name: "toolBar"
 					add( new FormComponent( "javax.swing.JButton" ) {
 						name: "buttonUpdate"
-						"text": "Update"
+						"text": new FormMessage( null, "MainForm.buttonRefresh.text" )
 						addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "buttonUpdateActionPerformed", true ) )
 					}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) )
+					add( new FormComponent( "javax.swing.JComboBox" ) {
+						name: "cBTags"
+						auxiliary() {
+							"JavaCodeGenerator.typeParameters": "TagComboItem"
+						}
+						addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "cBTagsActionPerformed", true ) )
+					}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
+						"gridx": 2
+						"gridwidth": 2
+					} )
 					add( new FormComponent( "javax.swing.JProgressBar" ) {
 						name: "progressBar1"
 					}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
-						"gridx": 1
+						"gridx": 6
 					} )
 					add( new FormComponent( "javax.swing.JButton" ) {
-						name: "reFresh"
-						"text": "Refresh"
-						addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "reFreshActionPerformed", true ) )
+						name: "buttonRefresh"
+						"text": new FormMessage( null, "MainForm.buttonRefresh.text" )
+						addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "buttonRefreshActionPerformed", false ) )
 					}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
-						"gridx": 24
+						"gridx": 9
 					} )
 				}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
 					"gridWidth": 3
 				} )
 				add( new FormContainer( "javax.swing.JScrollPane", new FormLayoutManager( class javax.swing.JScrollPane ) ) {
-					name: "scrollPane1"
+					name: "authorScrollPane"
 					"horizontalScrollBarPolicy": 31
 					add( new FormComponent( "javax.swing.JList" ) {
 						name: "jAuthorList"
 						"componentPopupMenu": sfield com.jformdesigner.model.FormObject NULL_VALUE
+						addEvent( new FormEvent( "java.awt.event.MouseListener", "mouseClicked", "jAuthorListMouseClicked", true ) )
 					} )
 				}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
 					"gridX": 1
 					"gridY": 2
+				} )
+				add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.GridBagLayout ) {
+					"$columnSpecs": "0, 0"
+					"$rowSpecs": "0, 0, 0"
+					"$hGap": 5
+					"$vGap": 5
+					"$alignLeft": true
+					"$alignTop": true
+				} ) {
+					name: "panel1"
+					"border": new javax.swing.border.EtchedBorder( 1, null, null )
+					add( new FormComponent( "javax.swing.JLabel" ) {
+						name: "lbProgress"
+						"text": new FormMessage( null, "MainForm.lbProgress.text" )
+					}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
+						"gridwidth": 2
+					} )
+				}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
+					"gridY": 4
+					"gridWidth": 3
 				} )
 				add( new FormContainer( "javax.swing.JScrollPane", new FormLayoutManager( class javax.swing.JScrollPane ) ) {
 					name: "bookScrolPanel"
@@ -68,8 +102,6 @@ new FormModel {
 						"$alignTop": true
 					} ) {
 						name: "bookPanel"
-						"autoscrolls": true
-						"componentPopupMenu": new FormReference( "bookPopup" )
 					} )
 				}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
 					"gridX": 3
@@ -85,44 +117,87 @@ new FormModel {
 					"text": "File"
 					add( new FormComponent( "javax.swing.JMenuItem" ) {
 						name: "menuItemSettings"
-						"text": "Настройки"
+						"text": new FormMessage( null, "MainForm.menu.settings" )
 						addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "menuItemSettingsActionPerformed", true ) )
 					} )
 					add( new FormComponent( "javax.swing.JMenuItem" ) {
 						name: "menuItemExit"
-						"text": "Exit"
+						"text": new FormMessage( null, "MainForm.menu.exit" )
 						addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "menuItemExitActionPerformed", true ) )
+					} )
+				} )
+				add( new FormContainer( "javax.swing.JMenu", new FormLayoutManager( class javax.swing.JMenu ) ) {
+					name: "menuTools"
+					"text": new FormMessage( null, "MainForm.menuTools.text" )
+					add( new FormComponent( "javax.swing.JMenuItem" ) {
+						name: "menuToolsAdd"
+						"text": new FormMessage( null, "MainForm.menuToolsAdd.text" )
+						addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "menuToolsAddActionPerformed", true ) )
+					} )
+					add( new FormComponent( "javax.swing.JMenuItem" ) {
+						name: "menuToolsSearch"
+						"text": new FormMessage( null, "MainForm.menuToolsSearch.text" )
+						addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "menuToolsSearchActionPerformed", false ) )
+					} )
+					add( new FormComponent( "javax.swing.JMenuItem" ) {
+						name: "menuToolsImportDB"
+						"text": new FormMessage( null, "MainForm.menuToolsImportDB.text" )
+						addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "menuToosImportActionPerformed", false ) )
+					} )
+					add( new FormComponent( "javax.swing.JMenuItem" ) {
+						name: "menuToolsExportDB"
+						"text": new FormMessage( null, "MainForm.menuToolsExportDB.text" )
+						addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "menuToolsExportDBActionPerformed", false ) )
+					} )
+					add( new FormComponent( "javax.swing.JMenuItem" ) {
+						name: "menuToolsImportList"
+						"text": new FormMessage( null, "MainForm.menuToolsImportList.text" )
+						addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "menuToolsImportListActionPerformed", false ) )
+					} )
+					add( new FormComponent( "javax.swing.JMenuItem" ) {
+						name: "menuToolsExportList"
+						"text": new FormMessage( null, "MainForm.menuToolsExportList.text" )
+						addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "menuToolsExportListActionPerformed", false ) )
+						addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "menuToolsExportListActionPerformed", false ) )
 					} )
 				} )
 			}
 		}, new FormLayoutConstraints( null ) {
-			"location": new java.awt.Point( 80, 0 )
+			"location": new java.awt.Point( 40, 0 )
 			"size": new java.awt.Dimension( 825, 720 )
 		} )
 		add( new FormContainer( "javax.swing.JPopupMenu", new FormLayoutManager( class javax.swing.JPopupMenu ) ) {
 			name: "bookPopup"
 			add( new FormComponent( "javax.swing.JMenuItem" ) {
-				name: "menuItem3"
-				"text": "text"
+				name: "menuItem4"
+				"text": "BookText2"
 			} )
 			add( new FormComponent( "javax.swing.JMenuItem" ) {
-				name: "menuItem4"
-				"text": "text"
+				name: "menuItem3"
+				"text": "Booktext1"
 			} )
 		}, new FormLayoutConstraints( null ) {
 			"location": new java.awt.Point( 145, 730 )
 		} )
-		add( new FormComponent( "javax.swing.JMenuItem" ) {
-			name: "menuItem5"
-			"text": "text"
+		add( new FormContainer( "javax.swing.JPopupMenu", new FormLayoutManager( class javax.swing.JPopupMenu ) ) {
+			name: "authorPopup"
+			add( new FormComponent( "javax.swing.JMenuItem" ) {
+				name: "menuAuthorTags"
+				"text": new FormMessage( null, "MainForm.menuAuthorTags.text" )
+				addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "menuAuthorTagsActionPerformed", true ) )
+			} )
+			add( new FormComponent( "javax.swing.JMenuItem" ) {
+				name: "menuAuthorMakeRead"
+				"text": new FormMessage( null, "MainForm.authorMenu.makeRead" )
+				addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "menuAuthorMakeReadActionPerformed", true ) )
+			} )
+			add( new FormComponent( "javax.swing.JMenuItem" ) {
+				name: "menuAuthorDelete"
+				"text": new FormMessage( null, "MainForm.menuAuthorDelete.text" )
+				addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "menuAuthorDeleteActionPerformed", true ) )
+			} )
 		}, new FormLayoutConstraints( null ) {
-			"location": new java.awt.Point( 150, 770 )
-		} )
-		add( new FormComponent( "javax.swing.JMenuItem" ) {
-			name: "menuItem6"
-			"text": "text"
-		}, new FormLayoutConstraints( null ) {
-			"location": new java.awt.Point( 365, 755 )
+			"location": new java.awt.Point( 0, 799 )
 		} )
 	}
 }

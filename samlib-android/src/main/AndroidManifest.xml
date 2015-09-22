@@ -29,7 +29,8 @@ limitations under the License.
         android:backupAgent=".data.backup.SamLibBackupAgentHelper"
         android:icon="@drawable/ic_launcher"
         android:theme="@style/MyTheme"
-        android:allowBackup="true">
+        android:allowBackup="true"
+        android:allowClearUserData="true" >
         <meta-data
             android:name="com.google.android.gms.version"
             android:value="@integer/google_play_services_version"
@@ -83,13 +84,7 @@ limitations under the License.
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="monakhv.android.samlib.MainActivity"/>
         </activity>
-        
-        <provider
-            android:exported="false"
-            android:authorities="monakhv.android.samlib.sql.AuthorProvider"
-            android:multiprocess="true"
-            android:name="monakhv.android.samlib.sql.AuthorProvider">            
-        </provider>
+
         <service
             android:name=".service.UpdateServiceIntent">
         </service>

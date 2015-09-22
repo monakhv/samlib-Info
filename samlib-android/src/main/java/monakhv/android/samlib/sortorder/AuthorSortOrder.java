@@ -1,7 +1,6 @@
 package monakhv.android.samlib.sortorder;
 
 import android.content.Context;
-import monakhv.android.samlib.AuthorFragment;
 import monakhv.android.samlib.R;
 import monakhv.samlib.db.SQLController;
 
@@ -25,6 +24,7 @@ public enum AuthorSortOrder implements SortOrder{
         return this.name();
     }
 
+    @Override
     public String getOrder() {
         return order;
     }

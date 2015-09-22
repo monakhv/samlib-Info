@@ -5,8 +5,11 @@ import android.app.backup.BackupDataInput;
 
 import android.app.backup.BackupDataOutput;
 import android.app.backup.SharedPreferencesBackupHelper;
+import android.content.Context;
 import android.os.ParcelFileDescriptor;
 import android.util.Log;
+import com.j256.ormlite.android.apptools.OpenHelperManager;
+import monakhv.android.samlib.sql.DatabaseHelper;
 
 import java.io.IOException;
 
@@ -30,26 +33,69 @@ import java.io.IOException;
  */
 public class SamLibBackupAgentHelper extends BackupAgentHelper {
     private static final String DEBUG_TAG = "SamLibBackupAgentHelper";
+    private volatile DatabaseHelper helper;
+    private volatile boolean created = false;
+    private volatile boolean destroyed = false;
 
 
     // A key to uniquely identify the set of backup data
     static final String PREFS_SETTINGS_KEY = "prefs";
 
+    /**
+     * Get a helper for this action.
+     */
+    public DatabaseHelper getDatabaseHelper() {
+        if (helper == null) {
+            if (!created) {
+                throw new IllegalStateException("A call has not been made to onCreate() yet so the helper is null");
+            } else if (destroyed) {
+                throw new IllegalStateException(
+                        "A call to onDestroy has already been made and the helper cannot be used after that point");
+            } else {
+                throw new IllegalStateException("Helper is null for some unknown reason");
+            }
+        } else {
+            return helper;
+        }
+    }
+
     @Override
     public void onCreate() {
         Log.d(DEBUG_TAG, "onCreate");
         addHelper(PREFS_SETTINGS_KEY, new SharedPreferencesBackupHelper(this, AuthorStatePrefs.PREF_NAME));
+        if (helper == null) {
+            helper = getHelperInternal(this);
+            created = true;
+        }
     }
 
     @Override
     public void onBackup(ParcelFileDescriptor oldState, BackupDataOutput data, ParcelFileDescriptor newState) throws IOException {
-        AuthorStatePrefs.load(this);
+        AuthorStatePrefs.load(this, getDatabaseHelper());
         super.onBackup(oldState, data, newState);
     }
 
     @Override
     public void onRestore(BackupDataInput data, int appVersionCode, ParcelFileDescriptor newState) throws IOException {
         super.onRestore(data, appVersionCode, newState);
-        AuthorStatePrefs.restore(this);
+        AuthorStatePrefs.restore(this, getDatabaseHelper());
+    }
+
+    @Override
+    public void onDestroy() {
+        releaseHelper(helper);
+        destroyed = true;
+        super.onDestroy();
+    }
+    protected DatabaseHelper getHelperInternal(Context context) {
+        @SuppressWarnings({ "unchecked", "deprecation" })
+        DatabaseHelper newHelper = (DatabaseHelper) OpenHelperManager.getHelper(context,DatabaseHelper.class);
+
+        return newHelper;
+    }
+    protected void releaseHelper(DatabaseHelper helper) {
+        OpenHelperManager.releaseHelper();
+
+        this.helper = null;
     }
 }
