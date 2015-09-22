@@ -344,9 +344,8 @@ public class MainActivity extends MyBaseAbstractActivity implements
         Log.d(DEBUG_TAG, "onSaveInstanceState");
         super.onSaveInstanceState(outState);
         outState.putInt(SELECTED_TAG_ID, selectedTagId);
-        if (authorFragment.isRefreshing()){
-            outState.putString(PROGRESS_STRING, progressString);
-        }
+        outState.putString(PROGRESS_STRING, progressString);
+
 
         outState.putLong(PROGRESS_TIME, Calendar.getInstance().getTimeInMillis());
     }
@@ -431,7 +430,13 @@ public class MainActivity extends MyBaseAbstractActivity implements
         }
 
         //Stop refresh status
-        authorFragment.onRefreshComplete();
+        if (authorFragment.isRefreshing()){
+            authorFragment.onRefreshComplete();
+        }
+        else {
+            progressString=null;
+        }
+
         //getActionBarHelper().setRefreshActionItemState(refreshStatus);
     }
 
