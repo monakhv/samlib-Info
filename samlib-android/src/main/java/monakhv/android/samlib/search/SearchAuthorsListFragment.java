@@ -121,21 +121,18 @@ public class SearchAuthorsListFragment extends ListFragment implements ListSwipe
     }
 
     public void setResult(List<AuthorCard> res) {
-        if (res == null) {
-            Log.e(DEBUG_TAG, "Result is NULL");
-            return;
-        }
-        result.clear();
-        result.addAll(res);
-        adapter.load();
-
-        Log.d(DEBUG_TAG, "Got new result: " + res.size());
         if (progress != null) {
             progress.dismiss();
             Log.d(DEBUG_TAG, "Stop Progress Dialog");
         } else {
             Log.e(DEBUG_TAG, "Progress dialog is NULL");
         }
+
+        result.clear();
+        result.addAll(res);
+        adapter.load();
+
+        Log.d(DEBUG_TAG, "Got new result: " + res.size());
     }
 
     @Override

@@ -21,6 +21,7 @@ import android.os.AsyncTask;
 
 import java.io.IOException;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -111,8 +112,16 @@ public class SearchAuthor extends AsyncTask<String, Void, Boolean> {
         if (status != ResultStatus.Good) {
             broadcastIntent.putExtra(SearchReceiver.EXTRA_MESSAGE, status.getMessage(context));
         }
+
+        if (result == null){
+            Log.i(DEBUG_TAG, "Results is NULL, nothing found");
+            result=new ArrayList<>();
+        }
+        else {
+            Log.i(DEBUG_TAG, "Results number is " + result.size());
+        }
         broadcastIntent.putExtra(SearchReceiver.EXTRA_RESULT, (Serializable) result);
-        Log.i(DEBUG_TAG, "Results number is " + result.size());
+
 
         context.sendBroadcast(broadcastIntent);
 

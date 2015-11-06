@@ -150,20 +150,26 @@ public class SearchAuthorActivity extends ActionBarActivity {
         
         @Override
         public void onReceive(Context context, Intent intent) {
-            
-            if (listFragment != null) {
-                Serializable ss = intent.getSerializableExtra(EXTRA_RESULT);
-                Log.d(DEBUG_TAG, "Send result to list");
-                listFragment.setResult((List<AuthorCard>) ss);
-            } else {
-                Log.e(DEBUG_TAG, "ListView is NULL");
-            }
             String msg = intent.getStringExtra(EXTRA_MESSAGE);
-            
+
             if (msg != null) {
                 Toast toast = Toast.makeText(context, msg, Toast.LENGTH_SHORT);
                 toast.show();
             }
+            if (listFragment != null) {
+                Serializable ss = intent.getSerializableExtra(EXTRA_RESULT);
+                Log.d(DEBUG_TAG, "Send result to list");
+                List<AuthorCard> rr = (List<AuthorCard>) ss;
+                listFragment.setResult(rr);
+                if ( rr.size()==0){
+                    Log.d(DEBUG_TAG, "Try to close Activity");
+                    SearchAuthorActivity.this.finish();
+                }
+
+            } else {
+                Log.e(DEBUG_TAG, "ListView is NULL");
+            }
+
             
         }
         
