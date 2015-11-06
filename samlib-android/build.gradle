@@ -11,13 +11,13 @@ repositories {
 
 android {
     compileSdkVersion 22
-    buildToolsVersion '23.0.1'
+    buildToolsVersion '23.0.2'
 
     defaultConfig {
         minSdkVersion 11
         targetSdkVersion 22
-        versionCode 10341
-        versionName "3.2.21"
+        versionCode 10342
+        versionName "3.2.22"
     }
 
 
