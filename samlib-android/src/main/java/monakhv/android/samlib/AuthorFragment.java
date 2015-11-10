@@ -218,7 +218,7 @@ public class AuthorFragment extends Fragment implements
     public void makePulToRefresh() {
         mPtrFrame = (PtrClassicFrameLayout) view.findViewById(R.id.ptr_frame);
         mPtrFrame.setPtrHandler(this);
-        mPtrFrame.setLastUpdateTimeKey("QQQQQQQ");//TODO: must be fixed
+        mPtrFrame.setLastUpdateTimeKey(UpdateServiceIntent.PREF_NAME,UpdateServiceIntent.PREF_KEY_LAST_UPDATE);//TODO: must be fixed
 
     }
 

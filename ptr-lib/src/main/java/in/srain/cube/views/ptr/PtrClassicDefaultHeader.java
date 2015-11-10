@@ -1,7 +1,6 @@
 package in.srain.cube.views.ptr;
 
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.content.res.TypedArray;
 import android.text.TextUtils;
 import android.util.AttributeSet;
@@ -12,13 +11,13 @@ import android.view.animation.RotateAnimation;
 import android.widget.FrameLayout;
 import android.widget.TextView;
 import in.srain.cube.views.ptr.indicator.PtrIndicator;
+import in.srain.cube.views.ptr.util.PrefsUtil;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
 public class PtrClassicDefaultHeader extends FrameLayout implements PtrUIHandler {
 
-    private final static String KEY_SharedPreferences = "cube_ptr_classic_last_update";
     private static SimpleDateFormat sDataFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     private int mRotateAniTime = 150;
     private RotateAnimation mFlipAnimation;
@@ -26,9 +25,10 @@ public class PtrClassicDefaultHeader extends FrameLayout implements PtrUIHandler
     private TextView mTitleTextView;
     private View mRotateView;
     private View mProgressBar;
-    private long mLastUpdateTime = -1;
+
     private TextView mLastUpdateTextView;
     private String mLastUpdateTimeKey;
+    private String mLastUpdatePrefName;
     private boolean mShouldShowLastUpdate;
 
     private LastUpdateTimeUpdater mLastUpdateTimeUpdater = new LastUpdateTimeUpdater();
@@ -86,21 +86,14 @@ public class PtrClassicDefaultHeader extends FrameLayout implements PtrUIHandler
      *
      * @param key
      */
-    public void setLastUpdateTimeKey(String key) {
-        if (TextUtils.isEmpty(key)) {
+    public void setLastUpdateTimeKey(String preName, String key) {
+        if (TextUtils.isEmpty(key) || TextUtils.isEmpty(preName)) {
             return;
         }
         mLastUpdateTimeKey = key;
+        mLastUpdatePrefName=preName;
     }
 
-    /**
-     * Using an object to specify the last update time.
-     *
-     * @param object
-     */
-    public void setLastUpdateTimeRelateObject(Object object) {
-        setLastUpdateTimeKey(object.getClass().getName());
-    }
 
     private void buildAnimation() {
         mFlipAnimation = new RotateAnimation(0, -180, RotateAnimation.RELATIVE_TO_SELF, 0.5f, RotateAnimation.RELATIVE_TO_SELF, 0.5f);
@@ -171,11 +164,11 @@ public class PtrClassicDefaultHeader extends FrameLayout implements PtrUIHandler
         mTitleTextView.setText(getResources().getString(R.string.cube_ptr_refresh_complete));
 
         // update last update time
-        SharedPreferences sharedPreferences = getContext().getSharedPreferences(KEY_SharedPreferences, 0);
-        if (!TextUtils.isEmpty(mLastUpdateTimeKey)) {
-            mLastUpdateTime = new Date().getTime();
-            sharedPreferences.edit().putLong(mLastUpdateTimeKey, mLastUpdateTime).commit();
-        }
+//        SharedPreferences sharedPreferences = getContext().getSharedPreferences(KEY_SharedPreferences, 0);
+//        if (!TextUtils.isEmpty(mLastUpdateTimeKey)) {
+//            mLastUpdateTime = new Date().getTime();
+//            sharedPreferences.edit().putLong(mLastUpdateTimeKey, mLastUpdateTime).commit();
+//        }
     }
 
     private void tryUpdateLastUpdateTime() {
@@ -194,8 +187,9 @@ public class PtrClassicDefaultHeader extends FrameLayout implements PtrUIHandler
 
     private String getLastUpdateTime() {
 
+        long mLastUpdateTime = -1;
         if (mLastUpdateTime == -1 && !TextUtils.isEmpty(mLastUpdateTimeKey)) {
-            mLastUpdateTime = getContext().getSharedPreferences(KEY_SharedPreferences, 0).getLong(mLastUpdateTimeKey, -1);
+            mLastUpdateTime = PrefsUtil.getSharedPreferences(getContext(),mLastUpdatePrefName).getLong(mLastUpdateTimeKey,-1);
         }
         if (mLastUpdateTime == -1) {
             return null;

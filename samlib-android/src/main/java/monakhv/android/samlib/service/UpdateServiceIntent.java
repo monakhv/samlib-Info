@@ -17,13 +17,16 @@ package monakhv.android.samlib.service;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.PowerManager;
 
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
 
+import in.srain.cube.views.ptr.util.PrefsUtil;
 import monakhv.android.samlib.data.DataExportImport;
 import monakhv.android.samlib.data.SettingsHelper;
 import monakhv.android.samlib.sortorder.AuthorSortOrder;
@@ -48,6 +51,10 @@ import monakhv.samlib.service.SamlibService;
  */
 public class UpdateServiceIntent extends MyServiceIntent {
 
+    public static final String PREF_NAME="monakhv.android.samlib.service.UpdateServiceIntent";
+    public static final String PREF_KEY_LAST_UPDATE=PREF_NAME+".LAST_UPDATE";
+    public static final String PREF_KEY_CALLER=PREF_NAME+".CALLER";
+
 
     private static final String SELECT_INDEX = "SELECT_INDEX";
     private static final String SELECT_ID = "SELECT_ID";
@@ -57,6 +64,7 @@ public class UpdateServiceIntent extends MyServiceIntent {
     private SettingsHelper settings;
     private DataExportImport dataExportImport;
     private final List<Author> updatedAuthors;
+    private SharedPreferences mSharedPreferences;
 
     public UpdateServiceIntent() {
         super("UpdateServiceIntent");
@@ -73,6 +81,7 @@ public class UpdateServiceIntent extends MyServiceIntent {
         dataExportImport = new DataExportImport(context);
         int currentCaller = intent.getIntExtra(AndroidGuiUpdater.CALLER_TYPE, 0);
         int idx = intent.getIntExtra(SELECT_INDEX, SamLibConfig.TAG_AUTHOR_ALL);
+        mSharedPreferences= PrefsUtil.getSharedPreferences(context, PREF_NAME);
 
         settings.requestFirstBackup();
         if (currentCaller == 0) {
@@ -80,6 +89,7 @@ public class UpdateServiceIntent extends MyServiceIntent {
 
             return;
         }
+        mSharedPreferences.edit().putInt(PREF_KEY_CALLER,currentCaller).commit();
         AuthorController ctl = new AuthorController(getHelper());
         List<Author> authors;
         GuiUpdate guiUpdate = new AndroidGuiUpdater(context, currentCaller);
@@ -133,6 +143,7 @@ public class UpdateServiceIntent extends MyServiceIntent {
         if (settings.getLimitBookLifeTimeFlag()) {
             CleanBookServiceIntent.start(context);
         }
+        mSharedPreferences.edit().putLong(PREF_KEY_LAST_UPDATE, Calendar.getInstance().getTime().getTime()).commit();
 
         wl.release();
     }
