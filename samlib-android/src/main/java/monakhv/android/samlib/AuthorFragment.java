@@ -220,23 +220,6 @@ public class AuthorFragment extends Fragment implements
         mPtrFrame.setPtrHandler(this);
         mPtrFrame.setLastUpdateTimeKey("QQQQQQQ");//TODO: must be fixed
 
-
-//        mPullToRefreshLayout = (PullToRefreshLayout) view.findViewById(R.id.ptr_layout);
-//
-//        ActionBarPullToRefresh.from(getActivity())
-//                .options(Options.create()
-//                        .refreshOnUp(true)
-//                        .headerLayout(R.layout.updateheader)
-//                        .noMinimize()
-//                        .build())
-//                        // We need to insert the PullToRefreshLayout into the Fragment's ViewGroup
-//                .allChildrenArePullable()
-//                .listener(this)
-//                .useViewDelegate(android.support.v7.widget.RecyclerView.class, new RecyclerViewDelegate())
-//                .setup(mPullToRefreshLayout);
-//
-//        DefaultHeaderTransformer dht = (DefaultHeaderTransformer) mPullToRefreshLayout.getHeaderTransformer();
-//        updateTextView = (TextView) dht.getHeaderView().findViewById(R.id.ptr_text);
     }
 
 
@@ -307,6 +290,7 @@ public class AuthorFragment extends Fragment implements
     public void onRefreshBegin(PtrFrameLayout view) {
         Log.d(DEBUG_TAG, "Start update service");
         adapter.cleanSelection();//clean selection before check updates
+        canUpdate = false;
 
         if (getActivity() == null) {
             return;//try to prevent some ANR reports
@@ -324,26 +308,11 @@ public class AuthorFragment extends Fragment implements
     void onRefreshComplete() {
         Log.d(DEBUG_TAG, "Stop updating state");
         mPtrFrame.refreshComplete();
-        canUpdate = false;
-//        mPullToRefreshLayout.setRefreshing(false);
-//        mPullToRefreshLayout.setRefreshComplete();
-
+        canUpdate = true;
         updateAuthor = false;
 
     }
 
-    void updateProgress(String stringExtra) {
-
-//        if (!mPullToRefreshLayout.isRefreshing() && canUpdate) {
-//            Log.d(DEBUG_TAG, "Restore refreshing state");
-//            mPullToRefreshLayout.setRefreshing(true);
-//        }
-
-    }
-
-    public boolean isRefreshing() {
-        return mPtrFrame.isRefreshing();
-    }
 
     @Override
     public boolean singleClick(MotionEvent e) {
@@ -481,10 +450,10 @@ public class AuthorFragment extends Fragment implements
 
 
     void startRefresh() {
-        //TODO: NOT working must be fixed
-        mPtrFrame.performRefresh();
-//        mPullToRefreshLayout.setRefreshing(true);
-//        onRefreshStarted(null);
+        if (canUpdate){
+            mPtrFrame.performRefresh();
+        }
+
     }
 
     /**

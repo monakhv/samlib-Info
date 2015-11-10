@@ -521,13 +521,14 @@ public class PtrFrameLayout extends ViewGroup {
 
         //
         if ((mPtrIndicator.isOverOffsetToKeepHeaderWhileLoading() && isAutoRefresh()) || mPtrIndicator.isOverOffsetToRefresh()) {
-            mStatus = PTR_STATUS_LOADING;
+
             performRefresh();
         }
         return false;
     }
 
     public void performRefresh() {
+        mStatus = PTR_STATUS_LOADING;
         mLoadingStartTime = System.currentTimeMillis();
         if (mPtrUIHandlerHolder.hasHandler()) {
             mPtrUIHandlerHolder.onUIRefreshBegin(this);
@@ -689,7 +690,6 @@ public class PtrFrameLayout extends ViewGroup {
         }
         mScrollChecker.tryToScrollTo(mPtrIndicator.getOffsetToRefresh(), duration);
         if (atOnce) {
-            mStatus = PTR_STATUS_LOADING;
             performRefresh();
         }
     }

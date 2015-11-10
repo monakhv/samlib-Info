@@ -78,7 +78,6 @@ public class MainActivity extends MyBaseAbstractActivity implements
     public static final int PREFS_ACTIVITY = 3;
     public static final String CLEAN_NOTIFICATION = "CLEAN_NOTIFICATION";
     public static final String SELECTED_TAG_ID = "SELECTED_TAG_ID";
-    public static final String PROGRESS_STRING = "PROGRESS_STRING";
     public static final String PROGRESS_TIME = "PROGRESS_TIME";
     private UpdateActivityReceiver updateReceiver;
     private AuthorFragment authorFragment;
@@ -104,7 +103,7 @@ public class MainActivity extends MyBaseAbstractActivity implements
     private RadioItems authorSort, bookSort;
     private int selectedTagId = SamLibConfig.TAG_AUTHOR_ALL;
     private TagController tagSQL;
-    private String progressString;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -124,7 +123,7 @@ public class MainActivity extends MyBaseAbstractActivity implements
             CleanNotificationData.start(this);
             //bundle = null;
         }
-        progressString=null;
+
 
         authorFragment = (AuthorFragment) getSupportFragmentManager().findFragmentById(R.id.authorFragment);
         authorFragment.setHasOptionsMenu(true);
@@ -349,7 +348,7 @@ public class MainActivity extends MyBaseAbstractActivity implements
         Log.d(DEBUG_TAG, "onSaveInstanceState");
         super.onSaveInstanceState(outState);
         outState.putInt(SELECTED_TAG_ID, selectedTagId);
-        outState.putString(PROGRESS_STRING, progressString);
+
 
 
         outState.putLong(PROGRESS_TIME, Calendar.getInstance().getTimeInMillis());
@@ -362,12 +361,6 @@ public class MainActivity extends MyBaseAbstractActivity implements
         selectedTagId = savedInstanceState.getInt(SELECTED_TAG_ID, SamLibConfig.TAG_AUTHOR_ALL);
         long upt =savedInstanceState.getLong(PROGRESS_TIME);
 
-        if   ( ( Calendar.getInstance().getTimeInMillis() - upt)   < 3000 ){
-            progressString = savedInstanceState.getString(PROGRESS_STRING);
-        }
-        else {
-            progressString = null;
-        }
 
         Tag tag = tagSQL.getById(selectedTagId);
         if (tag != null){
@@ -415,14 +408,7 @@ public class MainActivity extends MyBaseAbstractActivity implements
             filter.addCategory(Intent.CATEGORY_DEFAULT);
             registerReceiver(downloadReceiver, filter);
         }
-        //getSupportActionBar().setTitle(R.string.app_name);
-        // authorFragment.refresh(null, null);
 
-        if (progressString != null) {
-            authorFragment.updateProgress(progressString);
-        }
-        //authorFragment.refresh();
-        //refreshTags();
     }
 
     @Override
@@ -434,13 +420,6 @@ public class MainActivity extends MyBaseAbstractActivity implements
             unregisterReceiver(downloadReceiver);
         }
 
-        //Stop refresh status
-        if (authorFragment.isRefreshing()){
-            authorFragment.onRefreshComplete();
-        }
-        else {
-            progressString=null;
-        }
 
         //getActionBarHelper().setRefreshActionItemState(refreshStatus);
     }
@@ -711,14 +690,11 @@ public class MainActivity extends MyBaseAbstractActivity implements
                     Toast toast = Toast.makeText(context, intent.getCharSequenceExtra(AndroidGuiUpdater.TOAST_STRING), duration);
                     toast.show();
 
-                    progressString = null;
+
                     authorFragment.onRefreshComplete();
 
                 }//
-                if (action.equalsIgnoreCase(AndroidGuiUpdater.ACTION_PROGRESS)) {
-                    progressString = intent.getStringExtra(AndroidGuiUpdater.TOAST_STRING);
-                    authorFragment.updateProgress(progressString);
-                }
+
                 if (action.equalsIgnoreCase(AndroidGuiUpdater.ACTION_REFRESH)) {
 
                     int iObject = intent.getIntExtra(AndroidGuiUpdater.ACTION_REFRESH_OBJECT, AndroidGuiUpdater.ACTION_REFRESH_AUTHORS);
