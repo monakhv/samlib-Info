@@ -24,6 +24,10 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 
+import in.srain.cube.views.ptr.PtrClassicFrameLayout;
+import in.srain.cube.views.ptr.PtrDefaultHandler;
+import in.srain.cube.views.ptr.PtrFrameLayout;
+import in.srain.cube.views.ptr.PtrHandler;
 import monakhv.android.samlib.adapter.AuthorAdapter;
 
 
@@ -36,7 +40,6 @@ import monakhv.android.samlib.dialogs.EnterStringDialog;
 import monakhv.android.samlib.dialogs.MyMenuData;
 
 import monakhv.android.samlib.recyclerview.DividerItemDecoration;
-import monakhv.android.samlib.recyclerview.RecyclerViewDelegate;
 import monakhv.android.samlib.service.AuthorEditorServiceIntent;
 import monakhv.android.samlib.service.UpdateServiceIntent;
 import monakhv.android.samlib.sortorder.AuthorSortOrder;
@@ -45,12 +48,6 @@ import monakhv.android.samlib.sql.DatabaseHelper;
 import monakhv.samlib.db.AuthorController;
 import monakhv.samlib.db.entity.Author;
 import monakhv.samlib.db.entity.SamLibConfig;
-
-import uk.co.senab.actionbarpulltorefresh.extras.actionbarcompat.PullToRefreshLayout;
-import uk.co.senab.actionbarpulltorefresh.library.ActionBarPullToRefresh;
-import uk.co.senab.actionbarpulltorefresh.library.DefaultHeaderTransformer;
-import uk.co.senab.actionbarpulltorefresh.library.Options;
-import uk.co.senab.actionbarpulltorefresh.library.listeners.OnRefreshListener;
 
 
 import java.util.List;
@@ -75,7 +72,7 @@ import static monakhv.android.samlib.ActivityUtils.getClipboardText;
  * 12/5/14.
  */
 public class AuthorFragment extends Fragment implements
-        OnRefreshListener,
+        PtrHandler,
         ListSwipeListener.SwipeCallBack,
         RecyclerAdapter.CallBack,
         LoaderManager.LoaderCallbacks<List<Author>> {
@@ -88,11 +85,11 @@ public class AuthorFragment extends Fragment implements
 
 
     private AuthorSortOrder order;
-    private PullToRefreshLayout mPullToRefreshLayout;
     private GestureDetector detector;
+    private PtrClassicFrameLayout mPtrFrame;
     private boolean updateAuthor = false;//true update the only selected author
     private Author author = null;//for context menu selection
-    private TextView updateTextView, emptyTagAuthor;
+    private TextView emptyTagAuthor;
     private ContextMenuDialog contextMenu;
 
     private View empty;
@@ -100,6 +97,11 @@ public class AuthorFragment extends Fragment implements
     private SettingsHelper settingsHelper;
     private int selectedTag = SamLibConfig.TAG_AUTHOR_ALL;
     private int aId = -1;//preserve selection
+
+    @Override
+    public boolean checkCanDoRefresh(PtrFrameLayout frame, View content, View header) {
+        return PtrDefaultHandler.checkContentCanBePulledDown(frame, content, header);
+    }
 
 
     public interface Callbacks {
@@ -110,6 +112,8 @@ public class AuthorFragment extends Fragment implements
         void onTitleChange(String lTitle);
 
         void cleanBookSelection();
+
+        void setActionBarVisibility(boolean visible);
     }
 
     private Callbacks mCallbacks;
@@ -135,6 +139,7 @@ public class AuthorFragment extends Fragment implements
     }
 
     private View view;
+    private LinearLayoutManager mLinearLayoutManager;
 
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -149,7 +154,8 @@ public class AuthorFragment extends Fragment implements
 
 
         authorRV.setHasFixedSize(true);
-        authorRV.setLayoutManager(new LinearLayoutManager(getActivity()));
+        final LinearLayoutManager mLinearLayoutManager = new LinearLayoutManager(getActivity());
+        authorRV.setLayoutManager(mLinearLayoutManager);
 
 
         authorRV.addItemDecoration(new DividerItemDecoration(getActivity(), DividerItemDecoration.VERTICAL_LIST));
@@ -158,6 +164,32 @@ public class AuthorFragment extends Fragment implements
         makePulToRefresh();
 
 
+        authorRV.setOnScrollListener(new RecyclerView.OnScrollListener() {
+            private static final int HIDE_THRESHOLD = 20;
+            private int scrolledDistance = 0;
+            private boolean controlsVisible = true;
+
+            @Override
+            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                super.onScrolled(recyclerView, dx, dy);
+
+                if (scrolledDistance > HIDE_THRESHOLD && controlsVisible) {
+                    mCallbacks.setActionBarVisibility(false);
+                    controlsVisible = false;
+                    scrolledDistance = 0;
+                } else if (scrolledDistance < -HIDE_THRESHOLD && !controlsVisible) {
+                    mCallbacks.setActionBarVisibility(true);
+                    ;
+                    controlsVisible = true;
+                    scrolledDistance = 0;
+                }
+
+                if ((controlsVisible && dy > 0) || (!controlsVisible && dy < 0)) {
+                    scrolledDistance += dy;
+                }
+            }
+
+        });
         authorRV.setOnTouchListener(new View.OnTouchListener() {
             public boolean onTouch(View v, MotionEvent event) {
                 detector.onTouchEvent(event);
@@ -180,24 +212,31 @@ public class AuthorFragment extends Fragment implements
 
     }
 
+    /**
+     * Create initialization for pull to Refresh interface
+     */
     public void makePulToRefresh() {
+        mPtrFrame = (PtrClassicFrameLayout) view.findViewById(R.id.ptr_frame);
+        mPtrFrame.setPtrHandler(this);
+        mPtrFrame.setLastUpdateTimeKey("QQQQQQQ");//TODO: must be fixed
 
-        mPullToRefreshLayout = (PullToRefreshLayout) view.findViewById(R.id.ptr_layout);
 
-        ActionBarPullToRefresh.from(getActivity())
-                .options(Options.create()
-                        .refreshOnUp(true)
-                        .headerLayout(R.layout.updateheader)
-                        .noMinimize()
-                        .build())
-                        // We need to insert the PullToRefreshLayout into the Fragment's ViewGroup
-                .allChildrenArePullable()
-                .listener(this)
-                .useViewDelegate(android.support.v7.widget.RecyclerView.class, new RecyclerViewDelegate())
-                .setup(mPullToRefreshLayout);
-
-        DefaultHeaderTransformer dht = (DefaultHeaderTransformer) mPullToRefreshLayout.getHeaderTransformer();
-        updateTextView = (TextView) dht.getHeaderView().findViewById(R.id.ptr_text);
+//        mPullToRefreshLayout = (PullToRefreshLayout) view.findViewById(R.id.ptr_layout);
+//
+//        ActionBarPullToRefresh.from(getActivity())
+//                .options(Options.create()
+//                        .refreshOnUp(true)
+//                        .headerLayout(R.layout.updateheader)
+//                        .noMinimize()
+//                        .build())
+//                        // We need to insert the PullToRefreshLayout into the Fragment's ViewGroup
+//                .allChildrenArePullable()
+//                .listener(this)
+//                .useViewDelegate(android.support.v7.widget.RecyclerView.class, new RecyclerViewDelegate())
+//                .setup(mPullToRefreshLayout);
+//
+//        DefaultHeaderTransformer dht = (DefaultHeaderTransformer) mPullToRefreshLayout.getHeaderTransformer();
+//        updateTextView = (TextView) dht.getHeaderView().findViewById(R.id.ptr_text);
     }
 
 
@@ -255,6 +294,7 @@ public class AuthorFragment extends Fragment implements
 
     /**
      * Update Author list and make Author selection
+     *
      * @param id Author id to select
      */
     private void updateAdapter(int id) {
@@ -264,7 +304,7 @@ public class AuthorFragment extends Fragment implements
     }
 
     @Override
-    public void onRefreshStarted(View view) {
+    public void onRefreshBegin(PtrFrameLayout view) {
         Log.d(DEBUG_TAG, "Start update service");
         adapter.cleanSelection();//clean selection before check updates
 
@@ -283,27 +323,28 @@ public class AuthorFragment extends Fragment implements
 
     void onRefreshComplete() {
         Log.d(DEBUG_TAG, "Stop updating state");
+        mPtrFrame.refreshComplete();
         canUpdate = false;
-        mPullToRefreshLayout.setRefreshing(false);
-        mPullToRefreshLayout.setRefreshComplete();
-        updateTextView.setGravity(android.view.Gravity.CENTER);
+//        mPullToRefreshLayout.setRefreshing(false);
+//        mPullToRefreshLayout.setRefreshComplete();
+
         updateAuthor = false;
 
     }
 
     void updateProgress(String stringExtra) {
 
-        if (!mPullToRefreshLayout.isRefreshing() && canUpdate) {
-            Log.d(DEBUG_TAG, "Restore refreshing state");
-            mPullToRefreshLayout.setRefreshing(true);
-        }
-        updateTextView.setGravity(android.view.Gravity.CENTER_VERTICAL);
-        updateTextView.setText(stringExtra);
+//        if (!mPullToRefreshLayout.isRefreshing() && canUpdate) {
+//            Log.d(DEBUG_TAG, "Restore refreshing state");
+//            mPullToRefreshLayout.setRefreshing(true);
+//        }
+
     }
 
-    public boolean isRefreshing(){
-        return mPullToRefreshLayout.isRefreshing();
+    public boolean isRefreshing() {
+        return mPtrFrame.isRefreshing();
     }
+
     @Override
     public boolean singleClick(MotionEvent e) {
         authorRV.playSoundEffect(SoundEffectConstants.CLICK);
@@ -438,9 +479,12 @@ public class AuthorFragment extends Fragment implements
         updateAdapter();
     }
 
+
     void startRefresh() {
-        mPullToRefreshLayout.setRefreshing(true);
-        onRefreshStarted(null);
+        //TODO: NOT working must be fixed
+        mPtrFrame.performRefresh();
+//        mPullToRefreshLayout.setRefreshing(true);
+//        onRefreshStarted(null);
     }
 
     /**
@@ -547,6 +591,7 @@ public class AuthorFragment extends Fragment implements
 
     /**
      * Restore Author selection
+     *
      * @param id id of Author to make selected
      */
     public void selectAuthor(long id) {

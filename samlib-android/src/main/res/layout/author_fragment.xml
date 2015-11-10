@@ -45,10 +45,20 @@
             android:layout_height="match_parent"
             android:gravity="center"
             android:layout_gravity="center">
-        <uk.co.senab.actionbarpulltorefresh.extras.actionbarcompat.PullToRefreshLayout
-                android:id="@+id/ptr_layout"
+
+        <in.srain.cube.views.ptr.PtrClassicFrameLayout
+                xmlns:cube_ptr="http://schemas.android.com/apk/res-auto"
+                android:id="@+id/ptr_frame"
+                android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:layout_width="match_parent">
+                cube_ptr:ptr_resistance="1.7"
+                cube_ptr:ptr_ratio_of_header_height_to_refresh="1.2"
+                cube_ptr:ptr_duration_to_close="300"
+                cube_ptr:ptr_duration_to_close_header="2000"
+                cube_ptr:ptr_keep_header_when_refresh="false"
+                cube_ptr:ptr_pull_to_fresh="false"
+
+                >
 
             <android.support.v7.widget.RecyclerView
                     android:id="@+id/authorRV"
@@ -57,7 +67,7 @@
                     android:layout_height="match_parent">
             </android.support.v7.widget.RecyclerView>
 
-        </uk.co.senab.actionbarpulltorefresh.extras.actionbarcompat.PullToRefreshLayout>
+        </in.srain.cube.views.ptr.PtrClassicFrameLayout>
         <ProgressBar
                 android:id="@+id/authorProgress"
                 android:layout_centerInParent="true"

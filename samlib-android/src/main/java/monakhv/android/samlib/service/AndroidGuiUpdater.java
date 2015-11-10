@@ -55,10 +55,15 @@ public class AndroidGuiUpdater implements GuiUpdate {
 
     private final Context context;
     private final int currentCaller;
+    private ProgressNotification mProgressNotification;
 
     public AndroidGuiUpdater(Context context,int currentCaller) {
         this.context = context;
         this.currentCaller = currentCaller;
+
+        if (currentCaller == CALLER_IS_ACTIVITY){
+            mProgressNotification=new ProgressNotification(context);
+        }
     }
 
     @Override
@@ -122,20 +127,14 @@ public class AndroidGuiUpdater implements GuiUpdate {
         if (currentCaller == CALLER_IS_RECEIVER) {//Call as a regular service
             return;//we do not send update for regular service
         }
-        String str = " ["+iCurrent+"/"+total+"]:   "+name;
-        Intent broadcastIntent = new Intent();
-        broadcastIntent.addCategory(Intent.CATEGORY_DEFAULT);
-        broadcastIntent.setAction(ACTION_RESP);
-        broadcastIntent.putExtra(ACTION, ACTION_PROGRESS);
-        broadcastIntent.putExtra(TOAST_STRING, str);
-        context.sendBroadcast(broadcastIntent);
-
+        mProgressNotification.updateProgress(total,iCurrent,name);
     }
 
     @Override
     public void finishUpdate(boolean result, List<Author> updatedAuthors) {
         Log.d(DEBUG_TAG, "Finish intent.");
         SettingsHelper settings = new SettingsHelper(context);
+        mProgressNotification.cancel();
 
         if (currentCaller == CALLER_IS_ACTIVITY) {//Call from activity
 

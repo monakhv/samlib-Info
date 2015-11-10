@@ -527,7 +527,7 @@ public class PtrFrameLayout extends ViewGroup {
         return false;
     }
 
-    private void performRefresh() {
+    public void performRefresh() {
         mLoadingStartTime = System.currentTimeMillis();
         if (mPtrUIHandlerHolder.hasHandler()) {
             mPtrUIHandlerHolder.onUIRefreshBegin(this);

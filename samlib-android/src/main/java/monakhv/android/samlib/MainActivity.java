@@ -1,5 +1,7 @@
 package monakhv.android.samlib;
 
+import android.animation.Animator;
+import android.animation.ObjectAnimator;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -10,11 +12,13 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.util.Log;
 
 import android.view.View;
+import android.view.Window;
 import android.widget.AdapterView;
 import android.widget.CompoundButton;
 import android.widget.EditText;
@@ -106,6 +110,7 @@ public class MainActivity extends MyBaseAbstractActivity implements
     protected void onCreate(Bundle savedInstanceState) {
         Log.d(DEBUG_TAG,"onCreate");
         settingsHelper = new SettingsHelper(this);
+        getWindow().requestFeature(Window.FEATURE_ACTION_BAR_OVERLAY);
         setTheme(settingsHelper.getTheme());
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main_layout);
@@ -514,6 +519,66 @@ public class MainActivity extends MyBaseAbstractActivity implements
     public void cleanBookSelection() {
         if (twoPain) {
             bookFragment.setAuthorId(0);//empty selection
+        }
+    }
+
+    @Override
+    public void setActionBarVisibility(boolean visible) {
+        if (twoPain){
+            return;//Do nothing for two pain layout
+        }
+
+        if (visible){
+
+            ObjectAnimator anim = ObjectAnimator.ofFloat(toolbar, "translationY", 0);
+            anim.addListener(new Animator.AnimatorListener() {
+                @Override
+                public void onAnimationStart(Animator animation) {
+                    toolbar.setVisibility(View.VISIBLE);
+                }
+
+                @Override
+                public void onAnimationEnd(Animator animation) {
+                    toolbar.setVisibility(View.VISIBLE);
+
+                }
+
+                @Override
+                public void onAnimationCancel(Animator animation) {
+
+                }
+
+                @Override
+                public void onAnimationRepeat(Animator animation) {
+
+                }
+            });
+            anim.start();
+        }
+        else {
+            ObjectAnimator anim = ObjectAnimator.ofFloat(toolbar, "translationY", -toolbar.getHeight());
+            anim.addListener(new Animator.AnimatorListener() {
+                @Override
+                public void onAnimationStart(Animator animation) {
+
+                }
+
+                @Override
+                public void onAnimationEnd(Animator animation) {
+                    toolbar.setVisibility(View.GONE);
+                }
+
+                @Override
+                public void onAnimationCancel(Animator animation) {
+
+                }
+
+                @Override
+                public void onAnimationRepeat(Animator animation) {
+
+                }
+            });
+            anim.start();
         }
     }
 

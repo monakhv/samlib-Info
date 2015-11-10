@@ -1,2 +1,2 @@
 rootProject.name='samlib-info'
-include ':samlib-android', ':samlib-core',':samlib-desk',':abptr-lib'
+include ':samlib-android', ':samlib-core',':samlib-desk',':ptr-lib'

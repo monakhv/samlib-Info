@@ -18,7 +18,7 @@
         <item name="colorBg">@color/BLACK</item>
         <item name="colorText">@color/WHITE</item>
 
-        <item name="ptrHeaderStyle">@style/Widget.Custom.PtrHeader</item>
+
     </style>
     <style name="MyThemeLight" parent="MaterialDrawerTheme.Light">
 
@@ -36,32 +36,10 @@
         <item name="colorBg">@color/WHITE</item>
         <item name="colorText">@color/BLACK</item>
 
-        <item name="ptrHeaderStyle">@style/Widget.Custom.PtrHeader.Light</item>
-    </style>
-
-    <style name="Widget.Custom.PtrHeader" parent="android:Widget">
-        <item name="ptrHeaderBackground">@color/action_bar</item>
-        <item name="ptrPullText">@string/pull_to_refresh_pull_label</item>
-        <item name="ptrRefreshingText">@string/pull_to_refresh_refreshing_label</item>
-        <item name="ptrReleaseText">@string/pull_to_refresh_release_label</item>
-
-
-
-        <!--
-      <item name="ptrHeaderHeight">20dp</item>
--->
 
     </style>
 
-    <style name="Widget.Custom.PtrHeader.Light" parent="android:Widget">
-        <item name="ptrHeaderBackground">@color/action_bar_light</item>
-        <item name="ptrPullText">@string/pull_to_refresh_pull_label</item>
-        <item name="ptrRefreshingText">@string/pull_to_refresh_refreshing_label</item>
-        <item name="ptrReleaseText">@string/pull_to_refresh_release_label</item>
 
-
-
-    </style>
 
 
     <!--
