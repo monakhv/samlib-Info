@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="cube_ptr_pull_down">Потяните</string>
+    <string name="cube_ptr_pull_down_to_refresh">Потяните, чтобы обновить</string>
+    <string name="cube_ptr_release_to_refresh">Отпустите для обновления</string>
+    <string name="cube_ptr_refreshing">Загрузка&#8230;</string>
+    <string name="cube_ptr_refresh_complete">Обновлено.</string>
+
+    <string name="cube_ptr_last_update">последнее обновление:&#160;</string>
+    <string name="cube_ptr_seconds_ago">&#160;секунд назад</string>
+    <string name="cube_ptr_minutes_ago">&#160;минут назад</string>
+    <string name="cube_ptr_hours_ago">&#160;часов назад</string>
+
+</resources>
