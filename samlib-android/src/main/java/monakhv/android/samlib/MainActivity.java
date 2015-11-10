@@ -444,7 +444,12 @@ public class MainActivity extends MyBaseAbstractActivity implements
             int res = data.getIntExtra(ArchiveActivity.UPDATE_KEY, -1);
             if (res == ArchiveActivity.UPDATE_LIST) {
                 Log.d(DEBUG_TAG, "Reconstruct List View");
+                releaseHelper(getDatabaseHelper());
+                tagSQL = new TagController(getDatabaseHelper());
+                refreshTags();
                 authorFragment.refresh(SamLibConfig.TAG_AUTHOR_ALL, null);
+                setActionBarVisibility(true);
+                //TODO: we need test for two pain layout
 
             }
         }
@@ -505,6 +510,10 @@ public class MainActivity extends MyBaseAbstractActivity implements
     public void setActionBarVisibility(boolean visible) {
         if (twoPain){
             return;//Do nothing for two pain layout
+        }
+
+        if (drResult.isDrawerOpen()){
+            return;//this is Drawer scrolling ignore it
         }
 
         if (visible){
