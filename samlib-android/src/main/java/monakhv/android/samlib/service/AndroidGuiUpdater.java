@@ -134,9 +134,9 @@ public class AndroidGuiUpdater implements GuiUpdate {
     public void finishUpdate(boolean result, List<Author> updatedAuthors) {
         Log.d(DEBUG_TAG, "Finish intent.");
         SettingsHelper settings = new SettingsHelper(context);
-        mProgressNotification.cancel();
 
         if (currentCaller == CALLER_IS_ACTIVITY) {//Call from activity
+            mProgressNotification.cancel();
 
             CharSequence text;
 
