@@ -445,8 +445,14 @@ public class MainActivity extends MyBaseAbstractActivity implements
                 tagSQL = new TagController(getDatabaseHelper());
                 refreshTags();
                 authorFragment.refresh(SamLibConfig.TAG_AUTHOR_ALL, null);
-                //TODO: we need test for two pain layout
-
+                if (twoPain){
+                    if (bookFragment!=null){
+                        bookFragment.refresh();
+                        if (isTagShow){
+                            onFinish(0);
+                        }
+                    }
+                }
             }
         }
         if (requestCode == SEARCH_ACTIVITY) {
@@ -605,7 +611,7 @@ public class MainActivity extends MyBaseAbstractActivity implements
         final FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
         ft.replace(R.id.listBooksFragment, bookFragment);
         ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_CLOSE);
-        ft.commit();
+        ft.commitAllowingStateLoss();
         isTagShow = false;
     }
 
