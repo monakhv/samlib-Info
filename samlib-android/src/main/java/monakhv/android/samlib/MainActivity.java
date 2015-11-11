@@ -1,7 +1,6 @@
 package monakhv.android.samlib;
 
-import android.animation.Animator;
-import android.animation.ObjectAnimator;
+
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -12,7 +11,6 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
-import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.util.Log;
@@ -359,7 +357,6 @@ public class MainActivity extends MyBaseAbstractActivity implements
         Log.d(DEBUG_TAG, "onRestoreInstanceState");
         super.onRestoreInstanceState(savedInstanceState);
         selectedTagId = savedInstanceState.getInt(SELECTED_TAG_ID, SamLibConfig.TAG_AUTHOR_ALL);
-        long upt =savedInstanceState.getLong(PROGRESS_TIME);
 
 
         Tag tag = tagSQL.getById(selectedTagId);
@@ -448,7 +445,6 @@ public class MainActivity extends MyBaseAbstractActivity implements
                 tagSQL = new TagController(getDatabaseHelper());
                 refreshTags();
                 authorFragment.refresh(SamLibConfig.TAG_AUTHOR_ALL, null);
-                setActionBarVisibility(true);
                 //TODO: we need test for two pain layout
 
             }
@@ -490,12 +486,6 @@ public class MainActivity extends MyBaseAbstractActivity implements
         Log.d(DEBUG_TAG, "set title: " + lTitle);
 
         getSupportActionBar().setTitle(lTitle);
-//        if (authorFragment.getSelection() == null){
-//            getSupportActionBar().setDisplayOptions(0, ActionBar.DISPLAY_HOME_AS_UP);
-//        }
-//        else {
-//            getSupportActionBar().setDisplayOptions(ActionBar.DISPLAY_HOME_AS_UP, ActionBar.DISPLAY_HOME_AS_UP);
-//        }
 
     }
 
@@ -506,69 +496,6 @@ public class MainActivity extends MyBaseAbstractActivity implements
         }
     }
 
-    @Override
-    public void setActionBarVisibility(boolean visible) {
-        if (twoPain){
-            return;//Do nothing for two pain layout
-        }
-
-        if (drResult.isDrawerOpen()){
-            return;//this is Drawer scrolling ignore it
-        }
-
-        if (visible){
-
-            ObjectAnimator anim = ObjectAnimator.ofFloat(toolbar, "translationY", 0);
-            anim.addListener(new Animator.AnimatorListener() {
-                @Override
-                public void onAnimationStart(Animator animation) {
-                    toolbar.setVisibility(View.VISIBLE);
-                }
-
-                @Override
-                public void onAnimationEnd(Animator animation) {
-                    toolbar.setVisibility(View.VISIBLE);
-
-                }
-
-                @Override
-                public void onAnimationCancel(Animator animation) {
-
-                }
-
-                @Override
-                public void onAnimationRepeat(Animator animation) {
-
-                }
-            });
-            anim.start();
-        }
-        else {
-            ObjectAnimator anim = ObjectAnimator.ofFloat(toolbar, "translationY", -toolbar.getHeight());
-            anim.addListener(new Animator.AnimatorListener() {
-                @Override
-                public void onAnimationStart(Animator animation) {
-
-                }
-
-                @Override
-                public void onAnimationEnd(Animator animation) {
-                    toolbar.setVisibility(View.GONE);
-                }
-
-                @Override
-                public void onAnimationCancel(Animator animation) {
-
-                }
-
-                @Override
-                public void onAnimationRepeat(Animator animation) {
-
-                }
-            });
-            anim.start();
-        }
-    }
 
     /**
      * Add new Author to SQL Store

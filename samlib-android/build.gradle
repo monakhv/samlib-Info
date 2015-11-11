@@ -38,8 +38,9 @@ android {
 dependencies {
     compile project(":samlib-core")
     compile project(":ptr-lib")
-    compile 'com.android.support:appcompat-v7:22.1.0'
-    compile 'com.android.support:recyclerview-v7:22.1.0'
+    compile 'com.android.support:appcompat-v7:22.2.1'
+    compile 'com.android.support:recyclerview-v7:22.2.1'
+    compile 'com.android.support:design:22.2.1'
     compile 'com.j256.ormlite:ormlite-android:4.48'
     compile 'com.google.android.gms:play-services:6.1.+'
     compile('com.mikepenz:materialdrawer:3.1.2@aar') {
