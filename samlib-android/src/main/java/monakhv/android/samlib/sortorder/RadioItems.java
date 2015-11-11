@@ -42,7 +42,7 @@ public class RadioItems {
         for (SortOrder so : sortOrders){
             SecondaryDrawerItem item=getDrawerItem(so);
             if (so.getTag().equals(selectedTag)){
-                item.setBadge(SELECT_BADGE);
+                item.withBadge(SELECT_BADGE);
             }
             items.add(item);
         }
@@ -57,10 +57,10 @@ public class RadioItems {
         for (SecondaryDrawerItem item: items){
             String stag = (String) item.getTag();
             if (stag.equals(tag)){
-                item.setBadge(SELECT_BADGE);
+                item.withBadge(SELECT_BADGE);
             }
             else {
-                item.setBadge("");
+                item.withBadge("");
             }
         }
     }

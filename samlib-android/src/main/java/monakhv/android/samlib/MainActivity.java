@@ -17,18 +17,16 @@ import android.util.Log;
 
 import android.view.View;
 import android.view.Window;
-import android.widget.AdapterView;
-import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.Toast;
 
 
-import com.mikepenz.iconics.typeface.FontAwesome;
+import com.mikepenz.fontawesome_typeface_library.FontAwesome;
 import com.mikepenz.materialdrawer.Drawer;
 import com.mikepenz.materialdrawer.DrawerBuilder;
 import com.mikepenz.materialdrawer.model.*;
 import com.mikepenz.materialdrawer.model.interfaces.IDrawerItem;
-import com.mikepenz.materialdrawer.model.interfaces.OnCheckedChangeListener;
+
 import monakhv.android.samlib.data.SettingsHelper;
 import monakhv.android.samlib.search.SearchAuthorActivity;
 import monakhv.android.samlib.search.SearchAuthorsListFragment;
@@ -66,7 +64,7 @@ import java.util.Calendar;
  * 12/5/14.
  */
 public class MainActivity extends MyBaseAbstractActivity implements
-        AuthorFragment.Callbacks, Drawer.OnDrawerItemClickListener, OnCheckedChangeListener,
+        AuthorFragment.Callbacks, Drawer.OnDrawerItemClickListener,
         AuthorTagFragment.AuthorTagCallback, BookFragment.Callbacks {
 
     private static final String DEBUG_TAG = "MainActivity";
@@ -227,6 +225,8 @@ public class MainActivity extends MyBaseAbstractActivity implements
                 .withActionBarDrawerToggle(true)
                 .withActionBarDrawerToggleAnimated(true)
                 .withCloseOnClick(true)
+                .withTranslucentStatusBar(true)
+                .withTranslucentStatusBarProgrammatically(true)
                 .withHeader(R.layout.drawer_header)
                 .addDrawerItems(items.toArray(new IDrawerItem[1]))
                 .withOnDrawerItemClickListener(this)
@@ -252,16 +252,17 @@ public class MainActivity extends MyBaseAbstractActivity implements
     }
 
 
-    @Override
-    public void onCheckedChanged(IDrawerItem iDrawerItem, CompoundButton compoundButton, boolean b) {
-        String sTag = (String) iDrawerItem.getTag();
-        int iDent = iDrawerItem.getIdentifier();
-        Log.i(DEBUG_TAG, "onCheckedChanged: tag - " + sTag + " - " + iDent + " - " + b);
-    }
+//    @Override
+//    public void onCheckedChanged(IDrawerItem iDrawerItem, CompoundButton compoundButton, boolean b) {
+//        String sTag = (String) iDrawerItem.getTag();
+//        int iDent = iDrawerItem.getIdentifier();
+//        Log.i(DEBUG_TAG, "onCheckedChanged: tag - " + sTag + " - " + iDent + " - " + b);
+//    }
 
 
+
     @Override
-    public boolean onItemClick(AdapterView<?> adapterView, View view, int i, long l, IDrawerItem iDrawerItem) {
+    public boolean onItemClick( View view, int i,  IDrawerItem iDrawerItem) {
         if (view == null){
             return true;
         }
@@ -296,7 +297,7 @@ public class MainActivity extends MyBaseAbstractActivity implements
         }
         if (ident == menu_add_search) {
             Log.d(DEBUG_TAG, "onItemClick: go to add or search");
-            drResult.setSelectionByIdentifier(SamLibConfig.TAG_AUTHOR_ALL + tagsShift);
+            drResult.setSelection(SamLibConfig.TAG_AUTHOR_ALL + tagsShift);
             authorFragment.searchOrAdd();
         }
         if (ident == menu_sort_author) {
@@ -338,7 +339,7 @@ public class MainActivity extends MyBaseAbstractActivity implements
         if (tagSQL.getById(selectedTagId) == null) {
             selectedTagId = SamLibConfig.TAG_AUTHOR_ALL;
         }
-        drResult.setSelectionByIdentifier(selectedTagId + tagsShift,false);
+        drResult.setSelection(selectedTagId + tagsShift, false);
     }
 
     @Override
@@ -614,6 +615,7 @@ public class MainActivity extends MyBaseAbstractActivity implements
         ft.commitAllowingStateLoss();
         isTagShow = false;
     }
+
 
 
     /**
