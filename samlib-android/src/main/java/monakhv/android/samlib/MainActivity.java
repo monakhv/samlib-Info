@@ -9,6 +9,7 @@ import android.content.IntentFilter;
 
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.design.widget.AppBarLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.widget.Toolbar;
@@ -64,8 +65,12 @@ import java.util.Calendar;
  * 12/5/14.
  */
 public class MainActivity extends MyBaseAbstractActivity implements
-        AuthorFragment.Callbacks, Drawer.OnDrawerItemClickListener,
-        AuthorTagFragment.AuthorTagCallback, BookFragment.Callbacks {
+        Drawer.OnDrawerItemClickListener,
+        AppBarLayout.OnOffsetChangedListener,
+        AuthorFragment.Callbacks,
+        AuthorTagFragment.AuthorTagCallback,
+        BookFragment.Callbacks
+{
 
     private static final String DEBUG_TAG = "MainActivity";
 
@@ -99,6 +104,7 @@ public class MainActivity extends MyBaseAbstractActivity implements
     private RadioItems authorSort, bookSort;
     private int selectedTagId = SamLibConfig.TAG_AUTHOR_ALL;
     private TagController tagSQL;
+    private AppBarLayout mAppBarLayout;
 
 
     @Override
@@ -166,8 +172,15 @@ public class MainActivity extends MyBaseAbstractActivity implements
         }
 
         tagSQL = new TagController(getDatabaseHelper());
-        //createDrawer();
+        mAppBarLayout = (AppBarLayout) findViewById(R.id.appBarLayout);
         refreshTags();
+    }
+
+    private void openActionBar(){
+        if (mAppBarLayout == null){
+            return;
+        }
+        mAppBarLayout.setExpanded(true);
     }
 
     /**
@@ -252,12 +265,6 @@ public class MainActivity extends MyBaseAbstractActivity implements
     }
 
 
-//    @Override
-//    public void onCheckedChanged(IDrawerItem iDrawerItem, CompoundButton compoundButton, boolean b) {
-//        String sTag = (String) iDrawerItem.getTag();
-//        int iDent = iDrawerItem.getIdentifier();
-//        Log.i(DEBUG_TAG, "onCheckedChanged: tag - " + sTag + " - " + iDent + " - " + b);
-//    }
 
 
 
@@ -272,6 +279,7 @@ public class MainActivity extends MyBaseAbstractActivity implements
             selectedTagId = ident - tagsShift;
             Log.d(DEBUG_TAG, "onItemClick: select tag = "+selectedTagId);
             authorFragment.selectTag(selectedTagId, (String) iDrawerItem.getTag());
+            openActionBar();
         }
         if (ident == menu_selected) {
             authorFragment.cleanSelection();
@@ -406,6 +414,9 @@ public class MainActivity extends MyBaseAbstractActivity implements
             filter.addCategory(Intent.CATEGORY_DEFAULT);
             registerReceiver(downloadReceiver, filter);
         }
+        if (mAppBarLayout != null){
+            mAppBarLayout.addOnOffsetChangedListener(this);
+        }
 
     }
 
@@ -416,6 +427,10 @@ public class MainActivity extends MyBaseAbstractActivity implements
 
         if (twoPain) {
             unregisterReceiver(downloadReceiver);
+        }
+
+        if (mAppBarLayout != null){
+            mAppBarLayout.removeOnOffsetChangedListener(this);
         }
 
 
@@ -564,46 +579,12 @@ public class MainActivity extends MyBaseAbstractActivity implements
             onTitleChange(getString(R.string.app_name));
             selectedTagId = SamLibConfig.TAG_AUTHOR_ALL;
             restoreTagSelection();
+            openActionBar();
         } else {
             finish();
         }
 
     }
-
-//    @Override
-//    public boolean onKeyDown(int keyCode, KeyEvent event) {
-//        Log.d(DEBUG_TAG,"onKeyDown");
-//        if (keyCode == KeyEvent.KEYCODE_MENU){
-//            Log.d(DEBUG_TAG,"onKeyDown - MENU");
-//            return false;
-//        }
-//        return super.onKeyDown(keyCode, event);
-//    }
-
-//    @Override
-//    public boolean onKeyDown(int keyCode, KeyEvent event) {
-//        Log.d(DEBUG_TAG,"onKeyDown");
-//        if ((keyCode == KeyEvent.KEYCODE_BACK)) { //Back key pressed
-//            Log.d(DEBUG_TAG,"onKeyDown - BACK");
-//
-//            if (drResult != null && drResult.isDrawerOpen()) {
-//                drResult.closeDrawer();
-//                return true;
-//            }
-//
-//            if (authorFragment.getSelection() != SamLibConfig.TAG_AUTHOR_ALL) {
-//                authorFragment.refresh(SamLibConfig.TAG_AUTHOR_ALL, null);
-//                onTitleChange(getString(R.string.app_name));
-//                selectedTagId = SamLibConfig.TAG_AUTHOR_ALL;
-//                restoreTagSelection();
-//            } else {
-//                finish();
-//            }
-//
-//            return true;
-//        }
-//        return super.onKeyDown(keyCode, event);
-//    }
 
     @Override
     public void onFinish(long id) {
@@ -616,6 +597,10 @@ public class MainActivity extends MyBaseAbstractActivity implements
         isTagShow = false;
     }
 
+    @Override
+    public void onOffsetChanged(AppBarLayout appBarLayout, int verticalOffset) {
+        authorFragment.setAppBarOffset(verticalOffset);
+    }
 
 
     /**

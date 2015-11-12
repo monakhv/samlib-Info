@@ -98,9 +98,16 @@ public class AuthorFragment extends Fragment implements
     private int selectedTag = SamLibConfig.TAG_AUTHOR_ALL;
     private int aId = -1;//preserve selection
 
+    private int mAppBarOffset;
+
+    public void setAppBarOffset(int appBarOffset) {
+        mAppBarOffset = appBarOffset;
+    }
+
     @Override
     public boolean checkCanDoRefresh(PtrFrameLayout frame, View content, View header) {
-        return PtrDefaultHandler.checkContentCanBePulledDown(frame, content, header);
+
+        return canUpdate &&  (mAppBarOffset==0) &&PtrDefaultHandler.checkContentCanBePulledDown(frame, content, header);
     }
 
 
@@ -192,7 +199,7 @@ public class AuthorFragment extends Fragment implements
     public void makePulToRefresh() {
         mPtrFrame = (PtrClassicFrameLayout) view.findViewById(R.id.ptr_frame);
         mPtrFrame.setPtrHandler(this);
-        mPtrFrame.setLastUpdateTimeKey(UpdateServiceIntent.PREF_NAME,UpdateServiceIntent.PREF_KEY_LAST_UPDATE);//TODO: must be fixed
+        mPtrFrame.setLastUpdateTimeKey(UpdateServiceIntent.PREF_NAME,UpdateServiceIntent.PREF_KEY_LAST_UPDATE);
 
     }
 
