@@ -1,0 +1,10 @@
+<component name="libraryTable">
+  <library name="fontawesome-typeface-4.4.0.1">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/samlib-android/build/intermediates/exploded-aar/com.mikepenz/fontawesome-typeface/4.4.0.1/classes.jar!/" />
+      <root url="file://$PROJECT_DIR$/samlib-android/build/intermediates/exploded-aar/com.mikepenz/fontawesome-typeface/4.4.0.1/res" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

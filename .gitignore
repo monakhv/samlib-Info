@@ -5,6 +5,4 @@ nbandroid/
 .gradle/
 build/
 /local.properties
-/.idea
 /gradlew.bat
-*.iml

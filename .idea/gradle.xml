@@ -5,7 +5,17 @@
       <GradleProjectSettings>
         <option name="distributionType" value="DEFAULT_WRAPPED" />
         <option name="externalProjectPath" value="$PROJECT_DIR$" />
+        <option name="gradleJvm" value="1.7" />
         <option name="modules">
+          <set>
+            <option value="$PROJECT_DIR$" />
+            <option value="$PROJECT_DIR$/ptr-lib" />
+            <option value="$PROJECT_DIR$/samlib-android" />
+            <option value="$PROJECT_DIR$/samlib-core" />
+            <option value="$PROJECT_DIR$/samlib-desk" />
+          </set>
+        </option>
+        <option name="myModules">
           <set>
             <option value="$PROJECT_DIR$" />
             <option value="$PROJECT_DIR$/ptr-lib" />
