@@ -9,12 +9,14 @@
         <item name="colorPrimary">@color/action_bar</item>
         <item name="colorPrimaryDark">@color/action_bar</item>
 
-        <item name="iconSelected">@drawable/rating_important</item>
+        <item name="iconSelected">@drawable/ic_grade_white_36dp</item>
         <item name="iconTags">@drawable/ic_action_done</item>
-        <item name="iconSearch">@drawable/action_search</item>
+        <item name="iconSearch">@drawable/ic_search_white_36dp</item>
         <item name="iconSort">@drawable/collections_sort_by_size</item>
         <item name="iconRefresh">@drawable/navigation_refresh_d</item>
         <item name="iconLock">@drawable/ic_https_white_18dp</item>
+        <item name="iconSettings">@drawable/ic_settings_white_36dp</item>
+        <item name="iconArchive">@drawable/ic_storage_white_36dp</item>
         <item name="colorBg">@color/BLACK</item>
         <item name="colorText">@color/WHITE</item>
 
@@ -27,12 +29,14 @@
         <item name="colorPrimary">@color/action_bar_light</item>
         <item name="colorPrimaryDark">@color/action_bar_light</item>
 
-        <item name="iconSelected">@drawable/rating_important_l</item>
+        <item name="iconSelected">@drawable/ic_grade_grey600_36dp</item>
         <item name="iconTags">@drawable/navigation_accept</item>
-        <item name="iconSearch">@drawable/action_search_l</item>
+        <item name="iconSearch">@drawable/ic_search_grey600_36dp</item>
         <item name="iconSort">@drawable/collections_sort_by_size_l</item>
         <item name="iconRefresh">@drawable/navigation_refresh</item>
         <item name="iconLock">@drawable/ic_https_grey600_18dp</item>
+        <item name="iconSettings">@drawable/ic_settings_grey600_36dp</item>
+        <item name="iconArchive">@drawable/ic_storage_grey600_36dp</item>
         <item name="colorBg">@color/WHITE</item>
         <item name="colorText">@color/BLACK</item>
 

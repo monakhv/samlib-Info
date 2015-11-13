@@ -37,6 +37,8 @@
         <attr name="iconLock" format="reference"/>
         <attr name="colorBg" format="reference"/>
         <attr name="colorText" format="reference"/>
+        <attr name="iconSettings" format="reference"/>
+        <attr name="iconArchive" format="reference"/>
 
     </declare-styleable>
     <declare-styleable name="FlipIcon">

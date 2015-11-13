@@ -120,6 +120,8 @@ public class AuthorFragment extends Fragment implements
 
         void cleanBookSelection();
 
+        void drawerToggle();
+
     }
 
     private Callbacks mCallbacks;
@@ -631,6 +633,10 @@ public class AuthorFragment extends Fragment implements
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int sel = item.getItemId();
+        if (sel == android.R.id.home){
+            mCallbacks.drawerToggle();
+
+        }
         if (sel == R.id.menu_refresh) {
             startRefresh();
 

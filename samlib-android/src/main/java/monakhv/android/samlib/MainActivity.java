@@ -7,15 +7,21 @@ import android.content.Intent;
 import android.content.IntentFilter;
 
 
+import android.graphics.drawable.Icon;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.AppBarLayout;
+import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.util.Log;
 
+import android.view.Gravity;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
 import android.widget.EditText;
@@ -23,11 +29,7 @@ import android.widget.Toast;
 
 
 import com.mikepenz.fontawesome_typeface_library.FontAwesome;
-import com.mikepenz.materialdrawer.Drawer;
-import com.mikepenz.materialdrawer.DrawerBuilder;
-import com.mikepenz.materialdrawer.model.*;
-import com.mikepenz.materialdrawer.model.interfaces.IDrawerItem;
-
+import com.mikepenz.iconics.IconicsDrawable;
 import monakhv.android.samlib.data.SettingsHelper;
 import monakhv.android.samlib.search.SearchAuthorActivity;
 import monakhv.android.samlib.search.SearchAuthorsListFragment;
@@ -43,7 +45,6 @@ import monakhv.samlib.db.entity.Tag;
 import monakhv.samlib.service.SamlibService;
 
 
-import java.util.ArrayList;
 import java.util.Calendar;
 
 
@@ -65,12 +66,11 @@ import java.util.Calendar;
  * 12/5/14.
  */
 public class MainActivity extends MyBaseAbstractActivity implements
-        Drawer.OnDrawerItemClickListener,
+        //Drawer.OnDrawerItemClickListener,
         AppBarLayout.OnOffsetChangedListener,
         AuthorFragment.Callbacks,
         AuthorTagFragment.AuthorTagCallback,
-        BookFragment.Callbacks
-{
+        BookFragment.Callbacks, NavigationView.OnNavigationItemSelectedListener {
 
     private static final String DEBUG_TAG = "MainActivity";
 
@@ -92,7 +92,7 @@ public class MainActivity extends MyBaseAbstractActivity implements
     private boolean isTagShow = false;
 
 
-    private Drawer drResult;
+    // private Drawer drResult;
     private final int menu_add_search = 1;
     private final int menu_settings = 3;
     private final int menu_data = 5;
@@ -106,10 +106,11 @@ public class MainActivity extends MyBaseAbstractActivity implements
     private TagController tagSQL;
     private AppBarLayout mAppBarLayout;
 
+    private DrawerLayout mDrawerLayout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        Log.d(DEBUG_TAG,"onCreate");
+        Log.d(DEBUG_TAG, "onCreate");
         settingsHelper = new SettingsHelper(this);
         getWindow().requestFeature(Window.FEATURE_ACTION_BAR_OVERLAY);
         setTheme(settingsHelper.getTheme());
@@ -134,6 +135,8 @@ public class MainActivity extends MyBaseAbstractActivity implements
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setHomeButtonEnabled(true);
+
 
         twoPain = findViewById(R.id.two_pain) != null;
         if (twoPain) {
@@ -142,7 +145,7 @@ public class MainActivity extends MyBaseAbstractActivity implements
             Fragment fragment = getSupportFragmentManager().findFragmentById(R.id.listBooksFragment);
             if (fragment == null) {
                 Log.d(DEBUG_TAG, "Initial construction: add BookFragment");
-                bookFragment= new BookFragment();
+                bookFragment = new BookFragment();
                 final FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
                 ft.add(R.id.listBooksFragment, bookFragment);
                 ft.commit();
@@ -176,8 +179,15 @@ public class MainActivity extends MyBaseAbstractActivity implements
         refreshTags();
     }
 
-    private void openActionBar(){
-        if (mAppBarLayout == null){
+
+    @Override
+    public void drawerToggle() {
+        mDrawerLayout.openDrawer(Gravity.LEFT);
+    }
+
+
+    private void openActionBar() {
+        if (mAppBarLayout == null) {
             return;
         }
         mAppBarLayout.setExpanded(true);
@@ -187,65 +197,76 @@ public class MainActivity extends MyBaseAbstractActivity implements
      * Create MaterialDrawer
      */
     private void createDrawer() {
-        ArrayList<IDrawerItem> items = new ArrayList<>();
+        mDrawerLayout = (DrawerLayout) findViewById(R.id.drawerLayout);
+        final ActionBarDrawerToggle mDrawerToggle = new ActionBarDrawerToggle(this, mDrawerLayout, 0, 0);
+        mDrawerLayout.setDrawerListener(mDrawerToggle);
+        mDrawerToggle.syncState();
 
-        items.add(new PrimaryDrawerItem().withName(R.string.menu_search).withIcon(FontAwesome.Icon.faw_search_plus).withIdentifier(menu_add_search));
-        items.add(new PrimaryDrawerItem().withName(R.string.menu_selected_go).withIcon(FontAwesome.Icon.faw_star).withIdentifier(menu_selected));
-        //Begin author group
-        items.add(new SectionDrawerItem().withName(R.string.menu_tags));
-        items.add(new SecondaryDrawerItem().withName(R.string.filter_all).withIdentifier(SamLibConfig.TAG_AUTHOR_ALL + tagsShift)
-                .withTag(getString(R.string.filter_all)));
-        items.add(new SecondaryDrawerItem().withName(R.string.filter_new).withIdentifier(SamLibConfig.TAG_AUTHOR_NEW + tagsShift)
-                .withTag(getString(R.string.filter_new)));
+        NavigationView navigationView = (NavigationView) findViewById(R.id.navigationView);
 
+        navigationView.setNavigationItemSelectedListener(this);
 
-        tagSQL.getAll();
+        //navigationView.getMenu().findItem(authorFragment.getSortOrder().getMenuId()).setChecked(true);
 
-        for (Tag tag : tagSQL.getAll()) {
-            items.add(new SecondaryDrawerItem().withName(tag.getName())
-                    .withIdentifier(tagsShift + tag.getId())
-                    .withTag(tag.getName()));
-        }
-        //end author group
-
-
-        items.add(new SectionDrawerItem().withName(R.string.dialog_title_sort_author));
-
-        authorSort = new RadioItems(this, menu_sort_author, AuthorSortOrder.values()
-                , authorFragment.getSortOrder().name());
-
-        items.addAll(authorSort.getItems());
-
-
-        if (twoPain) {
-            items.add(new SectionDrawerItem().withName(R.string.dialog_title_sort_book));
-            bookSort = new RadioItems(this, menu_sort_books, BookSortOrder.values()
-                    , settingsHelper.getBookSortOrderString());
-            items.addAll(bookSort.getItems());
-
-        }
-
-        items.add(new DividerDrawerItem());
-
-
-        items.add(new PrimaryDrawerItem().withName(R.string.menu_archive).withIcon(FontAwesome.Icon.faw_archive).withIdentifier(menu_data));
-        items.add(new PrimaryDrawerItem().withName(R.string.menu_settings).withIcon(FontAwesome.Icon.faw_cog).withIdentifier(menu_settings));
-
-
-        drResult = new DrawerBuilder()
-                .withActivity(this)
-                .withToolbar(toolbar)
-                .withActionBarDrawerToggle(true)
-                .withActionBarDrawerToggleAnimated(true)
-                .withCloseOnClick(true)
-                .withTranslucentStatusBar(true)
-                .withTranslucentStatusBarProgrammatically(true)
-                .withHeader(R.layout.drawer_header)
-                .addDrawerItems(items.toArray(new IDrawerItem[1]))
-                .withOnDrawerItemClickListener(this)
-                .build();
-
-        restoreTagSelection();
+//        ArrayList<IDrawerItem> items = new ArrayList<>();
+//
+//        items.add(new PrimaryDrawerItem().withName(R.string.menu_search).withIcon(FontAwesome.Icon.faw_search_plus).withIdentifier(menu_add_search));
+//        items.add(new PrimaryDrawerItem().withName(R.string.menu_selected_go).withIcon(FontAwesome.Icon.faw_star).withIdentifier(menu_selected));
+//        //Begin author group
+//        items.add(new SectionDrawerItem().withName(R.string.menu_tags));
+//        items.add(new SecondaryDrawerItem().withName(R.string.filter_all).withIdentifier(SamLibConfig.TAG_AUTHOR_ALL + tagsShift)
+//                .withTag(getString(R.string.filter_all)));
+//        items.add(new SecondaryDrawerItem().withName(R.string.filter_new).withIdentifier(SamLibConfig.TAG_AUTHOR_NEW + tagsShift)
+//                .withTag(getString(R.string.filter_new)));
+//
+//
+//        tagSQL.getAll();
+//
+//        for (Tag tag : tagSQL.getAll()) {
+//            items.add(new SecondaryDrawerItem().withName(tag.getName())
+//                    .withIdentifier(tagsShift + tag.getId())
+//                    .withTag(tag.getName()));
+//        }
+//        //end author group
+//
+//
+//        items.add(new SectionDrawerItem().withName(R.string.dialog_title_sort_author));
+//
+//        authorSort = new RadioItems(this, menu_sort_author, AuthorSortOrder.values()
+//                , authorFragment.getSortOrder().name());
+//
+//        items.addAll(authorSort.getItems());
+//
+//
+//        if (twoPain) {
+//            items.add(new SectionDrawerItem().withName(R.string.dialog_title_sort_book));
+//            bookSort = new RadioItems(this, menu_sort_books, BookSortOrder.values()
+//                    , settingsHelper.getBookSortOrderString());
+//            items.addAll(bookSort.getItems());
+//
+//        }
+//
+//        items.add(new DividerDrawerItem());
+//
+//
+//        items.add(new PrimaryDrawerItem().withName(R.string.menu_archive).withIcon(FontAwesome.Icon.faw_archive).withIdentifier(menu_data));
+//        items.add(new PrimaryDrawerItem().withName(R.string.menu_settings).withIcon(FontAwesome.Icon.faw_cog).withIdentifier(menu_settings));
+//
+//
+//        drResult = new DrawerBuilder()
+//                .withActivity(this)
+//                .withToolbar(toolbar)
+//                .withActionBarDrawerToggle(true)
+//                .withActionBarDrawerToggleAnimated(true)
+//                .withCloseOnClick(true)
+//                .withTranslucentStatusBar(true)
+//                .withTranslucentStatusBarProgrammatically(true)
+//                .withHeader(R.layout.drawer_header)
+//                .addDrawerItems(items.toArray(new IDrawerItem[1]))
+//                .withOnDrawerItemClickListener(this)
+//                .build();
+//
+//        restoreTagSelection();
 
     }
 
@@ -261,84 +282,127 @@ public class MainActivity extends MyBaseAbstractActivity implements
         isTagShow = true;
 
 
-
     }
 
 
-
-
-
     @Override
-    public boolean onItemClick( View view, int i,  IDrawerItem iDrawerItem) {
-        if (view == null){
-            return true;
+    public boolean onNavigationItemSelected(MenuItem menuItem) {
+        //menuItem.setChecked(true);
+
+        mDrawerLayout.closeDrawers();
+        int iSel = menuItem.getItemId();
+        if (iSel == R.id.dr_search) {
+            authorFragment.searchOrAdd();
         }
-        int ident = iDrawerItem.getIdentifier();
-        Log.i(DEBUG_TAG, "onItemClick: Identifier = " + ident);
-        if (ident > 90) {//tag selection section
-            selectedTagId = ident - tagsShift;
-            Log.d(DEBUG_TAG, "onItemClick: select tag = "+selectedTagId);
-            authorFragment.selectTag(selectedTagId, (String) iDrawerItem.getTag());
-            openActionBar();
-        }
-        if (ident == menu_selected) {
+        if (iSel == R.id.dr_selected) {
             authorFragment.cleanSelection();
             onAuthorSelected(SamLibConfig.SELECTED_BOOK_ID);
             restoreTagSelection();
         }
-        if (ident == menu_settings) {
-            Log.d(DEBUG_TAG, "onItemClick: go to Settings");
-            Intent prefsIntent = new Intent(getApplicationContext(),
-                    SamlibPreferencesActivity.class);
-            //prefsIntent.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
-            restoreTagSelection();
-            drResult.closeDrawer();
-            startActivityForResult(prefsIntent, MainActivity.PREFS_ACTIVITY);
-        }
-        if (ident == menu_data) {
+        if (iSel == R.id.dr_data) {
             Log.d(DEBUG_TAG, "onItemClick: go to Archive");
             Intent prefsIntent = new Intent(getApplicationContext(),
                     ArchiveActivity.class);
             restoreTagSelection();
-            drResult.closeDrawer();
+
             startActivityForResult(prefsIntent, MainActivity.ARCHIVE_ACTIVITY);
         }
-        if (ident == menu_add_search) {
-            Log.d(DEBUG_TAG, "onItemClick: go to add or search");
-            drResult.setSelection(SamLibConfig.TAG_AUTHOR_ALL + tagsShift);
-            authorFragment.searchOrAdd();
-        }
-        if (ident == menu_sort_author) {
-            SecondaryDrawerItem sItem = (SecondaryDrawerItem) iDrawerItem;
-            if (sItem.getBadge() != null && sItem.getBadge().equals(RadioItems.SELECT_BADGE)) {//do nothing just select all and close
-                restoreTagSelection();
-                drResult.closeDrawer();
-            } else {
-                String sTag = (String) sItem.getTag();
-                authorSort.selectItem(sTag);
-                authorFragment.setSortOrder(AuthorSortOrder.valueOf(sTag));
-                restoreTagSelection();
-                drResult.getAdapter().notifyDataSetChanged();
-            }
+
+        if (iSel == R.id.dr_setting) {
+            Intent prefsIntent = new Intent(getApplicationContext(),
+                    SamlibPreferencesActivity.class);
+            //prefsIntent.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
+            restoreTagSelection();
+
+            startActivityForResult(prefsIntent, MainActivity.PREFS_ACTIVITY);
+
 
         }
-        if (ident == menu_sort_books) {
-            SecondaryDrawerItem sItem = (SecondaryDrawerItem) iDrawerItem;
-            if (sItem.getBadge() != null && sItem.getBadge().equals(RadioItems.SELECT_BADGE)) {//do nothing just select all and close
-                restoreTagSelection();
-                drResult.closeDrawer();
-            } else {
-                String sTag = (String) sItem.getTag();
-                bookSort.selectItem(sTag);
-                bookFragment.setSortOrder(BookSortOrder.valueOf(sTag));
-                restoreTagSelection();
-                drResult.getAdapter().notifyDataSetChanged();
-            }
 
+        if (iSel==R.id.author_sort_name){
+            authorFragment.setSortOrder(AuthorSortOrder.AuthorName);
         }
-        return false;
 
+        if (iSel==R.id.author_sort_upadte){
+
+            authorFragment.setSortOrder(AuthorSortOrder.DateUpdate);
+        }
+
+        return true;
     }
+
+
+//    @Override
+//    public boolean onItemClick( View view, int i,  IDrawerItem iDrawerItem) {
+//        if (view == null){
+//            return true;
+//        }
+//        int ident = iDrawerItem.getIdentifier();
+//        Log.i(DEBUG_TAG, "onItemClick: Identifier = " + ident);
+//        if (ident > 90) {//tag selection section
+//            selectedTagId = ident - tagsShift;
+//            Log.d(DEBUG_TAG, "onItemClick: select tag = "+selectedTagId);
+//            authorFragment.selectTag(selectedTagId, (String) iDrawerItem.getTag());
+//            openActionBar();
+//        }
+//        if (ident == menu_selected) {
+//            authorFragment.cleanSelection();
+//            onAuthorSelected(SamLibConfig.SELECTED_BOOK_ID);
+//            restoreTagSelection();
+//        }
+//        if (ident == menu_settings) {
+//            Log.d(DEBUG_TAG, "onItemClick: go to Settings");
+//            Intent prefsIntent = new Intent(getApplicationContext(),
+//                    SamlibPreferencesActivity.class);
+//            //prefsIntent.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
+//            restoreTagSelection();
+//            drResult.closeDrawer();
+//            startActivityForResult(prefsIntent, MainActivity.PREFS_ACTIVITY);
+//        }
+//        if (ident == menu_data) {
+//            Log.d(DEBUG_TAG, "onItemClick: go to Archive");
+//            Intent prefsIntent = new Intent(getApplicationContext(),
+//                    ArchiveActivity.class);
+//            restoreTagSelection();
+//            drResult.closeDrawer();
+//            startActivityForResult(prefsIntent, MainActivity.ARCHIVE_ACTIVITY);
+//        }
+//        if (ident == menu_add_search) {
+//            Log.d(DEBUG_TAG, "onItemClick: go to add or search");
+//            drResult.setSelection(SamLibConfig.TAG_AUTHOR_ALL + tagsShift);
+//            authorFragment.searchOrAdd();
+//        }
+//        if (ident == menu_sort_author) {
+//            SecondaryDrawerItem sItem = (SecondaryDrawerItem) iDrawerItem;
+//            if (sItem.getBadge() != null && sItem.getBadge().equals(RadioItems.SELECT_BADGE)) {//do nothing just select all and close
+//                restoreTagSelection();
+//                drResult.closeDrawer();
+//            } else {
+//                String sTag = (String) sItem.getTag();
+//                authorSort.selectItem(sTag);
+//                authorFragment.setSortOrder(AuthorSortOrder.valueOf(sTag));
+//                restoreTagSelection();
+//                drResult.getAdapter().notifyDataSetChanged();
+//            }
+//
+//        }
+//        if (ident == menu_sort_books) {
+//            SecondaryDrawerItem sItem = (SecondaryDrawerItem) iDrawerItem;
+//            if (sItem.getBadge() != null && sItem.getBadge().equals(RadioItems.SELECT_BADGE)) {//do nothing just select all and close
+//                restoreTagSelection();
+//                drResult.closeDrawer();
+//            } else {
+//                String sTag = (String) sItem.getTag();
+//                bookSort.selectItem(sTag);
+//                bookFragment.setSortOrder(BookSortOrder.valueOf(sTag));
+//                restoreTagSelection();
+//                drResult.getAdapter().notifyDataSetChanged();
+//            }
+//
+//        }
+//        return false;
+//
+//    }
 
     /**
      * Restore selection of the tag into Drawer
@@ -347,7 +411,7 @@ public class MainActivity extends MyBaseAbstractActivity implements
         if (tagSQL.getById(selectedTagId) == null) {
             selectedTagId = SamLibConfig.TAG_AUTHOR_ALL;
         }
-        drResult.setSelection(selectedTagId + tagsShift, false);
+        //drResult.setSelection(selectedTagId + tagsShift, false);
     }
 
     @Override
@@ -355,7 +419,6 @@ public class MainActivity extends MyBaseAbstractActivity implements
         Log.d(DEBUG_TAG, "onSaveInstanceState");
         super.onSaveInstanceState(outState);
         outState.putInt(SELECTED_TAG_ID, selectedTagId);
-
 
 
         outState.putLong(PROGRESS_TIME, Calendar.getInstance().getTimeInMillis());
@@ -369,8 +432,8 @@ public class MainActivity extends MyBaseAbstractActivity implements
 
 
         Tag tag = tagSQL.getById(selectedTagId);
-        if (tag != null){
-            authorFragment.selectTag(selectedTagId,tag.getName());
+        if (tag != null) {
+            authorFragment.selectTag(selectedTagId, tag.getName());
             restoreTagSelection();
         }
     }
@@ -392,7 +455,7 @@ public class MainActivity extends MyBaseAbstractActivity implements
 
     @Override
     protected void onResume() {
-        Log.d(DEBUG_TAG,"onResume");
+        Log.d(DEBUG_TAG, "onResume");
         super.onResume();
 
         IntentFilter updateFilter = new IntentFilter(AndroidGuiUpdater.ACTION_RESP);
@@ -414,7 +477,7 @@ public class MainActivity extends MyBaseAbstractActivity implements
             filter.addCategory(Intent.CATEGORY_DEFAULT);
             registerReceiver(downloadReceiver, filter);
         }
-        if (mAppBarLayout != null){
+        if (mAppBarLayout != null) {
             mAppBarLayout.addOnOffsetChangedListener(this);
         }
 
@@ -429,7 +492,7 @@ public class MainActivity extends MyBaseAbstractActivity implements
             unregisterReceiver(downloadReceiver);
         }
 
-        if (mAppBarLayout != null){
+        if (mAppBarLayout != null) {
             mAppBarLayout.removeOnOffsetChangedListener(this);
         }
 
@@ -461,10 +524,10 @@ public class MainActivity extends MyBaseAbstractActivity implements
                 tagSQL = new TagController(getDatabaseHelper());
                 refreshTags();
                 authorFragment.refresh(SamLibConfig.TAG_AUTHOR_ALL, null);
-                if (twoPain){
-                    if (bookFragment!=null){
+                if (twoPain) {
+                    if (bookFragment != null) {
                         bookFragment.refresh();
-                        if (isTagShow){
+                        if (isTagShow) {
                             onFinish(0);
                         }
                     }
@@ -490,7 +553,7 @@ public class MainActivity extends MyBaseAbstractActivity implements
             bookFragment.setAuthorId(id);
             tagFragment.setAuthor_id(id);
 
-            if (isTagShow && (id==SamLibConfig.SELECTED_BOOK_ID)) {
+            if (isTagShow && (id == SamLibConfig.SELECTED_BOOK_ID)) {
                 onFinish(id);
             }
         } else {
@@ -569,11 +632,11 @@ public class MainActivity extends MyBaseAbstractActivity implements
 
     @Override
     public void onBackPressed() {
-        Log.d(DEBUG_TAG,"onBackPressed");
-        if (drResult != null && drResult.isDrawerOpen()) {
-            drResult.closeDrawer();
-            return ;
-        }
+        Log.d(DEBUG_TAG, "onBackPressed");
+//        if (drResult != null && drResult.isDrawerOpen()) {
+//            drResult.closeDrawer();
+//            return ;
+//        }
         if (authorFragment.getSelection() != SamLibConfig.TAG_AUTHOR_ALL) {
             authorFragment.refresh(SamLibConfig.TAG_AUTHOR_ALL, null);
             onTitleChange(getString(R.string.app_name));
@@ -666,7 +729,7 @@ public class MainActivity extends MyBaseAbstractActivity implements
     }
 
     private void refreshTags() {
-        Log.d(DEBUG_TAG,"refreshTags: making refresh tags");
+        Log.d(DEBUG_TAG, "refreshTags: making refresh tags");
         createDrawer();
         authorFragment.makePulToRefresh();
     }

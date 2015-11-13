@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu
+        xmlns:android="http://schemas.android.com/apk/res/android"
+
+>
+    <group android:checkableBehavior="none">
+        <item
+                android:id="@+id/dr_search"
+                android:icon="?attr/iconSearch"
+                android:title="@string/menu_search"/>
+        <item
+                android:id="@+id/dr_selected"
+                android:icon="?attr/iconSelected"
+                android:title="@string/menu_selected_go"/>
+
+        <item
+                android:id="@+id/dr_data"
+                android:icon="?attr/iconArchive"
+                android:title="@string/menu_archive"/>
+        <item
+                android:id="@+id/dr_setting"
+                android:icon="?attr/iconSettings"
+                android:title="@string/menu_settings"/>
+
+        <item
+                android:id="@+id/navigation_subheader"
+                android:title="@string/dialog_title_sort_author">
+            <menu>
+                <group android:checkableBehavior="single">
+                    <item
+                            android:id="@+id/author_sort_name"
+
+                            android:title="@string/sort_author_name"/>
+                    <item
+                            android:id="@+id/author_sort_upadte"
+
+                            android:title="@string/sort_update_date"/>
+                </group>
+            </menu>
+        </item>
+    </group>
+</menu>
