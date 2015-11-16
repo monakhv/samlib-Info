@@ -208,10 +208,8 @@ public class MainActivity extends MyBaseAbstractActivity implements
         tagFilter = (Spinner) findViewById(R.id.tagList);
 
        ArrayList<UITag> tags=UITag.getPreList(this);
-        for (Tag tag: tagSQL.getAll()){
-            tags.add(new UITag(tag));
-        }
-        tagAdapter=new ArrayAdapter<>(this, android.R.layout.simple_spinner_item,tags.toArray(new UITag[1]));
+
+        tagAdapter=new ArrayAdapter<>(this, android.R.layout.simple_spinner_item,tags);
         tagFilter.setAdapter(tagAdapter);
         tagAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         tagFilter.setOnItemSelectedListener(this);
@@ -365,6 +363,7 @@ public class MainActivity extends MyBaseAbstractActivity implements
         if (mAppBarLayout != null) {
             mAppBarLayout.addOnOffsetChangedListener(this);
         }
+        refreshTags();
 
     }
 
@@ -673,7 +672,12 @@ public class MainActivity extends MyBaseAbstractActivity implements
 
     private void refreshTags() {
         Log.d(DEBUG_TAG, "refreshTags: making refresh tags");
-        //createDrawer();
-        //authorFragment.makePulToRefresh();
+        tagAdapter.clear();
+        tagAdapter.addAll(UITag.getPreList(this));
+        for (Tag tag: tagSQL.getAll()){
+            tagAdapter.add(new UITag(tag));
+        }
+        tagAdapter.notifyDataSetChanged();
+
     }
 }
