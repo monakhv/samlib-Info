@@ -1,8 +1,7 @@
 package monakhv.android.samlib.sortorder;
 
 import android.content.Context;
-import com.mikepenz.materialdrawer.model.SecondaryDrawerItem;
-import com.mikepenz.materialdrawer.model.interfaces.IDrawerItem;
+
 
 /*
  * Copyright 2015  Dmitry Monakhov

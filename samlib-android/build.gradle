@@ -21,8 +21,6 @@ android {
     }
 
 
-
-
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_7
         targetCompatibility JavaVersion.VERSION_1_7
@@ -45,10 +43,6 @@ dependencies {
     compile 'com.google.android.gms:play-services:6.1.+'
 
 
-    compile 'com.mikepenz:fontawesome-typeface:4.4.0.1@aar'
-    compile('com.mikepenz:materialdrawer:4.4.6@aar') {
-        transitive = true
-    }
 
 
 }
