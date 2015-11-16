@@ -17,5 +17,6 @@ limitations under the License.
 
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
     <item android:drawable="@color/pressed_color"   android:state_activated="true"     />
+    <item android:drawable="@color/pressed_color"   android:state_checked="true"     />
     <item android:drawable="@android:color/transparent"  />
 </selector>

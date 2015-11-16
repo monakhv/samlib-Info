@@ -63,6 +63,7 @@
             android:layout_gravity="start"
             app:headerLayout="@layout/drawer_header"
             app:menu="@menu/drawer"
+            app:itemBackground="@drawable/author_item_bg"
 
     />
 
