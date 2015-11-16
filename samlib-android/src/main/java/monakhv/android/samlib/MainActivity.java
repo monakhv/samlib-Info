@@ -7,7 +7,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 
 
-import android.graphics.drawable.Icon;
+
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.AppBarLayout;
@@ -28,8 +28,7 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 
-import com.mikepenz.fontawesome_typeface_library.FontAwesome;
-import com.mikepenz.iconics.IconicsDrawable;
+
 import monakhv.android.samlib.data.SettingsHelper;
 import monakhv.android.samlib.search.SearchAuthorActivity;
 import monakhv.android.samlib.search.SearchAuthorsListFragment;
@@ -107,6 +106,7 @@ public class MainActivity extends MyBaseAbstractActivity implements
     private AppBarLayout mAppBarLayout;
 
     private DrawerLayout mDrawerLayout;
+    private NavigationView navigationView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -198,15 +198,20 @@ public class MainActivity extends MyBaseAbstractActivity implements
      */
     private void createDrawer() {
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawerLayout);
+
+        //begin magic to make Home button available
         final ActionBarDrawerToggle mDrawerToggle = new ActionBarDrawerToggle(this, mDrawerLayout, 0, 0);
         mDrawerLayout.setDrawerListener(mDrawerToggle);
         mDrawerToggle.syncState();
+        //end magic to make Home button available
 
-        NavigationView navigationView = (NavigationView) findViewById(R.id.navigationView);
 
+        navigationView = (NavigationView) findViewById(R.id.navigationView);
+
+        navigationView.setCheckedItem(authorFragment.getSortOrder().getMenuId());
         navigationView.setNavigationItemSelectedListener(this);
 
-        //navigationView.getMenu().findItem(authorFragment.getSortOrder().getMenuId()).setChecked(true);
+
 
 //        ArrayList<IDrawerItem> items = new ArrayList<>();
 //
@@ -463,8 +468,9 @@ public class MainActivity extends MyBaseAbstractActivity implements
         updateReceiver = new UpdateActivityReceiver();
 
 
-        //getActionBarHelper().setRefreshActionItemState(refreshStatus);
+
         registerReceiver(updateReceiver, updateFilter);
+
 
 
         if (twoPain) {
@@ -476,7 +482,13 @@ public class MainActivity extends MyBaseAbstractActivity implements
             IntentFilter filter = new IntentFilter(DownloadReceiver.ACTION_RESP);
             filter.addCategory(Intent.CATEGORY_DEFAULT);
             registerReceiver(downloadReceiver, filter);
+
+
+
         }
+
+
+
         if (mAppBarLayout != null) {
             mAppBarLayout.addOnOffsetChangedListener(this);
         }
