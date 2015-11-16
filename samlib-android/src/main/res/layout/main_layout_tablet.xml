@@ -20,8 +20,15 @@
                 android:background="?attr/colorPrimary"
                 android:elevation="4dp"
                 android:minHeight="?attr/actionBarSize"
+                android:transitionName="actionBar">
+            <Spinner
+                    android:id="@+id/tagList"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent">
 
-                android:transitionName="actionBar"/>
+            </Spinner>
+
+        </android.support.v7.widget.Toolbar>
 
         <LinearLayout
                 android:id="@+id/two_pain"

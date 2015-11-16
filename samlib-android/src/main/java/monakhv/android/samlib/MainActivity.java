@@ -24,9 +24,7 @@ import android.view.Gravity;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
-import android.widget.EditText;
-import android.widget.Toast;
-
+import android.widget.*;
 
 
 import monakhv.android.samlib.data.SettingsHelper;
@@ -36,14 +34,15 @@ import monakhv.android.samlib.service.AndroidGuiUpdater;
 import monakhv.android.samlib.service.AuthorEditorServiceIntent;
 import monakhv.android.samlib.service.CleanNotificationData;
 import monakhv.android.samlib.sortorder.AuthorSortOrder;
-import monakhv.android.samlib.sortorder.BookSortOrder;
-import monakhv.android.samlib.sortorder.RadioItems;
+
 import monakhv.samlib.db.TagController;
 import monakhv.samlib.db.entity.SamLibConfig;
 import monakhv.samlib.db.entity.Tag;
 import monakhv.samlib.service.SamlibService;
 
 
+import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Calendar;
 
 
@@ -65,11 +64,13 @@ import java.util.Calendar;
  * 12/5/14.
  */
 public class MainActivity extends MyBaseAbstractActivity implements
-        //Drawer.OnDrawerItemClickListener,
+        NavigationView.OnNavigationItemSelectedListener,
         AppBarLayout.OnOffsetChangedListener,
         AuthorFragment.Callbacks,
         AuthorTagFragment.AuthorTagCallback,
-        BookFragment.Callbacks, NavigationView.OnNavigationItemSelectedListener {
+        BookFragment.Callbacks,
+        AdapterView.OnItemSelectedListener
+{
 
     private static final String DEBUG_TAG = "MainActivity";
 
@@ -91,22 +92,14 @@ public class MainActivity extends MyBaseAbstractActivity implements
     private boolean isTagShow = false;
 
 
-    // private Drawer drResult;
-    private final int menu_add_search = 1;
-    private final int menu_settings = 3;
-    private final int menu_data = 5;
-    private final int menu_sort_author = 7;
-    private final int menu_sort_books = 9;
-    private final int menu_selected = 11;
-    private final int tagsShift = 100;
-
-    private RadioItems authorSort, bookSort;
     private int selectedTagId = SamLibConfig.TAG_AUTHOR_ALL;
     private TagController tagSQL;
     private AppBarLayout mAppBarLayout;
 
     private DrawerLayout mDrawerLayout;
     private NavigationView navigationView;
+    private ArrayAdapter<UITag> tagAdapter;
+    private Spinner tagFilter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -136,6 +129,7 @@ public class MainActivity extends MyBaseAbstractActivity implements
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setHomeButtonEnabled(true);
+        getSupportActionBar().setDisplayShowTitleEnabled(false);
 
 
         twoPain = findViewById(R.id.two_pain) != null;
@@ -176,7 +170,7 @@ public class MainActivity extends MyBaseAbstractActivity implements
 
         tagSQL = new TagController(getDatabaseHelper());
         mAppBarLayout = (AppBarLayout) findViewById(R.id.appBarLayout);
-        refreshTags();
+        createDrawer();
     }
 
 
@@ -211,67 +205,18 @@ public class MainActivity extends MyBaseAbstractActivity implements
         navigationView.setCheckedItem(authorFragment.getSortOrder().getMenuId());
         navigationView.setNavigationItemSelectedListener(this);
 
+        tagFilter = (Spinner) findViewById(R.id.tagList);
+
+       ArrayList<UITag> tags=UITag.getPreList(this);
+        for (Tag tag: tagSQL.getAll()){
+            tags.add(new UITag(tag));
+        }
+        tagAdapter=new ArrayAdapter<>(this, android.R.layout.simple_spinner_item,tags.toArray(new UITag[1]));
+        tagFilter.setAdapter(tagAdapter);
+        tagAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        tagFilter.setOnItemSelectedListener(this);
 
 
-//        ArrayList<IDrawerItem> items = new ArrayList<>();
-//
-//        items.add(new PrimaryDrawerItem().withName(R.string.menu_search).withIcon(FontAwesome.Icon.faw_search_plus).withIdentifier(menu_add_search));
-//        items.add(new PrimaryDrawerItem().withName(R.string.menu_selected_go).withIcon(FontAwesome.Icon.faw_star).withIdentifier(menu_selected));
-//        //Begin author group
-//        items.add(new SectionDrawerItem().withName(R.string.menu_tags));
-//        items.add(new SecondaryDrawerItem().withName(R.string.filter_all).withIdentifier(SamLibConfig.TAG_AUTHOR_ALL + tagsShift)
-//                .withTag(getString(R.string.filter_all)));
-//        items.add(new SecondaryDrawerItem().withName(R.string.filter_new).withIdentifier(SamLibConfig.TAG_AUTHOR_NEW + tagsShift)
-//                .withTag(getString(R.string.filter_new)));
-//
-//
-//        tagSQL.getAll();
-//
-//        for (Tag tag : tagSQL.getAll()) {
-//            items.add(new SecondaryDrawerItem().withName(tag.getName())
-//                    .withIdentifier(tagsShift + tag.getId())
-//                    .withTag(tag.getName()));
-//        }
-//        //end author group
-//
-//
-//        items.add(new SectionDrawerItem().withName(R.string.dialog_title_sort_author));
-//
-//        authorSort = new RadioItems(this, menu_sort_author, AuthorSortOrder.values()
-//                , authorFragment.getSortOrder().name());
-//
-//        items.addAll(authorSort.getItems());
-//
-//
-//        if (twoPain) {
-//            items.add(new SectionDrawerItem().withName(R.string.dialog_title_sort_book));
-//            bookSort = new RadioItems(this, menu_sort_books, BookSortOrder.values()
-//                    , settingsHelper.getBookSortOrderString());
-//            items.addAll(bookSort.getItems());
-//
-//        }
-//
-//        items.add(new DividerDrawerItem());
-//
-//
-//        items.add(new PrimaryDrawerItem().withName(R.string.menu_archive).withIcon(FontAwesome.Icon.faw_archive).withIdentifier(menu_data));
-//        items.add(new PrimaryDrawerItem().withName(R.string.menu_settings).withIcon(FontAwesome.Icon.faw_cog).withIdentifier(menu_settings));
-//
-//
-//        drResult = new DrawerBuilder()
-//                .withActivity(this)
-//                .withToolbar(toolbar)
-//                .withActionBarDrawerToggle(true)
-//                .withActionBarDrawerToggleAnimated(true)
-//                .withCloseOnClick(true)
-//                .withTranslucentStatusBar(true)
-//                .withTranslucentStatusBarProgrammatically(true)
-//                .withHeader(R.layout.drawer_header)
-//                .addDrawerItems(items.toArray(new IDrawerItem[1]))
-//                .withOnDrawerItemClickListener(this)
-//                .build();
-//
-//        restoreTagSelection();
 
     }
 
@@ -336,78 +281,6 @@ public class MainActivity extends MyBaseAbstractActivity implements
         return true;
     }
 
-
-//    @Override
-//    public boolean onItemClick( View view, int i,  IDrawerItem iDrawerItem) {
-//        if (view == null){
-//            return true;
-//        }
-//        int ident = iDrawerItem.getIdentifier();
-//        Log.i(DEBUG_TAG, "onItemClick: Identifier = " + ident);
-//        if (ident > 90) {//tag selection section
-//            selectedTagId = ident - tagsShift;
-//            Log.d(DEBUG_TAG, "onItemClick: select tag = "+selectedTagId);
-//            authorFragment.selectTag(selectedTagId, (String) iDrawerItem.getTag());
-//            openActionBar();
-//        }
-//        if (ident == menu_selected) {
-//            authorFragment.cleanSelection();
-//            onAuthorSelected(SamLibConfig.SELECTED_BOOK_ID);
-//            restoreTagSelection();
-//        }
-//        if (ident == menu_settings) {
-//            Log.d(DEBUG_TAG, "onItemClick: go to Settings");
-//            Intent prefsIntent = new Intent(getApplicationContext(),
-//                    SamlibPreferencesActivity.class);
-//            //prefsIntent.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
-//            restoreTagSelection();
-//            drResult.closeDrawer();
-//            startActivityForResult(prefsIntent, MainActivity.PREFS_ACTIVITY);
-//        }
-//        if (ident == menu_data) {
-//            Log.d(DEBUG_TAG, "onItemClick: go to Archive");
-//            Intent prefsIntent = new Intent(getApplicationContext(),
-//                    ArchiveActivity.class);
-//            restoreTagSelection();
-//            drResult.closeDrawer();
-//            startActivityForResult(prefsIntent, MainActivity.ARCHIVE_ACTIVITY);
-//        }
-//        if (ident == menu_add_search) {
-//            Log.d(DEBUG_TAG, "onItemClick: go to add or search");
-//            drResult.setSelection(SamLibConfig.TAG_AUTHOR_ALL + tagsShift);
-//            authorFragment.searchOrAdd();
-//        }
-//        if (ident == menu_sort_author) {
-//            SecondaryDrawerItem sItem = (SecondaryDrawerItem) iDrawerItem;
-//            if (sItem.getBadge() != null && sItem.getBadge().equals(RadioItems.SELECT_BADGE)) {//do nothing just select all and close
-//                restoreTagSelection();
-//                drResult.closeDrawer();
-//            } else {
-//                String sTag = (String) sItem.getTag();
-//                authorSort.selectItem(sTag);
-//                authorFragment.setSortOrder(AuthorSortOrder.valueOf(sTag));
-//                restoreTagSelection();
-//                drResult.getAdapter().notifyDataSetChanged();
-//            }
-//
-//        }
-//        if (ident == menu_sort_books) {
-//            SecondaryDrawerItem sItem = (SecondaryDrawerItem) iDrawerItem;
-//            if (sItem.getBadge() != null && sItem.getBadge().equals(RadioItems.SELECT_BADGE)) {//do nothing just select all and close
-//                restoreTagSelection();
-//                drResult.closeDrawer();
-//            } else {
-//                String sTag = (String) sItem.getTag();
-//                bookSort.selectItem(sTag);
-//                bookFragment.setSortOrder(BookSortOrder.valueOf(sTag));
-//                restoreTagSelection();
-//                drResult.getAdapter().notifyDataSetChanged();
-//            }
-//
-//        }
-//        return false;
-//
-//    }
 
     /**
      * Restore selection of the tag into Drawer
@@ -653,7 +526,7 @@ public class MainActivity extends MyBaseAbstractActivity implements
             authorFragment.refresh(SamLibConfig.TAG_AUTHOR_ALL, null);
             onTitleChange(getString(R.string.app_name));
             selectedTagId = SamLibConfig.TAG_AUTHOR_ALL;
-            restoreTagSelection();
+            tagFilter.setSelection(0);
             openActionBar();
         } else {
             finish();
@@ -675,6 +548,21 @@ public class MainActivity extends MyBaseAbstractActivity implements
     @Override
     public void onOffsetChanged(AppBarLayout appBarLayout, int verticalOffset) {
         authorFragment.setAppBarOffset(verticalOffset);
+    }
+
+
+    @Override
+    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+        UITag uitag =tagAdapter.getItem(position);
+        if (uitag == null){
+            return;
+        }
+        authorFragment.selectTag(uitag.id,uitag.title);
+    }
+
+    @Override
+    public void onNothingSelected(AdapterView<?> parent) {
+
     }
 
 
@@ -740,9 +628,52 @@ public class MainActivity extends MyBaseAbstractActivity implements
         }
     }
 
+    public static class UITag implements Serializable{
+        int id;
+        String title;
+
+        public UITag(int id, String title) {
+            this.id = id;
+            this.title = title;
+        }
+
+        public UITag(Tag tag){
+            this.id = tag.getId();
+            this.title=tag.getName();
+        }
+
+        @Override
+        public String toString() {
+            return title;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+
+            UITag uiTag = (UITag) o;
+
+            return id == uiTag.id;
+
+        }
+
+        @Override
+        public int hashCode() {
+            return id;
+        }
+        public static ArrayList<UITag> getPreList(Context ctx){
+            ArrayList<UITag> tags= new ArrayList<>();
+            //tags.add(new UITag(SamLibConfig.TAG_AUTHOR_ALL,ctx.getString(R.string.filter_all)));
+            tags.add(new UITag(SamLibConfig.TAG_AUTHOR_ALL,ctx.getString(R.string.app_name)));
+            tags.add(new UITag(SamLibConfig.TAG_AUTHOR_NEW,ctx.getString(R.string.filter_new)));
+            return tags;
+        }
+    }
+
     private void refreshTags() {
         Log.d(DEBUG_TAG, "refreshTags: making refresh tags");
-        createDrawer();
-        authorFragment.makePulToRefresh();
+        //createDrawer();
+        //authorFragment.makePulToRefresh();
     }
 }

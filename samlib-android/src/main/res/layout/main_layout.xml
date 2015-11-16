@@ -24,7 +24,14 @@
                     android:background="?attr/colorPrimary"
                     android:layout_height="?attr/actionBarSize"
                     app:layout_scrollFlags="scroll|enterAlways"
-            />
+            >
+                <Spinner
+                        android:id="@+id/tagList"
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent">
+
+                </Spinner>
+            </android.support.v7.widget.Toolbar>
         </android.support.design.widget.AppBarLayout>
 
 
