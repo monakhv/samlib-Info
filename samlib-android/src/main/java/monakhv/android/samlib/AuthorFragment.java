@@ -107,7 +107,11 @@ public class AuthorFragment extends Fragment implements
     @Override
     public boolean checkCanDoRefresh(PtrFrameLayout frame, View content, View header) {
 
-        return canUpdate &&  (mAppBarOffset==0) &&PtrDefaultHandler.checkContentCanBePulledDown(frame, content, header);
+        return
+                canUpdate &&
+                        (mAppBarOffset == 0) &&
+                        (adapter.getItemCount() != 0) &&
+                        PtrDefaultHandler.checkContentCanBePulledDown(frame, content, header);
     }
 
 
@@ -172,7 +176,6 @@ public class AuthorFragment extends Fragment implements
         makePulToRefresh();
 
 
-
         authorRV.setOnTouchListener(new View.OnTouchListener() {
             public boolean onTouch(View v, MotionEvent event) {
                 detector.onTouchEvent(event);
@@ -201,7 +204,7 @@ public class AuthorFragment extends Fragment implements
     public void makePulToRefresh() {
         mPtrFrame = (PtrClassicFrameLayout) view.findViewById(R.id.ptr_frame);
         mPtrFrame.setPtrHandler(this);
-        mPtrFrame.setLastUpdateTimeKey(UpdateServiceIntent.PREF_NAME,UpdateServiceIntent.PREF_KEY_LAST_UPDATE);
+        mPtrFrame.setLastUpdateTimeKey(UpdateServiceIntent.PREF_NAME, UpdateServiceIntent.PREF_KEY_LAST_UPDATE);
 
     }
 
@@ -433,7 +436,7 @@ public class AuthorFragment extends Fragment implements
 
 
     void startRefresh() {
-        if (canUpdate){
+        if (canUpdate) {
             mPtrFrame.performRefresh();
         }
 
@@ -633,7 +636,7 @@ public class AuthorFragment extends Fragment implements
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int sel = item.getItemId();
-        if (sel == android.R.id.home){
+        if (sel == android.R.id.home) {
             mCallbacks.drawerToggle();
 
         }

@@ -1,12 +1,10 @@
 package monakhv.android.samlib.service;
 
+import android.annotation.TargetApi;
 import android.app.Notification;
 import android.app.NotificationManager;
-import android.app.PendingIntent;
 import android.content.Context;
-import android.content.Intent;
 import android.support.v4.app.NotificationCompat;
-import monakhv.android.samlib.MainActivity;
 
 
 /*
@@ -38,20 +36,48 @@ public class ProgressNotification {
         mBuilder = new NotificationCompat.Builder(ctx.getApplicationContext());
         mBuilder
                 .setOngoing(true)
-                .setPriority(Notification.PRIORITY_MAX)
-                .setCategory(Notification.CATEGORY_PROGRESS)
                 .setSmallIcon(android.R.drawable.stat_sys_download);
 
+        initBuilder();
+    }
+
+    private void initBuilder() {
+        int sdk = android.os.Build.VERSION.SDK_INT;
+        if (sdk >= 16) {
+            builder16();
+        }
+        if (sdk >= 21) {
+            builder21();
+        }
+    }
+    @TargetApi(16)
+    private void builder16(){
+        mBuilder
+                .setPriority(Notification.PRIORITY_MAX);//16
+    }
+
+    @TargetApi(21)
+    private  void builder21(){
+        mBuilder
+                .setCategory(Notification.CATEGORY_PROGRESS);//21
     }
 
 
     public void updateProgress(int total, int iCurrent, String name) {
         mBuilder
-                .setProgress(total, iCurrent, false)
                 .setContentTitle(name)
                 .setTicker(name)
-                .setAutoCancel(false)
-                .setContentText(" [" + iCurrent + "/" + total + "]:   " + name);
+                .setAutoCancel(false);
+        if (total == 1) {//Single Author update
+            mBuilder
+                    .setProgress(0, 0, true)
+                    .setContentText(name);
+
+        } else {//Update by tag
+            mBuilder
+                    .setProgress(total, iCurrent, false)
+                    .setContentText(" [" + iCurrent + "/" + total + "]:   " + name);
+        }
 
 
         mNotifyManager.notify(NOTIFICATION_ID, mBuilder.build());

@@ -36,7 +36,7 @@ public class AndroidGuiUpdater implements GuiUpdate {
     public static final String TOAST_STRING = "TOAST_STRING";
     public static final String ACTION = "ACTION";
     public static final String ACTION_TOAST = "TOAST";
-    public static final String ACTION_PROGRESS = "PROGRESS";
+ //   public static final String ACTION_PROGRESS = "PROGRESS";
     public static final String ACTION_REFRESH = "ACTION_REFRESH";
     public static final String ACTION_REFRESH_OBJECT = "ACTION_REFRESH_OBJECT";
 
@@ -48,9 +48,7 @@ public class AndroidGuiUpdater implements GuiUpdate {
     public static final int CALLER_IS_RECEIVER = 2;
 
     public static final String RESULT_AUTHOR_ID="RESULT_AUTHOR_ID";
-    //    public static final String RESULT_DEL_NUMBER ="AddAuthorServiceIntent_RESULT_DEL_NUMBER";
-    //    public static final String RESULT_ADD_NUMBER="AddAuthorServiceIntent_RESULT_ADD_NUMBER";
-    //    public static final String RESULT_DOUBLE_NUMBER="AddAuthorServiceIntent_RESULT_DOUBLE_NUMBER";
+
 
 
     private final Context context;
