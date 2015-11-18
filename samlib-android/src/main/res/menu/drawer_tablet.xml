@@ -27,7 +27,7 @@
                 android:title="@string/dialog_title_sort_author">
             <menu>
                 <group
-                        android:id="@+id/gr_authors"
+                        android:id="@+id/gr_authors" android:menuCategory="secondary"
                         android:checkableBehavior="single">
                     <item
                             android:id="@+id/author_sort_name"
@@ -46,7 +46,7 @@
                 android:title="@string/dialog_title_sort_book">
             <menu>
                 <group
-                        android:id="@+id/gr_books"
+                        android:id="@+id/gr_books" android:menuCategory="alternative"
                         android:checkableBehavior="single">
                     <item
                             android:id="@+id/sort_book_date"
