@@ -24,18 +24,23 @@ import android.view.MotionEvent;
  */
 public class ListSwipeListener implements GestureDetector.OnGestureListener{
     public interface SwipeCallBack {
-        public boolean singleClick(MotionEvent e);
-        public boolean swipeRight(MotionEvent e);
-        public boolean swipeLeft(MotionEvent e);
-        public void longPress(MotionEvent e);
+        boolean singleClick(MotionEvent e);
+
+        boolean swipeRight(MotionEvent e);
+
+        boolean swipeLeft(MotionEvent e);
+
+        void longPress(MotionEvent e);
     }
     private final SwipeCallBack calBack;
     public ListSwipeListener(SwipeCallBack calBack){
         this.calBack = calBack;
                 
     }
-    private final float SWIPE_THRESHOLD = 150;
+
+    private final float SWIPE_THRESHOLD = 200;
     private final float SWIPE_VELOCITY_THRESHOLD = 200;
+    private final float SWIPE_FACTOR = 2;
 
     public boolean onDown(MotionEvent e) {
         return false;
@@ -66,7 +71,7 @@ public class ListSwipeListener implements GestureDetector.OnGestureListener{
         }
         float diffY = e2.getY() - e1.getY();
         float diffX = e2.getX() - e1.getX();
-        if (Math.abs(diffX) > Math.abs(diffY)) {
+        if (Math.abs(diffX) > SWIPE_FACTOR * Math.abs(diffY)) {
             if (Math.abs(diffX) > SWIPE_THRESHOLD && Math.abs(velocityX) > SWIPE_VELOCITY_THRESHOLD) {
                
                 
