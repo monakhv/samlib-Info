@@ -3,12 +3,12 @@ package monakhv.android.samlib;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
-import android.content.DialogInterface;
-import android.content.Intent;
+import android.content.*;
 
 
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
@@ -41,6 +41,7 @@ import monakhv.android.samlib.dialogs.MyMenuData;
 
 import monakhv.android.samlib.recyclerview.DividerItemDecoration;
 import monakhv.android.samlib.service.AuthorEditorServiceIntent;
+import monakhv.android.samlib.service.UpdateLocalService;
 import monakhv.android.samlib.service.UpdateServiceIntent;
 import monakhv.android.samlib.sortorder.AuthorSortOrder;
 
@@ -98,7 +99,22 @@ public class AuthorFragment extends Fragment implements
     private int selectedTag = SamLibConfig.TAG_AUTHOR_ALL;
     private int aId = -1;//preserve selection
 
+    private boolean mBound;
     private int mAppBarOffset;
+    private UpdateLocalService mUpdateService;
+    private ServiceConnection mConnection = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            UpdateLocalService.LocalBinder binder = (UpdateLocalService.LocalBinder) service;
+            mUpdateService = binder.getService();
+            mBound = true;
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+            mBound = false;
+        }
+    };
 
     public void setAppBarOffset(int appBarOffset) {
         mAppBarOffset = appBarOffset;
@@ -111,6 +127,8 @@ public class AuthorFragment extends Fragment implements
                 canUpdate &&
                         (mAppBarOffset == 0) &&
                         (adapter.getItemCount() != 0) &&
+                        (mUpdateService != null) &&
+                        !mUpdateService.isRunning() &&
                         PtrDefaultHandler.checkContentCanBePulledDown(frame, content, header);
     }
 
@@ -126,9 +144,6 @@ public class AuthorFragment extends Fragment implements
 
         void drawerToggle();
 
-        void updateTag(int tag);
-
-        void udateAuthor(int id);
 
     }
 
@@ -141,6 +156,8 @@ public class AuthorFragment extends Fragment implements
         settingsHelper = new SettingsHelper(getActivity().getApplicationContext());
         order = AuthorSortOrder.valueOf(settingsHelper.getAuthorSortOrderString());
         detector = new GestureDetector(getActivity(), new ListSwipeListener(this));
+        Intent service = new Intent(getActivity(), UpdateLocalService.class);
+        getActivity().bindService(service, mConnection, Context.BIND_AUTO_CREATE);
         Log.d(DEBUG_TAG, "onCreate");
     }
 
@@ -287,11 +304,11 @@ public class AuthorFragment extends Fragment implements
         }
 
         if (updateAuthor) {
-            mCallbacks.udateAuthor(author.getId());
+            udateAuthor(author.getId());
             //UpdateServiceIntent.makeUpdateAuthor(getActivity(), author.getId());
 
         } else {
-            mCallbacks.updateTag(selectedTag);
+            updateTag(selectedTag);
             //UpdateServiceIntent.makeUpdate(getActivity(), selectedTag);
 
         }
@@ -616,8 +633,13 @@ public class AuthorFragment extends Fragment implements
 
     @Override
     public void onDestroy() {
+        if (mBound) {
+            getActivity().unbindService(mConnection);
+            mBound = false;
+        }
         super.onDestroy();
         getLoaderManager().destroyLoader(AUTHOR_LOADER_ID);
+
     }
 
     @Override
@@ -632,6 +654,21 @@ public class AuthorFragment extends Fragment implements
         super.onPause();
 
     }
+
+    public void updateTag(int tag) {
+        if (mBound) {
+            mUpdateService.updateTag(tag);
+        }
+    }
+
+
+    public void udateAuthor(int id) {
+        if (mBound) {
+            mUpdateService.updateAuthor(id);
+        }
+
+    }
+
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {

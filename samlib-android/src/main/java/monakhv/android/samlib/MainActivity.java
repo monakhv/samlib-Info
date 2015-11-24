@@ -5,7 +5,6 @@ import android.content.*;
 
 
 import android.os.Bundle;
-import android.os.IBinder;
 import android.support.annotation.NonNull;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.NavigationView;
@@ -30,7 +29,6 @@ import monakhv.android.samlib.search.SearchAuthorsListFragment;
 import monakhv.android.samlib.service.AndroidGuiUpdater;
 import monakhv.android.samlib.service.AuthorEditorServiceIntent;
 import monakhv.android.samlib.service.CleanNotificationData;
-import monakhv.android.samlib.service.UpdateLocalService;
 import monakhv.android.samlib.sortorder.AuthorSortOrder;
 
 import monakhv.samlib.db.TagController;
@@ -98,21 +96,7 @@ public class MainActivity extends MyBaseAbstractActivity implements
     private NavigationView navigationView;
     private ArrayAdapter<UITag> tagAdapter;
     private Spinner tagFilter;
-    private boolean mBound;
-    private UpdateLocalService mUpdateService;
-    private ServiceConnection mConnection = new ServiceConnection() {
-        @Override
-        public void onServiceConnected(ComponentName name, IBinder service) {
-            UpdateLocalService.LocalBinder binder = (UpdateLocalService.LocalBinder) service;
-            mUpdateService = binder.getService();
-            mBound = true;
-        }
 
-        @Override
-        public void onServiceDisconnected(ComponentName name) {
-            mBound = false;
-        }
-    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -184,16 +168,13 @@ public class MainActivity extends MyBaseAbstractActivity implements
         tagSQL = new TagController(getDatabaseHelper());
         mAppBarLayout = (AppBarLayout) findViewById(R.id.appBarLayout);
         createDrawer();
-        Intent service = new Intent(this, UpdateLocalService.class);
-        bindService(service, mConnection, Context.BIND_AUTO_CREATE);
+
+
     }
 
     @Override
     protected void onDestroy() {
-        if (mBound) {
-            unbindService(mConnection);
-            mBound = false;
-        }
+
         super.onDestroy();
 
     }
@@ -203,20 +184,6 @@ public class MainActivity extends MyBaseAbstractActivity implements
         mDrawerLayout.openDrawer(Gravity.LEFT);
     }
 
-    @Override
-    public void updateTag(int tag) {
-        if (mBound) {
-            mUpdateService.updateTag(tag);
-        }
-    }
-
-    @Override
-    public void udateAuthor(int id) {
-        if (mBound) {
-            mUpdateService.updateAuthor(id);
-        }
-
-    }
 
 
     private void openActionBar() {

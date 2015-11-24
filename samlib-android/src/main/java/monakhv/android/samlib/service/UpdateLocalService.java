@@ -33,21 +33,21 @@ public class UpdateLocalService extends Service {
     public static final String ACTION_TYPE = "UpdateLocalService.ACTION_TYPE";
     public static final int ACTION_STOP = 101;
     private final IBinder mBinder = new LocalBinder();
-    private UpdateTread mThread;
+
     private Context context;
     private SettingsHelper settings;
     private DataExportImport dataExportImport;
     private final List<Author> updatedAuthors;
     private SharedPreferences mSharedPreferences;
-    private boolean isRun = false;
-
-
     private volatile DatabaseHelper helper;
     private volatile boolean created = false;
     private volatile boolean destroyed = false;
-    private PowerManager.WakeLock wl;
     private AndroidGuiUpdater guiUpdate;
 
+
+    private static boolean isRun = false;
+    private static PowerManager.WakeLock wl;
+    private static UpdateTread mThread;
 
     public UpdateLocalService() {
         super();
@@ -63,6 +63,7 @@ public class UpdateLocalService extends Service {
         if (action == ACTION_STOP) {
             Log.i(DEBUG_TAG, "OnStart: making stop: is Run " + isRun);
             interrupt();
+            stopSelf();
         }
 
 
@@ -76,10 +77,19 @@ public class UpdateLocalService extends Service {
     }
 
 
+    /**
+     * Check for new update of givenAuthor
+     *
+     * @param authoId -Author id
+     */
     public void updateAuthor(int authoId) {
         makeUpdate(SamLibConfig.TAG_AUTHOR_ID, authoId);
     }
 
+    /**
+     * Chane for new updates of all authors with given tag
+     * @param tagId Tag id
+     */
     public void updateTag(int tagId) {
         makeUpdate(tagId, 0);
     }
@@ -151,6 +161,11 @@ public class UpdateLocalService extends Service {
             releaseLock();
         }
     }
+
+    public boolean isRunning() {
+        return isRun;
+    }
+
 
     public class LocalBinder extends Binder {
         public UpdateLocalService getService() {
