@@ -126,6 +126,10 @@ public class AuthorFragment extends Fragment implements
 
         void drawerToggle();
 
+        void updateTag(int tag);
+
+        void udateAuthor(int id);
+
     }
 
     private Callbacks mCallbacks;
@@ -283,10 +287,12 @@ public class AuthorFragment extends Fragment implements
         }
 
         if (updateAuthor) {
-            UpdateServiceIntent.makeUpdateAuthor(getActivity(), author.getId());
+            mCallbacks.udateAuthor(author.getId());
+            //UpdateServiceIntent.makeUpdateAuthor(getActivity(), author.getId());
 
         } else {
-            UpdateServiceIntent.makeUpdate(getActivity(), selectedTag);
+            mCallbacks.updateTag(selectedTag);
+            //UpdateServiceIntent.makeUpdate(getActivity(), selectedTag);
 
         }
     }

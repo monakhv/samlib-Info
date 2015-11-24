@@ -20,6 +20,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 
+import java.io.InterruptedIOException;
 import java.net.Authenticator;
 import java.net.Proxy;
 import java.net.URL;
@@ -201,6 +202,8 @@ public class HttpClientController {
             try {
                 URL url = new URL(surl);
                 res = _getURL(url, reader);
+            } catch (InterruptedIOException e) {//when thread is interrupted
+                throw new InterruptedIOException();
             } catch (IOException e) {
                 slc.flipOrder();
                 exio = e;

@@ -89,6 +89,9 @@ limitations under the License.
             android:name=".service.UpdateServiceIntent">
         </service>
         <service
+                android:name=".service.UpdateLocalService">
+        </service>
+        <service
             android:name=".service.DownloadBookServiceIntent">
         </service>
         <service

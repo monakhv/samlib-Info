@@ -109,7 +109,9 @@ public class SamlibService {
 
                 TimeUnit.SECONDS.sleep(SLEEP_INTERVAL_SECONDS);
             } catch (InterruptedException e) {
-                Log.e(DEBUG_TAG,"Sleep interrupted",e);
+                Log.i(DEBUG_TAG, "Sleep interrupted exiting", e);
+                guiUpdate.finishUpdate(false, updatedAuthors);
+                return;
             }
         }//main author cycle END
         if (authors.size() == skippedAuthors){
