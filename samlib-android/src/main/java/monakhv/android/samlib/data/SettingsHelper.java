@@ -690,6 +690,10 @@ public class SettingsHelper extends AbstractSettings implements SharedPreference
     }
 
     public boolean isAnimation() {
-        return prefs.getBoolean(context.getString(R.string.pref_key_flag_anim),true) ;
+        return prefs.getBoolean(context.getString(R.string.pref_key_flag_anim), false);
+    }
+
+    public boolean isNotifyTickerEnable() {
+        return prefs.getBoolean(context.getString(R.string.pref_key_flag_update_ticker), true);
     }
 }

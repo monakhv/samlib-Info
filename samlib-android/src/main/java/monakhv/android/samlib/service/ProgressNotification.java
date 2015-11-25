@@ -8,6 +8,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.support.v4.app.NotificationCompat;
 import monakhv.android.samlib.R;
+import monakhv.android.samlib.data.SettingsHelper;
 
 
 /*
@@ -31,8 +32,10 @@ public class ProgressNotification {
     public static final int NOTIFICATION_ID = 210;
     private final NotificationManager mNotifyManager;
     private final NotificationCompat.Builder mBuilder;
+    private final SettingsHelper mSettingsHelper;
 
     public ProgressNotification(Context ctx) {
+        mSettingsHelper = new SettingsHelper(ctx);
 
 
         mNotifyManager = (NotificationManager) ctx.getSystemService(Context.NOTIFICATION_SERVICE);
@@ -74,8 +77,12 @@ public class ProgressNotification {
     public void updateProgress(int total, int iCurrent, String name) {
         mBuilder
                 .setContentTitle(name)
-                .setTicker(name)
                 .setAutoCancel(false);
+
+        if (mSettingsHelper.isNotifyTickerEnable()) {
+            mBuilder
+                    .setTicker(name);
+        }
         if (total == 1) {//Single Author update
             mBuilder
                     .setProgress(0, 0, true)
