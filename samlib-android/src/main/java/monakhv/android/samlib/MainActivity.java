@@ -402,7 +402,7 @@ public class MainActivity extends MyBaseAbstractActivity implements
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (resultCode != RESULT_OK) {
             Log.d(DEBUG_TAG, "Wrong result code from onActivityResult");
-            authorFragment.refresh(SamLibConfig.TAG_AUTHOR_ALL, null);
+            //authorFragment.refresh(SamLibConfig.TAG_AUTHOR_ALL, null);
             return;
         }
         if (requestCode == ARCHIVE_ACTIVITY) {
@@ -413,7 +413,9 @@ public class MainActivity extends MyBaseAbstractActivity implements
                 releaseHelper(getDatabaseHelper());
                 tagSQL = new TagController(getDatabaseHelper());
                 refreshTags();
+                tagFilter.setSelection(0);
                 authorFragment.refresh(SamLibConfig.TAG_AUTHOR_ALL, null);
+
                 if (twoPain) {
                     if (bookFragment != null) {
                         bookFragment.refresh();
