@@ -1,3 +1,19 @@
+/*
+ * Copyright 2013 Dmitry Monakhov.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package monakhv.android.samlib.service;
 
 import android.app.Service;
@@ -10,18 +26,16 @@ import android.os.PowerManager;
 import android.support.annotation.Nullable;
 import com.j256.ormlite.android.apptools.OpenHelperManager;
 import in.srain.cube.views.ptr.util.PrefsUtil;
-import monakhv.android.samlib.data.DataExportImport;
 import monakhv.android.samlib.data.SettingsHelper;
 import monakhv.android.samlib.sortorder.AuthorSortOrder;
 import monakhv.android.samlib.sql.DatabaseHelper;
 import monakhv.samlib.db.AuthorController;
 import monakhv.samlib.db.entity.Author;
-import monakhv.samlib.db.entity.SamLibConfig;
 import monakhv.samlib.log.Log;
-import monakhv.samlib.service.GuiUpdate;
 import monakhv.samlib.service.SamlibService;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
 /**
@@ -34,15 +48,12 @@ public class UpdateLocalService extends Service {
     public static final int ACTION_STOP = 101;
     private final IBinder mBinder = new LocalBinder();
 
-    private Context context;
-    private SettingsHelper settings;
-    private DataExportImport dataExportImport;
+    //private DataExportImport dataExportImport;
     private final List<Author> updatedAuthors;
     private SharedPreferences mSharedPreferences;
     private volatile DatabaseHelper helper;
     private volatile boolean created = false;
     private volatile boolean destroyed = false;
-    private AndroidGuiUpdater guiUpdate;
 
 
     private static boolean isRun = false;
@@ -83,37 +94,38 @@ public class UpdateLocalService extends Service {
      * @param authoId -Author id
      */
     public void updateAuthor(int authoId) {
-        makeUpdate(SamLibConfig.TAG_AUTHOR_ID, authoId);
+        makeUpdate(SamlibService.UpdateObjectSelector.Author, authoId);
     }
 
     /**
      * Chane for new updates of all authors with given tag
+     *
      * @param tagId Tag id
      */
     public void updateTag(int tagId) {
-        makeUpdate(tagId, 0);
+        makeUpdate(SamlibService.UpdateObjectSelector.Tag, tagId);
     }
 
-    private void makeUpdate(int selectIdx, int authoId) {
+    private void makeUpdate(SamlibService.UpdateObjectSelector selector, int id) {
 
         if (isRun) {
             Log.i(DEBUG_TAG, "Update already running exiting");
             return;
         }
-        context = this.getApplicationContext();
+        Context context = this.getApplicationContext();
         updatedAuthors.clear();
-        settings = new SettingsHelper(context);
+        SettingsHelper settings = new SettingsHelper(context);
         Log.d(DEBUG_TAG, "makeUpdate");
-        dataExportImport = new DataExportImport(context);
+        //dataExportImport = new DataExportImport(context);
         int currentCaller = AndroidGuiUpdater.CALLER_IS_ACTIVITY;
 
         mSharedPreferences = PrefsUtil.getSharedPreferences(context, UpdateServiceIntent.PREF_NAME);
         settings.requestFirstBackup();
 
-        mSharedPreferences.edit().putInt(UpdateServiceIntent.PREF_KEY_CALLER, currentCaller).commit();
+        mSharedPreferences.edit().putInt(UpdateServiceIntent.PREF_KEY_CALLER, currentCaller).apply();
         AuthorController ctl = new AuthorController(getHelper());
         List<Author> authors;
-        guiUpdate = new AndroidGuiUpdater(context, currentCaller);
+        AndroidGuiUpdater guiUpdate = new AndroidGuiUpdater(context, currentCaller);
 
         if (!SettingsHelper.haveInternet(context)) {
             Log.e(DEBUG_TAG, "Ignore update - we have no internet connection");
@@ -122,22 +134,22 @@ public class UpdateLocalService extends Service {
             return;
         }
 
-        if (selectIdx == SamLibConfig.TAG_AUTHOR_ID) {//Check update for the only Author
+        if (selector == SamlibService.UpdateObjectSelector.Author) {//Check update for the only Author
 
             //int id = intent.getIntExtra(SELECT_ID, 0);//author_id
-            Author author = ctl.getById(authoId);
+            Author author = ctl.getById(id);
             if (author != null) {
                 authors = new ArrayList<>();
                 authors.add(author);
                 Log.i(DEBUG_TAG, "Check single Author: " + author.getName());
             } else {
-                Log.e(DEBUG_TAG, "Can not fing Author: " + authoId);
+                Log.e(DEBUG_TAG, "Can not fing Author: " + id);
                 return;
             }
         } else {
-            authors = ctl.getAll(selectIdx, AuthorSortOrder.DateUpdate.getOrder());
+            authors = ctl.getAll(id, AuthorSortOrder.DateUpdate.getOrder());
 
-            Log.i(DEBUG_TAG, "selection index: " + selectIdx);
+            Log.i(DEBUG_TAG, "selection index: " + id);
         }
 
         SamlibService service = new SamlibService(getHelper(), guiUpdate, settings);
@@ -153,6 +165,9 @@ public class UpdateLocalService extends Service {
 
     }
 
+    /**
+     * Interrupt the thread if running
+     */
     public void interrupt() {
         if (isRun) {
 
@@ -187,11 +202,15 @@ public class UpdateLocalService extends Service {
             super.run();
             isRun = true;
             service.runUpdate(authors);
+            mSharedPreferences.edit().putLong(UpdateServiceIntent.PREF_KEY_LAST_UPDATE, Calendar.getInstance().getTime().getTime()).apply();
             isRun = false;
             releaseLock();
         }
     }
 
+    /**
+     * Release power lock
+     */
     private void releaseLock() {
         if (wl.isHeld()) {
             wl.release();
@@ -210,7 +229,7 @@ public class UpdateLocalService extends Service {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        releaseHelper(helper);
+        releaseHelper();
         destroyed = true;
     }
 
@@ -239,7 +258,7 @@ public class UpdateLocalService extends Service {
      */
     protected DatabaseHelper getHelperInternal(Context context) {
         @SuppressWarnings({"unchecked", "deprecation"})
-        DatabaseHelper newHelper = (DatabaseHelper) OpenHelperManager.getHelper(context, DatabaseHelper.class);
+        DatabaseHelper newHelper = OpenHelperManager.getHelper(context, DatabaseHelper.class);
         return newHelper;
     }
 
@@ -252,7 +271,7 @@ public class UpdateLocalService extends Service {
      * {@link #getHelperInternal(Context)} method as well.
      * </p>
      */
-    protected void releaseHelper(DatabaseHelper helper) {
+    protected void releaseHelper() {
         OpenHelperManager.releaseHelper();
         this.helper = null;
     }

@@ -34,6 +34,7 @@ import java.text.RuleBasedCollator;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
+
 /**
  * Service to making check for author updates Can be called from activity or
  * from alarm manager
@@ -41,6 +42,10 @@ import java.util.concurrent.TimeUnit;
  * @author monakhv
  */
 public class SamlibService {
+    public enum UpdateObjectSelector {
+        Tag,
+        Author
+    }
     private static final String DEBUG_TAG         = "SamlibService";
     public static final String ACTION_ADD          = "SamlibService.AddAuthorServiceIntent_ACTION_ADD";
     public static final String ACTION_DELETE    = "SamlibService.AddAuthorServiceIntent_ACTION_DELETE";
