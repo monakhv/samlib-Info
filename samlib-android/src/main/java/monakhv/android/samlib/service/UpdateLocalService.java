@@ -24,6 +24,7 @@ import android.os.Binder;
 import android.os.IBinder;
 import android.os.PowerManager;
 import android.support.annotation.Nullable;
+import android.util.Log;
 import com.j256.ormlite.android.apptools.OpenHelperManager;
 import in.srain.cube.views.ptr.util.PrefsUtil;
 import monakhv.android.samlib.data.SettingsHelper;
@@ -31,7 +32,6 @@ import monakhv.android.samlib.sortorder.AuthorSortOrder;
 import monakhv.android.samlib.sql.DatabaseHelper;
 import monakhv.samlib.db.AuthorController;
 import monakhv.samlib.db.entity.Author;
-import monakhv.samlib.log.Log;
 import monakhv.samlib.service.SamlibService;
 
 import java.util.ArrayList;
