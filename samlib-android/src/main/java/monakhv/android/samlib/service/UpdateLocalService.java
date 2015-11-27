@@ -46,6 +46,10 @@ public class UpdateLocalService extends Service {
     private static final String DEBUG_TAG = "UpdateLocalService";
     public static final String ACTION_TYPE = "UpdateLocalService.ACTION_TYPE";
     public static final int ACTION_STOP = 101;
+    public static final int ACTION_UPDATE = 103;
+    public static final String SELECTOR_TYPE = "UpdateLocalService.SELECTOR_TYPE";
+    public static final String SELECTOR_ID = "UpdateLocalService.SELECTOR_TYPE";
+
     private final IBinder mBinder = new LocalBinder();
 
     //private DataExportImport dataExportImport;
@@ -76,6 +80,13 @@ public class UpdateLocalService extends Service {
             interrupt();
             stopSelf();
         }
+        if (action == ACTION_UPDATE) {
+            Log.i(DEBUG_TAG, "OnStart: making update");
+            int id = intent.getExtras().getInt(SELECTOR_ID);
+            String nn = intent.getExtras().getString(SELECTOR_TYPE);
+
+            makeUpdate(SamlibService.UpdateObjectSelector.valueOf(nn), id);
+        }
 
 
         return START_NOT_STICKY;
@@ -88,13 +99,14 @@ public class UpdateLocalService extends Service {
     }
 
 
+
     /**
      * Check for new update of givenAuthor
      *
      * @param authoId -Author id
      */
-    public void updateAuthor(int authoId) {
-        makeUpdate(SamlibService.UpdateObjectSelector.Author, authoId);
+    public static void updateAuthor(Context ctx, int authoId) {
+        makeUpdate(ctx, SamlibService.UpdateObjectSelector.Author, authoId);
     }
 
     /**
@@ -102,9 +114,20 @@ public class UpdateLocalService extends Service {
      *
      * @param tagId Tag id
      */
-    public void updateTag(int tagId) {
-        makeUpdate(SamlibService.UpdateObjectSelector.Tag, tagId);
+    public static void updateTag(Context ctx, int tagId) {
+        makeUpdate(ctx, SamlibService.UpdateObjectSelector.Tag, tagId);
     }
+
+    private static void makeUpdate(Context ctx, SamlibService.UpdateObjectSelector selector, int id) {
+        Intent service = new Intent(ctx, UpdateLocalService.class);
+        service.putExtra(UpdateLocalService.ACTION_TYPE, UpdateLocalService.ACTION_UPDATE);
+        service.putExtra(UpdateLocalService.SELECTOR_ID, id);
+        service.putExtra(UpdateLocalService.SELECTOR_TYPE, selector.name());
+
+        ctx.startService(service);
+    }
+
+
 
     private void makeUpdate(SamlibService.UpdateObjectSelector selector, int id) {
 
@@ -205,6 +228,7 @@ public class UpdateLocalService extends Service {
             mSharedPreferences.edit().putLong(UpdateServiceIntent.PREF_KEY_LAST_UPDATE, Calendar.getInstance().getTime().getTime()).apply();
             isRun = false;
             releaseLock();
+            UpdateLocalService.this.stopSelf();
         }
     }
 

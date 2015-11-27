@@ -657,14 +657,14 @@ public class AuthorFragment extends Fragment implements
 
     public void updateTag(int tag) {
         if (mBound) {
-            mUpdateService.updateTag(tag);
+            UpdateLocalService.updateTag(getActivity(), tag);
         }
     }
 
 
     public void udateAuthor(int id) {
         if (mBound) {
-            mUpdateService.updateAuthor(id);
+            UpdateLocalService.updateAuthor(getActivity(), id);
         }
 
     }
