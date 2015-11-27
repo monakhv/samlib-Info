@@ -48,7 +48,7 @@ public class UpdateLocalService extends Service {
     public static final int ACTION_STOP = 101;
     public static final int ACTION_UPDATE = 103;
     public static final String SELECTOR_TYPE = "UpdateLocalService.SELECTOR_TYPE";
-    public static final String SELECTOR_ID = "UpdateLocalService.SELECTOR_TYPE";
+    public static final String SELECTOR_ID = "UpdateLocalService.SELECTOR_ID";
 
     private final IBinder mBinder = new LocalBinder();
 
