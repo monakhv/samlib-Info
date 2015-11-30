@@ -315,6 +315,8 @@ public class GoogleDiskOperation extends ApiClientAsyncTask<Void, Void, Boolean>
                 TimeUnit.SECONDS.sleep(i+1);
             } catch (InterruptedException ex1) {
                 Log.e(DEBUG_TAG, "Sleep interrupted: ", ex1);
+                setError(R.string.res_export_google_interrupt);
+                return false;
             }
             metadataResult = file.getMetadata(getGoogleApiClient()).await(TIMEOUT_SEC, TimeUnit.SECONDS);
 

@@ -252,6 +252,7 @@ limitations under the License.
 
     <string name="res_export_google_good">База успешно экспортирована</string>
     <string name="res_export_google_delayed">Экспорт базы отложен до восстановления сети</string>
+    <string name="res_export_google_interrupt">Прерывание экспорта данных</string>
     <string name="res_export_google_bad">Ошибка экспорта базы</string>
     <string name="res_import_google_bad">Ошибка импорта базы</string>
     
