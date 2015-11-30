@@ -70,7 +70,7 @@ public class GoogleDiskOperation extends ApiClientAsyncTask<Void, Void, Boolean>
         IMPORT(R.string.arc_msg_import);
         private int iMsg;
 
-        private OperationType(int i) {
+        OperationType(int i) {
             iMsg = i;
         }
 
@@ -158,7 +158,7 @@ public class GoogleDiskOperation extends ApiClientAsyncTask<Void, Void, Boolean>
      * @return file or null if not found or Error
      */
     private List<DriveFile> getFile() {
-        List<DriveFile> files = new ArrayList<DriveFile>();
+        List<DriveFile> files = new ArrayList<>();
         DriveFolder folder = getFolder();
         Query query = new Query.Builder().addFilter(Filters.eq(SearchableField.TITLE, FileName)).build();
         DriveApi.MetadataBufferResult res = folder.queryChildren(getGoogleApiClient(), query).await(TIMEOUT_SEC, TimeUnit.SECONDS);
