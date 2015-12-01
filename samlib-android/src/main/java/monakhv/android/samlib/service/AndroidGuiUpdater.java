@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import monakhv.android.samlib.DownloadReceiver;
 import monakhv.android.samlib.R;
+import monakhv.android.samlib.data.GoogleAutoService;
 import monakhv.android.samlib.data.SettingsHelper;
 import monakhv.samlib.data.AbstractSettings;
 import monakhv.samlib.db.entity.Author;
@@ -132,6 +133,10 @@ public class AndroidGuiUpdater implements GuiUpdate {
     public void finishUpdate(boolean result, List<Author> updatedAuthors) {
         Log.d(DEBUG_TAG, "Finish intent.");
         SettingsHelper settings = new SettingsHelper(context);
+
+        if (settings.isGoogleAuto() && result && !updatedAuthors.isEmpty()) {
+            GoogleAutoService.startService(context);
+        }
 
         if (currentCaller == CALLER_IS_ACTIVITY) {//Call from activity
             mProgressNotification.cancel();

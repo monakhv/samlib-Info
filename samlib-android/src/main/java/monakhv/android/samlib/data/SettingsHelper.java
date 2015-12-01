@@ -696,4 +696,13 @@ public class SettingsHelper extends AbstractSettings implements SharedPreference
     public boolean isNotifyTickerEnable() {
         return prefs.getBoolean(context.getString(R.string.pref_key_flag_update_ticker), true);
     }
+
+    public void setGoogleAuto(boolean googleAuto) {
+        prefs.edit().putBoolean(context.getString(R.string.pref_key_google_auto), googleAuto).commit();
+
+    }
+
+    public boolean isGoogleAuto() {
+        return prefs.getBoolean(context.getString(R.string.pref_key_google_auto), false);
+    }
 }

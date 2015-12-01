@@ -18,6 +18,7 @@ package monakhv.android.samlib;
 
 
 import android.support.v7.widget.Toolbar;
+import android.widget.*;
 import monakhv.android.samlib.data.DataExportImport;
 import monakhv.android.samlib.data.GoogleDiskOperation;
 import monakhv.android.samlib.data.SettingsHelper;
@@ -38,10 +39,7 @@ import android.text.Html;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
-import android.widget.TextView;
-import android.widget.Toast;
 
 
 import monakhv.android.samlib.service.AndroidGuiUpdater;
@@ -76,6 +74,15 @@ public class ArchiveActivity extends MyBaseAbstractActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
+        CheckBox cb = (CheckBox) findViewById(R.id.cbGoogleAuto);
+        cb.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                Log.d(DEBUG_TAG, "set Googe Auto to: " + isChecked);
+                setting.setGoogleAuto(isChecked);
+            }
+        });
 
     }
 
