@@ -110,6 +110,9 @@ limitations under the License.
     <string name="notification_updates">Обновления на самиздате</string>
     <string name="notification_error">Ошибка обновления SamLib</string>
     <string name="notification_update_error_detais">Произошла ошибка соединения с SamLib!</string>
+
+    <string name="notification_title_author">Проверка автора:</string>
+    <string name="notification_title_TAG">Проверка авторов:</string>
     
     <string name="author_update">Обновление у автора: </string>
     <string name="author_update_number">Количество обновлений:</string>

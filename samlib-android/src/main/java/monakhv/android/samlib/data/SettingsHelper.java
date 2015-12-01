@@ -21,7 +21,6 @@ import android.app.PendingIntent;
 import android.app.backup.BackupManager;
 
 import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
@@ -44,7 +43,6 @@ import java.util.*;
 
 
 import monakhv.android.samlib.R;
-import monakhv.android.samlib.receiver.UpdateReceiver;
 import monakhv.android.samlib.service.UpdateLocalService;
 import monakhv.samlib.data.AbstractSettings;
 import monakhv.samlib.db.SQLController;
@@ -117,17 +115,18 @@ public class SettingsHelper extends AbstractSettings implements SharedPreference
     }
 
     public void registerListener() {
+        Log.d(DEBUG_TAG, "Register Listener");
         prefs.registerOnSharedPreferenceChangeListener(this);
     }
 
     public void unRegisterListener() {
-
+        Log.d(DEBUG_TAG, "Unregister Listener");
         prefs.unregisterOnSharedPreferenceChangeListener(this);
     }
 
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
         requestBackup();
-
+        Log.d(DEBUG_TAG, "Preference change, key is " + key);
         if (key.equals(context.getString(R.string.pref_key_flag_background_update))
                 || key.equals(context.getString(R.string.pref_key_update_Period))) {
             updateService = true;
@@ -166,7 +165,7 @@ public class SettingsHelper extends AbstractSettings implements SharedPreference
      * Cancel recurring Task
      */
     private void cancelRecurringAlarm() {
-        Log.d(DEBUG_TAG, "Cancel Updater service call");
+        Log.i(DEBUG_TAG, "Cancel Updater service call");
         if (getDebugFlag()) {
             log(DEBUG_TAG, "Cancel Updater service call");
 
@@ -181,7 +180,7 @@ public class SettingsHelper extends AbstractSettings implements SharedPreference
      * Set recurring Task
      */
     private void setRecurringAlarm() {
-        Log.d(DEBUG_TAG, "Update Updater service call");
+        Log.i(DEBUG_TAG, "Update Updater service call");
         if (getDebugFlag()) {
             log(DEBUG_TAG, "Update Updater service call");
 
@@ -336,7 +335,7 @@ public class SettingsHelper extends AbstractSettings implements SharedPreference
             log(DEBUG_TAG, "Update interval set to: " + str);
 
         }
-        Log.d(DEBUG_TAG, "Update interval: " + str);
+        Log.i(DEBUG_TAG, "Update interval: " + str);
 
         if (str.equals("1HOUR")) {
             return AlarmManager.INTERVAL_HOUR;

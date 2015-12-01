@@ -27,6 +27,7 @@ import android.support.annotation.Nullable;
 import android.util.Log;
 import com.j256.ormlite.android.apptools.OpenHelperManager;
 import in.srain.cube.views.ptr.util.PrefsUtil;
+import monakhv.android.samlib.R;
 import monakhv.android.samlib.data.DataExportImport;
 import monakhv.android.samlib.data.SettingsHelper;
 import monakhv.android.samlib.sortorder.AuthorSortOrder;
@@ -34,8 +35,11 @@ import monakhv.android.samlib.sql.DatabaseHelper;
 import monakhv.samlib.data.AbstractSettings;
 import monakhv.samlib.db.AuthorController;
 import monakhv.samlib.db.DaoBuilder;
+import monakhv.samlib.db.TagController;
 import monakhv.samlib.db.entity.Author;
 import monakhv.samlib.db.entity.Book;
+import monakhv.samlib.db.entity.SamLibConfig;
+import monakhv.samlib.db.entity.Tag;
 import monakhv.samlib.service.GuiUpdate;
 import monakhv.samlib.service.SamlibService;
 
@@ -175,14 +179,9 @@ public class UpdateLocalService extends Service {
         mSharedPreferences.edit().putInt(UpdateServiceIntent.PREF_KEY_CALLER, currentCaller).apply();
         AuthorController ctl = new AuthorController(getHelper());
         List<Author> authors;
-        AndroidGuiUpdater guiUpdate = new AndroidGuiUpdater(context, currentCaller);
 
-        if (!SettingsHelper.haveInternet(context)) {
-            Log.e(DEBUG_TAG, "Ignore update - we have no internet connection");
 
-            guiUpdate.finishUpdate(false, updatedAuthors);
-            return;
-        }
+        String notificationTitle;
 
         if ((currentCaller == AndroidGuiUpdater.CALLER_IS_RECEIVER) && !SettingsHelper.haveInternetWIFI(context)) {
             monakhv.samlib.log.Log.d(DEBUG_TAG, "Ignore update task - we have no internet connection");
@@ -197,15 +196,35 @@ public class UpdateLocalService extends Service {
             if (author != null) {
                 authors = new ArrayList<>();
                 authors.add(author);
+                notificationTitle = context.getString(R.string.notification_title_author) + " " + author.getName();
                 Log.i(DEBUG_TAG, "Check single Author: " + author.getName());
             } else {
                 Log.e(DEBUG_TAG, "Can not fing Author: " + id);
                 return;
             }
-        } else {
+        } else {//Check update for authors by TAG
             authors = ctl.getAll(id, AuthorSortOrder.DateUpdate.getOrder());
+            notificationTitle = context.getString(R.string.notification_title_TAG);
+            if (id == SamLibConfig.TAG_AUTHOR_ALL) {
+                notificationTitle += " " + context.getString(R.string.filter_all);
+            } else if (id == SamLibConfig.TAG_AUTHOR_NEW) {
+                notificationTitle += " " + context.getString(R.string.filter_new);
+            } else {
+                TagController tagCtl = new TagController(getHelper());
+                Tag tag = tagCtl.getById(id);
+                if (tag != null) {
+                    notificationTitle += " " + tag.getName();
+                }
 
+            }
             Log.i(DEBUG_TAG, "selection index: " + id);
+        }
+        AndroidGuiUpdater guiUpdate = new AndroidGuiUpdater(context, currentCaller, notificationTitle);
+        if (!SettingsHelper.haveInternet(context)) {
+            Log.e(DEBUG_TAG, "Ignore update - we have no internet connection");
+
+            guiUpdate.finishUpdate(false, updatedAuthors);
+            return;
         }
 
         SpecialSamlibService service = new SpecialSamlibService(getHelper(), guiUpdate, settings);

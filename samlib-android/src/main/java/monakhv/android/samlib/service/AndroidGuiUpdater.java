@@ -60,9 +60,15 @@ public class AndroidGuiUpdater implements GuiUpdate {
         this.context = context;
         this.currentCaller = currentCaller;
 
+
+    }
+
+    public AndroidGuiUpdater(Context context, int currentCaller, String notificationTitle) {
+        this(context, currentCaller);
         if (currentCaller == CALLER_IS_ACTIVITY){
-            mProgressNotification=new ProgressNotification(context);
+            mProgressNotification = new ProgressNotification(context, notificationTitle);
         }
+
     }
 
     @Override

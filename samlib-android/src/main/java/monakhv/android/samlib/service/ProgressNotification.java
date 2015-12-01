@@ -34,7 +34,7 @@ public class ProgressNotification {
     private final NotificationCompat.Builder mBuilder;
     private final SettingsHelper mSettingsHelper;
 
-    public ProgressNotification(Context ctx) {
+    public ProgressNotification(Context ctx, String notificationTitle) {
         mSettingsHelper = new SettingsHelper(ctx);
 
 
@@ -43,11 +43,15 @@ public class ProgressNotification {
         Intent intend = new Intent(ctx, UpdateLocalService.class);
         intend.putExtra(UpdateLocalService.ACTION_TYPE, UpdateLocalService.ACTION_STOP);
         PendingIntent pInt = PendingIntent.getService(ctx, 0, intend, 0);
+
         mBuilder
                 .setOngoing(true)
+                .setAutoCancel(false)
                 .setSmallIcon(android.R.drawable.stat_sys_download)
                 .addAction(R.drawable.ic_cancel_white_36dp, ctx.getText(R.string.Cancel), pInt)
+                .setContentTitle(notificationTitle)
                 .setDeleteIntent(pInt);
+
 
         initBuilder();
     }
@@ -75,9 +79,7 @@ public class ProgressNotification {
 
 
     public void updateProgress(int total, int iCurrent, String name) {
-        mBuilder
-                .setContentTitle(name)
-                .setAutoCancel(false);
+
 
         if (mSettingsHelper.isNotifyTickerEnable()) {
             mBuilder
