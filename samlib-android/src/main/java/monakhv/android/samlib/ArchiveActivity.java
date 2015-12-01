@@ -83,6 +83,7 @@ public class ArchiveActivity extends MyBaseAbstractActivity {
                 setting.setGoogleAuto(isChecked);
             }
         });
+        cb.setChecked(setting.isGoogleAuto());
 
     }
 

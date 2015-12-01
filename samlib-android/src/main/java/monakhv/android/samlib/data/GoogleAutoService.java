@@ -86,13 +86,17 @@ public class GoogleAutoService extends Service {
         @Override
         protected void onPostExecute(Boolean aBoolean) {
             super.onPostExecute(aBoolean);
-            GoogleAutoService.this.stopSelf();
+            if (aBoolean == null) {
+                Log.e(DEBUG_TAG, "result is NULL");
+                return;
+            }
 
             if (aBoolean) {
                 Log.i(DEBUG_TAG, "Copy compleate");
             } else {
                 Log.e(DEBUG_TAG, getErrorMsg());
             }
+            GoogleAutoService.this.stopSelf();
 
         }
     }

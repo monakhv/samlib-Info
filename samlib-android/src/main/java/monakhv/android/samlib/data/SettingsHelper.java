@@ -16,6 +16,7 @@
 package monakhv.android.samlib.data;
 
 import android.app.AlarmManager;
+
 import android.app.PendingIntent;
 import android.app.backup.BackupManager;
 
@@ -44,6 +45,7 @@ import java.util.*;
 
 import monakhv.android.samlib.R;
 import monakhv.android.samlib.receiver.UpdateReceiver;
+import monakhv.android.samlib.service.UpdateLocalService;
 import monakhv.samlib.data.AbstractSettings;
 import monakhv.samlib.db.SQLController;
 import monakhv.samlib.db.entity.Book;
@@ -169,11 +171,10 @@ public class SettingsHelper extends AbstractSettings implements SharedPreference
             log(DEBUG_TAG, "Cancel Updater service call");
 
         }
-        Intent downloader = new Intent(context, UpdateReceiver.class);
-        PendingIntent recurringDownload = PendingIntent.getBroadcast(context,
-                0, downloader, PendingIntent.FLAG_CANCEL_CURRENT);
+
+        PendingIntent updateService = PendingIntent.getService(context, 0, UpdateLocalService.getUpdateIntent(context), PendingIntent.FLAG_CANCEL_CURRENT);
         AlarmManager alarms = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-        alarms.cancel(recurringDownload);
+        alarms.cancel(updateService);
     }
 
     /**
@@ -192,15 +193,14 @@ public class SettingsHelper extends AbstractSettings implements SharedPreference
         long startTime = Calendar.getInstance().getTimeInMillis() + updatePeriod;
 
 
-        Intent downloader = new Intent(context, UpdateReceiver.class);
-        PendingIntent recurringDownload = PendingIntent.getBroadcast(context,
-                0, downloader, PendingIntent.FLAG_CANCEL_CURRENT);
+        //PendingIntent recurringDownload = PendingIntent.getBroadcast(context, 0, downloader, PendingIntent.FLAG_CANCEL_CURRENT);
+        PendingIntent updateService = PendingIntent.getService(context, 0, UpdateLocalService.getUpdateIntent(context), PendingIntent.FLAG_CANCEL_CURRENT);
+
+
         AlarmManager alarms = (AlarmManager) context.getSystemService(
                 Context.ALARM_SERVICE);
 
-
-        alarms.setInexactRepeating(AlarmManager.RTC_WAKEUP,
-                startTime, updatePeriod, recurringDownload);
+        alarms.setInexactRepeating(AlarmManager.RTC_WAKEUP, startTime, updatePeriod, updateService);
     }
 
     private boolean getBackgroundUpdateFlag() {
