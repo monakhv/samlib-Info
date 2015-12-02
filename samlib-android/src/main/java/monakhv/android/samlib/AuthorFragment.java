@@ -328,8 +328,16 @@ public class AuthorFragment extends Fragment implements
         isProgressShow(false);
     }
 
+    /**
+     * Change view for refresh menu item
+     * Progress and static icon swotcher
+     *
+     * @param isShow if true we show progress
+     */
     private void isProgressShow(boolean isShow) {
-
+        if (mMenu == null) {
+            return;
+        }
         MenuItem item = mMenu.findItem(R.id.menu_refresh);
         if (item != null) {
             if (isShow) {
