@@ -704,4 +704,15 @@ public class SettingsHelper extends AbstractSettings implements SharedPreference
     public boolean isGoogleAuto() {
         return prefs.getBoolean(context.getString(R.string.pref_key_google_auto), false);
     }
+
+    public boolean isGoogleAutoEnable() {
+        return prefs.getBoolean(context.getString(R.string.pref_key_google_auto_enable), false);
+    }
+
+    public void setGoogleAutoEnable(boolean enable) {
+        prefs.edit().putBoolean(context.getString(R.string.pref_key_google_auto_enable), enable).commit();
+        if (!enable) {
+            setGoogleAuto(false);
+        }
+    }
 }

@@ -85,6 +85,8 @@ public class GoogleDiskOperation extends ApiClientAsyncTask<Void, Void, Boolean>
             return;
         }
         if (aBoolean) {
+            final SettingsHelper settingsHelper = new SettingsHelper(context);
+            settingsHelper.setGoogleAutoEnable(true);
             sendResult(true);
         } else {
             sendResult(false);

@@ -166,26 +166,6 @@ limitations under the License.
                     android:layout_height="wrap_content"
                     android:orientation="horizontal">
                 <TextView
-                        android:id="@+id/arc_txt6"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="@string/arc_import_google"
-                        android:textSize="@dimen/text_size_small"/>
-
-                <Button
-                        android:id="@+id/btnImportGoogle"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/bt_import"
-                        android:onClick="importGoogle"/>
-
-            </LinearLayout>
-            <LinearLayout
-                    android:layout_width="fill_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal">
-                <TextView
                         android:id="@+id/txGoogleAuto"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
@@ -199,6 +179,27 @@ limitations under the License.
                         android:layout_height="wrap_content"
                         android:text="@string/cb_auto_backup"
                 />
+
+            </LinearLayout>
+
+            <LinearLayout
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+                <TextView
+                        android:id="@+id/arc_txt6"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="@string/arc_import_google"
+                        android:textSize="@dimen/text_size_small"/>
+
+                <Button
+                        android:id="@+id/btnImportGoogle"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/bt_import"
+                        android:onClick="importGoogle"/>
 
             </LinearLayout>
 

@@ -62,6 +62,7 @@ public class ArchiveActivity extends MyBaseAbstractActivity {
     private SettingsHelper setting;
     private DataExportImport dataExportImport;
     private AuthorEditReceiver authorReceiver;
+    private CheckBox cb;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -75,7 +76,7 @@ public class ArchiveActivity extends MyBaseAbstractActivity {
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        CheckBox cb = (CheckBox) findViewById(R.id.cbGoogleAuto);
+        cb = (CheckBox) findViewById(R.id.cbGoogleAuto);
         cb.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
@@ -84,6 +85,7 @@ public class ArchiveActivity extends MyBaseAbstractActivity {
             }
         });
         cb.setChecked(setting.isGoogleAuto());
+        cb.setEnabled(setting.isGoogleAutoEnable());
 
     }
 
@@ -331,6 +333,7 @@ public class ArchiveActivity extends MyBaseAbstractActivity {
                 return;
             }
             if (res && ot == GoogleDiskOperation.OperationType.EXPORT){
+                cb.setEnabled(setting.isGoogleAutoEnable());
                 Toast.makeText(context, context.getString(R.string.res_export_google_good), Toast.LENGTH_LONG).show();
             }
             String error = intent.getStringExtra(EXTRA_ERROR);

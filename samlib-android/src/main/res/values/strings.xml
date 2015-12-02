@@ -235,6 +235,7 @@ limitations under the License.
 
     <string name="pref_key_version_name">pref_key_version_name</string>
     <string name="pref_key_google_auto">pref_key_google_auto</string>
+    <string name="pref_key_google_auto_enable">pref_key_google_auto_enable</string>
 
     <string name="pref_no_sound">Без звука</string>
     
@@ -272,7 +273,7 @@ limitations under the License.
     <string name="arc_export_google">Выгрузить базу</string>
     <string name="arc_import_google">Загрузить базу</string>
     <string name="arc_google_file">SamLib-Info.db на Google Drive</string>
-    <string name="arc_google_auto">Автоматиеское сохранение</string>
+    <string name="arc_google_auto">Автоматиеское сохранение.</string>
 
 
     <string name="arc_msg_export">Выгрузка…</string>
