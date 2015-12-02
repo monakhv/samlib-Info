@@ -315,6 +315,11 @@ public class AuthorFragment extends Fragment implements
         }
     }
 
+    /**
+     * Stop GUI update state
+     * Call - from on pause
+     * call - from Main activity as a result for broadcast
+     */
     void onRefreshComplete() {
         Log.d(DEBUG_TAG, "Stop updating state");
         mPtrFrame.refreshComplete();
