@@ -102,6 +102,7 @@ public class AuthorFragment extends Fragment implements
     private boolean mBound;
     private int mAppBarOffset;
     private UpdateLocalService mUpdateService;
+    private Menu mMenu;
     private ServiceConnection mConnection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
@@ -298,7 +299,7 @@ public class AuthorFragment extends Fragment implements
         Log.d(DEBUG_TAG, "Start update service");
         adapter.cleanSelection();//clean selection before check updates
         canUpdate = false;
-
+        isProgressShow(true);
         if (getActivity() == null) {
             return;//try to prevent some ANR reports
         }
@@ -319,7 +320,19 @@ public class AuthorFragment extends Fragment implements
         mPtrFrame.refreshComplete();
         canUpdate = true;
         updateAuthor = false;
+        isProgressShow(false);
+    }
 
+    private void isProgressShow(boolean isShow) {
+
+        MenuItem item = mMenu.findItem(R.id.menu_refresh);
+        if (item != null) {
+            if (isShow) {
+                item.setActionView(R.layout.actionbar_indeterminate_progress);
+            } else {
+                item.setActionView(null);
+            }
+        }
     }
 
 
@@ -656,24 +669,22 @@ public class AuthorFragment extends Fragment implements
     }
 
     public void updateTag(int tag) {
-        if (mBound) {
-            UpdateLocalService.updateTag(getActivity(), tag);
-        }
+        UpdateLocalService.updateTag(getActivity(), tag);
     }
 
 
     public void udateAuthor(int id) {
-        if (mBound) {
-            UpdateLocalService.updateAuthor(getActivity(), id);
-        }
-
+        UpdateLocalService.updateAuthor(getActivity(), id);
     }
 
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         inflater.inflate(R.menu.options_menu, menu);
-        //super.onCreateOptionsMenu(menu, inflater);
+        mMenu = menu;
+        if (mBound) {
+            isProgressShow(mUpdateService.isRunning());
+        }
     }
 
     @Override
