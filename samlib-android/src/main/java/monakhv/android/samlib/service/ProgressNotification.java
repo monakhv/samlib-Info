@@ -7,6 +7,7 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.support.v4.app.NotificationCompat;
+import monakhv.android.samlib.MainActivity;
 import monakhv.android.samlib.R;
 import monakhv.android.samlib.data.SettingsHelper;
 
@@ -44,12 +45,16 @@ public class ProgressNotification {
         intend.putExtra(UpdateLocalService.ACTION_TYPE, UpdateLocalService.ACTION_STOP);
         PendingIntent pInt = PendingIntent.getService(ctx, 0, intend, 0);
 
+        Intent notificationIntent = new Intent(ctx, MainActivity.class);
+        PendingIntent aInt = PendingIntent.getActivity(ctx, 0, notificationIntent, 0);
+
         mBuilder
                 .setOngoing(true)
                 .setAutoCancel(false)
                 .setSmallIcon(android.R.drawable.stat_sys_download)
                 .addAction(R.drawable.ic_cancel_white_36dp, ctx.getText(R.string.Cancel), pInt)
                 .setContentTitle(notificationTitle)
+                .setContentIntent(aInt)
                 .setDeleteIntent(pInt);
 
 
