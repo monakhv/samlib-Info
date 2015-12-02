@@ -230,7 +230,7 @@ limitations under the License.
     <string name="pref_title_mirror">Первое зеркало</string>
     <string name="pref_default_mirror">SamLib</string>
 
-    <string name="change_theme_alert">Смена темы произойдет после нового запуска.  Выйти из приложения сейчас?</string>
+    <string name="change_theme_alert">Смена темы произойдет после перезапуска. Перезапустить приложения сейчас?</string>
 
 
     <string name="pref_key_version_name">pref_key_version_name</string>

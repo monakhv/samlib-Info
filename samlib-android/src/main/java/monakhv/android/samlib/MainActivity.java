@@ -65,8 +65,7 @@ public class MainActivity extends MyBaseAbstractActivity implements
         AuthorFragment.Callbacks,
         AuthorTagFragment.AuthorTagCallback,
         BookFragment.Callbacks,
-        AdapterView.OnItemSelectedListener
-{
+        AdapterView.OnItemSelectedListener {
 
     private static final String DEBUG_TAG = "MainActivity";
 
@@ -185,7 +184,6 @@ public class MainActivity extends MyBaseAbstractActivity implements
     }
 
 
-
     private void openActionBar() {
         if (mAppBarLayout == null) {
             return;
@@ -213,13 +211,12 @@ public class MainActivity extends MyBaseAbstractActivity implements
 
         tagFilter = (Spinner) findViewById(R.id.tagList);
 
-       ArrayList<UITag> tags=UITag.getPreList(this);
+        ArrayList<UITag> tags = UITag.getPreList(this);
 
-        tagAdapter=new ArrayAdapter<>(this, android.R.layout.simple_spinner_item,tags);
+        tagAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, tags);
         tagFilter.setAdapter(tagAdapter);
         tagAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         tagFilter.setOnItemSelectedListener(this);
-
 
 
     }
@@ -273,11 +270,11 @@ public class MainActivity extends MyBaseAbstractActivity implements
 
         }
 
-        if (iSel==R.id.author_sort_name){
+        if (iSel == R.id.author_sort_name) {
             authorFragment.setSortOrder(AuthorSortOrder.AuthorName);
         }
 
-        if (iSel==R.id.author_sort_upadte){
+        if (iSel == R.id.author_sort_upadte) {
 
             authorFragment.setSortOrder(AuthorSortOrder.DateUpdate);
         }
@@ -345,9 +342,7 @@ public class MainActivity extends MyBaseAbstractActivity implements
         updateReceiver = new UpdateActivityReceiver();
 
 
-
         registerReceiver(updateReceiver, updateFilter);
-
 
 
         if (twoPain) {
@@ -361,9 +356,7 @@ public class MainActivity extends MyBaseAbstractActivity implements
             registerReceiver(downloadReceiver, filter);
 
 
-
         }
-
 
 
         if (mAppBarLayout != null) {
@@ -410,20 +403,7 @@ public class MainActivity extends MyBaseAbstractActivity implements
             int res = data.getIntExtra(ArchiveActivity.UPDATE_KEY, -1);
             if (res == ArchiveActivity.UPDATE_LIST) {
                 Log.d(DEBUG_TAG, "Reconstruct List View");
-                releaseHelper(getDatabaseHelper());
-                tagSQL = new TagController(getDatabaseHelper());
-                refreshTags();
-                tagFilter.setSelection(0);
-                authorFragment.refresh(SamLibConfig.TAG_AUTHOR_ALL, null);
-
-                if (twoPain) {
-                    if (bookFragment != null) {
-                        bookFragment.refresh();
-                        if (isTagShow) {
-                            onFinish(0);
-                        }
-                    }
-                }
+                restartApp();
             }
         }
         if (requestCode == SEARCH_ACTIVITY) {
@@ -432,7 +412,8 @@ public class MainActivity extends MyBaseAbstractActivity implements
             AuthorEditorServiceIntent.addAuthor(getApplicationContext(), data.getStringExtra(SearchAuthorsListFragment.AUTHOR_URL));
         }
         if (requestCode == PREFS_ACTIVITY) {
-            finish();
+            restartApp();
+            //finish();
         }
     }
 
@@ -560,11 +541,11 @@ public class MainActivity extends MyBaseAbstractActivity implements
 
     @Override
     public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-        UITag uitag =tagAdapter.getItem(position);
-        if (uitag == null){
+        UITag uitag = tagAdapter.getItem(position);
+        if (uitag == null) {
             return;
         }
-        authorFragment.selectTag(uitag.id,uitag.title);
+        authorFragment.selectTag(uitag.id, uitag.title);
     }
 
     @Override
@@ -635,7 +616,7 @@ public class MainActivity extends MyBaseAbstractActivity implements
         }
     }
 
-    public static class UITag implements Serializable{
+    public static class UITag implements Serializable {
         int id;
         String title;
 
@@ -644,9 +625,9 @@ public class MainActivity extends MyBaseAbstractActivity implements
             this.title = title;
         }
 
-        public UITag(Tag tag){
+        public UITag(Tag tag) {
             this.id = tag.getId();
-            this.title=tag.getName();
+            this.title = tag.getName();
         }
 
         @Override
@@ -669,11 +650,12 @@ public class MainActivity extends MyBaseAbstractActivity implements
         public int hashCode() {
             return id;
         }
-        public static ArrayList<UITag> getPreList(Context ctx){
-            ArrayList<UITag> tags= new ArrayList<>();
+
+        public static ArrayList<UITag> getPreList(Context ctx) {
+            ArrayList<UITag> tags = new ArrayList<>();
             //tags.add(new UITag(SamLibConfig.TAG_AUTHOR_ALL,ctx.getString(R.string.filter_all)));
-            tags.add(new UITag(SamLibConfig.TAG_AUTHOR_ALL,ctx.getString(R.string.app_name)));
-            tags.add(new UITag(SamLibConfig.TAG_AUTHOR_NEW,ctx.getString(R.string.filter_new)));
+            tags.add(new UITag(SamLibConfig.TAG_AUTHOR_ALL, ctx.getString(R.string.app_name)));
+            tags.add(new UITag(SamLibConfig.TAG_AUTHOR_NEW, ctx.getString(R.string.filter_new)));
             return tags;
         }
     }
@@ -682,10 +664,19 @@ public class MainActivity extends MyBaseAbstractActivity implements
         Log.d(DEBUG_TAG, "refreshTags: making refresh tags");
         tagAdapter.clear();
         tagAdapter.addAll(UITag.getPreList(this));
-        for (Tag tag: tagSQL.getAll()){
+        for (Tag tag : tagSQL.getAll()) {
             tagAdapter.add(new UITag(tag));
         }
         tagAdapter.notifyDataSetChanged();
 
+    }
+
+    private void restartApp() {
+        Intent i = getBaseContext().getPackageManager()
+                .getLaunchIntentForPackage(getBaseContext().getPackageName());
+
+        i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        finish();
+        startActivity(i);
     }
 }
