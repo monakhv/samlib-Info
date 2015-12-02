@@ -21,9 +21,10 @@
 
 >
     <ProgressBar
-            android:layout_gravity="center"
             android:layout_width="32dp"
             android:layout_height="32dp"
-            style="?indeterminateProgressStyle"
-    />
+            android:layout_marginLeft="8dp"
+            android:layout_marginRight="8dp"
+            android:layout_gravity="center"
+            style="?android:attr/indeterminateProgressStyle"/>
 </FrameLayout>
