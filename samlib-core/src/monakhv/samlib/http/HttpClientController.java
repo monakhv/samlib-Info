@@ -252,7 +252,7 @@ public class HttpClientController {
      * @throws SamlibParseException remote host return status other then 200 ad
      *                              503
      */
-    private String _getURL(URL url, PageReader reader) throws IOException, SamlibParseException {
+    private String _getURL(URL url, PageReader reader) throws IOException, SamlibParseException, SamlibInterruptException {
         String res = null;
         boolean retry = true;
         int loopCount = 0;
@@ -267,11 +267,12 @@ public class HttpClientController {
                 try {
                     TimeUnit.SECONDS.sleep(loopCount);
                 } catch (InterruptedException ex1) {
-                    Log.e(DEBUG_TAG, "Sleep interapted: ", ex);
+                    //Log.e(DEBUG_TAG, "_getURL:Sleep interrupted: "+Thread.interrupted(), ex);
+                    throw new SamlibInterruptException("_getURL:Sleep interrupted");
                 }
                 if (loopCount >= RETRY_LIMIT) {
                     // retry = false;
-                    throw new IOException("Retry Limit exeeded");
+                    throw new IOException("Retry Limit exceeded");
                 }
             }
         }
