@@ -40,6 +40,7 @@ import monakhv.samlib.db.entity.Author;
 import monakhv.samlib.db.entity.Book;
 import monakhv.samlib.db.entity.SamLibConfig;
 import monakhv.samlib.db.entity.Tag;
+import monakhv.samlib.http.HttpClientController;
 import monakhv.samlib.service.GuiUpdate;
 import monakhv.samlib.service.SamlibService;
 
@@ -72,10 +73,12 @@ public class UpdateLocalService extends Service {
     private static boolean isRun = false;
     private static PowerManager.WakeLock wl;
     private static UpdateTread mThread;
+    private static HttpClientController http;
     private int currentCaller = 0;
     private SettingsHelper settings;
     private DataExportImport dataExportImport;
     private Context context;
+
 
     public UpdateLocalService() {
         super();
@@ -227,7 +230,8 @@ public class UpdateLocalService extends Service {
             return;
         }
 
-        SpecialSamlibService service = new SpecialSamlibService(getHelper(), guiUpdate, settings);
+        http = HttpClientController.getInstance(settings);
+        SpecialSamlibService service = new SpecialSamlibService(getHelper(), guiUpdate, settings, http);
 
 
         PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
@@ -247,6 +251,7 @@ public class UpdateLocalService extends Service {
         if (isRun && (currentCaller == AndroidGuiUpdater.CALLER_IS_ACTIVITY)) {
             Log.d(DEBUG_TAG, "Making STOP");
             mThread.interrupt();
+            http.cancelAll();
 
             releaseLock();
         }
@@ -361,8 +366,8 @@ public class UpdateLocalService extends Service {
      */
     public class SpecialSamlibService extends SamlibService {
 
-        public SpecialSamlibService(DaoBuilder sql, GuiUpdate guiUpdate, AbstractSettings settingsHelper) {
-            super(sql, guiUpdate, settingsHelper);
+        public SpecialSamlibService(DaoBuilder sql, GuiUpdate guiUpdate, AbstractSettings settingsHelper, HttpClientController http) {
+            super(sql, guiUpdate, settingsHelper, http);
         }
 
         @Override
