@@ -139,8 +139,6 @@ public class AuthorFragment extends Fragment implements
 
         void onAuthorSelected(long id);
 
-        void onTitleChange(String lTitle);
-
         void cleanBookSelection();
 
         void drawerToggle();
@@ -565,18 +563,11 @@ public class AuthorFragment extends Fragment implements
      * Show author list according selected tag
      *
      * @param tag_id  tag-id
-     * @param tg_name tag name
+     *
      */
-    public void selectTag(int tag_id, String tg_name) {
+    public void selectTag(int tag_id) {
         selectedTag = tag_id;
 
-
-        if (tag_id == SamLibConfig.TAG_AUTHOR_ALL) {
-
-            mCallbacks.onTitleChange(getActivity().getText(R.string.app_name).toString());
-        } else {
-            mCallbacks.onTitleChange(tg_name);
-        }
 
 
         Log.i(DEBUG_TAG, "Selected tag " + selectedTag);

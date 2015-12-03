@@ -312,7 +312,7 @@ public class MainActivity extends MyBaseAbstractActivity implements
 
         Tag tag = tagSQL.getById(selectedTagId);
         if (tag != null) {
-            authorFragment.selectTag(selectedTagId, tag.getName());
+            authorFragment.selectTag(selectedTagId);
             restoreTagSelection();
         }
     }
@@ -438,15 +438,6 @@ public class MainActivity extends MyBaseAbstractActivity implements
         }
     }
 
-
-    @Override
-    public void onTitleChange(String lTitle) {
-        Log.d(DEBUG_TAG, "set title: " + lTitle);
-
-        getSupportActionBar().setTitle(lTitle);
-
-    }
-
     @Override
     public void cleanBookSelection() {
         if (twoPain) {
@@ -512,7 +503,6 @@ public class MainActivity extends MyBaseAbstractActivity implements
 //        }
         if (authorFragment.getSelection() != SamLibConfig.TAG_AUTHOR_ALL) {
             authorFragment.refresh(SamLibConfig.TAG_AUTHOR_ALL, null);
-            onTitleChange(getString(R.string.app_name));
             selectedTagId = SamLibConfig.TAG_AUTHOR_ALL;
             tagFilter.setSelection(0);
             openActionBar();
@@ -545,7 +535,7 @@ public class MainActivity extends MyBaseAbstractActivity implements
         if (uitag == null) {
             return;
         }
-        authorFragment.selectTag(uitag.id, uitag.title);
+        authorFragment.selectTag(uitag.id);
     }
 
     @Override
