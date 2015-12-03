@@ -294,7 +294,7 @@ public class AuthorFragment extends Fragment implements
 
     @Override
     public void onRefreshBegin(PtrFrameLayout view) {
-        Log.d(DEBUG_TAG, "Start update service");
+        Log.d(DEBUG_TAG, "onRefreshBegin: Start update service");
         adapter.cleanSelection();//clean selection before check updates
         canUpdate = false;
         isProgressShow(true);
@@ -319,7 +319,7 @@ public class AuthorFragment extends Fragment implements
      * call - from Main activity as a result for broadcast
      */
     void onRefreshComplete() {
-        Log.d(DEBUG_TAG, "Stop updating state");
+        Log.d(DEBUG_TAG, "onRefreshComplete: Stop updating state");
         mPtrFrame.refreshComplete();
         canUpdate = true;
         updateAuthor = false;
@@ -559,20 +559,7 @@ public class AuthorFragment extends Fragment implements
         }
     }
 
-    /**
-     * Show author list according selected tag
-     *
-     * @param tag_id  tag-id
-     *
-     */
-    public void selectTag(int tag_id) {
-        selectedTag = tag_id;
 
-
-
-        Log.i(DEBUG_TAG, "Selected tag " + selectedTag);
-        refresh(selectedTag, null);
-    }
 
     /**
      * Get selection string for author search
@@ -610,8 +597,8 @@ public class AuthorFragment extends Fragment implements
      * @param selectedTag selection tag id
      * @param so          sort order string
      */
-    public void refresh(int selectedTag, AuthorSortOrder so) {
-        Log.d(DEBUG_TAG, "refresh: set Selection: " + selectedTag);
+    public void selectTag(int selectedTag, AuthorSortOrder so) {
+        Log.d(DEBUG_TAG, "selectTag: set Selection: " + selectedTag);
         cleanSelection();
         this.selectedTag = selectedTag;
         if (so != null) {

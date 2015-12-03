@@ -312,7 +312,7 @@ public class MainActivity extends MyBaseAbstractActivity implements
 
         Tag tag = tagSQL.getById(selectedTagId);
         if (tag != null) {
-            authorFragment.selectTag(selectedTagId);
+            authorFragment.selectTag(selectedTagId, null);
             restoreTagSelection();
         }
     }
@@ -496,15 +496,10 @@ public class MainActivity extends MyBaseAbstractActivity implements
 
     @Override
     public void onBackPressed() {
-        Log.d(DEBUG_TAG, "onBackPressed");
-//        if (drResult != null && drResult.isDrawerOpen()) {
-//            drResult.closeDrawer();
-//            return ;
-//        }
+        Log.d(DEBUG_TAG, "onBackPressed: selected tag " + authorFragment.getSelection());
         if (authorFragment.getSelection() != SamLibConfig.TAG_AUTHOR_ALL) {
-            authorFragment.refresh(SamLibConfig.TAG_AUTHOR_ALL, null);
             selectedTagId = SamLibConfig.TAG_AUTHOR_ALL;
-            tagFilter.setSelection(0);
+            tagFilter.setSelection(0);//this handle tag selection into AuthorFragment
             openActionBar();
         } else {
             finish();
@@ -535,7 +530,7 @@ public class MainActivity extends MyBaseAbstractActivity implements
         if (uitag == null) {
             return;
         }
-        authorFragment.selectTag(uitag.id);
+        authorFragment.selectTag(uitag.id, null);
     }
 
     @Override
