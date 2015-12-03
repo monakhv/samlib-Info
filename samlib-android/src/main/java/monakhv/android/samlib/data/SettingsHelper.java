@@ -21,6 +21,7 @@ import android.app.PendingIntent;
 import android.app.backup.BackupManager;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
@@ -43,7 +44,7 @@ import java.util.*;
 
 
 import monakhv.android.samlib.R;
-import monakhv.android.samlib.service.UpdateLocalService;
+import monakhv.android.samlib.receiver.UpdateReceiver;
 import monakhv.samlib.data.AbstractSettings;
 import monakhv.samlib.db.SQLController;
 import monakhv.samlib.db.entity.Book;
@@ -141,7 +142,7 @@ public class SettingsHelper extends AbstractSettings implements SharedPreference
     }
 
     /**
-     * Set or cancel Recurring Task using updated preferences
+     * Set or cancel Recurring Task using updated preferences into Alarm Manager
      */
     public void updateService() {
         if (!updateService) {
@@ -170,14 +171,18 @@ public class SettingsHelper extends AbstractSettings implements SharedPreference
             log(DEBUG_TAG, "Cancel Updater service call");
 
         }
+        /**
+         * We are using receiver here to avoid possible interference with the Pending intend in ProgressNotification
+         */
 
-        PendingIntent updateService = PendingIntent.getService(context, 0, UpdateLocalService.getUpdateIntent(context), PendingIntent.FLAG_CANCEL_CURRENT);
+        Intent intent = new Intent(context, UpdateReceiver.class);
+        PendingIntent recurringUpdate = PendingIntent.getBroadcast(context, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT);
         AlarmManager alarms = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-        alarms.cancel(updateService);
+        alarms.cancel(recurringUpdate);
     }
 
     /**
-     * Set recurring Task
+     * Set recurring Task in Alarm Manager
      */
     private void setRecurringAlarm() {
         Log.i(DEBUG_TAG, "Update Updater service call");
@@ -192,14 +197,13 @@ public class SettingsHelper extends AbstractSettings implements SharedPreference
         long startTime = Calendar.getInstance().getTimeInMillis() + updatePeriod;
 
 
-        //PendingIntent recurringDownload = PendingIntent.getBroadcast(context, 0, downloader, PendingIntent.FLAG_CANCEL_CURRENT);
-        PendingIntent updateService = PendingIntent.getService(context, 0, UpdateLocalService.getUpdateIntent(context), PendingIntent.FLAG_CANCEL_CURRENT);
-
-
-        AlarmManager alarms = (AlarmManager) context.getSystemService(
-                Context.ALARM_SERVICE);
-
-        alarms.setInexactRepeating(AlarmManager.RTC_WAKEUP, startTime, updatePeriod, updateService);
+        /**
+         * We are using receiver here to avoid possible interference with the Pending intend in ProgressNotification
+         */
+        Intent intent = new Intent(context, UpdateReceiver.class);
+        PendingIntent recurringUpdate = PendingIntent.getBroadcast(context, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT);
+        AlarmManager alarms = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+        alarms.setInexactRepeating(AlarmManager.RTC_WAKEUP, startTime, updatePeriod, recurringUpdate);
     }
 
     private boolean getBackgroundUpdateFlag() {

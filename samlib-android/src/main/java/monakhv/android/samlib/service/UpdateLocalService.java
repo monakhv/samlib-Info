@@ -136,7 +136,7 @@ public class UpdateLocalService extends Service {
      *
      * @param ctx - Context
      */
-    public static Intent getUpdateIntent(Context ctx) {
+    public static void makeUpdate(Context ctx) {
         Intent service = new Intent(ctx, UpdateLocalService.class);
         SettingsHelper settings = new SettingsHelper(ctx);
         String stag = settings.getUpdateTag();
@@ -145,7 +145,7 @@ public class UpdateLocalService extends Service {
         service.putExtra(UpdateLocalService.SELECTOR_ID, idx);
         service.putExtra(UpdateLocalService.SELECTOR_TYPE, SamlibService.UpdateObjectSelector.Tag.name());
         service.putExtra(AndroidGuiUpdater.CALLER_TYPE, AndroidGuiUpdater.CALLER_IS_RECEIVER);
-        return service;
+        ctx.startService(service);
     }
 
 
@@ -243,9 +243,9 @@ public class UpdateLocalService extends Service {
     /**
      * Interrupt the thread if running
      */
-    public void interrupt() {
+    private void interrupt() {
         if (isRun && (currentCaller == AndroidGuiUpdater.CALLER_IS_ACTIVITY)) {
-
+            Log.d(DEBUG_TAG, "Making STOP");
             mThread.interrupt();
 
             releaseLock();
