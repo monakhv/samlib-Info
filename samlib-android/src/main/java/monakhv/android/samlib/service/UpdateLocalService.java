@@ -281,12 +281,16 @@ public class UpdateLocalService extends Service {
         public void run() {
             super.run();
             isRun = true;
-            service.runUpdate(authors);
-            if (settings.getLimitBookLifeTimeFlag() && (currentCaller == AndroidGuiUpdater.CALLER_IS_RECEIVER)) {
-                CleanBookServiceIntent.start(context);
+            boolean result = service.runUpdate(authors);
+
+            if (result) {
+                if (settings.getLimitBookLifeTimeFlag() && (currentCaller == AndroidGuiUpdater.CALLER_IS_RECEIVER)) {
+                    CleanBookServiceIntent.start(context);
+                }
+
+                mSharedPreferences.edit().putLong(UpdateServiceIntent.PREF_KEY_LAST_UPDATE, Calendar.getInstance().getTime().getTime()).apply();
             }
 
-            mSharedPreferences.edit().putLong(UpdateServiceIntent.PREF_KEY_LAST_UPDATE, Calendar.getInstance().getTime().getTime()).apply();
             isRun = false;
             releaseLock();
             UpdateLocalService.this.stopSelf();

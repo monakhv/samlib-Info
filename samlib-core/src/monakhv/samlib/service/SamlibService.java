@@ -79,12 +79,12 @@ public class SamlibService {
         http = httpClientController;
 
     }
-
     /**
      * Check update information for the list of authors
      * @param authors List of the Authors to check update
+     * @return true if update successful false if error or interrupted
      */
-    public void runUpdate(List<Author> authors) {
+    public boolean runUpdate(List<Author> authors) {
         updatedAuthors.clear();
         int skippedAuthors = 0;
 
@@ -100,7 +100,7 @@ public class SamlibService {
             } catch (IOException ex) {//here we abort cycle author and total update
                 Log.i(DEBUG_TAG, "runUpdate: Connection Error: " + url, ex);
                 guiUpdate.finishUpdate(false,updatedAuthors);
-                return;
+                return false;
 
             } catch (SamlibParseException ex) {//skip update for given author
                 Log.e(DEBUG_TAG, "runUpdate:Error parsing url: " + url + " skip update author ", ex);
@@ -110,7 +110,7 @@ public class SamlibService {
             } catch (SamlibInterruptException e) {
                 Log.i(DEBUG_TAG, "runUpdate: catch Interrupted", e);
                 guiUpdate.finishUpdate(false, updatedAuthors);
-                return;
+                return false;
             }
             if (a.update(newA)) {//we have update for the author
                 updatedAuthors.add(a);
@@ -130,18 +130,21 @@ public class SamlibService {
             } catch (InterruptedException e) {
                 Log.i(DEBUG_TAG, "Sleep interrupted exiting", e);
                 guiUpdate.finishUpdate(false, updatedAuthors);
-                return;
+                return false;
             }
         }//main author cycle END
+
+        authorController.cleanBooks();
         if (authors.size() == skippedAuthors){
             //all authors skipped - this is the error
             guiUpdate.finishUpdate(false,updatedAuthors);
+            return false;
         }
         else {
             guiUpdate.finishUpdate(true,updatedAuthors);
-
+            return true;
         }
-        authorController.cleanBooks();
+
 
     }
     /**
