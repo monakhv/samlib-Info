@@ -228,8 +228,23 @@ public abstract class ApiClientAsyncTask<Params, Progress, Result> extends Async
         }
         DriveContents contents = result.getDriveContents();
         OutputStream output = contents.getOutputStream();
+
+        if (!writeDataToFile(dataBase, output)) {
+            return false;
+        }
+
+        com.google.android.gms.common.api.Status status = contents.commit(getGoogleApiClient(), null).await(TIMEOUT_SEC, TimeUnit.SECONDS);
+        if (!status.isSuccess()) {
+            setError("Error Commit file");
+            return false;
+        }
+
+        return makeSync(file);
+    }
+
+    private boolean writeDataToFile(File file, OutputStream output) {
         try {
-            FileInputStream input = new FileInputStream(dataBase);
+            FileInputStream input = new FileInputStream(file);
             byte buffer[] = new byte[BUF_SIZE];
             int bytesRead;
             while ((bytesRead = input.read(buffer)) != -1) {
@@ -240,15 +255,8 @@ public abstract class ApiClientAsyncTask<Params, Progress, Result> extends Async
             return false;
 
         }
-        com.google.android.gms.common.api.Status status = contents.commit(getGoogleApiClient(), null).await(TIMEOUT_SEC, TimeUnit.SECONDS);
-        if (!status.isSuccess()) {
-            setError("Error Commit file");
-            return false;
-        }
-
-        return makeSync(file);
+        return true;
     }
-
 
     /**
      * Read data base from the file
@@ -266,7 +274,8 @@ public abstract class ApiClientAsyncTask<Params, Progress, Result> extends Async
 
             return false;
         }
-        InputStream input = result.getDriveContents().getInputStream();
+        DriveContents contents = result.getDriveContents();
+        InputStream input = contents.getInputStream();
         try {
             FileOutputStream output = new FileOutputStream(dataBase);
             byte buffer[] = new byte[BUF_SIZE];
@@ -275,12 +284,14 @@ public abstract class ApiClientAsyncTask<Params, Progress, Result> extends Async
                 output.write(buffer, 0, bytesRead);
             }
 
-            return true;
+
         } catch (Exception ex) {
             setError("Error Reading to file");
 
             return false;
         }
+        contents.discard(getGoogleApiClient());
+        return true;
 
     }
 
@@ -301,15 +312,7 @@ public abstract class ApiClientAsyncTask<Params, Progress, Result> extends Async
         DriveContents originalContents = contentsResult.getDriveContents();
         OutputStream os = originalContents.getOutputStream();
         //write data to file
-        try {
-            FileInputStream input = new FileInputStream(dataBase);
-            byte buffer[] = new byte[BUF_SIZE];
-            int bytesRead;
-            while ((bytesRead = input.read(buffer)) != -1) {
-                os.write(buffer, 0, bytesRead);
-            }
-        } catch (Exception e) {
-            setError("Error Writing to file");
+        if (!writeDataToFile(dataBase, os)) {
             return false;
         }
         // create a file
