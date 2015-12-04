@@ -16,7 +16,7 @@
 
 package monakhv.android.samlib.service;
 
-import android.app.Service;
+
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -25,13 +25,11 @@ import android.os.IBinder;
 import android.os.PowerManager;
 import android.support.annotation.Nullable;
 import android.util.Log;
-import com.j256.ormlite.android.apptools.OpenHelperManager;
 import in.srain.cube.views.ptr.util.PrefsUtil;
 import monakhv.android.samlib.R;
 import monakhv.android.samlib.data.DataExportImport;
 import monakhv.android.samlib.data.SettingsHelper;
 import monakhv.android.samlib.sortorder.AuthorSortOrder;
-import monakhv.android.samlib.sql.DatabaseHelper;
 import monakhv.samlib.data.AbstractSettings;
 import monakhv.samlib.db.AuthorController;
 import monakhv.samlib.db.DaoBuilder;
@@ -49,10 +47,10 @@ import java.util.Calendar;
 import java.util.List;
 
 /**
- * Bind Service
+ * Bind Service to checkout Authors Updates
  * Created by monakhv on 23.11.15.
  */
-public class UpdateLocalService extends Service {
+public class UpdateLocalService extends MyService {
     private static final String DEBUG_TAG = "UpdateLocalService";
     public static final String ACTION_TYPE = "UpdateLocalService.ACTION_TYPE";
     public static final int ACTION_STOP = 101;
@@ -65,9 +63,6 @@ public class UpdateLocalService extends Service {
     //private DataExportImport dataExportImport;
     private final List<Author> updatedAuthors;
     private SharedPreferences mSharedPreferences;
-    private volatile DatabaseHelper helper;
-    private volatile boolean created = false;
-    private volatile boolean destroyed = false;
 
 
     private static boolean isRun = false;
@@ -119,10 +114,10 @@ public class UpdateLocalService extends Service {
     /**
      * Check for new update of givenAuthor
      *
-     * @param authoId -Author id
+     * @param authorId -Author id
      */
-    public static void updateAuthor(Context ctx, int authoId) {
-        makeUpdate(ctx, SamlibService.UpdateObjectSelector.Author, authoId);
+    public static void updateAuthor(Context ctx, int authorId) {
+        makeUpdate(ctx, SamlibService.UpdateObjectSelector.Author, authorId);
     }
 
     /**
@@ -202,7 +197,7 @@ public class UpdateLocalService extends Service {
                 notificationTitle = context.getString(R.string.notification_title_author) + " " + author.getName();
                 Log.i(DEBUG_TAG, "Check single Author: " + author.getName());
             } else {
-                Log.e(DEBUG_TAG, "Can not fing Author: " + id);
+                Log.e(DEBUG_TAG, "Can not find Author: " + id);
                 return;
             }
         } else {//Check update for authors by TAG
@@ -306,64 +301,8 @@ public class UpdateLocalService extends Service {
         }
     }
 
-    @Override
-    public void onCreate() {
-        if (helper == null) {
-            helper = getHelperInternal(this);
-            created = true;
-        }
-        super.onCreate();
-    }
 
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        releaseHelper();
-        destroyed = true;
-    }
 
-    public DatabaseHelper getHelper() {
-        if (helper == null) {
-            if (!created) {
-                throw new IllegalStateException("A call has not been made to onCreate() yet so the helper is null");
-            } else if (destroyed) {
-                throw new IllegalStateException(
-                        "A call to onDestroy has already been made and the helper cannot be used after that point");
-            } else {
-                throw new IllegalStateException("Helper is null for some unknown reason");
-            }
-        } else {
-            return helper;
-        }
-    }
-
-    /**
-     * This is called internally by the class to populate the helper object instance. This should not be called directly
-     * by client code unless you know what you are doing. Use {@link #getHelper()} to get a helper instance. If you are
-     * managing your own helper creation, override this method to supply this activity with a helper instance.
-     * <p/>
-     * <p/>
-     * <b> NOTE: </b> I
-     */
-    protected DatabaseHelper getHelperInternal(Context context) {
-        @SuppressWarnings({"unchecked", "deprecation"})
-        DatabaseHelper newHelper = OpenHelperManager.getHelper(context, DatabaseHelper.class);
-        return newHelper;
-    }
-
-    /**
-     * Release the helper instance created in {@link #getHelperInternal(Context)}. You most likely will not need to call
-     * this directly since {@link #onDestroy()} does it for you.
-     * <p/>
-     * <p>
-     * <b> NOTE: </b> If you override this method, you most likely will need to override the
-     * {@link #getHelperInternal(Context)} method as well.
-     * </p>
-     */
-    protected void releaseHelper() {
-        OpenHelperManager.releaseHelper();
-        this.helper = null;
-    }
 
     /**
      * Special Service with loadBook method
