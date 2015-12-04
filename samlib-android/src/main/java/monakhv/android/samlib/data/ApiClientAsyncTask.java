@@ -3,8 +3,9 @@ package monakhv.android.samlib.data;
 import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Bundle;
-
 import android.util.Log;
+
+
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.drive.*;
@@ -219,13 +220,13 @@ public abstract class ApiClientAsyncTask<Params, Progress, Result> extends Async
     protected boolean writeFile(final File dataBase, final DriveFile file) {
         Date date = Calendar.getInstance().getTime();
         Log.d(DEBUG_TAG, "Current: " + date);
-        DriveApi.ContentsResult result = file.openContents(getGoogleApiClient(), DriveFile.MODE_WRITE_ONLY, null)
+        DriveApi.DriveContentsResult result = file.open(getGoogleApiClient(), DriveFile.MODE_WRITE_ONLY, null)
                 .await(TIMEOUT_SEC, TimeUnit.SECONDS);
         if (!result.getStatus().isSuccess()) {
             setError("Error Writing to file");
             return false;
         }
-        Contents contents = result.getContents();
+        DriveContents contents = result.getDriveContents();
         OutputStream output = contents.getOutputStream();
         try {
             FileInputStream input = new FileInputStream(dataBase);
@@ -239,8 +240,7 @@ public abstract class ApiClientAsyncTask<Params, Progress, Result> extends Async
             return false;
 
         }
-        com.google.android.gms.common.api.Status status = file.commitAndCloseContents(getGoogleApiClient(), contents)
-                .await(TIMEOUT_SEC, TimeUnit.SECONDS);
+        com.google.android.gms.common.api.Status status = contents.commit(getGoogleApiClient(), null).await(TIMEOUT_SEC, TimeUnit.SECONDS);
         if (!status.isSuccess()) {
             setError("Error Commit file");
             return false;
@@ -259,14 +259,14 @@ public abstract class ApiClientAsyncTask<Params, Progress, Result> extends Async
      */
     protected boolean readFile(final DriveFile file, File dataBase) {
 
-        DriveApi.ContentsResult result = file.openContents(getGoogleApiClient(), DriveFile.MODE_READ_ONLY, null)
+        DriveApi.DriveContentsResult result = file.open(getGoogleApiClient(), DriveFile.MODE_READ_ONLY, null)
                 .await(TIMEOUT_SEC, TimeUnit.SECONDS);
         if (!result.getStatus().isSuccess()) {
             setError("Error Reading  file");
 
             return false;
         }
-        InputStream input = result.getContents().getInputStream();
+        InputStream input = result.getDriveContents().getInputStream();
         try {
             FileOutputStream output = new FileOutputStream(dataBase);
             byte buffer[] = new byte[BUF_SIZE];
@@ -288,7 +288,7 @@ public abstract class ApiClientAsyncTask<Params, Progress, Result> extends Async
      * Blocking method to Add new file data to Google Drive
      */
     protected boolean createFile(File dataBase, String fileName) {
-        DriveApi.ContentsResult contentsResult = Drive.DriveApi.newContents(getGoogleApiClient()).await(TIMEOUT_SEC, TimeUnit.SECONDS);
+        DriveApi.DriveContentsResult contentsResult = Drive.DriveApi.newDriveContents(getGoogleApiClient()).await(TIMEOUT_SEC, TimeUnit.SECONDS);
         if (!contentsResult.getStatus().isSuccess()) {
             setError(R.string.res_export_google_bad);
             return false;
@@ -298,7 +298,7 @@ public abstract class ApiClientAsyncTask<Params, Progress, Result> extends Async
                 .setMimeType(MimeType)
                 .setStarred(true).build();
 
-        Contents originalContents = contentsResult.getContents();
+        DriveContents originalContents = contentsResult.getDriveContents();
         OutputStream os = originalContents.getOutputStream();
         //write data to file
         try {
