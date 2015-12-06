@@ -46,7 +46,7 @@ public class ProgressNotification {
         PendingIntent pInt = PendingIntent.getService(ctx, 0, intend, 0);
 
         Intent notificationIntent = new Intent(ctx, MainActivity.class);
-        PendingIntent aInt = PendingIntent.getActivity(ctx, 0, notificationIntent, 0);
+        PendingIntent aInt = PendingIntent.getActivity(ctx, 0, notificationIntent, PendingIntent.FLAG_CANCEL_CURRENT);
 
         mBuilder
                 .setOngoing(true)

@@ -80,7 +80,7 @@ public class NotificationData implements Serializable {
         Intent notificationIntent = new Intent(context, MainActivity.class);
         notificationIntent.putExtra(MainActivity.CLEAN_NOTIFICATION, MainActivity.CLEAN_NOTIFICATION);
         PendingIntent contentIntent = PendingIntent.getActivity(context, 0,
-                notificationIntent, 0);
+                notificationIntent, PendingIntent.FLAG_CANCEL_CURRENT);
         
         NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(context);
         mBuilder.setContentIntent(contentIntent);
