@@ -3,8 +3,13 @@ package monakhv.android.samlib.service;
 import android.annotation.TargetApi;
 import android.app.Notification;
 import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.Context;
+import android.content.Intent;
 import android.support.v4.app.NotificationCompat;
+import monakhv.android.samlib.MainActivity;
+import monakhv.android.samlib.R;
+import monakhv.android.samlib.data.SettingsHelper;
 
 
 /*
@@ -28,15 +33,30 @@ public class ProgressNotification {
     public static final int NOTIFICATION_ID = 210;
     private final NotificationManager mNotifyManager;
     private final NotificationCompat.Builder mBuilder;
+    private final SettingsHelper mSettingsHelper;
 
-    public ProgressNotification(Context ctx) {
+    public ProgressNotification(Context ctx, String notificationTitle) {
+        mSettingsHelper = new SettingsHelper(ctx);
 
 
         mNotifyManager = (NotificationManager) ctx.getSystemService(Context.NOTIFICATION_SERVICE);
         mBuilder = new NotificationCompat.Builder(ctx.getApplicationContext());
+        Intent intend = new Intent(ctx, UpdateLocalService.class);
+        intend.putExtra(UpdateLocalService.ACTION_TYPE, UpdateLocalService.ACTION_STOP);
+        PendingIntent pInt = PendingIntent.getService(ctx, 0, intend, 0);
+
+        Intent notificationIntent = new Intent(ctx, MainActivity.class);
+        PendingIntent aInt = PendingIntent.getActivity(ctx, 0, notificationIntent, 0);
+
         mBuilder
                 .setOngoing(true)
-                .setSmallIcon(android.R.drawable.stat_sys_download);
+                .setAutoCancel(false)
+                .setSmallIcon(android.R.drawable.stat_sys_download)
+                .addAction(R.drawable.ic_cancel_white_36dp, ctx.getText(R.string.Cancel), pInt)
+                .setContentTitle(notificationTitle)
+                .setContentIntent(aInt)
+                .setDeleteIntent(pInt);
+
 
         initBuilder();
     }
@@ -64,10 +84,12 @@ public class ProgressNotification {
 
 
     public void updateProgress(int total, int iCurrent, String name) {
-        mBuilder
-                .setContentTitle(name)
-                .setTicker(name)
-                .setAutoCancel(false);
+
+
+        if (mSettingsHelper.isNotifyTickerEnable()) {
+            mBuilder
+                    .setTicker(name);
+        }
         if (total == 1) {//Single Author update
             mBuilder
                     .setProgress(0, 0, true)

@@ -160,22 +160,7 @@ public class UpdateServiceIntent extends MyServiceIntent {
         ctx.startService(updater);
     }
 
-    public static void makeUpdateAuthor(Context ctx, int id) {
-        Intent service = new Intent(ctx, UpdateServiceIntent.class);
-        service.putExtra(AndroidGuiUpdater.CALLER_TYPE, AndroidGuiUpdater.CALLER_IS_ACTIVITY);
-        service.putExtra(UpdateServiceIntent.SELECT_INDEX, SamLibConfig.TAG_AUTHOR_ID);
-        service.putExtra(UpdateServiceIntent.SELECT_ID, id);
 
-        ctx.startService(service);
-    }
-
-    public static void makeUpdate(Context ctx, int tagId) {
-        Intent service = new Intent(ctx, UpdateServiceIntent.class);
-        service.putExtra(AndroidGuiUpdater.CALLER_TYPE, AndroidGuiUpdater.CALLER_IS_ACTIVITY);
-        service.putExtra(UpdateServiceIntent.SELECT_INDEX, tagId);
-
-        ctx.startService(service);
-    }
 
     /**
      * Special Service with loadBook method

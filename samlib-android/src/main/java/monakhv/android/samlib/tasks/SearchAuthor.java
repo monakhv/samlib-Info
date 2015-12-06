@@ -29,6 +29,7 @@ import java.util.List;
 import monakhv.android.samlib.R;
 import monakhv.android.samlib.data.SettingsHelper;
 import monakhv.android.samlib.search.SearchAuthorActivity.SearchReceiver;
+import monakhv.samlib.exception.SamlibInterruptException;
 import monakhv.samlib.exception.SamlibParseException;
 import monakhv.samlib.db.entity.AuthorCard;
 import monakhv.samlib.db.entity.SamLibConfig;
@@ -96,6 +97,10 @@ public class SearchAuthor extends AsyncTask<String, Void, Boolean> {
             } catch (SamlibParseException ex) {
                 Log.e(DEBUG_TAG, null, ex);
 
+                status = ResultStatus.Error;
+                return false;
+            } catch (SamlibInterruptException e) {
+                Log.e(DEBUG_TAG, "Interrupted", e);
                 status = ResultStatus.Error;
                 return false;
             }

@@ -85,8 +85,12 @@ limitations under the License.
                 android:value="monakhv.android.samlib.MainActivity"/>
         </activity>
 
+
         <service
-            android:name=".service.UpdateServiceIntent">
+                android:name=".service.UpdateLocalService">
+        </service>
+        <service
+                android:name=".data.GoogleAutoService">
         </service>
         <service
             android:name=".service.DownloadBookServiceIntent">

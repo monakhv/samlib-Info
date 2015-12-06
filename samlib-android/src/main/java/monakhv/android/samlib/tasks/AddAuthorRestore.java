@@ -34,6 +34,7 @@ import monakhv.android.samlib.data.backup.AuthorStatePrefs;
 import monakhv.android.samlib.sql.DatabaseHelper;
 import monakhv.samlib.db.AuthorController;
 import monakhv.samlib.db.TagController;
+import monakhv.samlib.exception.SamlibInterruptException;
 import monakhv.samlib.exception.SamlibParseException;
 import monakhv.samlib.db.entity.Author;
 import monakhv.samlib.db.entity.SamLibConfig;
@@ -171,6 +172,9 @@ public class AddAuthorRestore extends AsyncTask<String, Void, Boolean> {
         } catch (IllegalArgumentException ex) {
             Log.e(DEBUG_TAG, "URL Parsing exception: " + text, ex);
 
+            return null;
+        } catch (SamlibInterruptException ex) {
+            Log.e(DEBUG_TAG, "loadAuthor: Interrupted " + text, ex);
             return null;
         }
 

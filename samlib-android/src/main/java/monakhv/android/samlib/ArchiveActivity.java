@@ -18,6 +18,7 @@ package monakhv.android.samlib;
 
 
 import android.support.v7.widget.Toolbar;
+import android.widget.*;
 import monakhv.android.samlib.data.DataExportImport;
 import monakhv.android.samlib.data.GoogleDiskOperation;
 import monakhv.android.samlib.data.SettingsHelper;
@@ -38,10 +39,7 @@ import android.text.Html;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
-import android.widget.TextView;
-import android.widget.Toast;
 
 
 import monakhv.android.samlib.service.AndroidGuiUpdater;
@@ -64,6 +62,7 @@ public class ArchiveActivity extends MyBaseAbstractActivity {
     private SettingsHelper setting;
     private DataExportImport dataExportImport;
     private AuthorEditReceiver authorReceiver;
+    private CheckBox cb;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -76,6 +75,17 @@ public class ArchiveActivity extends MyBaseAbstractActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
+        cb = (CheckBox) findViewById(R.id.cbGoogleAuto);
+        cb.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                Log.d(DEBUG_TAG, "set Googe Auto to: " + isChecked);
+                setting.setGoogleAuto(isChecked);
+            }
+        });
+        cb.setChecked(setting.isGoogleAuto());
+        cb.setEnabled(setting.isGoogleAutoEnable());
 
     }
 
@@ -323,6 +333,7 @@ public class ArchiveActivity extends MyBaseAbstractActivity {
                 return;
             }
             if (res && ot == GoogleDiskOperation.OperationType.EXPORT){
+                cb.setEnabled(setting.isGoogleAutoEnable());
                 Toast.makeText(context, context.getString(R.string.res_export_google_good), Toast.LENGTH_LONG).show();
             }
             String error = intent.getStringExtra(EXTRA_ERROR);

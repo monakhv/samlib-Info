@@ -23,6 +23,7 @@ import monakhv.samlib.db.entity.Author;
 import monakhv.samlib.db.entity.AuthorCard;
 import monakhv.samlib.db.entity.Book;
 import monakhv.samlib.db.entity.SamLibConfig;
+import monakhv.samlib.exception.SamlibInterruptException;
 import monakhv.samlib.exception.SamlibParseException;
 import monakhv.samlib.http.HttpClientController;
 import monakhv.samlib.log.Log;
@@ -34,6 +35,7 @@ import java.text.RuleBasedCollator;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
+
 /**
  * Service to making check for author updates Can be called from activity or
  * from alarm manager
@@ -41,6 +43,10 @@ import java.util.concurrent.TimeUnit;
  * @author monakhv
  */
 public class SamlibService {
+    public enum UpdateObjectSelector {
+        Tag,
+        Author
+    }
     private static final String DEBUG_TAG         = "SamlibService";
     public static final String ACTION_ADD          = "SamlibService.AddAuthorServiceIntent_ACTION_ADD";
     public static final String ACTION_DELETE    = "SamlibService.AddAuthorServiceIntent_ACTION_DELETE";
@@ -55,23 +61,33 @@ public class SamlibService {
     protected final AuthorController authorController;
     private final GuiUpdate guiUpdate;
     private final AbstractSettings settingsHelper;
-
+    private final HttpClientController http;
     public SamlibService(DaoBuilder sql, GuiUpdate guiUpdate, AbstractSettings settingsHelper) {
         this.guiUpdate = guiUpdate;
         this.settingsHelper = settingsHelper;
         authorController = new AuthorController(sql);
         updatedAuthors = new ArrayList<>();
+        http = HttpClientController.getInstance(settingsHelper);
 
     }
 
+    public SamlibService(DaoBuilder sql, GuiUpdate guiUpdate, AbstractSettings settingsHelper, HttpClientController httpClientController) {
+        this.guiUpdate = guiUpdate;
+        this.settingsHelper = settingsHelper;
+        authorController = new AuthorController(sql);
+        updatedAuthors = new ArrayList<>();
+        http = httpClientController;
+
+    }
     /**
      * Check update information for the list of authors
      * @param authors List of the Authors to check update
+     * @return true if update successful false if error or interrupted
      */
-    public void runUpdate(List<Author> authors) {
+    public boolean runUpdate(List<Author> authors) {
         updatedAuthors.clear();
         int skippedAuthors = 0;
-        HttpClientController http = HttpClientController.getInstance(settingsHelper);
+
         int total = authors.size();
         int iCurrent = 0;//to send update information to pull-to-refresh
         for (Author a : authors) {//main author cycle
@@ -82,16 +98,19 @@ public class SamlibService {
             try {
                 newA = http.getAuthorByURL(url,newA);
             } catch (IOException ex) {//here we abort cycle author and total update
-                Log.i(DEBUG_TAG, "Connection Error: "+url, ex);
+                Log.i(DEBUG_TAG, "runUpdate: Connection Error: " + url, ex);
                 guiUpdate.finishUpdate(false,updatedAuthors);
-
-                return;
+                return false;
 
             } catch (SamlibParseException ex) {//skip update for given author
-                Log.e(DEBUG_TAG, "Error parsing url: " + url + " skip update author ", ex);
+                Log.e(DEBUG_TAG, "runUpdate:Error parsing url: " + url + " skip update author ", ex);
 
                 ++skippedAuthors;
                 newA = a;
+            } catch (SamlibInterruptException e) {
+                Log.i(DEBUG_TAG, "runUpdate: catch Interrupted", e);
+                guiUpdate.finishUpdate(false, updatedAuthors);
+                return false;
             }
             if (a.update(newA)) {//we have update for the author
                 updatedAuthors.add(a);
@@ -109,18 +128,23 @@ public class SamlibService {
 
                 TimeUnit.SECONDS.sleep(SLEEP_INTERVAL_SECONDS);
             } catch (InterruptedException e) {
-                Log.e(DEBUG_TAG,"Sleep interrupted",e);
+                Log.i(DEBUG_TAG, "Sleep interrupted exiting", e);
+                guiUpdate.finishUpdate(false, updatedAuthors);
+                return false;
             }
         }//main author cycle END
+
+        authorController.cleanBooks();
         if (authors.size() == skippedAuthors){
             //all authors skipped - this is the error
             guiUpdate.finishUpdate(false,updatedAuthors);
+            return false;
         }
         else {
             guiUpdate.finishUpdate(true,updatedAuthors);
-
+            return true;
         }
-        authorController.cleanBooks();
+
 
     }
     /**
@@ -200,10 +224,10 @@ public class SamlibService {
      * @param urls list of author urls
      */
     public void makeAuthorAdd(ArrayList<String> urls){
-        HttpClientController http = HttpClientController.getInstance(settingsHelper);
+
 
         for (String url : urls) {
-            Author a = loadAuthor(http, authorController, url);
+            Author a = loadAuthor(authorController, url);
             if (a != null) {
                 author_id=authorController.insert(a);
                 ++numberOfAdded;
@@ -222,7 +246,7 @@ public class SamlibService {
      * @throws IOException
      * @throws SamlibParseException
      */
-    public static List<AuthorCard> makeSearch(String pattern,AbstractSettings settings ) throws IOException, SamlibParseException{
+    public static List<AuthorCard> makeSearch(String pattern, AbstractSettings settings) throws IOException, SamlibParseException, SamlibInterruptException {
         Log.i(DEBUG_TAG, "Search author with pattern: " + pattern);
         List<AuthorCard> result = new ArrayList<>();
 
@@ -290,7 +314,8 @@ public class SamlibService {
 
         return result;
     }
-    private Author loadAuthor(HttpClientController http, AuthorController sql, String url) {
+
+    private Author loadAuthor(AuthorController sql, String url) {
         Author a;
         String text;
 
@@ -323,6 +348,9 @@ public class SamlibService {
         } catch (IllegalArgumentException ex) {
             Log.e(DEBUG_TAG, "URL Parsing exception: " + text, ex);
 
+            return null;
+        } catch (SamlibInterruptException e) {
+            Log.e(DEBUG_TAG, "loadAuthor: Interrupted catch: " + text, e);
             return null;
         }
 
@@ -386,7 +414,7 @@ public class SamlibService {
 
     private boolean getBook(Book book, AbstractSettings.FileType ft) {
         book.setFileType(ft);
-        HttpClientController http = HttpClientController.getInstance(settingsHelper);
+
         try {
             http.downloadBook(book);
             return true;

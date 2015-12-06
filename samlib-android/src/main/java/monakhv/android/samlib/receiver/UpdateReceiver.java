@@ -21,6 +21,7 @@ import android.content.Intent;
 
 
 import monakhv.android.samlib.data.SettingsHelper;
+import monakhv.android.samlib.service.UpdateLocalService;
 import monakhv.android.samlib.service.UpdateServiceIntent;
 import monakhv.samlib.log.Log;
 
@@ -43,7 +44,7 @@ public class UpdateReceiver extends BroadcastReceiver {
 //        context.startService(updater);
 
 
-        UpdateServiceIntent.makeUpdate(context);
+        UpdateLocalService.makeUpdate(context);
 
     }
 

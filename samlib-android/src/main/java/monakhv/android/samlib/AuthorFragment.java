@@ -3,12 +3,12 @@ package monakhv.android.samlib;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
-import android.content.DialogInterface;
-import android.content.Intent;
+import android.content.*;
 
 
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
@@ -41,6 +41,7 @@ import monakhv.android.samlib.dialogs.MyMenuData;
 
 import monakhv.android.samlib.recyclerview.DividerItemDecoration;
 import monakhv.android.samlib.service.AuthorEditorServiceIntent;
+import monakhv.android.samlib.service.UpdateLocalService;
 import monakhv.android.samlib.service.UpdateServiceIntent;
 import monakhv.android.samlib.sortorder.AuthorSortOrder;
 
@@ -98,7 +99,23 @@ public class AuthorFragment extends Fragment implements
     private int selectedTag = SamLibConfig.TAG_AUTHOR_ALL;
     private int aId = -1;//preserve selection
 
+    private boolean mBound;
     private int mAppBarOffset;
+    private UpdateLocalService mUpdateService;
+    private Menu mMenu;
+    private ServiceConnection mConnection = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            UpdateLocalService.LocalBinder binder = (UpdateLocalService.LocalBinder) service;
+            mUpdateService = binder.getService();
+            mBound = true;
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+            mBound = false;
+        }
+    };
 
     public void setAppBarOffset(int appBarOffset) {
         mAppBarOffset = appBarOffset;
@@ -111,6 +128,8 @@ public class AuthorFragment extends Fragment implements
                 canUpdate &&
                         (mAppBarOffset == 0) &&
                         (adapter.getItemCount() != 0) &&
+                        (mUpdateService != null) &&
+                        !mUpdateService.isRunning() &&
                         PtrDefaultHandler.checkContentCanBePulledDown(frame, content, header);
     }
 
@@ -120,11 +139,10 @@ public class AuthorFragment extends Fragment implements
 
         void onAuthorSelected(long id);
 
-        void onTitleChange(String lTitle);
-
         void cleanBookSelection();
 
         void drawerToggle();
+
 
     }
 
@@ -137,6 +155,8 @@ public class AuthorFragment extends Fragment implements
         settingsHelper = new SettingsHelper(getActivity().getApplicationContext());
         order = AuthorSortOrder.valueOf(settingsHelper.getAuthorSortOrderString());
         detector = new GestureDetector(getActivity(), new ListSwipeListener(this));
+        Intent service = new Intent(getActivity(), UpdateLocalService.class);
+        getActivity().bindService(service, mConnection, Context.BIND_AUTO_CREATE);
         Log.d(DEBUG_TAG, "onCreate");
     }
 
@@ -274,29 +294,56 @@ public class AuthorFragment extends Fragment implements
 
     @Override
     public void onRefreshBegin(PtrFrameLayout view) {
-        Log.d(DEBUG_TAG, "Start update service");
+        Log.d(DEBUG_TAG, "onRefreshBegin: Start update service");
         adapter.cleanSelection();//clean selection before check updates
         canUpdate = false;
-
+        isProgressShow(true);
         if (getActivity() == null) {
             return;//try to prevent some ANR reports
         }
 
         if (updateAuthor) {
-            UpdateServiceIntent.makeUpdateAuthor(getActivity(), author.getId());
+            udateAuthor(author.getId());
+            //UpdateServiceIntent.makeUpdateAuthor(getActivity(), author.getId());
 
         } else {
-            UpdateServiceIntent.makeUpdate(getActivity(), selectedTag);
+            updateTag(selectedTag);
+            //UpdateServiceIntent.makeUpdate(getActivity(), selectedTag);
 
         }
     }
 
+    /**
+     * Stop GUI update state
+     * Call - from on pause
+     * call - from Main activity as a result for broadcast
+     */
     void onRefreshComplete() {
-        Log.d(DEBUG_TAG, "Stop updating state");
+        Log.d(DEBUG_TAG, "onRefreshComplete: Stop updating state");
         mPtrFrame.refreshComplete();
         canUpdate = true;
         updateAuthor = false;
+        isProgressShow(false);
+    }
 
+    /**
+     * Change view for refresh menu item
+     * Progress and static icon swotcher
+     *
+     * @param isShow if true we show progress
+     */
+    private void isProgressShow(boolean isShow) {
+        if (mMenu == null) {
+            return;
+        }
+        MenuItem item = mMenu.findItem(R.id.menu_refresh);
+        if (item != null) {
+            if (isShow) {
+                item.setActionView(R.layout.actionbar_indeterminate_progress);
+            } else {
+                item.setActionView(null);
+            }
+        }
     }
 
 
@@ -512,27 +559,7 @@ public class AuthorFragment extends Fragment implements
         }
     }
 
-    /**
-     * Show author list according selected tag
-     *
-     * @param tag_id  tag-id
-     * @param tg_name tag name
-     */
-    public void selectTag(int tag_id, String tg_name) {
-        selectedTag = tag_id;
 
-
-        if (tag_id == SamLibConfig.TAG_AUTHOR_ALL) {
-
-            mCallbacks.onTitleChange(getActivity().getText(R.string.app_name).toString());
-        } else {
-            mCallbacks.onTitleChange(tg_name);
-        }
-
-
-        Log.i(DEBUG_TAG, "Selected tag " + selectedTag);
-        refresh(selectedTag, null);
-    }
 
     /**
      * Get selection string for author search
@@ -570,8 +597,8 @@ public class AuthorFragment extends Fragment implements
      * @param selectedTag selection tag id
      * @param so          sort order string
      */
-    public void refresh(int selectedTag, AuthorSortOrder so) {
-        Log.d(DEBUG_TAG, "refresh: set Selection: " + selectedTag);
+    public void selectTag(int selectedTag, AuthorSortOrder so) {
+        Log.d(DEBUG_TAG, "selectTag: set Selection: " + selectedTag);
         cleanSelection();
         this.selectedTag = selectedTag;
         if (so != null) {
@@ -610,8 +637,13 @@ public class AuthorFragment extends Fragment implements
 
     @Override
     public void onDestroy() {
+        if (mBound) {
+            getActivity().unbindService(mConnection);
+            mBound = false;
+        }
         super.onDestroy();
         getLoaderManager().destroyLoader(AUTHOR_LOADER_ID);
+
     }
 
     @Override
@@ -627,10 +659,23 @@ public class AuthorFragment extends Fragment implements
 
     }
 
+    public void updateTag(int tag) {
+        UpdateLocalService.updateTag(getActivity(), tag);
+    }
+
+
+    public void udateAuthor(int id) {
+        UpdateLocalService.updateAuthor(getActivity(), id);
+    }
+
+
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         inflater.inflate(R.menu.options_menu, menu);
-        //super.onCreateOptionsMenu(menu, inflater);
+        mMenu = menu;
+        if (mBound) {
+            isProgressShow(mUpdateService.isRunning());
+        }
     }
 
     @Override

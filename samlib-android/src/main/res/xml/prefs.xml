@@ -55,6 +55,12 @@ limitations under the License.
             android:defaultValue="@string/pref_default_theme"/>
 
         <CheckBoxPreference
+                android:title="@string/pref_interface_update_ticker_title"
+                android:key="@string/pref_key_flag_update_ticker"
+                android:summary="@string/pref_interface_update_ticker_desc"
+                android:defaultValue="@bool/pref_key_flag_update_ticker"/>
+
+        <CheckBoxPreference
                 android:title="@string/pref_interface_anim_title"
                 android:key="@string/pref_key_flag_anim"
                 android:summary="@string/pref_interface_anim_desc"

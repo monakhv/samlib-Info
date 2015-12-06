@@ -110,6 +110,9 @@ limitations under the License.
     <string name="notification_updates">Обновления на самиздате</string>
     <string name="notification_error">Ошибка обновления SamLib</string>
     <string name="notification_update_error_detais">Произошла ошибка соединения с SamLib!</string>
+
+    <string name="notification_title_author">Проверка автора:</string>
+    <string name="notification_title_TAG">Проверка авторов:</string>
     
     <string name="author_update">Обновление у автора: </string>
     <string name="author_update_number">Количество обновлений:</string>
@@ -218,15 +221,21 @@ limitations under the License.
     <string name="pref_interface_anim_title">Анимация</string>
     <string name="pref_interface_anim_desc">Включить анимацию перехода к книгам</string>
 
+    <string name="pref_key_flag_update_ticker">pref_key_flag_update_ticker</string>
+    <string name="pref_interface_update_ticker_title">Заголовок Уведомления</string>
+    <string name="pref_interface_update_ticker_desc">Включить заголовок уведомления при проверки обновлений</string>
+
 
     <string name="pref_key_mirror">pref_key_mirror</string>
     <string name="pref_title_mirror">Первое зеркало</string>
     <string name="pref_default_mirror">SamLib</string>
 
-    <string name="change_theme_alert">Смена темы произойдет после нового запуска.  Выйти из приложения сейчас?</string>
+    <string name="change_theme_alert">Смена темы произойдет после перезапуска. Перезапустить приложения сейчас?</string>
 
 
     <string name="pref_key_version_name">pref_key_version_name</string>
+    <string name="pref_key_google_auto">pref_key_google_auto</string>
+    <string name="pref_key_google_auto_enable">pref_key_google_auto_enable</string>
 
     <string name="pref_no_sound">Без звука</string>
     
@@ -248,6 +257,7 @@ limitations under the License.
 
     <string name="res_export_google_good">База успешно экспортирована</string>
     <string name="res_export_google_delayed">Экспорт базы отложен до восстановления сети</string>
+    <string name="res_export_google_interrupt">Прерывание экспорта данных</string>
     <string name="res_export_google_bad">Ошибка экспорта базы</string>
     <string name="res_import_google_bad">Ошибка импорта базы</string>
     
@@ -263,6 +273,8 @@ limitations under the License.
     <string name="arc_export_google">Выгрузить базу</string>
     <string name="arc_import_google">Загрузить базу</string>
     <string name="arc_google_file">SamLib-Info.db на Google Drive</string>
+    <string name="arc_google_auto">Автоматиеское сохранение.</string>
+
 
     <string name="arc_msg_export">Выгрузка…</string>
     <string name="arc_msg_import">Загрузка…</string>
@@ -285,7 +297,7 @@ limitations under the License.
     <string name="download_book_error">Ошибка загрузки книги</string>
     <string name="download_Loading">Загрузка&#8230;</string>
     <string name="search_Loading">Идет поиск&#8230;</string>
-    
+    <string name="cb_auto_backup">автобэкап</string>
 
-    
+
 </resources>

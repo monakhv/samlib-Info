@@ -16,6 +16,7 @@
 package monakhv.android.samlib.data;
 
 import android.app.AlarmManager;
+
 import android.app.PendingIntent;
 import android.app.backup.BackupManager;
 
@@ -115,17 +116,18 @@ public class SettingsHelper extends AbstractSettings implements SharedPreference
     }
 
     public void registerListener() {
+        Log.d(DEBUG_TAG, "Register Listener");
         prefs.registerOnSharedPreferenceChangeListener(this);
     }
 
     public void unRegisterListener() {
-
+        Log.d(DEBUG_TAG, "Unregister Listener");
         prefs.unregisterOnSharedPreferenceChangeListener(this);
     }
 
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
         requestBackup();
-
+        Log.d(DEBUG_TAG, "Preference change, key is " + key);
         if (key.equals(context.getString(R.string.pref_key_flag_background_update))
                 || key.equals(context.getString(R.string.pref_key_update_Period))) {
             updateService = true;
@@ -140,7 +142,7 @@ public class SettingsHelper extends AbstractSettings implements SharedPreference
     }
 
     /**
-     * Set or cancel Recurring Task using updated preferences
+     * Set or cancel Recurring Task using updated preferences into Alarm Manager
      */
     public void updateService() {
         if (!updateService) {
@@ -164,23 +166,26 @@ public class SettingsHelper extends AbstractSettings implements SharedPreference
      * Cancel recurring Task
      */
     private void cancelRecurringAlarm() {
-        Log.d(DEBUG_TAG, "Cancel Updater service call");
+        Log.i(DEBUG_TAG, "Cancel Updater service call");
         if (getDebugFlag()) {
             log(DEBUG_TAG, "Cancel Updater service call");
 
         }
-        Intent downloader = new Intent(context, UpdateReceiver.class);
-        PendingIntent recurringDownload = PendingIntent.getBroadcast(context,
-                0, downloader, PendingIntent.FLAG_CANCEL_CURRENT);
+        /**
+         * We are using receiver here to avoid possible interference with the Pending intend in ProgressNotification
+         */
+
+        Intent intent = new Intent(context, UpdateReceiver.class);
+        PendingIntent recurringUpdate = PendingIntent.getBroadcast(context, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT);
         AlarmManager alarms = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-        alarms.cancel(recurringDownload);
+        alarms.cancel(recurringUpdate);
     }
 
     /**
-     * Set recurring Task
+     * Set recurring Task in Alarm Manager
      */
     private void setRecurringAlarm() {
-        Log.d(DEBUG_TAG, "Update Updater service call");
+        Log.i(DEBUG_TAG, "Update Updater service call");
         if (getDebugFlag()) {
             log(DEBUG_TAG, "Update Updater service call");
 
@@ -192,15 +197,13 @@ public class SettingsHelper extends AbstractSettings implements SharedPreference
         long startTime = Calendar.getInstance().getTimeInMillis() + updatePeriod;
 
 
-        Intent downloader = new Intent(context, UpdateReceiver.class);
-        PendingIntent recurringDownload = PendingIntent.getBroadcast(context,
-                0, downloader, PendingIntent.FLAG_CANCEL_CURRENT);
-        AlarmManager alarms = (AlarmManager) context.getSystemService(
-                Context.ALARM_SERVICE);
-
-
-        alarms.setInexactRepeating(AlarmManager.RTC_WAKEUP,
-                startTime, updatePeriod, recurringDownload);
+        /**
+         * We are using receiver here to avoid possible interference with the Pending intend in ProgressNotification
+         */
+        Intent intent = new Intent(context, UpdateReceiver.class);
+        PendingIntent recurringUpdate = PendingIntent.getBroadcast(context, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT);
+        AlarmManager alarms = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+        alarms.setInexactRepeating(AlarmManager.RTC_WAKEUP, startTime, updatePeriod, recurringUpdate);
     }
 
     private boolean getBackgroundUpdateFlag() {
@@ -336,7 +339,7 @@ public class SettingsHelper extends AbstractSettings implements SharedPreference
             log(DEBUG_TAG, "Update interval set to: " + str);
 
         }
-        Log.d(DEBUG_TAG, "Update interval: " + str);
+        Log.i(DEBUG_TAG, "Update interval: " + str);
 
         if (str.equals("1HOUR")) {
             return AlarmManager.INTERVAL_HOUR;
@@ -690,6 +693,30 @@ public class SettingsHelper extends AbstractSettings implements SharedPreference
     }
 
     public boolean isAnimation() {
-        return prefs.getBoolean(context.getString(R.string.pref_key_flag_anim),true) ;
+        return prefs.getBoolean(context.getString(R.string.pref_key_flag_anim), false);
+    }
+
+    public boolean isNotifyTickerEnable() {
+        return prefs.getBoolean(context.getString(R.string.pref_key_flag_update_ticker), true);
+    }
+
+    public void setGoogleAuto(boolean googleAuto) {
+        prefs.edit().putBoolean(context.getString(R.string.pref_key_google_auto), googleAuto).commit();
+
+    }
+
+    public boolean isGoogleAuto() {
+        return prefs.getBoolean(context.getString(R.string.pref_key_google_auto), false);
+    }
+
+    public boolean isGoogleAutoEnable() {
+        return prefs.getBoolean(context.getString(R.string.pref_key_google_auto_enable), false);
+    }
+
+    public void setGoogleAutoEnable(boolean enable) {
+        prefs.edit().putBoolean(context.getString(R.string.pref_key_google_auto_enable), enable).commit();
+        if (!enable) {
+            setGoogleAuto(false);
+        }
     }
 }

@@ -20,6 +20,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 
+import java.io.InterruptedIOException;
 import java.net.Authenticator;
 import java.net.Proxy;
 import java.net.URL;
@@ -33,10 +34,7 @@ import com.squareup.okhttp.OkHttpClient;
 import com.squareup.okhttp.Request;
 import com.squareup.okhttp.Response;
 import monakhv.samlib.data.AbstractSettings;
-import monakhv.samlib.exception.SamlibParseException;
-import monakhv.samlib.exception.BookParseException;
-import monakhv.samlib.exception.SamLibIsBusyException;
-import monakhv.samlib.exception.SamLibNullAuthorException;
+import monakhv.samlib.exception.*;
 import monakhv.samlib.db.entity.Author;
 import monakhv.samlib.db.entity.AuthorCard;
 import monakhv.samlib.db.entity.Book;
@@ -58,6 +56,8 @@ import monakhv.samlib.log.Log;
  *         -searchAuthors used by SearchAuthor async task
  */
 public class HttpClientController {
+
+
     public interface PageReader {
         String doReadPage(InputStream in) throws IOException;
     }
@@ -71,6 +71,7 @@ public class HttpClientController {
     private ProxyData proxy;
     private static HttpClientController instance = null;
     private final SamLibConfig slc;
+    private final OkHttpClient httpclient;
 
     private final AbstractSettings settingsHelper;
 
@@ -83,12 +84,18 @@ public class HttpClientController {
     }
 
     private HttpClientController(AbstractSettings context) {
+        httpclient = new OkHttpClient();
         slc = SamLibConfig.getInstance(context);
 
         settingsHelper = context;
         proxy = settingsHelper.getProxy();
+        proxy = settingsHelper.getProxy();
         setProxy(proxy);
         //settingsHelper.setProxy(this);
+    }
+
+    public void cancelAll() {
+        httpclient.cancel(DEBUG_TAG);
     }
 
     /**
@@ -103,7 +110,7 @@ public class HttpClientController {
      * @throws java.io.IOException
      * @throws monakhv.samlib.exception.SamlibParseException
      */
-    public Author getAuthorByURL(String link, Author a) throws IOException, SamlibParseException {
+    public Author getAuthorByURL(String link, Author a) throws IOException, SamlibParseException, SamlibInterruptException {
 
         a.setUrl(link);
         String str = getURL(slc.getAuthorRequestURL(a), new StringReader());
@@ -123,7 +130,7 @@ public class HttpClientController {
      * @throws IOException
      * @throws SamlibParseException
      */
-    public Author addAuthor(String link, Author a1) throws IOException, SamlibParseException {
+    public Author addAuthor(String link, Author a1) throws IOException, SamlibParseException, SamlibInterruptException {
         Author a = getAuthorByURL(link, a1);
         a.extractName();
         return a;
@@ -140,7 +147,7 @@ public class HttpClientController {
      * @throws IOException          connection problem occurred
      * @throws SamlibParseException remote host return status other then 200
      */
-    public void downloadBook(Book book) throws IOException, SamlibParseException {
+    public void downloadBook(Book book) throws IOException, SamlibParseException, SamlibInterruptException {
         File f = settingsHelper.getBookFile(book, book.getFileType());
         PageReader reader;
         switch (book.getFileType()) {
@@ -169,7 +176,7 @@ public class HttpClientController {
      * @throws IOException
      * @throws monakhv.samlib.exception.SamlibParseException
      */
-    public HashMap<String, ArrayList<AuthorCard>> searchAuthors(String pattern, int page) throws IOException, SamlibParseException {
+    public HashMap<String, ArrayList<AuthorCard>> searchAuthors(String pattern, int page) throws IOException, SamlibParseException, SamlibInterruptException {
         String str;
         try {
             str = getURL(slc.getSearchAuthorURL(pattern, page), new StringReader());
@@ -189,23 +196,32 @@ public class HttpClientController {
      * @throws IOException          connection problem
      * @throws SamlibParseException remote host return status other then 200
      */
-    private String getURL(List<String> urls, PageReader reader) throws IOException, SamlibParseException {
+    private String getURL(List<String> urls, PageReader reader) throws IOException, SamlibParseException, SamlibInterruptException {
         String res = null;
         IOException exio = null;
         SamlibParseException exparse = null;
         for (String surl : urls) {
-            Log.i(DEBUG_TAG, "using urls: " + surl);
-            settingsHelper.log(DEBUG_TAG, "using urls: " + surl);
+            Log.i(DEBUG_TAG, "getURL: using urls: " + surl);
+            settingsHelper.log(DEBUG_TAG, "getURL: using urls: " + surl);
             exio = null;
             exparse = null;
             try {
                 URL url = new URL(surl);
                 res = _getURL(url, reader);
+            } catch (InterruptedIOException e) {
+                if (Thread.interrupted()) {
+                    throw new SamlibInterruptException("getURL:InterruptedIOException");
+                }
+                throw new InterruptedIOException();
             } catch (IOException e) {
                 slc.flipOrder();
                 exio = e;
-                Log.e(DEBUG_TAG, "IOException: " + surl, e);
-                settingsHelper.log(DEBUG_TAG, "IOException: " + surl, e);
+                if (Thread.interrupted()) {
+                    throw new SamlibInterruptException("getURL:IOException");
+                }
+
+                Log.e(DEBUG_TAG, "getURL: IOException: " + surl, e);
+                settingsHelper.log(DEBUG_TAG, "getURL: IOException: " + surl, e);
             } catch (SamlibParseException e) {
                 slc.flipOrder();
                 exparse = e;
@@ -236,7 +252,7 @@ public class HttpClientController {
      * @throws SamlibParseException remote host return status other then 200 ad
      *                              503
      */
-    private String _getURL(URL url, PageReader reader) throws IOException, SamlibParseException {
+    private String _getURL(URL url, PageReader reader) throws IOException, SamlibParseException, SamlibInterruptException {
         String res = null;
         boolean retry = true;
         int loopCount = 0;
@@ -251,11 +267,12 @@ public class HttpClientController {
                 try {
                     TimeUnit.SECONDS.sleep(loopCount);
                 } catch (InterruptedException ex1) {
-                    Log.e(DEBUG_TAG, "Sleep interapted: ", ex);
+                    //Log.e(DEBUG_TAG, "_getURL:Sleep interrupted: "+Thread.interrupted(), ex);
+                    throw new SamlibInterruptException("_getURL:Sleep interrupted");
                 }
                 if (loopCount >= RETRY_LIMIT) {
                     // retry = false;
-                    throw new IOException("Retry Limit exeeded");
+                    throw new IOException("Retry Limit exceeded");
                 }
             }
         }
@@ -276,7 +293,7 @@ public class HttpClientController {
     private String __getURL(URL url, PageReader reader) throws IOException, SamLibIsBusyException, SamlibParseException {
 
 
-        OkHttpClient httpclient = new OkHttpClient();
+
         httpclient.setConnectTimeout(CONNECTION_TIMEOUT, TimeUnit.MILLISECONDS);
         httpclient.setReadTimeout(READ_TIMEOUT, TimeUnit.MILLISECONDS);
 
@@ -285,6 +302,7 @@ public class HttpClientController {
                 .header("User-Agent", USER_AGENT)
                 .header("Accept-Charset", ENCODING)
                 .header("Connection", "close")
+                .tag(DEBUG_TAG)
                 .build();
 
 
