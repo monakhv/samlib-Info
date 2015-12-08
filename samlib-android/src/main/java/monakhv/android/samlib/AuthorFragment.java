@@ -354,15 +354,15 @@ public class AuthorFragment extends Fragment implements
         Log.d(DEBUG_TAG, "singleClick: Selected position: " + position);
         adapter.toggleSelection(position);
         authorRV.refreshDrawableState();
-        Author author = adapter.getSelected();
+        final Author author1 = adapter.getSelected();
 
-        if (author == null) {
+        if (author1 == null) {
             Log.e(DEBUG_TAG, "singleClick: position: " + position + "  Author is NULL");
             return false;
         }
 
 
-        mCallbacks.onAuthorSelected(author.getId());
+        mCallbacks.onAuthorSelected(author1.getId());
         return true;
         //return false;
 

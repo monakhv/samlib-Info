@@ -241,12 +241,12 @@ public class BookFragment extends Fragment implements
         adapter.toggleSelection(position);
 
 
-        Book book = adapter.getSelected();
-        if (book == null) {
+        final Book book1 = adapter.getSelected();
+        if (book1 == null) {
             Log.e(DEBUG_TAG, "singleClick: null book error position = " + position);
             return false;
         }
-        loadBook(book);
+        loadBook(book1);
         bookRV.playSoundEffect(SoundEffectConstants.CLICK);
         return true;
     }
