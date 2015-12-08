@@ -1,6 +1,5 @@
 package monakhv.android.samlib;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.*;
@@ -161,7 +160,7 @@ public class AuthorFragment extends Fragment implements
     }
 
     @Override
-    public void onAttach(Activity activity) {
+    public void onAttach(Context activity) {
         super.onAttach(activity);
         if (!(activity instanceof Callbacks)) {
             throw new IllegalStateException(
@@ -303,7 +302,7 @@ public class AuthorFragment extends Fragment implements
         }
 
         if (updateAuthor) {
-            udateAuthor(author.getId());
+            updateAuthor(author.getId());
             //UpdateServiceIntent.makeUpdateAuthor(getActivity(), author.getId());
 
         } else {
@@ -328,7 +327,7 @@ public class AuthorFragment extends Fragment implements
 
     /**
      * Change view for refresh menu item
-     * Progress and static icon swotcher
+     * Progress and static icon switcher
      *
      * @param isShow if true we show progress
      */
@@ -463,14 +462,14 @@ public class AuthorFragment extends Fragment implements
             startRefresh();
         }
         if (item == edit_author_option_item) {
-            EnterStringDialog ddialog = new EnterStringDialog(getActivity(), new EnterStringDialog.ClickListener() {
+            EnterStringDialog dDialog = new EnterStringDialog(getActivity(), new EnterStringDialog.ClickListener() {
                 public void okClick(String txt) {
                     author.setName(txt);
                     updateAuthor(author);
                 }
             }, getText(R.string.dialog_title_edit_author).toString(), author.getName());
 
-            ddialog.show();
+            dDialog.show();
         }
 
     }
@@ -558,7 +557,6 @@ public class AuthorFragment extends Fragment implements
             }
         }
     }
-
 
 
     /**
@@ -662,12 +660,12 @@ public class AuthorFragment extends Fragment implements
 
     }
 
-    public void updateTag(int tag) {
+    private void updateTag(int tag) {
         UpdateLocalService.updateTag(getActivity(), tag);
     }
 
 
-    public void udateAuthor(int id) {
+    private void updateAuthor(int id) {
         UpdateLocalService.updateAuthor(getActivity(), id);
     }
 
@@ -694,9 +692,6 @@ public class AuthorFragment extends Fragment implements
         }
 
         if (sel == R.id.selected_option_item) {
-//            if (isTagShow){//if tags
-//                onFinish(author_id);//go to books
-//            }
             Log.d(DEBUG_TAG, "go to Selected");
             //cleanSelection();
             mCallbacks.onAuthorSelected(SamLibConfig.SELECTED_BOOK_ID);

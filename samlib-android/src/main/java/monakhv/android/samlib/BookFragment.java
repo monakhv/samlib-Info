@@ -1,6 +1,5 @@
 package monakhv.android.samlib;
 
-import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
@@ -62,7 +61,7 @@ import java.util.List;
  */
 public class BookFragment extends Fragment implements
         ListSwipeListener.SwipeCallBack, LoaderManager.LoaderCallbacks<List<Book>>,
-        RecyclerAdapter.CallBack{
+        RecyclerAdapter.CallBack {
     private AuthorController sql;
 
     public void refresh() {
@@ -71,17 +70,19 @@ public class BookFragment extends Fragment implements
 
     @Override
     public void makeNewFlip(int id) {
-        AuthorEditorServiceIntent.markBookReadFlip(getActivity(),id);
+        AuthorEditorServiceIntent.markBookReadFlip(getActivity(), id);
     }
 
 
     public interface Callbacks {
         DatabaseHelper getDatabaseHelper();
+
         void showTags(long author_id);
     }
+
     private static final String DEBUG_TAG = "BookFragment";
     public static final String AUTHOR_ID = "AUTHOR_ID";
-    private static final int BOOK_LOADER_ID=190;
+    private static final int BOOK_LOADER_ID = 190;
     private RecyclerView bookRV;
     private long author_id;
     private BookAdapter adapter;
@@ -119,7 +120,7 @@ public class BookFragment extends Fragment implements
 
 
     @Override
-    public void onAttach(Activity activity) {
+    public void onAttach(Context activity) {
         super.onAttach(activity);
         if (!(activity instanceof BookFragment.Callbacks)) {
             throw new IllegalStateException(
@@ -141,7 +142,7 @@ public class BookFragment extends Fragment implements
         mProgressBar = (ProgressBar) view.findViewById(R.id.bookProgress);
 
 
-        adapter = new BookAdapter(getActivity(),this);
+        adapter = new BookAdapter(getActivity(), this);
         adapter.setAuthor_id(author_id);
         bookRV.setHasFixedSize(true);
         bookRV.setLayoutManager(new LinearLayoutManager(getActivity()));
@@ -167,13 +168,13 @@ public class BookFragment extends Fragment implements
 
     @Override
     public Loader<List<Book>> onCreateLoader(int id, Bundle args) {
-        return new BookLoader(getActivity(), mCallbacks.getDatabaseHelper(),author_id,order.getOrder());
+        return new BookLoader(getActivity(), mCallbacks.getDatabaseHelper(), author_id, order.getOrder());
     }
 
     @Override
     public void onLoadFinished(Loader<List<Book>> loader, List<Book> data) {
         adapter.setData(data);
-        Log.d(DEBUG_TAG,"onLoadFinished: adapter size = "+adapter.getItemCount());
+        Log.d(DEBUG_TAG, "onLoadFinished: adapter size = " + adapter.getItemCount());
         mProgressBar.setVisibility(View.GONE);
         makeEmpty();
     }
@@ -182,9 +183,6 @@ public class BookFragment extends Fragment implements
     public void onLoaderReset(Loader<List<Book>> loader) {
         adapter.setData(null);
     }
-
-
-
 
 
     /**
@@ -245,7 +243,7 @@ public class BookFragment extends Fragment implements
 
         Book book = adapter.getSelected();
         if (book == null) {
-            Log.e(DEBUG_TAG,"singleClick: null book error position = "+position);
+            Log.e(DEBUG_TAG, "singleClick: null book error position = " + position);
             return false;
         }
         loadBook(book);
@@ -255,14 +253,14 @@ public class BookFragment extends Fragment implements
 
     @Override
     public boolean swipeRight(MotionEvent e) {
-        Log.v(DEBUG_TAG,"making swipeRight");
+        Log.v(DEBUG_TAG, "making swipeRight");
         int position = bookRV.getChildAdapterPosition(bookRV.findChildViewUnder(e.getX(), e.getY()));
-        adapter.toggleSelection(position,false);
+        adapter.toggleSelection(position, false);
 
         book = adapter.getSelected();
 
         if (book == null) {
-            Log.e(DEBUG_TAG,"Book is null");
+            Log.e(DEBUG_TAG, "Book is null");
             return false;
         }
         adapter.makeSelectedRead(true);
@@ -360,7 +358,7 @@ public class BookFragment extends Fragment implements
         if (item == menu_fixed) {
 
             if (book.isPreserve()) {
-                Log.i(DEBUG_TAG, "making book UNpreserved " + book.getUri());
+                Log.i(DEBUG_TAG, "remove preserved mark for book " + book.getUri());
                 //TODO: alert Dialogs
                 //TODO: clean all copies and reload
                 book.setPreserve(false);
@@ -374,7 +372,7 @@ public class BookFragment extends Fragment implements
         }
         if (item == menu_choose_version) {
             final String[] files = settings.getBookFileVersions(book);
-            if (files.length == 0l) {
+            if (files.length == 0L) {
                 Log.i(DEBUG_TAG, "file is NULL");
                 //TODO: alarm no version is found
                 return;
@@ -400,11 +398,11 @@ public class BookFragment extends Fragment implements
      */
     private void launchBrowser(Book book) {
 
-        String surl = book.getUrlForBrowser(settings);
+        String sUrl = book.getUrlForBrowser(settings);
 
-        Log.d(DEBUG_TAG, "book url: " + surl);
+        Log.d(DEBUG_TAG, "book url: " + sUrl);
 
-        Uri uri = Uri.parse(surl);
+        Uri uri = Uri.parse(sUrl);
         Intent launchBrowser = new Intent(Intent.ACTION_VIEW, uri);
         SettingsHelper setting = new SettingsHelper(getActivity());
         if (setting.getAutoMarkFlag()) {
@@ -469,16 +467,7 @@ public class BookFragment extends Fragment implements
      * @param book the book to read
      */
     void launchReader(Book book) {
-
-        Intent launchBrowser = new Intent();
-        launchBrowser.setAction(android.content.Intent.ACTION_VIEW);
-        launchBrowser.setDataAndType(Uri.parse(settings.getBookFileURL(book)), book.getFileMime());
-
-
-        if (settings.getAutoMarkFlag()) {
-            adapter.makeSelectedRead(false);
-        }
-        startActivity(launchBrowser);
+        launchReader(book, null);
     }
 
     /**
@@ -489,10 +478,17 @@ public class BookFragment extends Fragment implements
      * @param file version file name
      */
     void launchReader(Book book, String file) {
+        String url;
+        if (file == null) {
+            url = settings.getBookFileURL(book);
+        } else {
+            url = settings.getBookFileURL(book, file);
+        }
+
 
         Intent launchBrowser = new Intent();
         launchBrowser.setAction(android.content.Intent.ACTION_VIEW);
-        launchBrowser.setDataAndType(Uri.parse(settings.getBookFileURL(book, file)), book.getFileMime());
+        launchBrowser.setDataAndType(Uri.parse(url), book.getFileMime());
 
 
         if (settings.getAutoMarkFlag()) {
@@ -516,7 +512,7 @@ public class BookFragment extends Fragment implements
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int sel = item.getItemId();
-        if (sel == R.id.menu_books_tags  && author_id >0 ) {
+        if (sel == R.id.menu_books_tags && author_id > 0) {
             mCallbacks.showTags(author_id);
         }
         if (sel == R.id.menu_books_sort) {
@@ -525,7 +521,7 @@ public class BookFragment extends Fragment implements
         return super.onOptionsItemSelected(item);
     }
 
-    private void updateBook(Book book){
+    private void updateBook(Book book) {
         sql.getBookController().update(book);
         updateAdapter();
     }
