@@ -653,12 +653,12 @@ public class AuthorFragment extends Fragment implements
         }
     }
 
-    @Override
-    public void onPause() {
-        onRefreshComplete();
-        super.onPause();
-
-    }
+//    @Override
+//    public void onPause() {
+//        onRefreshComplete();
+//        super.onPause();
+//
+//    }
 
     private void updateTag(int tag) {
         UpdateLocalService.updateTag(getActivity(), tag);
