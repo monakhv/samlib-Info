@@ -52,9 +52,10 @@ import java.util.List;
  */
 public class UpdateLocalService extends MyService {
     private static final String DEBUG_TAG = "UpdateLocalService";
-    public static final String ACTION_TYPE = "UpdateLocalService.ACTION_TYPE";
-    public static final int ACTION_STOP = 101;
-    public static final int ACTION_UPDATE = 103;
+
+    public static final String ACTION_STOP = "UpdateLocalService.ACTION_STOP";
+    public static final String ACTION_UPDATE = "UpdateLocalService.ACTION_UPDATE";
+
     public static final String SELECTOR_TYPE = "UpdateLocalService.SELECTOR_TYPE";
     public static final String SELECTOR_ID = "UpdateLocalService.SELECTOR_ID";
 
@@ -83,15 +84,15 @@ public class UpdateLocalService extends MyService {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        int action = intent.getExtras().getInt(ACTION_TYPE);
+        String action = intent.getAction();
         Log.i(DEBUG_TAG, "OnStart");
 
-        if (action == ACTION_STOP) {
+        if (action.equalsIgnoreCase(ACTION_STOP)) {
             Log.i(DEBUG_TAG, "OnStart: making stop: is Run " + isRun);
             interrupt();
             stopSelf();
         }
-        if (action == ACTION_UPDATE) {
+        if (action.equalsIgnoreCase(ACTION_UPDATE)) {
             Log.i(DEBUG_TAG, "OnStart: making update");
             int id = intent.getExtras().getInt(SELECTOR_ID);
             String nn = intent.getExtras().getString(SELECTOR_TYPE);
@@ -139,7 +140,7 @@ public class UpdateLocalService extends MyService {
         SettingsHelper settings = new SettingsHelper(ctx);
         String stag = settings.getUpdateTag();
         int idx = Integer.parseInt(stag);
-        service.putExtra(UpdateLocalService.ACTION_TYPE, UpdateLocalService.ACTION_UPDATE);
+        service.setAction(UpdateLocalService.ACTION_UPDATE);
         service.putExtra(UpdateLocalService.SELECTOR_ID, idx);
         service.putExtra(UpdateLocalService.SELECTOR_TYPE, SamlibService.UpdateObjectSelector.Tag.name());
         service.putExtra(AndroidGuiUpdater.CALLER_TYPE, AndroidGuiUpdater.CALLER_IS_RECEIVER);
@@ -149,7 +150,7 @@ public class UpdateLocalService extends MyService {
 
     private static void makeUpdate(Context ctx, SamlibService.UpdateObjectSelector selector, int id) {
         Intent service = new Intent(ctx, UpdateLocalService.class);
-        service.putExtra(UpdateLocalService.ACTION_TYPE, UpdateLocalService.ACTION_UPDATE);
+        service.setAction(UpdateLocalService.ACTION_UPDATE);
         service.putExtra(UpdateLocalService.SELECTOR_ID, id);
         service.putExtra(UpdateLocalService.SELECTOR_TYPE, selector.name());
         service.putExtra(AndroidGuiUpdater.CALLER_TYPE, AndroidGuiUpdater.CALLER_IS_ACTIVITY);

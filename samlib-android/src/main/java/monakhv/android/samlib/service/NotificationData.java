@@ -78,9 +78,9 @@ public class NotificationData implements Serializable {
      */
     private NotificationCompat.Builder makeNotification(Context context) {
         Intent notificationIntent = new Intent(context, MainActivity.class);
-        notificationIntent.putExtra(MainActivity.CLEAN_NOTIFICATION, MainActivity.CLEAN_NOTIFICATION);
+        notificationIntent.setAction(MainActivity.ACTION_CLEAN);
         PendingIntent contentIntent = PendingIntent.getActivity(context, 0,
-                notificationIntent, PendingIntent.FLAG_CANCEL_CURRENT);
+                notificationIntent, PendingIntent.FLAG_ONE_SHOT);//because of autoCancel one shot must be good
         
         NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(context);
         mBuilder.setContentIntent(contentIntent);
@@ -102,8 +102,10 @@ public class NotificationData implements Serializable {
      */
     private NotificationCompat.Builder makeUpdateNotification(Context context) {
         NotificationCompat.Builder mBuilder = makeNotification(context);
-        
-        mBuilder.setDeleteIntent(PendingIntent.getService(context, 0, CleanNotificationData.getIntent(context), 0));
+
+        mBuilder.setDeleteIntent(
+                PendingIntent.getService(context, 0, CleanNotificationData.getIntent(context), PendingIntent.FLAG_ONE_SHOT)
+        );//because of autoCancel one shot must be good
         
         mBuilder.setSmallIcon(R.drawable.note_book);
         mBuilder.setTicker(context.getText(R.string.notification_updates));

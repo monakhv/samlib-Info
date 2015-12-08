@@ -11,6 +11,7 @@ import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
@@ -72,18 +73,16 @@ public class MainActivity extends MyBaseAbstractActivity implements
     public static final int ARCHIVE_ACTIVITY = 1;
     public static final int SEARCH_ACTIVITY = 2;
     public static final int PREFS_ACTIVITY = 3;
-    public static final String CLEAN_NOTIFICATION = "CLEAN_NOTIFICATION";
+    public static final String ACTION_CLEAN = "MainActivity.ACTION_CLEAN";
     public static final String SELECTED_TAG_ID = "SELECTED_TAG_ID";
     public static final String PROGRESS_TIME = "PROGRESS_TIME";
     private UpdateActivityReceiver updateReceiver;
     private AuthorFragment authorFragment;
     private BookFragment bookFragment;
     private AuthorTagFragment tagFragment;
-    private SettingsHelper settingsHelper;
     private DownloadReceiver downloadReceiver;
 
     private boolean twoPain;
-    private Toolbar toolbar;
     private boolean isTagShow = false;
 
 
@@ -92,7 +91,6 @@ public class MainActivity extends MyBaseAbstractActivity implements
     private AppBarLayout mAppBarLayout;
 
     private DrawerLayout mDrawerLayout;
-    private NavigationView navigationView;
     private ArrayAdapter<UITag> tagAdapter;
     private Spinner tagFilter;
 
@@ -100,20 +98,18 @@ public class MainActivity extends MyBaseAbstractActivity implements
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         Log.d(DEBUG_TAG, "onCreate");
-        settingsHelper = new SettingsHelper(this);
+        final SettingsHelper settingsHelper = new SettingsHelper(this);
         getWindow().requestFeature(Window.FEATURE_ACTION_BAR_OVERLAY);
         setTheme(settingsHelper.getTheme());
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main_layout);
-        Bundle bundle = getIntent().getExtras();
+        final String action = getIntent().getAction();
 
-        String clean = null;
-        if (bundle != null) {
-            clean = bundle.getString(CLEAN_NOTIFICATION);
-        }
-        if (clean != null) {
-            CleanNotificationData.start(this);
-            //bundle = null;
+
+        if (action != null) {
+            if (action.equalsIgnoreCase(ACTION_CLEAN)) {
+                CleanNotificationData.start(this);
+            }
         }
 
 
@@ -121,11 +117,15 @@ public class MainActivity extends MyBaseAbstractActivity implements
         authorFragment.setHasOptionsMenu(true);
 
 
-        toolbar = (Toolbar) findViewById(R.id.toolbar);
+        final Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setHomeButtonEnabled(true);
-        getSupportActionBar().setDisplayShowTitleEnabled(false);
+        final ActionBar actionBar = getSupportActionBar();
+        if (actionBar != null) {
+            actionBar.setDisplayHomeAsUpEnabled(true);
+            actionBar.setHomeButtonEnabled(true);
+            actionBar.setDisplayShowTitleEnabled(false);
+        }
+
 
 
         twoPain = findViewById(R.id.two_pain) != null;
@@ -204,7 +204,7 @@ public class MainActivity extends MyBaseAbstractActivity implements
         //end magic to make Home button available
 
 
-        navigationView = (NavigationView) findViewById(R.id.navigationView);
+        final NavigationView navigationView = (NavigationView) findViewById(R.id.navigationView);
 
         navigationView.setCheckedItem(authorFragment.getSortOrder().getMenuId());
         navigationView.setNavigationItemSelectedListener(this);
@@ -323,10 +323,9 @@ public class MainActivity extends MyBaseAbstractActivity implements
         if (intent == null) {
             return;
         }
-        Bundle bundle = intent.getExtras();
-        if (bundle != null) {
-            String clean = bundle.getString(CLEAN_NOTIFICATION);
-            if (clean != null) {
+        final String action = intent.getAction();
+        if (action != null) {
+            if (action.equalsIgnoreCase(ACTION_CLEAN)) {
                 CleanNotificationData.start(this);
             }
         }

@@ -42,20 +42,20 @@ public class ProgressNotification {
         mNotifyManager = (NotificationManager) ctx.getSystemService(Context.NOTIFICATION_SERVICE);
         mBuilder = new NotificationCompat.Builder(ctx.getApplicationContext());
         Intent intend = new Intent(ctx, UpdateLocalService.class);
-        intend.putExtra(UpdateLocalService.ACTION_TYPE, UpdateLocalService.ACTION_STOP);
-        PendingIntent pInt = PendingIntent.getService(ctx, 0, intend, 0);
+        intend.setAction(UpdateLocalService.ACTION_STOP);
+        PendingIntent stopService = PendingIntent.getService(ctx, 0, intend, PendingIntent.FLAG_ONE_SHOT);//this remove notification and one shot will be good
 
         Intent notificationIntent = new Intent(ctx, MainActivity.class);
-        PendingIntent aInt = PendingIntent.getActivity(ctx, 0, notificationIntent, PendingIntent.FLAG_CANCEL_CURRENT);
+        PendingIntent returnToActivity = PendingIntent.getActivity(ctx, 0, notificationIntent, PendingIntent.FLAG_CANCEL_CURRENT);//must be permanent because of update the same notification
 
         mBuilder
                 .setOngoing(true)
                 .setAutoCancel(false)
                 .setSmallIcon(android.R.drawable.stat_sys_download)
-                .addAction(R.drawable.ic_cancel_white_36dp, ctx.getText(R.string.Cancel), pInt)
+                .addAction(R.drawable.ic_cancel_white_36dp, ctx.getText(R.string.Cancel), stopService)
                 .setContentTitle(notificationTitle)
-                .setContentIntent(aInt)
-                .setDeleteIntent(pInt);
+                .setContentIntent(returnToActivity)
+                .setDeleteIntent(stopService);
 
 
         initBuilder();
