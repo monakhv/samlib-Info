@@ -23,9 +23,13 @@ import java.util.List;
  * @param <T>
  */
 public interface AbstractController <T>{
-    abstract public int    update(T t);
-    abstract public long insert(T t);
-    abstract public int   delete(T t);
-    abstract public List<T>   getAll();
-    abstract public T getById(long id);
+    int update(T t);
+
+    long insert(T t);
+
+    int delete(T t);
+
+    List<T> getAll();
+
+    T getById(long id);
 }

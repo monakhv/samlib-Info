@@ -1,7 +1,6 @@
 package monakhv.android.samlib.adapter;
 
 import android.content.Context;
-import android.support.v4.content.AsyncTaskLoader;
 import monakhv.android.samlib.sql.DatabaseHelper;
 import monakhv.samlib.db.AuthorController;
 import monakhv.samlib.db.entity.Author;
@@ -25,12 +24,11 @@ import java.util.List;
  *
  * 23.07.15.
  */
-public class AuthorLoader extends AsyncTaskLoader<List<Author>> {
+public class AuthorLoader extends AbstractLoader<Author> {
     private final AuthorController authorController;
     private int mTagId;
     private String mOrder;
 
-    private List<Author> mAuthors;
     public AuthorLoader(final Context context,final DatabaseHelper databaseHelper,int tagId, String order) {
 
         super(context);
@@ -43,21 +41,5 @@ public class AuthorLoader extends AsyncTaskLoader<List<Author>> {
     public List<Author> loadInBackground() {
         return authorController.getAll(mTagId,mOrder);
     }
-    @Override
-    protected void onStartLoading() {
-        if (mAuthors != null){
-            deliverResult(mAuthors);
-        }
-        else {
-            forceLoad();
-        }
-    }
 
-    @Override
-    protected void onReset() {
-        if (mAuthors != null){
-            mAuthors.clear();
-            mAuthors=null;
-        }
-    }
 }
