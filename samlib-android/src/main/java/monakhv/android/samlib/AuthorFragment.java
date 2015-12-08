@@ -650,6 +650,9 @@ public class AuthorFragment extends Fragment implements
     public void onResume() {
         super.onResume();
         canUpdate = true;
+        if (mBound) {
+            isProgressShow(mUpdateService.isRunning());
+        }
     }
 
     @Override
