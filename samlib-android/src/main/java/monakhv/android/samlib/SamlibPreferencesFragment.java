@@ -149,7 +149,7 @@ public class SamlibPreferencesFragment extends PreferenceFragment
 
     }
     @Override
-    public void onAttach(Context activity) {
+    public void onAttach(Activity activity) {
         super.onAttach(activity);
         if (!(activity instanceof CallBack)) {
             throw new IllegalStateException(
