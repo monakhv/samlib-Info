@@ -3,8 +3,7 @@ bin/
 private/
 nbandroid/
 .gradle/
-.idea/
 build/
 /local.properties
 /gradlew.bat
-*.iml
+
