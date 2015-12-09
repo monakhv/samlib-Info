@@ -21,6 +21,7 @@ import android.accounts.AccountManager;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -74,7 +75,7 @@ public class SamlibPreferencesFragment extends PreferenceFragment
             "pref_key_author_order", "pref_key_book_order", "pref_key_file_format","pref_key_theme",
     "pref_key_mirror","pref_key_directory","pref_key_update_tag"};
     private List<String> autoSumKeys;
-    private RingtonePreference ringtonPref;
+    private RingtonePreference ringtonePref;
      Preference googlePrefs;
     private EditTextPreference storageDir;
     private CallBack mCallbacks;
@@ -99,7 +100,7 @@ public class SamlibPreferencesFragment extends PreferenceFragment
 
 
         autoSumKeys = Arrays.asList(autoSummaryFields);
-        ringtonPref = (RingtonePreference) findPreference(getString(R.string.pref_key_notification_ringtone));
+        ringtonePref = (RingtonePreference) findPreference(getString(R.string.pref_key_notification_ringtone));
         googlePrefs = findPreference(getString(R.string.pref_key_google_account));
         storageDir= (EditTextPreference) findPreference(getString(R.string.pref_key_directory));
 //        storageDir.setOnPreferenceChangeListener( new Preference.OnPreferenceChangeListener() {
@@ -113,8 +114,8 @@ public class SamlibPreferencesFragment extends PreferenceFragment
             @Override
             public boolean onPreferenceClick(Preference preference) {
                 String email = helper.getGoogleAccount();
-                Account curAccnt = (email == null) ? null : new Account(email, GoogleAuthUtil.GOOGLE_ACCOUNT_TYPE);
-                Intent intent = AccountPicker.newChooseAccountIntent(curAccnt, null,
+                Account curAccount = (email == null) ? null : new Account(email, GoogleAuthUtil.GOOGLE_ACCOUNT_TYPE);
+                Intent intent = AccountPicker.newChooseAccountIntent(curAccount, null,
                         new String[]{GoogleAuthUtil.GOOGLE_ACCOUNT_TYPE}, false, null, null, null, null);
                 startActivityForResult(intent, REQ_AUTH);
                 return true;
@@ -128,27 +129,27 @@ public class SamlibPreferencesFragment extends PreferenceFragment
         List<Tag> tags = tagCtl.getAll();
 
         CharSequence [] entries = new CharSequence[1+tags.size()];
-        CharSequence [] entrieValues= new CharSequence[1+tags.size()];
+        CharSequence [] entryValues= new CharSequence[1+tags.size()];
 
-        entrieValues[0]=Integer.toString(SamLibConfig.TAG_AUTHOR_ALL);
+        entryValues[0]=Integer.toString(SamLibConfig.TAG_AUTHOR_ALL);
         entries[0]=getActivity().getString(R.string.pref_update_all_title);
         int i=1;
         for (Tag tag:tags){
-            entrieValues[i]=Integer.toString(tag.getId());
+            entryValues[i]=Integer.toString(tag.getId());
             entries[i]=tag.getName();
             ++i;
         }
 
 
         updateTagPref.setEntries(entries);
-        updateTagPref.setEntryValues(entrieValues);
+        updateTagPref.setEntryValues(entryValues);
 
 
         updateTagPref.setValue(helper.getUpdateTag());
 
     }
     @Override
-    public void onAttach(Activity activity) {
+    public void onAttach(Context activity) {
         super.onAttach(activity);
         if (!(activity instanceof CallBack)) {
             throw new IllegalStateException(
@@ -184,8 +185,8 @@ public class SamlibPreferencesFragment extends PreferenceFragment
 
         // A patch to overcome OnSharedPreferenceChange not being called by RingtonePreference bug 
 
-        ringtonPref.setOnPreferenceChangeListener(this);
-        updateRingtoneSummary(ringtonPref, helper.getNotificationRingToneURI());
+        ringtonePref.setOnPreferenceChangeListener(this);
+        updateRingtoneSummary(ringtonePref, helper.getNotificationRingToneURI());
         storageDir.setOnPreferenceChangeListener(this);
 
     }

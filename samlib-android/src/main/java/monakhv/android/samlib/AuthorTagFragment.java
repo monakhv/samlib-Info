@@ -1,8 +1,8 @@
 package monakhv.android.samlib;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.database.Cursor;
 import android.os.Bundle;
@@ -135,7 +135,7 @@ public class AuthorTagFragment extends Fragment {
     }
 
     @Override
-    public void onAttach(Activity activity) {
+    public void onAttach(Context activity) {
         super.onAttach(activity);
         if (!(activity instanceof AuthorTagCallback)) {
             throw new IllegalStateException(
