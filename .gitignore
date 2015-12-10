@@ -3,9 +3,13 @@ bin/
 private/
 nbandroid/
 .gradle/
-.idea/
+.idea/workspace.xml
+.idea/libraries
+.idea/gradle.xml
+.idea/tasks.xml
+.idea/dictionaries
+.idea/shelf
 build/
 /local.properties
 /gradlew.bat
-*.iml
 
