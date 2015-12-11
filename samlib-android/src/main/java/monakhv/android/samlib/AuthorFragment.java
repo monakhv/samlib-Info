@@ -650,6 +650,9 @@ public class AuthorFragment extends Fragment implements
         canUpdate = true;
         if (mBound) {
             isProgressShow(mUpdateService.isRunning());
+            if (! mUpdateService.isRunning()){
+                mPtrFrame.refreshComplete();
+            }
         }
     }
 
