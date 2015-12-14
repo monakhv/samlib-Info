@@ -719,4 +719,9 @@ public class SettingsHelper extends AbstractSettings implements SharedPreference
             setGoogleAuto(false);
         }
     }
+
+    @Override
+    public boolean isUpdateDelay(){
+        return prefs.getBoolean(context.getString(R.string.pref_key_update_delay), false);
+    }
 }

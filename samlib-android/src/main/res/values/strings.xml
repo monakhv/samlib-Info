@@ -139,6 +139,12 @@ limitations under the License.
      <string name="pref_key_update_autoload_limit">pref_key_update_autoload_limit</string>
      <string name="pref_title_update_autoload_limit">Ограничить загрузку</string>
      <string name="pref_default_update_atutoload_limit">40</string>
+
+
+    <string name="pref_key_update_delay">pref_key_update_delay</string>
+    <string name="pref_title_update_delay">Задержка проверки авторов</string>
+    <string name="pref_summary_update_delay">задержка от 5 до 15 секунд после проверки каждого автора</string>
+
      
     <string name="pref_key_flag_wihi_only">pref_key_flag_wihi_only</string>
     <string name="pref_title_wihi_only">Только по Wifi</string>

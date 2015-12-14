@@ -47,21 +47,26 @@ public class SamlibService {
         Tag,
         Author
     }
-    private static final String DEBUG_TAG         = "SamlibService";
-    public static final String ACTION_ADD          = "SamlibService.AddAuthorServiceIntent_ACTION_ADD";
-    public static final String ACTION_DELETE    = "SamlibService.AddAuthorServiceIntent_ACTION_DELETE";
 
-    public static final long SLEEP_INTERVAL_SECONDS=1;
-    private  int numberOfAdded=0;
-    private  int numberOfDeleted=0;
-    private  int doubleAdd = 0;
-    private long author_id=0;
+    private static final String DEBUG_TAG = "SamlibService";
+    public static final String ACTION_ADD = "SamlibService.AddAuthorServiceIntent_ACTION_ADD";
+    public static final String ACTION_DELETE = "SamlibService.AddAuthorServiceIntent_ACTION_DELETE";
+
+    public static final long SLEEP_INTERVAL_SECONDS = 1L;
+
+    public static final int SLEEP_DELAY_MIN = 5;
+    public static final int SLEEP_DELAY_MAX = 15;
+    private int numberOfAdded = 0;
+    private int numberOfDeleted = 0;
+    private int doubleAdd = 0;
+    private long author_id = 0;
 
     private final List<Author> updatedAuthors;
     protected final AuthorController authorController;
     private final GuiUpdate guiUpdate;
     private final AbstractSettings settingsHelper;
     private final HttpClientController http;
+
     public SamlibService(DaoBuilder sql, GuiUpdate guiUpdate, AbstractSettings settingsHelper) {
         this.guiUpdate = guiUpdate;
         this.settingsHelper = settingsHelper;
@@ -79,14 +84,17 @@ public class SamlibService {
         http = httpClientController;
 
     }
+
     /**
      * Check update information for the list of authors
+     *
      * @param authors List of the Authors to check update
      * @return true if update successful false if error or interrupted
      */
     public boolean runUpdate(List<Author> authors) {
         updatedAuthors.clear();
         int skippedAuthors = 0;
+        Random rnd = new Random(Calendar.getInstance().getTimeInMillis());
 
         int total = authors.size();
         int iCurrent = 0;//to send update information to pull-to-refresh
@@ -94,12 +102,12 @@ public class SamlibService {
             guiUpdate.sendAuthorUpdateProgress(total, ++iCurrent, a.getName());
             authorController.loadBooks(a);
             String url = a.getUrl();
-            Author newA=new Author();
+            Author newA = new Author();
             try {
-                newA = http.getAuthorByURL(url,newA);
+                newA = http.getAuthorByURL(url, newA);
             } catch (IOException ex) {//here we abort cycle author and total update
                 Log.i(DEBUG_TAG, "runUpdate: Connection Error: " + url, ex);
-                guiUpdate.finishUpdate(false,updatedAuthors);
+                guiUpdate.finishUpdate(false, updatedAuthors);
                 return false;
 
             } catch (SamlibParseException ex) {//skip update for given author
@@ -117,16 +125,23 @@ public class SamlibService {
                 Log.i(DEBUG_TAG, "We need update author: " + a.getName());
                 authorController.update(a);
 
-                if (settingsHelper.getAutoLoadFlag()){
+                if (settingsHelper.getAutoLoadFlag()) {
                     loadBook(a);
                 }
 
                 guiUpdate.makeUpdate(a);
             }
+            long sleep;
+
+            if (settingsHelper.isUpdateDelay()) {
+                sleep = rnd.nextInt(SLEEP_DELAY_MAX - SLEEP_DELAY_MIN + 1) + SLEEP_DELAY_MIN;
+            } else {
+                sleep = SLEEP_INTERVAL_SECONDS;
+            }
 
             try {
-
-                TimeUnit.SECONDS.sleep(SLEEP_INTERVAL_SECONDS);
+                Log.d(DEBUG_TAG,"runUpdate: sleep "+sleep+" seconds");
+                TimeUnit.SECONDS.sleep(sleep);
             } catch (InterruptedException e) {
                 Log.i(DEBUG_TAG, "Sleep interrupted exiting", e);
                 guiUpdate.finishUpdate(false, updatedAuthors);
@@ -135,33 +150,34 @@ public class SamlibService {
         }//main author cycle END
 
         authorController.cleanBooks();
-        if (authors.size() == skippedAuthors){
+        if (authors.size() == skippedAuthors) {
             //all authors skipped - this is the error
-            guiUpdate.finishUpdate(false,updatedAuthors);
+            guiUpdate.finishUpdate(false, updatedAuthors);
             return false;
-        }
-        else {
-            guiUpdate.finishUpdate(true,updatedAuthors);
+        } else {
+            guiUpdate.finishUpdate(true, updatedAuthors);
             return true;
         }
 
 
     }
+
     /**
      * Special method to make Author read, also make sure that all book re read either
+     *
      * @param id author id
      * @return true if success
      */
-    public   boolean makeAuthorRead(int id) {
+    public boolean makeAuthorRead(int id) {
 
         Author a = authorController.getById(id);
 
-        if (a == null){
+        if (a == null) {
             Log.e(DEBUG_TAG, "Author not found to update");
             return false;
         }
 
-        if (! a.isIsNew()) {
+        if (!a.isIsNew()) {
             Log.d(DEBUG_TAG, "Author is read - no update need");
             return false;
         }
@@ -174,27 +190,28 @@ public class SamlibService {
         return true;
 
     }
+
     /**
      * Invert read book flag
      * Adjust author flag either
-     * @param id  book id
+     *
+     * @param id book id
      */
-    public   void makeBookReadFlip(int id) {
+    public void makeBookReadFlip(int id) {
 
-        Book book=authorController.getBookController().getById(id);
-        if (book == null){
-            Log.e(DEBUG_TAG,"makeBookReadFlip: book not found id = "+id);
+        Book book = authorController.getBookController().getById(id);
+        if (book == null) {
+            Log.e(DEBUG_TAG, "makeBookReadFlip: book not found id = " + id);
             return;
         }
-        Log.d(DEBUG_TAG,"makeBookReadFlip: book_id = "+id+" author_id = "+book.getAuthor().getId());
+        Log.d(DEBUG_TAG, "makeBookReadFlip: book_id = " + id + " author_id = " + book.getAuthor().getId());
 
         Author a;
-        if (book.isIsNew()){
+        if (book.isIsNew()) {
             authorController.getBookController().markRead(book);
             a = authorController.getById(book.getAuthor().getId());
             authorController.testMarkRead(a);
-        }
-        else {
+        } else {
             authorController.getBookController().markUnRead(book);
             a = authorController.getById(book.getAuthor().getId());
             authorController.testMarkRead(a);
@@ -202,15 +219,17 @@ public class SamlibService {
         guiUpdate.makeUpdate(a);//book reread is into Adapter methods
 
     }
+
     /**
      * Delete author from DB
+     *
      * @param id author id
      */
-    public void makeAuthorDel(int id){
+    public void makeAuthorDel(int id) {
 
         int res = authorController.delete(authorController.getById(id));
         Log.d(DEBUG_TAG, "Author id " + id + " deleted, status " + res);
-        if (res == 1){
+        if (res == 1) {
             ++numberOfDeleted;
             guiUpdate.makeUpdate(true);
 
@@ -220,17 +239,19 @@ public class SamlibService {
         guiUpdate.sendResult(ACTION_DELETE, numberOfAdded, numberOfDeleted, doubleAdd, 0, author_id);
 
     }
+
     /**
      * Add authors
+     *
      * @param urls list of author urls
      */
-    public void makeAuthorAdd(ArrayList<String> urls){
+    public void makeAuthorAdd(ArrayList<String> urls) {
 
 
         for (String url : urls) {
             Author a = loadAuthor(authorController, url);
             if (a != null) {
-                author_id=authorController.insert(a);
+                author_id = authorController.insert(a);
                 ++numberOfAdded;
                 guiUpdate.makeUpdate(false);
             }
@@ -241,7 +262,8 @@ public class SamlibService {
 
     /**
      * Make author search according to the first part aof theAuthor name
-     * @param pattern part of the author name
+     *
+     * @param pattern  part of the author name
      * @param settings Settings
      * @return List of found authors
      * @throws IOException
@@ -254,7 +276,7 @@ public class SamlibService {
         int page = 1;
         HttpClientController http = HttpClientController.getInstance(settings);
         HashMap<String, ArrayList<AuthorCard>> colAthors = http.searchAuthors(pattern, page);
-        RuleBasedCollator russianCollator =  (RuleBasedCollator) Collator.getInstance(new Locale("ru", "RU"));
+        RuleBasedCollator russianCollator = (RuleBasedCollator) Collator.getInstance(new Locale("ru", "RU"));
 
         try {
             russianCollator = new RuleBasedCollator(settings.getCollationRule());
@@ -273,7 +295,7 @@ public class SamlibService {
 
             Arrays.sort(keys, russianCollator);
             int ires = Arrays.binarySearch(keys, pattern, russianCollator);
-            Log.d(DEBUG_TAG, "Page number:" +page+   "    search result " + ires + "   length is " + keys.length);
+            Log.d(DEBUG_TAG, "Page number:" + page + "    search result " + ires + "   length is " + keys.length);
 
             int istart;
             if (ires < 0) {
@@ -297,16 +319,10 @@ public class SamlibService {
                     Log.d(DEBUG_TAG, "Search for " + pattern + " stop by substring  -   " + skey + "   " + keys.length + "         " + istart + "  -  " + ires);
 
 
-//                        for (String s : keys) {
-//                            Log.d(DEBUG_TAG, ">>- " + s);
-//                        }
-
                     return result;
                 }
             }
-//            for (String s : keys) {
-//                Log.d(DEBUG_TAG, ">> " + s);
-//            }
+
 
             ++page;
             colAthors = http.searchAuthors(pattern, page);
@@ -322,7 +338,7 @@ public class SamlibService {
 
 
         text = testURL(url);
-        if (text == null){
+        if (text == null) {
             Log.e(DEBUG_TAG, "URL syntax error: " + url);
 
             return null;
@@ -330,13 +346,13 @@ public class SamlibService {
 
         Author ta = sql.getByUrl(text);
         if (ta != null) {
-            Log.i(DEBUG_TAG, "Ignore Double entries: "+text);
+            Log.i(DEBUG_TAG, "Ignore Double entries: " + text);
 
             ++doubleAdd;
             return null;
         }
         try {
-            a = http.addAuthor(text,new Author());
+            a = http.addAuthor(text, new Author());
         } catch (IOException ex) {
             Log.e(DEBUG_TAG, "DownLoad Error for URL: " + text, ex);
 
@@ -357,14 +373,14 @@ public class SamlibService {
 
         return a;
     }
+
     /**
      * URL syntax checkout
      *
      * @param url original URL
      * @return reduced URL without host prefix or NULL if the syntax is wrong
-     *
      */
-    private String testURL(String url)   {
+    private String testURL(String url) {
         Log.d(DEBUG_TAG, "Got text: " + url);
 
         return SamLibConfig.reduceUrl(url);
@@ -374,6 +390,7 @@ public class SamlibService {
 
     /**
      * If need we can start download book service here
+     *
      * @param a Author to load book for
      */
     public void loadBook(Author a) {
@@ -390,24 +407,23 @@ public class SamlibService {
         guiUpdate.makeUpdateTagList();
     }
 
-    public void downloadBook(long book_id){
+    public void downloadBook(long book_id) {
 
         Book book = authorController.getBookController().getById(book_id);
 
         AbstractSettings.FileType ft = settingsHelper.getFileType();
         Log.d(DEBUG_TAG, "default type is  " + ft.toString());
 
-        switch (ft){
+        switch (ft) {
             case HTML:
-                guiUpdate.finishBookLoad(getBook(book, AbstractSettings.FileType.HTML), AbstractSettings.FileType.HTML,book_id);
+                guiUpdate.finishBookLoad(getBook(book, AbstractSettings.FileType.HTML), AbstractSettings.FileType.HTML, book_id);
                 break;
             case FB2:
                 boolean rr = getBook(book, AbstractSettings.FileType.FB2);
-                if (rr){
-                    guiUpdate.finishBookLoad(true, AbstractSettings.FileType.FB2,book_id);
-                }
-                else {
-                    guiUpdate.finishBookLoad(getBook(book, AbstractSettings.FileType.HTML), AbstractSettings.FileType.HTML,book_id);
+                if (rr) {
+                    guiUpdate.finishBookLoad(true, AbstractSettings.FileType.FB2, book_id);
+                } else {
+                    guiUpdate.finishBookLoad(getBook(book, AbstractSettings.FileType.HTML), AbstractSettings.FileType.HTML, book_id);
                 }
                 break;
         }
