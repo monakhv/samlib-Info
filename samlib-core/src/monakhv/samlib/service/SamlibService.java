@@ -121,7 +121,7 @@ public class SamlibService {
                     loadBook(a);
                 }
 
-                guiUpdate.makeUpdate(true);
+                guiUpdate.makeUpdate(a);
             }
 
             try {
@@ -170,7 +170,7 @@ public class SamlibService {
         int i = authorController.markRead(a);
 
         Log.d(DEBUG_TAG, "Update author status: " + i);
-        guiUpdate.makeUpdate(true);
+        guiUpdate.makeUpdate(a);
         return true;
 
     }
@@ -188,17 +188,18 @@ public class SamlibService {
         }
         Log.d(DEBUG_TAG,"makeBookReadFlip: book_id = "+id+" author_id = "+book.getAuthor().getId());
 
+        Author a;
         if (book.isIsNew()){
             authorController.getBookController().markRead(book);
-            Author a = authorController.getById(book.getAuthor().getId());
+            a = authorController.getById(book.getAuthor().getId());
             authorController.testMarkRead(a);
         }
         else {
             authorController.getBookController().markUnRead(book);
-            Author a = authorController.getById(book.getAuthor().getId());
+            a = authorController.getById(book.getAuthor().getId());
             authorController.testMarkRead(a);
         }
-        guiUpdate.makeUpdate(true);//book reread is into Adapter methods
+        guiUpdate.makeUpdate(a);//book reread is into Adapter methods
 
     }
     /**

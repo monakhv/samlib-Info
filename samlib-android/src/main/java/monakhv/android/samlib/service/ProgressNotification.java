@@ -10,6 +10,7 @@ import android.support.v4.app.NotificationCompat;
 import monakhv.android.samlib.MainActivity;
 import monakhv.android.samlib.R;
 import monakhv.android.samlib.data.SettingsHelper;
+import monakhv.samlib.db.entity.Author;
 
 
 /*
@@ -34,9 +35,12 @@ public class ProgressNotification {
     private final NotificationManager mNotifyManager;
     private final NotificationCompat.Builder mBuilder;
     private final SettingsHelper mSettingsHelper;
+    private int numberUpdated =0;
+    private final Context mContext;
 
     public ProgressNotification(Context ctx, String notificationTitle) {
         mSettingsHelper = new SettingsHelper(ctx);
+        mContext =ctx;
 
 
         mNotifyManager = (NotificationManager) ctx.getSystemService(Context.NOTIFICATION_SERVICE);
@@ -51,10 +55,12 @@ public class ProgressNotification {
         mBuilder
                 .setOngoing(true)
                 .setAutoCancel(false)
-                .setSmallIcon(android.R.drawable.stat_sys_download)
+                .setSmallIcon(android.R.drawable.ic_popup_sync)
                 .addAction(R.drawable.ic_cancel_white_36dp, ctx.getText(R.string.Cancel), stopService)
                 .setContentTitle(notificationTitle)
                 .setContentIntent(returnToActivity)
+                .setSubText(ctx.getString(R.string.notification_summary)+" "+numberUpdated)
+                .setOngoing(true)
                 .setDeleteIntent(stopService);
 
 
@@ -110,4 +116,9 @@ public class ProgressNotification {
         mNotifyManager.cancel(NOTIFICATION_ID);
     }
 
+    public void update(Author a) {
+        ++numberUpdated;
+        mBuilder.setSubText(mContext.getString(R.string.notification_summary)+" "+numberUpdated);
+
+    }
 }

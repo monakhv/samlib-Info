@@ -28,6 +28,7 @@ import java.util.List;
  */
 public interface GuiUpdate {
     void makeUpdate(boolean isBoth);
+    void makeUpdate(Author a);
 
     /**
      * Send update status

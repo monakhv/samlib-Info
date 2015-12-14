@@ -87,6 +87,14 @@ public class AndroidGuiUpdater implements GuiUpdate {
         context.sendBroadcast(broadcastIntent);
     }
 
+    @Override
+    public void makeUpdate(Author a) {
+        if (mProgressNotification != null){
+            mProgressNotification.update(a);
+        }
+        makeUpdate(true);
+    }
+
 
     @Override
     public void makeUpdateTagList() {
