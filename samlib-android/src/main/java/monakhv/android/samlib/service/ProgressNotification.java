@@ -37,10 +37,13 @@ public class ProgressNotification {
     private final SettingsHelper mSettingsHelper;
     private int numberUpdated =0;
     private final Context mContext;
+    NotificationCompat.InboxStyle mStyle;
+
 
     public ProgressNotification(Context ctx, String notificationTitle) {
         mSettingsHelper = new SettingsHelper(ctx);
         mContext =ctx;
+        mStyle=new NotificationCompat.InboxStyle();
 
 
         mNotifyManager = (NotificationManager) ctx.getSystemService(Context.NOTIFICATION_SERVICE);
@@ -52,6 +55,7 @@ public class ProgressNotification {
         Intent notificationIntent = new Intent(ctx, MainActivity.class);
         PendingIntent returnToActivity = PendingIntent.getActivity(ctx, 0, notificationIntent, PendingIntent.FLAG_CANCEL_CURRENT);//must be permanent because of update the same notification
 
+
         mBuilder
                 .setOngoing(true)
                 .setAutoCancel(false)
@@ -59,7 +63,7 @@ public class ProgressNotification {
                 .addAction(R.drawable.ic_cancel_white_36dp, ctx.getText(R.string.Cancel), stopService)
                 .setContentTitle(notificationTitle)
                 .setContentIntent(returnToActivity)
-                .setSubText(ctx.getString(R.string.notification_summary)+" "+numberUpdated)
+                .setStyle(mStyle)
                 .setOngoing(true)
                 .setDeleteIntent(stopService);
 
@@ -93,18 +97,15 @@ public class ProgressNotification {
 
 
         if (mSettingsHelper.isNotifyTickerEnable()) {
-            mBuilder
-                    .setTicker(name);
+            mBuilder.setTicker(name);
         }
         if (total == 1) {//Single Author update
-            mBuilder
-                    .setProgress(0, 0, true)
-                    .setContentText(name);
+            mBuilder.setProgress(0, 0, true);
+            mStyle.setBigContentTitle(name);
 
         } else {//Update by tag
-            mBuilder
-                    .setProgress(total, iCurrent, false)
-                    .setContentText(" [" + iCurrent + "/" + total + "]:   " + name);
+            mBuilder.setProgress(total, iCurrent, false);
+            mStyle.setBigContentTitle(" [" + iCurrent + "/" + total + "]:   " + name);
         }
 
 
@@ -118,7 +119,10 @@ public class ProgressNotification {
 
     public void update(Author a) {
         ++numberUpdated;
-        mBuilder.setSubText(mContext.getString(R.string.notification_summary)+" "+numberUpdated);
+        mStyle.addLine(a.getName());
+        mStyle.setSummaryText(mContext.getString(R.string.notification_summary)+" "+numberUpdated);
+        mNotifyManager.notify(NOTIFICATION_ID, mBuilder.build());
+
 
     }
 }
