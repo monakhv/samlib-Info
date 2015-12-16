@@ -26,6 +26,7 @@ public abstract class RecyclerAdapter <T,VH extends android.support.v7.widget.Re
     private static final String DEBUG_TAG="RecyclerAdapter";
     public interface CallBack {
         void makeNewFlip(int id);
+        void refresh();
     }
 
     protected List<T> mData;

@@ -64,6 +64,7 @@ public class BookFragment extends Fragment implements
         RecyclerAdapter.CallBack {
     private AuthorController sql;
 
+    @Override
     public void refresh() {
         updateAdapter();
     }

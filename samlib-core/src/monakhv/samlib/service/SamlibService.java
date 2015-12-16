@@ -216,7 +216,7 @@ public class SamlibService {
             a = authorController.getById(book.getAuthor().getId());
             authorController.testMarkRead(a);
         }
-        guiUpdate.makeUpdate(a);//book reread is into Adapter methods
+        guiUpdate.makeUpdate(false);//book reread is into Adapter methods
 
     }
 

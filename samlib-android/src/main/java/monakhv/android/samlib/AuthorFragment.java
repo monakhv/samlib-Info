@@ -607,6 +607,7 @@ public class AuthorFragment extends Fragment implements
         updateAdapter();
     }
 
+    @Override
     public void refresh() {
         Log.d(DEBUG_TAG, "refresh: call ");
         updateAdapter();

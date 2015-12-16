@@ -99,13 +99,13 @@ public class BookAdapter   extends RecyclerAdapter<Book,BookAdapter.ViewHolder> 
             listener = new Flip3D.animationFlip3DListener() {
                 @Override
                 public void onStart() {
-                    //AuthorEditorServiceIntent.markBookReadFlip(mContext, book.getId());
+                    Log.i(DEBUG_TAG, "Making book read!");
+                    mCallBack.makeNewFlip(book.getId());
                 }
 
                 @Override
                 public void onEnd() {
-                    Log.i(DEBUG_TAG, "Making book read!");
-                    mCallBack.makeNewFlip(book.getId());
+                    mCallBack.refresh();
                 }
             };
             holder.flipIcon.setData(openBook,closeBook,listener,true);
@@ -114,13 +114,13 @@ public class BookAdapter   extends RecyclerAdapter<Book,BookAdapter.ViewHolder> 
             listener = new Flip3D.animationFlip3DListener() {
                 @Override
                 public void onStart() {
-                    //AuthorEditorServiceIntent.markBookReadFlip(mContext, book.getId());
+                    Log.i(DEBUG_TAG, "Making book new!!");
+                    mCallBack.makeNewFlip(book.getId());
                 }
 
                 @Override
                 public void onEnd() {
-                    Log.i(DEBUG_TAG, "Making book new!!");
-                    mCallBack.makeNewFlip(book.getId());
+                    mCallBack.refresh();
                 }
             };
             holder.flipIcon.setData(closeBook,openBook,listener,true);
