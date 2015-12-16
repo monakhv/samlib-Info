@@ -140,7 +140,7 @@ public class SamlibService {
             }
 
             try {
-                Log.d(DEBUG_TAG,"runUpdate: sleep "+sleep+" seconds");
+                Log.d(DEBUG_TAG, "runUpdate: sleep " + sleep + " seconds");
                 TimeUnit.SECONDS.sleep(sleep);
             } catch (InterruptedException e) {
                 Log.i(DEBUG_TAG, "Sleep interrupted exiting", e);
@@ -275,7 +275,7 @@ public class SamlibService {
 
         int page = 1;
         HttpClientController http = HttpClientController.getInstance(settings);
-        HashMap<String, ArrayList<AuthorCard>> colAthors = http.searchAuthors(pattern, page);
+        HashMap<String, ArrayList<AuthorCard>> colAuthors = http.searchAuthors(pattern, page);
         RuleBasedCollator russianCollator = (RuleBasedCollator) Collator.getInstance(new Locale("ru", "RU"));
 
         try {
@@ -289,24 +289,24 @@ public class SamlibService {
         russianCollator.setDecomposition(Collator.NO_DECOMPOSITION);
 
 
-        while (colAthors != null) {//page cycle while we find anything
+        while (colAuthors != null) {//page cycle while we find anything
 
-            String[] keys = colAthors.keySet().toArray(new String[1]);
+            String[] keys = colAuthors.keySet().toArray(new String[1]);
 
             Arrays.sort(keys, russianCollator);
             int ires = Arrays.binarySearch(keys, pattern, russianCollator);
             Log.d(DEBUG_TAG, "Page number:" + page + "    search result " + ires + "   length is " + keys.length);
 
-            int istart;
+            int iStart;
             if (ires < 0) {
-                istart = -ires - 1;
+                iStart = -ires - 1;
             } else {
-                istart = ires;
+                iStart = ires;
             }
-            for (int i = istart; i < keys.length; i++) {
-                String skey = keys[i];
-                if (skey.toLowerCase().startsWith(pattern.toLowerCase())) {
-                    for (AuthorCard ac : colAthors.get(skey)) {
+            for (int i = iStart; i < keys.length; i++) {
+                String sKey = keys[i];
+                if (sKey.toLowerCase().startsWith(pattern.toLowerCase())) {
+                    for (AuthorCard ac : colAuthors.get(sKey)) {
 
                         result.add(ac);
 
@@ -316,7 +316,7 @@ public class SamlibService {
                     }
 
                 } else {
-                    Log.d(DEBUG_TAG, "Search for " + pattern + " stop by substring  -   " + skey + "   " + keys.length + "         " + istart + "  -  " + ires);
+                    Log.d(DEBUG_TAG, "Search for " + pattern + " stop by substring  -   " + sKey + "   " + keys.length + "         " + iStart + "  -  " + ires);
 
 
                     return result;
@@ -325,7 +325,7 @@ public class SamlibService {
 
 
             ++page;
-            colAthors = http.searchAuthors(pattern, page);
+            colAuthors = http.searchAuthors(pattern, page);
         }
         Log.d(DEBUG_TAG, "Results: " + result.size());
 
