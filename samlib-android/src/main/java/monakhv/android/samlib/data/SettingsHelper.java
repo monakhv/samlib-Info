@@ -376,7 +376,7 @@ public class SettingsHelper extends AbstractSettings implements SharedPreference
      * @param msg message
      * @param ex  Exception
      */
-    public void log(String tag, String msg, Exception ex) {
+    public void log(String tag, String msg, Throwable ex) {
         if (getDebugFlag()) {
             SimpleDateFormat df = new SimpleDateFormat(DATE_FORMAT_DEBUG);
             File save = new File(getDataDirectory(), DEBUG_FILE);

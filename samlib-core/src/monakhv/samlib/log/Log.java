@@ -57,14 +57,14 @@ public class Log {
     }
     public static void i (String tag, String msg,Throwable ex) {
         logger.info(tag,msg,ex);
-        settingsHelper.log(tag, msg);
+        settingsHelper.log(tag, msg,ex);
     }
     public static void w (String tag, String msg,Throwable ex) {
         logger.warn(tag,msg,ex);
-        settingsHelper.log(tag, msg);
+        settingsHelper.log(tag, msg,ex);
     }
     public static void e (String tag, String msg,Throwable ex) {
         logger.error(tag,msg,ex);
-        settingsHelper.log(tag,msg);
+        settingsHelper.log(tag,msg,ex);
     }
 }
