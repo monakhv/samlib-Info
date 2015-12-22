@@ -741,6 +741,11 @@ public class MainForm extends JFrame implements GuiUpdate {
 
     }
 
+    @Override
+    public void makeUpdate(Author a) {
+        makeUpdate(true);
+    }
+
 
     @Override
     public void makeUpdateTagList() {
