@@ -203,7 +203,7 @@ public class Settings extends AbstractSettings {
     }
 
     @Override
-    public void log(String debugTag, String s, Exception e) {
+    public void log(String debugTag, String s, Throwable e) {
 
     }
 
@@ -222,6 +222,11 @@ public class Settings extends AbstractSettings {
     @Override
     public String getCollationRule() {
         return SamLibConfig.COLLATION_RULES_OLD;
+    }
+
+    @Override
+    public boolean isUpdateDelay() {
+        return false;
     }
 
     @Override
