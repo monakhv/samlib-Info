@@ -80,6 +80,7 @@ public class SamLibConfig {
     private static final String     REQUEST_AUTHOR_DATA           = "/cgi-bin/areader?q=razdel&order=date&object=";
     private static final String     REQUEST_BOOK_TEXT                = "/cgi-bin/areader?q=book&object=";
     private static final String     REQUEST_AUTHOR_SEARCH      = "/cgi-bin/areader?q=alpha&anum=_ANUM_&page=_PAGE_&pagelen=_PAGELEN_";
+    private static final String     REQUEST_INDEXDATE="/indexdate.shtml";
     
     private static final String[]   ABC_LETTER = new String[]{
         "А", "Б", "В", "Г", "Д", "Е", "Ё", "Ж", "З", "И", "Й", "К", "Л",
@@ -208,6 +209,9 @@ public class SamLibConfig {
         private String getAuthorRequestURL(String uu) {
             return urlIP + REQUEST_AUTHOR_DATA +uu;
 
+        }
+        private String getAuthorIndexDate(String uu) {
+            return urlIP + uu+REQUEST_INDEXDATE;
         }
         /**
          * Construct URL to download the book
@@ -367,6 +371,15 @@ public class SamLibConfig {
         }
         return res;
     }
+    public List<String> getAuthorIndexDate(Author a) {
+        List<String> res = new ArrayList<>();
+        Iterator<SamIzdat> itr = getIterator();
+        while(itr.hasNext()){
+            res.add(itr.next().getAuthorIndexDate(a.getUrl()));
+        }
+        return res;
+    }
+
 
     /**
      * Get Default URL to use for browser  open intend

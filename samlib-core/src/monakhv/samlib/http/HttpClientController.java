@@ -16,11 +16,8 @@
 package monakhv.samlib.http;
 
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 
-import java.io.InterruptedIOException;
 import java.net.Authenticator;
 import java.net.Proxy;
 import java.net.URL;
@@ -28,6 +25,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 
 import com.squareup.okhttp.OkHttpClient;
@@ -119,6 +118,16 @@ public class HttpClientController {
         return a;
     }
 
+    public Author getAuthorByURLNew(String link, Author a) throws IOException, SamlibParseException, SamlibInterruptException {
+
+        a.setUrl(link);
+        String str = getURL(slc.getAuthorIndexDate(a), new StringReader());
+
+        parseAuthorIndexDateData(a, str);
+        return a;
+    }
+
+
     /**
      * Create Author object using internet data and reduced url string.
      * The same as getAuthorByURL but calculate author name for use in addAuthor task
@@ -198,15 +207,15 @@ public class HttpClientController {
      */
     private String getURL(List<String> urls, PageReader reader) throws IOException, SamlibParseException, SamlibInterruptException {
         String res = null;
-        IOException exio = null;
-        SamlibParseException exparse = null;
-        for (String surl : urls) {
-            Log.i(DEBUG_TAG, "getURL: using urls: " + surl);
-            settingsHelper.log(DEBUG_TAG, "getURL: using urls: " + surl);
-            exio = null;
-            exparse = null;
+        IOException exIo = null;
+        SamlibParseException exParse = null;
+        for (String sUrl : urls) {
+            Log.i(DEBUG_TAG, "getURL: using urls: " + sUrl);
+            settingsHelper.log(DEBUG_TAG, "getURL: using urls: " + sUrl);
+            exIo = null;
+            exParse = null;
             try {
-                URL url = new URL(surl);
+                URL url = new URL(sUrl);
                 res = _getURL(url, reader);
             } catch (InterruptedIOException e) {
                 if (Thread.interrupted()) {
@@ -215,28 +224,28 @@ public class HttpClientController {
                 throw new InterruptedIOException();
             } catch (IOException e) {
                 slc.flipOrder();
-                exio = e;
+                exIo = e;
                 if (Thread.interrupted()) {
                     throw new SamlibInterruptException("getURL:IOException");
                 }
 
-                Log.e(DEBUG_TAG, "getURL: IOException: " + surl, e);
-                settingsHelper.log(DEBUG_TAG, "getURL: IOException: " + surl, e);
+                Log.e(DEBUG_TAG, "getURL: IOException: " + sUrl, e);
+                settingsHelper.log(DEBUG_TAG, "getURL: IOException: " + sUrl, e);
             } catch (SamlibParseException e) {
                 slc.flipOrder();
-                exparse = e;
-                Log.e(DEBUG_TAG, "AuthorParseException: " + surl, e);
-                settingsHelper.log(DEBUG_TAG, "AuthorParseException: " + surl, e);
+                exParse = e;
+                Log.e(DEBUG_TAG, "AuthorParseException: " + sUrl, e);
+                settingsHelper.log(DEBUG_TAG, "AuthorParseException: " + sUrl, e);
             }
 
-            if (exio == null && exparse == null) {
+            if (exIo == null && exParse == null) {
                 return res;
             }
         }
-        if (exio != null) {
-            throw exio;
+        if (exIo != null) {
+            throw exIo;
         } else {
-            throw exparse;
+            throw exParse;
         }
     }
 
@@ -383,6 +392,48 @@ public class HttpClientController {
         }
 
     }
+    private void parseAuthorIndexDateData(Author a, String text) throws UnsupportedEncodingException {
+        String[] lines = text.split("\n");
+
+        String authorName=null;
+        Pattern namePattern =Pattern.compile("<h3>(.*):<br>");
+        Pattern bookPattern = Pattern.compile("^<DL><DT><li>.*HREF=(.*)><b>(.*)</b>.*<b>(\\d+)k</b>.*nbsp;\\s+\"(.*)\"\\s+(\\S+)\\s+<.*555555\">(.*)</font>(</DL>|<DD>)");
+
+        for (String line : lines) {
+            Matcher nameMatcher = namePattern.matcher(line);
+            Matcher bookMatcher = bookPattern.matcher(line);
+
+            if (  (authorName == null)  && nameMatcher.find()){
+                authorName=nameMatcher.group(1);
+                Log.e(DEBUG_TAG,"Name = "+authorName);
+                Log.i(DEBUG_TAG,line);
+
+            }
+
+            if (bookMatcher.find()){
+                String link = a.getUrl()+bookMatcher.group(1);
+                link=link.replaceFirst("/","");
+                String title = bookMatcher.group(2);
+                String size = bookMatcher.group(3);
+                String groupName = bookMatcher.group(4);
+                String zhanr = bookMatcher.group(5);
+                String descr = bookMatcher.group(6);
+                Log.e(DEBUG_TAG,"Link = "+link);
+                Log.e(DEBUG_TAG,"Title = "+title);
+                Log.e(DEBUG_TAG,"Size = "+size);
+                Log.e(DEBUG_TAG,"groupName = "+groupName);
+                Log.e(DEBUG_TAG,"zhanr = "+zhanr);
+                Log.e(DEBUG_TAG,"descr = "+ descr);
+                Log.i(DEBUG_TAG,line);
+                Log.i(DEBUG_TAG,"");
+            }
+
+            //Log.i(DEBUG_TAG,line);
+        }
+
+    }
+
+
 
     private HashMap<String, ArrayList<AuthorCard>> parseSearchAuthorData(String text) throws SamlibParseException {
         String[] lines = text.split("\n");
