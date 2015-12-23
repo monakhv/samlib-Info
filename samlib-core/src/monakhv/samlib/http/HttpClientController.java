@@ -198,15 +198,15 @@ public class HttpClientController {
      */
     private String getURL(List<String> urls, PageReader reader) throws IOException, SamlibParseException, SamlibInterruptException {
         String res = null;
-        IOException exio = null;
-        SamlibParseException exparse = null;
-        for (String surl : urls) {
-            Log.i(DEBUG_TAG, "getURL: using urls: " + surl);
-            settingsHelper.log(DEBUG_TAG, "getURL: using urls: " + surl);
-            exio = null;
-            exparse = null;
+        IOException exIo = null;
+        SamlibParseException exParse = null;
+        for (String sUrl : urls) {
+            Log.i(DEBUG_TAG, "getURL: using urls: " + sUrl);
+            settingsHelper.log(DEBUG_TAG, "getURL: using urls: " + sUrl);
+            exIo = null;
+            exParse = null;
             try {
-                URL url = new URL(surl);
+                URL url = new URL(sUrl);
                 res = _getURL(url, reader);
             } catch (InterruptedIOException e) {
                 if (Thread.interrupted()) {
@@ -215,28 +215,28 @@ public class HttpClientController {
                 throw new InterruptedIOException();
             } catch (IOException e) {
                 slc.flipOrder();
-                exio = e;
+                exIo = e;
                 if (Thread.interrupted()) {
                     throw new SamlibInterruptException("getURL:IOException");
                 }
 
-                Log.e(DEBUG_TAG, "getURL: IOException: " + surl, e);
-                settingsHelper.log(DEBUG_TAG, "getURL: IOException: " + surl, e);
+                Log.e(DEBUG_TAG, "getURL: IOException: " + sUrl, e);
+                settingsHelper.log(DEBUG_TAG, "getURL: IOException: " + sUrl, e);
             } catch (SamlibParseException e) {
                 slc.flipOrder();
-                exparse = e;
-                Log.e(DEBUG_TAG, "AuthorParseException: " + surl, e);
-                settingsHelper.log(DEBUG_TAG, "AuthorParseException: " + surl, e);
+                exParse = e;
+                Log.e(DEBUG_TAG, "AuthorParseException: " + sUrl, e);
+                settingsHelper.log(DEBUG_TAG, "AuthorParseException: " + sUrl, e);
             }
 
-            if (exio == null && exparse == null) {
+            if (exIo == null && exParse == null) {
                 return res;
             }
         }
-        if (exio != null) {
-            throw exio;
+        if (exIo != null) {
+            throw exIo;
         } else {
-            throw exparse;
+            throw exParse;
         }
     }
 
