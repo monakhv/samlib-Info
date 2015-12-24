@@ -105,7 +105,7 @@ public class BookController implements AbstractController<Book> {
     /**
      * Delete Book object
      *
-     * @param book objecr to delete
+     * @param book object to delete
      * @return id
      */
     @Override
