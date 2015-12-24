@@ -397,8 +397,10 @@ public class HttpClientController {
 
         String authorName=null;
         Pattern namePattern =Pattern.compile("<h3>(.*):<br>");
-        Pattern bookPattern = Pattern.compile("^<DL><DT><li>.*HREF=(.*)><b>(.*)</b>.*<b>(\\d+)k</b>.*nbsp;\\s+\"(.*)\"\\s+(\\S+)\\s+<.*555555\">(.*)</font>(</DL>|<DD>)");
+        //Pattern bookPattern = Pattern.compile("^<DL><DT><li>.*HREF=(.*)><b>(.*)</b>.*<b>(\\d+)k</b>.*\\s+\"(.*)\"\\s+(\\S*)\\s+<.*?<br><DD><font\\scolor=\"#555555\">(.*)</font>(</DL>|<DD>)");
 
+        Pattern bookPattern = Pattern.compile("^<DL><DT><li>.*HREF=(.*)><b>(.*)</b>.*<b>(\\d+)k</b>.*\\s+\"(.*)\"\\s+(\\S*)\\s*<.*?<br>(<DD><font\\scolor=\"#555555\">(.*)</font>|)(</DL>|<DD>)");
+        int ibooks=0;
         for (String line : lines) {
             Matcher nameMatcher = namePattern.matcher(line);
             Matcher bookMatcher = bookPattern.matcher(line);
@@ -411,13 +413,20 @@ public class HttpClientController {
             }
 
             if (bookMatcher.find()){
+                ++ibooks;
                 String link = a.getUrl()+bookMatcher.group(1);
-                link=link.replaceFirst("/","");
+                link=link.replaceFirst("/","").replaceFirst(".shtml","");;
                 String title = bookMatcher.group(2);
                 String size = bookMatcher.group(3);
                 String groupName = bookMatcher.group(4);
                 String zhanr = bookMatcher.group(5);
-                String descr = bookMatcher.group(6);
+                if (zhanr.equalsIgnoreCase("")){
+                    zhanr=null;
+                }
+                String descr = bookMatcher.group(7);
+                if (descr != null){
+                    descr = descr.replaceAll("\"","&quot;");
+                }
                 Log.e(DEBUG_TAG,"Link = "+link);
                 Log.e(DEBUG_TAG,"Title = "+title);
                 Log.e(DEBUG_TAG,"Size = "+size);
@@ -430,6 +439,7 @@ public class HttpClientController {
 
             //Log.i(DEBUG_TAG,line);
         }
+        Log.i(DEBUG_TAG,"Books = "+ibooks);
 
     }
 

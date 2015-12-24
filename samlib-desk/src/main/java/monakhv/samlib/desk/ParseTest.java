@@ -25,7 +25,8 @@ public class ParseTest {
         HttpClientController http = HttpClientController.getInstance(settings);
 
         Author a = new Author();
-        String link ="/d/demchenko_aw/";
+        //String link ="/d/demchenko_aw/";
+        String link ="/m/metelxskij_n_a/";
 
         a = http.getAuthorByURLNew( link,a);
 

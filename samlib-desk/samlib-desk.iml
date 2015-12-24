@@ -31,6 +31,5 @@
     <orderEntry type="library" exported="" name="ormlite-core-4.48" level="project" />
     <orderEntry type="library" exported="" scope="TEST" name="junit-4.11" level="project" />
     <orderEntry type="library" exported="" scope="TEST" name="hamcrest-core-1.3" level="project" />
-    <orderEntry type="library" exported="" name="samlib-desk.samlib-desk-1.0" level="project" />
   </component>
 </module>
