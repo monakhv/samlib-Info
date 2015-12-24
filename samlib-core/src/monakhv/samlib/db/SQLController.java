@@ -31,24 +31,16 @@ import java.sql.*;
  * Version - 5: Remove samlib URL from the  Author url to use several mirrors
  * Version - 6:add option column for Book table
  * Version - 7:add ALL_TAGS_STRING column for Author Table
+ * Version - 8 GroupBook
  * 
  */
+@SuppressWarnings("SqlNoDataSourceInspection")
 public class SQLController {
-    public enum ORDER_BY {
-        MODIFY_TIME("mtime DESC"),
-        AUTHOR_NAME("name");
-        private ORDER_BY(String sql_state){
-            this.sql=sql_state;
-        }
-        private final String sql;
-        public String getStatement(){
-            return "ORDER BY "+sql;
-        }
-    }
+
 
     public static final String DB_NAME   = "AUTHOR_DATA";
     public static final String DB_EXT = ".db";
-    public static final int    DB_VERSION = 7;
+    public static final int    DB_VERSION = 8;
     
     public static final String COL_ID = "_id";
     public static final String COL_NAME = "NAME";
@@ -57,8 +49,8 @@ public class SQLController {
     public static final String COL_books = "BOOKS";
     public static final String COL_isnew = "ISNEW";
     public static final String COL_ALL_TAGS_NAME ="ALL_TAGS_NAME";
-    public static final String COL_TGIDS =     "tags_id";
-    
+
+    public static final String COL_BOOK_ID                              ="BOOK_ID";
     public static final String COL_BOOK_LINK                         ="LINK";
     public static final String COL_BOOK_AUTHOR                  ="AUTHOR";
     public static final String COL_BOOK_TITLE                       ="TITLE";
@@ -84,6 +76,8 @@ public class SQLController {
     public static final String TABLE_BOOKS   = "Book";
     public static final String TABLE_TAGS      ="Tags";
     public static final String TABLE_T2A         ="Tag2Author" ;
+    public static final String TABLE_SELECTED_BOOK         ="SelectedBook" ;
+    public static final String TABLE_GROUP_BOOK         ="GroupBook" ;
     public static final String TABLE_STATE    ="StateData";
     
     private static final String CLASS_NAME = "org.sqlite.JDBC";
@@ -98,19 +92,19 @@ public class SQLController {
             COL_ALL_TAGS_NAME+" text"+
             //COL_books+" blob"+
             ");";
-    public static final String WHERE_PAT="_WHERE_";
-    public static final String SELECT_AUTHOR_WITH_TAGS ="SELECT "
-            + "Author._id as _id, "
-            + "Author.NAME as NAME, "
-            + "Author.URL as URL, "
-            + "Author.MTIME as MTIME, "
-            + "Author.ISNEW as ISNEW, "
-            + "GROUP_CONCAT(Tags._id) as tags_id, "
-            + "GROUP_CONCAT(Tags.NAME) as tags_name "
-            + "FROM Author "
-            + "LEFT OUTER JOIN Tag2Author ON Tag2Author.AUTHOR_ID = Author._id "
-            + "LEFT OUTER JOIN Tags ON Tags._id =Tag2Author.TAG_ID  "
-            + "_WHERE_ GROUP BY Author._id ";
+
+    public static final String DB_CREATE_SELECTED ="create table if not exists "+TABLE_SELECTED_BOOK+"( "+
+            COL_ID+"  integer primary key autoincrement, "+
+            COL_BOOK_AUTHOR_ID+" INTEGER NOT NULL, "+
+            COL_BOOK_ID   +" INTEGER NOT NULL "+
+            ");";
+
+    public static final String DB_CREATE_GROUP_BOOK ="create table if not exists "+TABLE_GROUP_BOOK+"( "+
+            COL_ID+"  integer primary key autoincrement, "+
+            COL_BOOK_AUTHOR_ID+" INTEGER NOT NULL, "+
+            COL_isnew+" BOOLEAN DEFAULT '0' NOT NULL,"+
+            COL_NAME   +" text "+
+            ");";
     public static final String DB_CREATE_BOOKS ="create table if not exists "+TABLE_BOOKS+"( "+
             COL_ID+"  integer primary key autoincrement, "+
             COL_BOOK_LINK +" text,"+
@@ -120,7 +114,7 @@ public class SQLController {
             COL_BOOK_SIZE                        +" INTEGER,"+
             COL_BOOK_OPT                        +" INTEGER,"+
             COL_BOOK_GROUP_ID             +" INTEGER,"+
-            COL_BOOK_DATE                      +" timestamp,"+//from the samlib
+            COL_BOOK_DATE                      +" timestamp,"+//from the samlib we do not use it anymore
             COL_BOOK_DESCRIPTION        +" text,"+
            COL_BOOK_AUTHOR_ID            +" INTEGER NOT NULL,"+
            COL_BOOK_MTIME                    +" timestamp, "+//updated in the db
@@ -150,6 +144,7 @@ public class SQLController {
     public static final String DB_IDX2 = "CREATE INDEX if not exists book_author   ON Book(AUTHOR_ID);";
     public static final String DB_IDX3 = "CREATE INDEX if not exists tagName  ON Tags(UCNAME);";
     public static final String DB_IDX4 = "CREATE INDEX  if not exists tag_author     ON Tag2Author(TAG_ID,AUTHOR_ID);";
+    public static final String DB_IDX5 = "CREATE INDEX  if not exists group_author     ON GroupBook(NAME,AUTHOR_ID);";
     ///public static final String ALTER2_1 = "ALTER TABLE  "+TABLE_AUTHOR+" DROP COLUMN "+COL_books+" ;";//Not Supported by SQLight
     public static final String ALTER2_2 = "UPDATE   "+TABLE_AUTHOR+" SET  "+COL_isnew+" =0;";
     public static final String ALTER6_1=  "ALTER TABLE "+TABLE_BOOKS+" ADD COLUMN "+COL_BOOK_OPT+" INTEGER;";

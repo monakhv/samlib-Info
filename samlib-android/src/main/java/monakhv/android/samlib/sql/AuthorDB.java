@@ -64,6 +64,10 @@ public class AuthorDB extends SQLiteOpenHelper {
         
         db.execSQL(SQLController.DB_IDX3);
         db.execSQL(SQLController.DB_IDX4);
+
+        db.execSQL(SQLController.DB_CREATE_SELECTED);
+        db.execSQL(SQLController.DB_CREATE_GROUP_BOOK);
+        db.execSQL(SQLController.DB_IDX5);
     }
 
     @Override
