@@ -34,6 +34,8 @@ import java.util.Map;
 
 
 /**
+ * This is Legacy Class we do not use it!!!
+ *  This is for historical usage
  *
  * @author monakhv
  * Hide here all DB design

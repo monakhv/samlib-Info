@@ -149,18 +149,9 @@ public class SQLController {
     public static final String ALTER6_1=  "ALTER TABLE "+TABLE_BOOKS+" ADD COLUMN "+COL_BOOK_OPT+" INTEGER;";
     public static final String ALTER7_1 = "ALTER TABLE   "+TABLE_AUTHOR+" ADD COLUMN  "+COL_ALL_TAGS_NAME+" text;";
 
-    public static final String INSERT_AUTHOR ="INSERT INTO " + TABLE_AUTHOR +" ( "+
-            COL_NAME +","+
-            COL_URL+","+
-            COL_mtime+"," +
-            COL_isnew+")";
+
             
-    public static final String UPDATE_AUTHOR ="UPDATE "+ TABLE_AUTHOR +" SET "+
-            COL_NAME + "=? ,"+
-            COL_URL+"=?,"+
-            COL_mtime+"=?,"+
-            COL_isnew+"=?,"+
-             " WHERE "+ COL_ID+"=?";
+
     private static SQLController instance = null;
     private final Connection bd;
     private final String dbUrl;
