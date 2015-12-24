@@ -31,7 +31,7 @@ import java.sql.*;
  * Version - 5: Remove samlib URL from the  Author url to use several mirrors
  * Version - 6:add option column for Book table
  * Version - 7:add ALL_TAGS_STRING column for Author Table
- * Version - 8 GroupBook
+ * Version - 8 GroupBook & Selected Book tables, selected book Flag option
  * 
  */
 @SuppressWarnings("SqlNoDataSourceInspection")

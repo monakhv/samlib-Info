@@ -43,6 +43,7 @@ public class AuthorController implements AbstractController<Author> {
     private final BookController bookCtl;
     private final Tag2AuthorController t2aCtl;
     private final TagController tagCtl;
+    private final GroupBookController grpCtl;
     private final Dao<Author, Integer> dao;
     private final Dao<Tag2Author, Integer> t2aDao;
 
@@ -54,6 +55,7 @@ public class AuthorController implements AbstractController<Author> {
         this.bookCtl = new BookController(sql);
         this.t2aCtl = new Tag2AuthorController(sql);
         this.tagCtl = new TagController(sql);
+        grpCtl=new GroupBookController(sql);
 
 
     }
@@ -415,6 +417,10 @@ public class AuthorController implements AbstractController<Author> {
     public void loadBooks(Author a) {
         a.setBooks(getBookController().getBooksByAuthor(a));
         a.setBookLoaded(true);
+    }
+
+    public void loadGroupBooks(Author a){
+        a.setGroupBooks(grpCtl.getByAuthor(a));
     }
 
     /**

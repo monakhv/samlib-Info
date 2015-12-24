@@ -26,18 +26,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 
 import com.squareup.okhttp.OkHttpClient;
 import com.squareup.okhttp.Request;
 import com.squareup.okhttp.Response;
 import monakhv.samlib.data.AbstractSettings;
+import monakhv.samlib.db.entity.*;
 import monakhv.samlib.exception.*;
-import monakhv.samlib.db.entity.Author;
-import monakhv.samlib.db.entity.AuthorCard;
-import monakhv.samlib.db.entity.Book;
-import monakhv.samlib.db.entity.SamLibConfig;
 import monakhv.samlib.log.Log;
 
 /**
@@ -113,15 +109,6 @@ public class HttpClientController {
 
         a.setUrl(link);
         String str = getURL(slc.getAuthorRequestURL(a), new StringReader());
-
-        parseAuthorData(a, str);
-        return a;
-    }
-
-    public Author getAuthorByURLNew(String link, Author a) throws IOException, SamlibParseException, SamlibInterruptException {
-
-        a.setUrl(link);
-        String str = getURL(slc.getAuthorIndexDate(a), new StringReader());
 
         parseAuthorIndexDateData(a, str);
         return a;
@@ -369,77 +356,41 @@ public class HttpClientController {
      *
      * @param a    Author object to load data to
      * @param text String data to parse
-     * @throws SamlibParseException Error parsing
+     *
      */
-    private static void parseAuthorData(Author a, String text) throws SamlibParseException {
-        String[] lines = text.split("\n");
-
-        for (String line : lines) {
-
-            if (SamLibConfig.testSplit(line) < 9) {
-                Log.e(DEBUG_TAG, "Line Book parse Error:  length=" + SamLibConfig.testSplit(line) + "   line: " + line + " lines: " + lines.length);
-                throw new SamlibParseException("Line Book parse Error:  length=" + SamLibConfig.testSplit(line) + "   line: " + line + " lines: " + lines.length);
-            }
-            try {
-                Book b = new Book(line);
-                b.setAuthor(a);
-
-                a.getBooks().add(b);
-            } catch (BookParseException ex) {//parsing book update date handling
-                //TODO: new put it to Book constructor
-                Log.e(DEBUG_TAG, "Error parsing book: " + line + "  skip it.", ex);
-            }
-        }
-
-    }
-    private void parseAuthorIndexDateData(Author a, String text) throws UnsupportedEncodingException {
+    private void parseAuthorIndexDateData(Author a, String text)  {
         String[] lines = text.split("\n");
 
         String authorName=null;
-        Pattern namePattern =Pattern.compile("<h3>(.*):<br>");
-        //Pattern bookPattern = Pattern.compile("^<DL><DT><li>.*HREF=(.*)><b>(.*)</b>.*<b>(\\d+)k</b>.*\\s+\"(.*)\"\\s+(\\S*)\\s+<.*?<br><DD><font\\scolor=\"#555555\">(.*)</font>(</DL>|<DD>)");
-
-        Pattern bookPattern = Pattern.compile("^<DL><DT><li>.*HREF=(.*)><b>(.*)</b>.*<b>(\\d+)k</b>.*\\s+\"(.*)\"\\s+(\\S*)\\s*<.*?<br>(<DD><font\\scolor=\"#555555\">(.*)</font>|)(</DL>|<DD>)");
-        int ibooks=0;
+        List<GroupBook> groups = new ArrayList<>();
+        int iBooks=0;
         for (String line : lines) {
-            Matcher nameMatcher = namePattern.matcher(line);
-            Matcher bookMatcher = bookPattern.matcher(line);
+            Matcher nameMatcher = SamLibConfig.AUTHOR_NAME_PATTERN.matcher(line);
+            Matcher bookMatcher = SamLibConfig.BOOK_PATTERN.matcher(line);
 
             if (  (authorName == null)  && nameMatcher.find()){
                 authorName=nameMatcher.group(1);
-                Log.e(DEBUG_TAG,"Name = "+authorName);
-                Log.i(DEBUG_TAG,line);
-
+                Log.i(DEBUG_TAG,"Name = "+authorName);
             }
 
             if (bookMatcher.find()){
-                ++ibooks;
-                String link = a.getUrl()+bookMatcher.group(1);
-                link=link.replaceFirst("/","").replaceFirst(".shtml","");;
-                String title = bookMatcher.group(2);
-                String size = bookMatcher.group(3);
-                String groupName = bookMatcher.group(4);
-                String zhanr = bookMatcher.group(5);
-                if (zhanr.equalsIgnoreCase("")){
-                    zhanr=null;
+                Book book = new Book(a,bookMatcher);
+                GroupBook g=book.getGroupBook();
+                if (! groups.contains(g)){
+                    groups.add(g);
                 }
-                String descr = bookMatcher.group(7);
-                if (descr != null){
-                    descr = descr.replaceAll("\"","&quot;");
+                a.getBooks().add(book);
+
+
+                if (authorName != null){
+                    book.setAuthorName(authorName);
                 }
-                Log.e(DEBUG_TAG,"Link = "+link);
-                Log.e(DEBUG_TAG,"Title = "+title);
-                Log.e(DEBUG_TAG,"Size = "+size);
-                Log.e(DEBUG_TAG,"groupName = "+groupName);
-                Log.e(DEBUG_TAG,"zhanr = "+zhanr);
-                Log.e(DEBUG_TAG,"descr = "+ descr);
-                Log.i(DEBUG_TAG,line);
-                Log.i(DEBUG_TAG,"");
             }
 
             //Log.i(DEBUG_TAG,line);
         }
-        Log.i(DEBUG_TAG,"Books = "+ibooks);
+        a.setGroupBooks(groups);
+        Log.i(DEBUG_TAG,"Books = "+iBooks);
 
     }
 

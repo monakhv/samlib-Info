@@ -69,7 +69,7 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper implements DaoBuilde
             authorDao.executeRawNoArgs(SQLController.DB_IDX5);
 
         } catch (SQLException e) {
-            Log.e(DEBUG_TAG, "Can not create the Schema");
+            Log.e(DEBUG_TAG, "Can not create the Schema",e);
         }
 
 
@@ -108,12 +108,18 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper implements DaoBuilde
             }
 
         } catch (SQLException e) {
-            Log.e(DEBUG_TAG, "Can not UPGRADE the Schema");
+            Log.e(DEBUG_TAG, "Can not UPGRADE the Schema",e);
         }
 
 
     }
 
+    /**
+     *  Upgrade schema from version 7 to version 8
+     *
+     * @param connectionSource connection Source
+     * @throws SQLException
+     */
     private void upgradeSchema7To8(ConnectionSource connectionSource) throws SQLException {
         android.util.Log.d("upgradeSchema7To8", "Begin upgrade schema 7-8");
         TableUtils.createTable(connectionSource, GroupBook.class);//create additional table
@@ -122,7 +128,8 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper implements DaoBuilde
         authorDao.executeRawNoArgs(SQLController.DB_IDX5);//create additional index
 
         QueryBuilder<Book, Integer> qb = getBookDao().queryBuilder();
-        qb.where().eq(SQLController.COL_BOOK_GROUP_ID, Book.SELECTED_GROUP_ID);
+        int SELECTED_GROUP_ID = 1;
+        qb.where().eq(SQLController.COL_BOOK_GROUP_ID, SELECTED_GROUP_ID);
         List<Book> selectedBook = bookDao.query(qb.prepare());
 
         for (Book book : selectedBook) {

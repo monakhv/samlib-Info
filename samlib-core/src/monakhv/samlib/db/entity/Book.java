@@ -17,14 +17,13 @@ package monakhv.samlib.db.entity;
 
 import java.io.Serializable;
 import java.util.Calendar;
-import java.util.Date;
-import java.util.TimeZone;
+import java.util.regex.Matcher;
 
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
 import monakhv.samlib.data.AbstractSettings;
 import monakhv.samlib.db.SQLController;
-import monakhv.samlib.exception.BookParseException;
+
 
 /**
  * @author monakhv
@@ -32,17 +31,6 @@ import monakhv.samlib.exception.BookParseException;
 @DatabaseTable(tableName = SQLController.TABLE_BOOKS)
 public class Book implements Serializable {
 
-    public static final int SELECTED_GROUP_ID = 1;
-
-    private static final int BOOK_LINK = 0;
-    private static final int BOOK_AUTHOR = 1;
-    private static final int BOOK_TITLE = 2;
-    private static final int BOOK_FORM = 3;
-    private static final int BOOK_SIZE = 4;
-    private static final int BOOK_DATE = 5;
-    private static final int BOOK_VOTE_RESULT = 6;
-    private static final int BOOK_VOTE_COUNT = 7;
-    private static final int BOOK_DESCRIPTION = 8;
 
     // http://blog.millermedeiros.com/using-integers-to-store-multiple-boolean-values/
     private static final int OPT_SELECTED = 1 << 0;
@@ -59,8 +47,8 @@ public class Book implements Serializable {
     protected String form;
     @DatabaseField(columnName = SQLController.COL_BOOK_SIZE)
     protected long size;
-    @DatabaseField(columnName = SQLController.COL_BOOK_DATE)
-    protected long updateDate;//read from samlib
+    //    @DatabaseField(columnName = SQLController.COL_BOOK_DATE)
+//    protected long updateDate;//read from samlib
     @DatabaseField(columnName = SQLController.COL_BOOK_MTIME)
     protected long modifyTime;//change in BD
     @DatabaseField(columnName = SQLController.COL_BOOK_ISNEW)
@@ -81,40 +69,36 @@ public class Book implements Serializable {
      */
     public Book() {
         isNew = false;
-        updateDate = Calendar.getInstance().getTime().getTime();
         modifyTime = Calendar.getInstance().getTime().getTime();
         fileType = AbstractSettings.FileType.HTML;
         options = 0;
     }
 
-    /**
-     * Parsing HTTP get string and construct Book object
-     *
-     * @param string2parse input single string to parse
-     * @throws monakhv.samlib.exception.BookParseException
-     */
-    public Book(String string2parse) throws BookParseException {
+    public Book(Author a, Matcher bookMatcher) {
         this();
-        String[] strs = string2parse.split(SamLibConfig.SPLIT);
-        title = strs[BOOK_TITLE];
-        authorName = strs[BOOK_AUTHOR];
-        uri = strs[BOOK_LINK];
-        description = strs[BOOK_DESCRIPTION];
-        form = strs[BOOK_FORM];
+        author=a;
+        uri = a.getUrl() + bookMatcher.group(1);
+        uri = uri.replaceFirst("/", "").replaceFirst(".shtml", "");
+
+        title = bookMatcher.group(2);
         try {
-            size = Long.valueOf(strs[BOOK_SIZE]);
+            size = Long.valueOf(bookMatcher.group(3));
         } catch (NumberFormatException ex) {
             size = 0;
-            //System.out.println("NumberFormatException!");
-            //System.out.println("- "+string2parse);
         }
-        Calendar cal = string2Cal(strs[BOOK_DATE]);
-
-
-        updateDate = cal.getTimeInMillis();
-
-
+        mGroupBook = new GroupBook();
+        mGroupBook.setAuthor(a);
+        mGroupBook.setName(bookMatcher.group(4));
+        form = bookMatcher.group(5);
+        if (form.equalsIgnoreCase("")) {
+            form = null;
+        }
+        description = bookMatcher.group(7);
+        if (description != null) {
+            description = description.replaceAll("\"", "&quot;");
+        }
     }
+
 
     public String getTitle() {
         return title;
@@ -146,14 +130,6 @@ public class Book implements Serializable {
 
     public void setSize(long size) {
         this.size = size;
-    }
-
-    public long getUpdateDate() {
-        return updateDate;
-    }
-
-    public void setUpdateDate(long updateDate) {
-        this.updateDate = updateDate;
     }
 
     public boolean isIsNew() {
@@ -233,90 +209,76 @@ public class Book implements Serializable {
     }
 
     public boolean isPreserve() {
-        return Book.isPreserved(options);
+        return isOptionSelected(OPT_PRESERVE);
     }
 
     public boolean isSelected() {
-        return Book.isSelected(options);
+        return isOptionSelected(OPT_SELECTED);
+    }
+    private boolean isOptionSelected(int mask){
+        return (options & mask) == mask;
     }
 
-    public void setPreserve(boolean flag) {
-        boolean cur = isPreserve();
+    /**
+     *  Set Flag on/off for given option
+     *
+     * @param flag flag to set
+     * @param current current value of the flag
+     * @param mask option mask
+     */
+    private void setOptionFlag(boolean flag,boolean current, int mask){
         if (flag) {
-            if (!cur) {
-                options |= OPT_PRESERVE;//add option
+            if (!current) {
+                options |= mask;//add option
                 return;
             } else {
                 return;//do nothing just return
             }
         } else {
-            if (cur) {
-                options ^= OPT_PRESERVE;//remove option
+            if (current) {
+                options ^= mask;//remove option
                 return;
             } else {
                 return;//do nothing just return
             }
         }
+    }
+
+    public void setPreserve(boolean flag) {
+        boolean cur = isPreserve();
+        setOptionFlag(flag,cur,OPT_PRESERVE);
 
     }
 
     public void setSelected(boolean flag) {
         boolean cur = isSelected();
-        if (flag){
-            if (!cur){
-                options |= OPT_SELECTED;//add option
-                return;
-            }
-            else {
-                return;
-            }
+        setOptionFlag(flag,cur,OPT_SELECTED);
+    }
 
-        }
-        else {
-            if(cur){
-                options ^= OPT_SELECTED;//remove option
-                return;
-            }
-            else {
-                return;
-            }
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
 
-        }
+        Book book = (Book) o;
+
+        if (size != book.size) return false;
+        if (!uri.equals(book.uri)) return false;
+        return description != null ? description.equals(book.description) : book.description == null;
+
     }
 
     @Override
     public int hashCode() {
-        int hash = 7;
-        hash = 13 * hash + (this.uri != null ? this.uri.hashCode() : 0);
-        hash = 13 * hash + (int) (this.size ^ (this.size >>> 32));
-        hash = 13 * hash + (int) (this.updateDate ^ (this.updateDate >>> 32));
-        return hash;
-    }
-
-    @SuppressWarnings("SimplifiableIfStatement")
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj) return true;
-        if (obj == null || ((Object) this).getClass() != obj.getClass()) {
-            return false;
-        }
-        final Book other = (Book) obj;
-        if ((this.uri == null) ? (other.uri != null) : !this.uri.equals(other.uri)) {
-            return false;
-        }
-        if ((this.description == null) ? (other.description != null) : !this.description.equals(other.description)) {
-            return false;
-        }
-        if (this.size != other.size) {
-            return false;
-        }
-        return this.updateDate == other.updateDate;
+        int result = uri.hashCode();
+        result = 31 * result + (int) (size ^ (size >>> 32));
+        return result;
     }
 
     @Override
     public String toString() {
-        Date d = new Date(updateDate);
-        return "Book{" + "uri=" + uri + ", size=" + size + ", updateDate=" + d + '}';
+
+        return "Book{" + "uri=" + uri + ", size=" + size + '}';
     }
 
 
@@ -343,34 +305,7 @@ public class Book implements Serializable {
     }
 
 
-    public static Calendar string2Cal(String str) throws BookParseException {
-        String[] dd = str.split("/");
-
-        if (dd.length != 3) {
-            throw new BookParseException("Date string: " + str);
-        }
-        int day = Integer.valueOf(dd[0]);
-        int month = Integer.valueOf(dd[1]);
-        int year = Integer.valueOf(dd[2]);
-        Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
-
-        cal.set(Calendar.HOUR_OF_DAY, 0);
-        cal.set(Calendar.MINUTE, 0);
-        cal.set(Calendar.SECOND, 0);
-        cal.set(Calendar.MILLISECOND, 0);
-        cal.set(Calendar.DAY_OF_MONTH, day);
-        cal.set(Calendar.MONTH, month - 1);
-        cal.set(Calendar.YEAR, year);
 
 
-        return cal;
-    }
 
-    public static boolean isPreserved(int options) {
-        return (options & OPT_PRESERVE) == OPT_PRESERVE;
-    }
-
-    public static boolean isSelected(int options) {
-        return (options & OPT_SELECTED) == OPT_SELECTED;
-    }
 }

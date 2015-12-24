@@ -49,6 +49,8 @@ public class SamLibConfig {
     public static final   int       TAG_AUTHOR_ALL     =-1;
     public static final   int       TAG_AUTHOR_NEW  =-2;
     public static final   int       TAG_AUTHOR_ID = -10;
+    public   static final Pattern  BOOK_PATTERN = Pattern.compile("^<DL><DT><li>.*HREF=(.*)><b>(.*)</b>.*<b>(\\d+)k</b>.*\\s+\"(.*)\"\\s+(\\S*)\\s*<.*?<br>(<DD><font\\scolor=\"#555555\">(.*)</font>|)(</DL>|<DD>)");
+    public   static final Pattern  AUTHOR_NAME_PATTERN =Pattern.compile("<h3>(.*):<br>");
     
     public static final String COLLATION_RULES_NEW = "&' '<'-'<'_'<','<';'<':'<'!'<'?'<'/'<'.'<0<1<2<3<4<5<6<7<8<9<a,A<b,B<c,C<d,D<ð,Ð<e,E<f,F<g,G<h,H<i,I<j,J<k,K<l,L<m,M<n,N<o,O"
                  + "<p,P<q,Q<r,R<s,S<t,T<u,U<v,V<w,W<x,X<y,Y<z,Z <а,А< б,Б<в,В<г,Г< д , Д<  е , Е<  ё , Ё< ж , Ж< з , З< и , И< й , Й< к , К< л ,Л<  м , М"
@@ -81,6 +83,7 @@ public class SamLibConfig {
     private static final String     REQUEST_BOOK_TEXT                = "/cgi-bin/areader?q=book&object=";
     private static final String     REQUEST_AUTHOR_SEARCH      = "/cgi-bin/areader?q=alpha&anum=_ANUM_&page=_PAGE_&pagelen=_PAGELEN_";
     private static final String     REQUEST_INDEXDATE="/indexdate.shtml";
+
     
     private static final String[]   ABC_LETTER = new String[]{
         "А", "Б", "В", "Г", "Д", "Е", "Ё", "Ж", "З", "И", "Й", "К", "Л",

@@ -37,8 +37,8 @@ import java.util.List;
 @DatabaseTable(tableName = SQLController.TABLE_AUTHOR)
 public class Author  implements Serializable{
 
-
-    protected List<Book> books;
+    protected List<GroupBook> mGroupBooks;
+    protected List<Book> books;//there is special method AuthorController.loadBooks(a)
     @DatabaseField(columnName = SQLController.COL_NAME)
     protected String name;
     @DatabaseField(columnName = SQLController.COL_mtime)
@@ -62,6 +62,7 @@ public class Author  implements Serializable{
     public Author() {
         updateDate = Calendar.getInstance().getTime().getTime();
         books = new ArrayList<>();
+        mGroupBooks = new ArrayList<>();
 
     }
 
@@ -79,6 +80,14 @@ public class Author  implements Serializable{
 
     public void setBooks(List<Book> books) {
         this.books = books;
+    }
+
+    public List<GroupBook> getGroupBooks() {
+        return mGroupBooks;
+    }
+
+    public void setGroupBooks(List<GroupBook> groupBooks) {
+        mGroupBooks = groupBooks;
     }
 
     public String getName() {
@@ -135,9 +144,6 @@ public class Author  implements Serializable{
         return tag2Authors;
     }
 
-    public void setTag2Authors(ForeignCollection<Tag2Author> tag2Authors) {
-        this.tag2Authors = tag2Authors;
-    }
 
     public boolean isBookLoaded() {
         return bookLoaded;
@@ -218,6 +224,7 @@ public class Author  implements Serializable{
 
     /**
      * Update Author information by data of new Author object If need
+     * Call from SamLibService.runUpdate only !!!
      *
      * @param newA new just downloaded author
      * @return true if data is updated false in other case

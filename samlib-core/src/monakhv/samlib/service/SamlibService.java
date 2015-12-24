@@ -101,6 +101,7 @@ public class SamlibService {
         for (Author a : authors) {//main author cycle
             guiUpdate.sendAuthorUpdateProgress(total, ++iCurrent, a.getName());
             authorController.loadBooks(a);
+            authorController.loadGroupBooks(a);
             String url = a.getUrl();
             Author newA = new Author();
             try {

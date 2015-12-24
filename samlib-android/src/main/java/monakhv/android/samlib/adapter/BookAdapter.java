@@ -137,7 +137,7 @@ public class BookAdapter   extends RecyclerAdapter<Book,BookAdapter.ViewHolder> 
             holder.starIcon.setVisibility(View.GONE);
         }
 
-        if (Book.isPreserved(book.getOptions())){
+        if (book.isPreserve()){
             holder.lockIcon.setImageResource(settingsHelper.getLockIcon());
             holder.lockIcon.setVisibility(View.VISIBLE);
         }
