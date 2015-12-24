@@ -95,7 +95,6 @@ public class SQLController {
 
     public static final String DB_CREATE_SELECTED ="create table if not exists "+TABLE_SELECTED_BOOK+"( "+
             COL_ID+"  integer primary key autoincrement, "+
-            COL_BOOK_AUTHOR_ID+" INTEGER NOT NULL, "+
             COL_BOOK_ID   +" INTEGER NOT NULL "+
             ");";
 

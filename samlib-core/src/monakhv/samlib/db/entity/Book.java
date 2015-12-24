@@ -27,14 +27,13 @@ import monakhv.samlib.db.SQLController;
 import monakhv.samlib.exception.BookParseException;
 
 /**
- *
  * @author monakhv
  */
 @DatabaseTable(tableName = SQLController.TABLE_BOOKS)
 public class Book implements Serializable {
 
-    public static final int SELECTED_GROUP_ID=1;
-    
+    public static final int SELECTED_GROUP_ID = 1;
+
     private static final int BOOK_LINK = 0;
     private static final int BOOK_AUTHOR = 1;
     private static final int BOOK_TITLE = 2;
@@ -45,7 +44,9 @@ public class Book implements Serializable {
     private static final int BOOK_VOTE_COUNT = 7;
     private static final int BOOK_DESCRIPTION = 8;
 
-    private static final int OPT_PRESERVE=1<<1;
+    // http://blog.millermedeiros.com/using-integers-to-store-multiple-boolean-values/
+    private static final int OPT_SELECTED = 1 << 0;
+    private static final int OPT_PRESERVE = 1 << 1;
     @DatabaseField(columnName = SQLController.COL_BOOK_TITLE)
     protected String title;
     @DatabaseField(columnName = SQLController.COL_BOOK_AUTHOR)
@@ -66,11 +67,11 @@ public class Book implements Serializable {
     protected boolean isNew;
     @DatabaseField(columnName = SQLController.COL_ID, generatedId = true)
     protected int id;
-    @DatabaseField(columnName = SQLController.COL_BOOK_GROUP_ID)
-    protected int group_id;
+    @DatabaseField(columnName = SQLController.COL_BOOK_GROUP_ID, foreign = true)
+    protected GroupBook mGroupBook;
     @DatabaseField(columnName = SQLController.COL_BOOK_OPT)
     private int options;
-    @DatabaseField(columnName = SQLController.COL_BOOK_AUTHOR_ID,foreign = true,canBeNull = false)
+    @DatabaseField(columnName = SQLController.COL_BOOK_AUTHOR_ID, foreign = true, canBeNull = false)
     private Author author;
 
     private AbstractSettings.FileType fileType;
@@ -82,8 +83,8 @@ public class Book implements Serializable {
         isNew = false;
         updateDate = Calendar.getInstance().getTime().getTime();
         modifyTime = Calendar.getInstance().getTime().getTime();
-        fileType= AbstractSettings.FileType.HTML;
-        options=0;
+        fileType = AbstractSettings.FileType.HTML;
+        options = 0;
     }
 
     /**
@@ -207,12 +208,12 @@ public class Book implements Serializable {
         this.form = form;
     }
 
-    public int getGroup_id() {
-        return group_id;
+    public GroupBook getGroupBook() {
+        return mGroupBook;
     }
 
-    public void setGroup_id(int group_id) {
-        this.group_id = group_id;
+    public void setGroupBook(GroupBook groupBook) {
+        mGroupBook = groupBook;
     }
 
     public AbstractSettings.FileType getFileType() {
@@ -231,32 +232,58 @@ public class Book implements Serializable {
         this.options = options;
     }
 
-    public boolean isPreserve(){
-      return Book.isPreserved(options);
+    public boolean isPreserve() {
+        return Book.isPreserved(options);
+    }
+
+    public boolean isSelected() {
+        return Book.isSelected(options);
+    }
+
+    public void setPreserve(boolean flag) {
+        boolean cur = isPreserve();
+        if (flag) {
+            if (!cur) {
+                options |= OPT_PRESERVE;//add option
+                return;
+            } else {
+                return;//do nothing just return
+            }
+        } else {
+            if (cur) {
+                options ^= OPT_PRESERVE;//remove option
+                return;
+            } else {
+                return;//do nothing just return
+            }
+        }
 
     }
-    public void setPreserve(boolean flag){
-        boolean cur = isPreserve();
-  if (flag){
+
+    public void setSelected(boolean flag) {
+        boolean cur = isSelected();
+        if (flag){
             if (!cur){
-                options |=OPT_PRESERVE;//add option
+                options |= OPT_SELECTED;//add option
                 return;
             }
             else {
-                return;//do nothing just return
+                return;
             }
+
         }
         else {
-            if (cur){
-                options ^=OPT_PRESERVE;//remove option
+            if(cur){
+                options ^= OPT_SELECTED;//remove option
                 return;
             }
             else {
-                return;//do nothing just return
+                return;
             }
-        }
 
+        }
     }
+
     @Override
     public int hashCode() {
         int hash = 7;
@@ -269,7 +296,7 @@ public class Book implements Serializable {
     @SuppressWarnings("SimplifiableIfStatement")
     @Override
     public boolean equals(Object obj) {
-         if (this == obj) return true;
+        if (this == obj) return true;
         if (obj == null || ((Object) this).getClass() != obj.getClass()) {
             return false;
         }
@@ -292,31 +319,28 @@ public class Book implements Serializable {
         return "Book{" + "uri=" + uri + ", size=" + size + ", updateDate=" + d + '}';
     }
 
-    
 
     /**
      * Get book url to open it using web browser
-     * @return  String url to open book for reading
+     *
+     * @return String url to open book for reading
      */
-    public String getUrlForBrowser(AbstractSettings context){
+    public String getUrlForBrowser(AbstractSettings context) {
         SamLibConfig sc = SamLibConfig.getInstance(context);
         return sc.getBookUrlForBrowser(this);
     }
-    
+
     /**
      * Get file object to store book for offline reading
-     * @return  File to store book
+     *
+     * @return File to store book
      */
 //    public File getFile() {
 //        return DataExportImport._getBookFile(this,fileType);
 //    }
-
-
-
-   public String getFileMime(){
-       return fileType.mime;
-   }
-
+    public String getFileMime() {
+        return fileType.mime;
+    }
 
 
     public static Calendar string2Cal(String str) throws BookParseException {
@@ -341,7 +365,12 @@ public class Book implements Serializable {
 
         return cal;
     }
-    public static boolean isPreserved(int options){
-        return (options & OPT_PRESERVE)==OPT_PRESERVE;
+
+    public static boolean isPreserved(int options) {
+        return (options & OPT_PRESERVE) == OPT_PRESERVE;
+    }
+
+    public static boolean isSelected(int options) {
+        return (options & OPT_SELECTED) == OPT_SELECTED;
     }
 }

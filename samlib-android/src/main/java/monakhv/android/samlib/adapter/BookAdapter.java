@@ -129,7 +129,7 @@ public class BookAdapter   extends RecyclerAdapter<Book,BookAdapter.ViewHolder> 
         holder.itemView.setActivated(position == getSelectedPosition());
 
 
-        if (book.getGroup_id() == 1) {
+        if (book.isSelected()) {
             holder.starIcon.setImageResource(settingsHelper.getSelectedIcon());
             holder.starIcon.setVisibility(View.VISIBLE);
         } else {

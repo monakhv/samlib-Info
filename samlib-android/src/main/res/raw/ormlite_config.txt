@@ -1,5 +1,5 @@
 #
-# generated on 2015/07/28 01:00:34
+# generated on 2015/12/24 01:57:22
 #
 # --table-start--
 dataClass=monakhv.samlib.db.entity.Author
@@ -83,8 +83,9 @@ columnName=_id
 generatedId=true
 # --field-end--
 # --field-start--
-fieldName=group_id
+fieldName=mGroupBook
 columnName=GROUP_ID
+foreign=true
 # --field-end--
 # --field-start--
 fieldName=options
@@ -141,6 +142,51 @@ fieldName=tag
 columnName=TAG_ID
 canBeNull=false
 foreign=true
+# --field-end--
+# --table-fields-end--
+# --table-end--
+#################################
+# --table-start--
+dataClass=monakhv.samlib.db.entity.SelectedBook
+tableName=SelectedBook
+# --table-fields-start--
+# --field-start--
+fieldName=id
+columnName=_id
+generatedId=true
+# --field-end--
+# --field-start--
+fieldName=mBook
+columnName=BOOK_ID
+canBeNull=false
+foreign=true
+unique=true
+# --field-end--
+# --table-fields-end--
+# --table-end--
+#################################
+# --table-start--
+dataClass=monakhv.samlib.db.entity.GroupBook
+tableName=GroupBook
+# --table-fields-start--
+# --field-start--
+fieldName=id
+columnName=_id
+generatedId=true
+# --field-end--
+# --field-start--
+fieldName=author
+columnName=AUTHOR_ID
+canBeNull=false
+foreign=true
+# --field-end--
+# --field-start--
+fieldName=name
+columnName=NAME
+# --field-end--
+# --field-start--
+fieldName=isNew
+columnName=ISNEW
 # --field-end--
 # --table-fields-end--
 # --table-end--

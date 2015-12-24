@@ -1,10 +1,7 @@
 package monakhv.samlib.db;
 
 import com.j256.ormlite.dao.Dao;
-import monakhv.samlib.db.entity.Author;
-import monakhv.samlib.db.entity.Book;
-import monakhv.samlib.db.entity.Tag;
-import monakhv.samlib.db.entity.Tag2Author;
+import monakhv.samlib.db.entity.*;
 
 /*
  * Copyright 2015  Dmitry Monakhov
@@ -24,8 +21,10 @@ import monakhv.samlib.db.entity.Tag2Author;
  * 02.07.15.
  */
 public interface DaoBuilder {
-    public Dao<Author, Integer> getAuthorDao();
-    public Dao<Book, Integer> getBookDao();
-    public Dao<Tag, Integer> getTagDao();
-    public Dao<Tag2Author, Integer> getT2aDao();
+    Dao<Author, Integer> getAuthorDao();
+    Dao<Book, Integer> getBookDao();
+    Dao<Tag, Integer> getTagDao();
+    Dao<Tag2Author, Integer> getT2aDao();
+    Dao<SelectedBook, Integer> getSelectedBookDao();
+    Dao<GroupBook, Integer> getGroupBookDao();
 }

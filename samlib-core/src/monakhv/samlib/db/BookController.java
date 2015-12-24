@@ -7,6 +7,7 @@ import com.j256.ormlite.stmt.PreparedQuery;
 import com.j256.ormlite.stmt.QueryBuilder;
 import monakhv.samlib.db.entity.Author;
 import monakhv.samlib.db.entity.Book;
+import monakhv.samlib.db.entity.SelectedBook;
 import monakhv.samlib.log.Log;
 
 
@@ -52,10 +53,12 @@ public class BookController implements AbstractController<Book> {
     private static final String DEBUG_TAG = "BookController";
 
     private final Dao<Book, Integer> dao;
+    private final Dao<SelectedBook, Integer> selectedDao;
 
     public BookController(DaoBuilder sql) {
 
         dao = sql.getBookDao();
+        selectedDao = sql.getSelectedBookDao();
 
     }
 
@@ -141,8 +144,9 @@ public class BookController implements AbstractController<Book> {
 
     /**
      * Get Books of given author
+     *
      * @param author the Author
-     * @param order Sort order in row format
+     * @param order  Sort order in row format
      * @return List of the books
      */
     public synchronized List<Book> getAll(Author author, String order) {
@@ -165,7 +169,7 @@ public class BookController implements AbstractController<Book> {
         return res;
     }
 
-    private PreparedQuery<Book> getPrepared(QueryBuilder<Book, Integer> qb , Author author) throws SQLException {
+    private PreparedQuery<Book> getPrepared(QueryBuilder<Book, Integer> qb, Author author) throws SQLException {
 
         qb.where().eq(SQLController.COL_BOOK_AUTHOR_ID, author);
 
@@ -176,20 +180,31 @@ public class BookController implements AbstractController<Book> {
 
     /**
      * Get Selected Book
+     *
      * @param order Sort order if not null
      * @return List of selected books
      */
-    public List<Book>  getSelected( String order) {
-        QueryBuilder<Book, Integer> qb = dao.queryBuilder();
+    public List<Book> getSelected(String order) {
+        QueryBuilder<Book, Integer> qbBooks = dao.queryBuilder();
+        QueryBuilder<SelectedBook, Integer> qbSelected = selectedDao.queryBuilder();
+
+        try {
+            qbBooks.join(qbSelected);
+        } catch (SQLException e) {
+            Log.e(DEBUG_TAG, "getSelected: join error", e);
+            return null;
+        }
+
+
         if (order != null) {
-            qb.orderByRaw(order);
+            qbBooks.orderByRaw(order);
         }
         try {
-            qb.where().eq(SQLController.COL_BOOK_GROUP_ID, Book.SELECTED_GROUP_ID);
-            return dao.query(qb.prepare());
+            //qbBooks.where().eq(SQLController.COL_BOOK_GROUP_ID, Book.SELECTED_GROUP_ID);
+            return dao.query(qbBooks.prepare());
 
         } catch (SQLException e) {
-            Log.e(DEBUG_TAG,"getRowResultSelected: error",e);
+            Log.e(DEBUG_TAG, "getSelected: query error", e);
             return null;
         }
 
@@ -218,5 +233,55 @@ public class BookController implements AbstractController<Book> {
     public void markUnRead(Book book) {
         book.setIsNew(true);
         update(book);
+    }
+
+    /**
+     * Set book selected
+     *
+     * @param book the book to make selected
+     */
+    public void setSelected(Book book) {
+        if (book.isSelected()) {
+            return;
+        }
+
+        book.setSelected(true);
+        try {
+            selectedDao.create(new SelectedBook(book));
+            dao.update(book);
+        } catch (SQLException e) {
+            Log.e(DEBUG_TAG, "setSelected: sql error ", e);
+        }
+    }
+
+    /**
+     * Make book deselected - remove from selection
+     *
+     * @param book Book to deselect
+     */
+    public void setDeselected(Book book) {
+        if (!book.isSelected()) {
+            return;
+        }
+        book.setSelected(false);
+
+        update(book);
+        QueryBuilder<SelectedBook, Integer> qb = selectedDao.queryBuilder();
+        List<SelectedBook> selected;
+        try {
+            selected = selectedDao.query(qb.where().eq(SQLController.COL_BOOK_ID, book).prepare());
+        } catch (SQLException e) {
+            Log.e(DEBUG_TAG, "setDeselected: sql query error ", e);
+            return;
+        }
+        if (selected.size() != 1) {
+            Log.e(DEBUG_TAG, "setDeselected: result size error " + selected.size());
+        }
+        try {
+            selectedDao.delete(selected.get(0));
+        } catch (SQLException e) {
+            Log.e(DEBUG_TAG, "setDeselected: sql delete error ", e);
+        }
+
     }
 }

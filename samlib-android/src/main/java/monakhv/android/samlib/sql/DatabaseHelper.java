@@ -10,17 +10,13 @@ import com.j256.ormlite.table.TableUtils;
 import monakhv.android.samlib.R;
 import monakhv.samlib.db.DaoBuilder;
 import monakhv.samlib.db.SQLController;
-import monakhv.samlib.db.entity.Author;
-import monakhv.samlib.db.entity.Book;
-import monakhv.samlib.db.entity.Tag;
-import monakhv.samlib.db.entity.Tag2Author;
+import monakhv.samlib.db.entity.*;
 import monakhv.samlib.log.Log;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+
 
 /*
  * Copyright 2015  Dmitry Monakhov
@@ -45,8 +41,11 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper implements DaoBuilde
     private Dao<Book,Integer>   bookDao;
     private Dao<Tag,Integer>     tagDao;
     private Dao<Tag2Author, Integer>        t2aDao;
+    private Dao<SelectedBook, Integer> selectedBookDao;
+    private Dao<GroupBook, Integer> groupBookDao;
     public DatabaseHelper(Context context){
         super(context, SQLController.DB_NAME, null, SQLController.DB_VERSION, R.raw.ormlite_config);
+        //monakhv.android.samlib.utils.DatabaseConfigUtil -- to reconfigure
 
     }
     @Override
@@ -57,12 +56,15 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper implements DaoBuilde
             TableUtils.createTable(connectionSource, Tag.class);
             TableUtils.createTable(connectionSource, Tag2Author.class);
 
+            TableUtils.createTable(connectionSource, GroupBook.class);
+            TableUtils.createTable(connectionSource, SelectedBook.class);
+
             getAuthorDao();
             authorDao.executeRawNoArgs(SQLController.DB_IDX1);
             authorDao.executeRawNoArgs(SQLController.DB_IDX2);
             authorDao.executeRawNoArgs(SQLController.DB_IDX3);
             authorDao.executeRawNoArgs(SQLController.DB_IDX4);
-
+            authorDao.executeRawNoArgs(SQLController.DB_IDX5);
 
         } catch (SQLException e) {
             Log.e(DEBUG_TAG,"Can not create the Schema");
@@ -71,22 +73,36 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper implements DaoBuilde
 
     }
 
+    /**
+     * monakhv.android.samlib.utils.DatabaseConfigUtil -- to reconfigure
+     *
+     * @param db
+     * @param connectionSource
+     * @param oldVersion
+     * @param newVersion
+     */
     @Override
     public void onUpgrade(SQLiteDatabase db, ConnectionSource connectionSource, int oldVersion, int newVersion) {
         getAuthorDao();
 
         try {
-            if (oldVersion == 4 && newVersion == 7) {
+            if (oldVersion == 4 && newVersion == 8) {
                 upgradeSchema4To5(db);
                 upgradeSchema5To6(db);
                 upgradeSchema6To7(db);
+                upgradeSchema7To8(connectionSource);
             }
-            if (oldVersion == 5 && newVersion == 7) {
+            if (oldVersion == 5 && newVersion == 8) {
                 upgradeSchema5To6(db);
                 upgradeSchema6To7(db);
+                upgradeSchema7To8(connectionSource);
             }
-            if (oldVersion == 6 && newVersion == 7) {
+            if (oldVersion == 6 && newVersion == 8) {
                 upgradeSchema6To7(db);
+                upgradeSchema7To8(connectionSource);
+            }
+            if (oldVersion == 7 && newVersion == 8) {
+                upgradeSchema7To8(connectionSource);
             }
 
         }catch (SQLException e) {
@@ -96,6 +112,27 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper implements DaoBuilde
 
     }
 
+    private void upgradeSchema7To8(ConnectionSource connectionSource) throws SQLException{
+        android.util.Log.d("upgradeSchema7To8", "Begin upgrade schema 7-8");
+        TableUtils.createTable(connectionSource, GroupBook.class);//create additional table
+        TableUtils.createTable(connectionSource, SelectedBook.class);//create additional table
+        getAuthorDao();
+        authorDao.executeRawNoArgs(SQLController.DB_IDX5);//create additional index
+
+        QueryBuilder<Book, Integer> qb = getBookDao().queryBuilder();
+        qb.where().eq(SQLController.COL_BOOK_GROUP_ID, Book.SELECTED_GROUP_ID);
+        List<Book> selectedBook = bookDao.query(qb.prepare());
+
+        for (Book book :  selectedBook){
+            book.setGroupBook(null);
+            book.setSelected(true);
+            bookDao.update(book);
+            SelectedBook sb = new SelectedBook();
+            sb.setBook(book);
+            getSelectedBookDao().create(sb);
+        }
+
+    }
     /**
      * Schema update to version 5
      * Remove samlib URL
@@ -164,6 +201,26 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper implements DaoBuilde
             }
         }
         return bookDao;
+    }
+    public Dao<SelectedBook, Integer> getSelectedBookDao() {
+        if (selectedBookDao == null){
+            try {
+                selectedBookDao=getDao(SelectedBook.class);
+            } catch (SQLException e) {
+                Log.e(DEBUG_TAG,"SelectedBook DAO Error",e);
+            }
+        }
+        return selectedBookDao;
+    }
+    public Dao<GroupBook, Integer> getGroupBookDao() {
+        if (groupBookDao == null){
+            try {
+                groupBookDao=getDao(GroupBook.class);
+            } catch (SQLException e) {
+                Log.e(DEBUG_TAG,"GroupBook DAO Error",e);
+            }
+        }
+        return groupBookDao;
     }
 
     public Dao<Tag, Integer> getTagDao()  {

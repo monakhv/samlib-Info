@@ -1,10 +1,7 @@
 package monakhv.android.samlib.utils;
 
 import com.j256.ormlite.android.apptools.OrmLiteConfigUtil;
-import monakhv.samlib.db.entity.Author;
-import monakhv.samlib.db.entity.Book;
-import monakhv.samlib.db.entity.Tag;
-import monakhv.samlib.db.entity.Tag2Author;
+import monakhv.samlib.db.entity.*;
 
 /*
  * Copyright 2015  Dmitry Monakhov
@@ -29,7 +26,9 @@ public class DatabaseConfigUtil   extends OrmLiteConfigUtil {
             Author.class,
             Book.class,
             Tag.class,
-            Tag2Author.class
+            Tag2Author.class,
+            SelectedBook.class,
+            GroupBook.class
     };
     public static void main(String[] args) throws Exception {
         writeConfigFile("ormlite_config.txt", classes);

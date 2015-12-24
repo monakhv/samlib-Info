@@ -306,7 +306,7 @@ public class BookFragment extends Fragment implements
             menu.add(menu_mark_read, getString(R.string.menu_read));
         }
         menu.add(menu_browser, getString(R.string.menu_open_web));
-        if (book.getGroup_id() == Book.SELECTED_GROUP_ID) {
+        if (book.isSelected()) {
             menu.add(menu_deselected, getString(R.string.menu_deselected));
         } else {
             menu.add(menu_selected, getString(R.string.menu_selected));
@@ -342,12 +342,10 @@ public class BookFragment extends Fragment implements
             adapter.makeSelectedRead(true);
         }
         if (item == menu_selected) {
-            book.setGroup_id(Book.SELECTED_GROUP_ID);
-            updateBook(book);
+            sql.getBookController().setSelected(book);
         }
         if (item == menu_deselected) {
-            book.setGroup_id(0);
-            updateBook(book);
+            sql.getBookController().setDeselected(book);
         }
         if (item == menu_reload) {
 
