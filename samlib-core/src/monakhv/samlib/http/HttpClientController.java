@@ -210,19 +210,19 @@ public class HttpClientController {
                 res = _getURL(url, reader);
             } catch (InterruptedIOException e) {
                 if (Thread.interrupted()) {
-                    Log.i(DEBUG_TAG,"getURL: thread is interrupted throw SamlibInterruptException");
-                    settingsHelper.log(DEBUG_TAG,"getURL: thread is interrupted throw SamlibInterruptException");
+                    Log.i(DEBUG_TAG,"getURL: thread is interrupted throw SamlibInterruptException",e);
+                    settingsHelper.log(DEBUG_TAG,"getURL: thread is interrupted throw SamlibInterruptException",e);
                     throw new SamlibInterruptException("getURL:InterruptedIOException");
                 }
-                Log.i(DEBUG_TAG,"getURL: thread is NOT interrupted throw InterruptedIOException");
-                settingsHelper.log(DEBUG_TAG,"getURL: thread is interrupted throw InterruptedIOException");
+                Log.i(DEBUG_TAG,"getURL: thread is NOT interrupted throw InterruptedIOException",e);
+                settingsHelper.log(DEBUG_TAG,"getURL: thread is interrupted throw InterruptedIOException",e);
                 throw new InterruptedIOException("getURL:InterruptedIOException");
             } catch (IOException e) {
                 slc.flipOrder();
                 exIo = e;
                 if (Thread.interrupted()) {
-                    Log.i(DEBUG_TAG,"getURL:1 thread is interrupted throw SamlibInterruptException");
-                    settingsHelper.log(DEBUG_TAG,"getURL:1 thread is interrupted throw SamlibInterruptException");
+                    Log.i(DEBUG_TAG,"getURL:1 thread is interrupted throw SamlibInterruptException",e);
+                    settingsHelper.log(DEBUG_TAG,"getURL:1 thread is interrupted throw SamlibInterruptException",e);
                     throw new SamlibInterruptException("getURL:IOException");
                 }
 
