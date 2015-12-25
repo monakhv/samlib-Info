@@ -22,10 +22,12 @@ import java.util.List;
  *
  * 23.07.15.
  */
-public abstract class RecyclerAdapter <T,VH extends android.support.v7.widget.RecyclerView.ViewHolder> extends RecyclerView.Adapter<VH>{
-    private static final String DEBUG_TAG="RecyclerAdapter";
+public abstract class RecyclerAdapter<T, VH extends android.support.v7.widget.RecyclerView.ViewHolder> extends RecyclerView.Adapter<VH> {
+    private static final String DEBUG_TAG = "RecyclerAdapter";
+
     public interface CallBack {
         void makeNewFlip(int id);
+
         void refresh();
     }
 
@@ -37,7 +39,6 @@ public abstract class RecyclerAdapter <T,VH extends android.support.v7.widget.Re
     }
 
 
-
     public void setData(List<T> data) {
         mData = data;
         notifyDataSetChanged();
@@ -45,23 +46,24 @@ public abstract class RecyclerAdapter <T,VH extends android.support.v7.widget.Re
 
     @Override
     public int getItemCount() {
-        if (mData == null){
+        if (mData == null) {
             return 0;
-        }
-        else {
+        } else {
             return mData.size();
         }
     }
-    public static final int NOT_SELECTED=-1;
+
+    public static final int NOT_SELECTED = -1;
     private int selected = NOT_SELECTED;
 
     /**
      * Change selection position
      * make notification by default
+     *
      * @param position new selected item position
      */
-    public void toggleSelection(int position){
-        toggleSelection(position,true);
+    public void toggleSelection(int position) {
+        toggleSelection(position, true);
     }
 
     /**
@@ -70,23 +72,23 @@ public abstract class RecyclerAdapter <T,VH extends android.support.v7.widget.Re
      * @param position new selection position
      * @param notified whether make change item notification or not
      */
-    public void toggleSelection(int position,boolean notified){
-        if (position == selected){
+    public void toggleSelection(int position, boolean notified) {
+        if (position == selected) {
             return;//selection is not changed - ignore it
         }
 
         int old_selection = selected;//preserve old selection position
         selected = position;//new position
 
-        if (old_selection!= NOT_SELECTED&&notified){
+        if (old_selection != NOT_SELECTED && notified) {
             notifyItemChanged(old_selection);//clean up old selection
         }
-        if (selected != NOT_SELECTED&&notified){
+        if (selected != NOT_SELECTED && notified) {
             notifyItemChanged(selected);//make new selection
         }
     }
 
-    public void cleanSelection(){
+    public void cleanSelection() {
         toggleSelection(NOT_SELECTED);
     }
 
@@ -94,6 +96,7 @@ public abstract class RecyclerAdapter <T,VH extends android.support.v7.widget.Re
     public int getSelectedPosition() {
         return selected;
     }
+
     public T getSelected() {
         int pos = getSelectedPosition();
         if (pos == NOT_SELECTED) {
@@ -101,9 +104,13 @@ public abstract class RecyclerAdapter <T,VH extends android.support.v7.widget.Re
             return null;
         }
 
-        return mData.get(pos);
-    }
+        if (pos < mData.size()) {
+            return mData.get(pos);
+        } else {
+            return null;
+        }
 
+    }
 
 
 }
