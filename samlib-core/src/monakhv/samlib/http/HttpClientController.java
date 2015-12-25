@@ -108,7 +108,7 @@ public class HttpClientController {
     public Author getAuthorByURL(String link, Author a) throws IOException, SamlibParseException, SamlibInterruptException {
 
         a.setUrl(link);
-        String str = getURL(slc.getAuthorRequestURL(a), new StringReader());
+        String str = getURL(slc.getAuthorIndexDate(a), new StringReader());
 
         parseAuthorIndexDateData(a, str);
         return a;
@@ -387,6 +387,7 @@ public class HttpClientController {
             }
 
             if (bookMatcher.find()){
+                ++iBooks;
                 Book book = new Book(a,bookMatcher);
                 GroupBook g=book.getGroupBook();
                 if (! groups.contains(g)){

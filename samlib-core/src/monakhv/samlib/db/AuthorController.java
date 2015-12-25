@@ -1,16 +1,3 @@
-package monakhv.samlib.db;
-
-
-import com.j256.ormlite.dao.Dao;
-import com.j256.ormlite.stmt.PreparedQuery;
-import com.j256.ormlite.stmt.QueryBuilder;
-import monakhv.samlib.db.entity.*;
-import monakhv.samlib.log.Log;
-
-
-import java.sql.SQLException;
-import java.util.List;
-
 /*
  * Copyright 2015  Dmitry Monakhov
  *
@@ -28,6 +15,20 @@ import java.util.List;
  *
  * 2/13/15.
  */
+
+package monakhv.samlib.db;
+
+
+import com.j256.ormlite.dao.Dao;
+import com.j256.ormlite.stmt.PreparedQuery;
+import com.j256.ormlite.stmt.QueryBuilder;
+import monakhv.samlib.db.entity.*;
+import monakhv.samlib.log.Log;
+
+
+import java.sql.SQLException;
+import java.util.List;
+
 
 
 /**
@@ -101,31 +102,21 @@ public class AuthorController implements AbstractController<Author> {
             return -1;
         }
         if (!author.isBookLoaded()) {//books are not loaded since update the author only without books
+            Log.i(DEBUG_TAG,"Books are not loaded exiting");
             return res ;
         }
 
+        for (GroupBook gb: author.getGroupBooks()){
+            SqlOperation operation = gb.getSqlOperation();
 
-        //Books of the author update
-        BookCollection oldBooks = new BookCollection(bookCtl.getAll(author, null));//old books from BD
-        for (Book book : author.getBooks()) {//Cycle on new Book list taken from Author object
-            book.setAuthor(author);
-            String url = book.getUri();
-            Book oldb = oldBooks.take(url);
-
-            if (oldb == null) {//insert
-                bookCtl.insert(book);
-            } else {//update
-                if (book.isIsNew()) {//update
-                    //TODO: we need save some parameters from the old book object
-                    book.setId(oldb.getId());
-                    book.setOptions(oldb.getOptions());
-                    bookCtl.update(book);
-                }
-            }
-
+            Log.i(DEBUG_TAG,"Group: "+gb.getName()+" Operation: "+operation.name());
         }
-        for (Book bk : oldBooks.getLastBooks()) {
-            bookCtl.delete(bk);
+
+        for (Book book : author.getBooks()){
+            SqlOperation operation = book.getSqlOperation();
+
+            Log.i(DEBUG_TAG,"Book: "+book.getTitle()+" - "+book.isIsNew()+" Operation: "+operation.name());
+
         }
 
         return res;

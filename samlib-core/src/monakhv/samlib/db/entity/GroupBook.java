@@ -38,6 +38,19 @@ public class GroupBook  implements Serializable {
     protected String name;
     @DatabaseField(columnName = SQLController.COL_isnew)
     protected boolean isNew = false;
+    SqlOperation mSqlOperation;
+
+    public GroupBook(){
+        mSqlOperation=SqlOperation.DELETE;
+        isNew=false;
+    }
+
+    public GroupBook(Author author, String name){
+        this();
+        mSqlOperation=SqlOperation.INSERT;
+        this.author=author;
+        this.name=name;
+    }
 
     public int getId() {
         return id;
@@ -78,12 +91,16 @@ public class GroupBook  implements Serializable {
 
         GroupBook groupBook = (GroupBook) o;
 
-        return name.equals(groupBook.name);
+        return name != null ? name.equals(groupBook.name) : groupBook.name == null;
 
     }
 
     @Override
     public int hashCode() {
-        return name.hashCode();
+        return name != null ? name.hashCode() : 0;
+    }
+
+    public SqlOperation getSqlOperation() {
+        return mSqlOperation;
     }
 }

@@ -201,7 +201,7 @@ public class Author  implements Serializable{
 
     /**
      * Test whether we need update Author information or not
-     *change new flag for new author books
+     * Load new Group and Books if need. Set SqlOperation Flag
      *
      * @param newA new just downloaded author
      * @return true if we need update Author info into data base
@@ -209,13 +209,50 @@ public class Author  implements Serializable{
     private boolean testUpdate(Author newA) {
 
         boolean res=false;
-        for (Book b : newA.books) {
-            if (books.contains(b)) {//old book
-                b.setIsNew(false);
-            }
-            else {//new book
+
+        //Group Book check out cycle on new Group
+        for (GroupBook gb : newA.mGroupBooks){
+            int idx = mGroupBooks.indexOf(gb);
+
+            if (idx == -1){
+                mGroupBooks.add(gb);//add new group
                 res = true;
+            }
+            else {
+                GroupBook g = mGroupBooks.get(idx);
+                g.mSqlOperation=SqlOperation.NONE;
+                mGroupBooks.set(idx,g);
+            }
+        }
+
+
+        //Book checkout cycle on new Books
+        for (Book b : newA.books) {
+            int idx = books.indexOf(b);
+            if (idx == -1) {//new book
                 b.setIsNew(true);
+                res = true;
+                books.add(b);
+            }
+            else {//old book
+                Book ob =books.get(idx);
+                ob.mSqlOperation = SqlOperation.NONE;// do nothing by default
+
+                if (! ob.isNeedUpdate(b)){//Author update the book
+                    ob.isNew = true;
+                    ob.mSqlOperation=SqlOperation.UPDATE;//need update
+                    ob.description = b.description;
+                    ob.size = b.size;
+                    ob.modifyTime=b.modifyTime;
+                    setIsNew(true);
+                }
+
+                if (! ob.mGroupBook.equals(b.mGroupBook)){//group change!
+                    ob.mSqlOperation=SqlOperation.UPDATE;//need update
+                    ob.mGroupBook = b.mGroupBook;
+                }
+                books.set(idx,ob);
+
             }
         }
 
@@ -231,9 +268,9 @@ public class Author  implements Serializable{
      */
     public boolean update(Author newA) {
         if (testUpdate(newA)) {
-            setBooks(newA.getBooks());
+
             setUpdateDate(newA.getUpdateDate());
-            setIsNew(true);
+
             return true;
         }
         return false;

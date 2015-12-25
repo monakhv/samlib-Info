@@ -30,6 +30,7 @@ import monakhv.samlib.db.SQLController;
  */
 @DatabaseTable(tableName = SQLController.TABLE_BOOKS)
 public class Book implements Serializable {
+    SqlOperation mSqlOperation;
 
 
     // http://blog.millermedeiros.com/using-integers-to-store-multiple-boolean-values/
@@ -47,8 +48,8 @@ public class Book implements Serializable {
     protected String form;
     @DatabaseField(columnName = SQLController.COL_BOOK_SIZE)
     protected long size;
-    //    @DatabaseField(columnName = SQLController.COL_BOOK_DATE)
-//    protected long updateDate;//read from samlib
+    @DatabaseField(columnName = SQLController.COL_BOOK_DATE)
+    protected long updateDate;//read from samlib
     @DatabaseField(columnName = SQLController.COL_BOOK_MTIME)
     protected long modifyTime;//change in BD
     @DatabaseField(columnName = SQLController.COL_BOOK_ISNEW)
@@ -68,14 +69,17 @@ public class Book implements Serializable {
      * Default constructor
      */
     public Book() {
+        mSqlOperation=SqlOperation.DELETE;
         isNew = false;
         modifyTime = Calendar.getInstance().getTime().getTime();
         fileType = AbstractSettings.FileType.HTML;
         options = 0;
+        mGroupBook = new GroupBook();
     }
 
     public Book(Author a, Matcher bookMatcher) {
         this();
+        mSqlOperation=SqlOperation.INSERT;
         author=a;
         uri = a.getUrl() + bookMatcher.group(1);
         uri = uri.replaceFirst("/", "").replaceFirst(".shtml", "");
@@ -86,9 +90,8 @@ public class Book implements Serializable {
         } catch (NumberFormatException ex) {
             size = 0;
         }
-        mGroupBook = new GroupBook();
-        mGroupBook.setAuthor(a);
-        mGroupBook.setName(bookMatcher.group(4));
+        mGroupBook = new GroupBook(a,bookMatcher.group(4));
+
         form = bookMatcher.group(5);
         if (form.equalsIgnoreCase("")) {
             form = null;
@@ -99,6 +102,9 @@ public class Book implements Serializable {
         }
     }
 
+    public SqlOperation getSqlOperation() {
+        return mSqlOperation;
+    }
 
     public String getTitle() {
         return title;
@@ -262,18 +268,35 @@ public class Book implements Serializable {
 
         Book book = (Book) o;
 
-        if (size != book.size) return false;
-        if (!uri.equals(book.uri)) return false;
-        return description != null ? description.equals(book.description) : book.description == null;
+        return uri != null ? uri.equals(book.uri) : book.uri == null;
 
     }
 
     @Override
     public int hashCode() {
-        int result = uri.hashCode();
-        result = 31 * result + (int) (size ^ (size >>> 32));
-        return result;
+        return uri != null ? uri.hashCode() : 0;
     }
+
+
+    /**
+     *  Return false if book is updated!!
+     *
+     * @param o
+     * @return
+     */
+    public boolean isNeedUpdate(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Book book = (Book) o;
+
+        if (size != book.size) return false;
+
+        return description != null ? description.equals(book.description) : book.description == null;
+
+    }
+
+
 
     @Override
     public String toString() {
