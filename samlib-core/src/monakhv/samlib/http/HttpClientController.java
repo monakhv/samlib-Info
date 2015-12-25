@@ -23,6 +23,7 @@ import java.io.InputStream;
 import java.io.InterruptedIOException;
 import java.net.Authenticator;
 import java.net.Proxy;
+import java.net.SocketTimeoutException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -198,13 +199,13 @@ public class HttpClientController {
      */
     private String getURL(List<String> urls, PageReader reader) throws IOException, SamlibParseException, SamlibInterruptException {
         String res = null;
-        IOException exIo = null;
-        SamlibParseException exParse = null;
+        IOException ioException = null;//fatalError
+        SamlibParseException samlibParseException = null;//skip update for given author
         for (String sUrl : urls) {
             Log.i(DEBUG_TAG, "getURL: using urls: " + sUrl);
             settingsHelper.log(DEBUG_TAG, "getURL: using urls: " + sUrl);
-            exIo = null;
-            exParse = null;
+            ioException = null;
+            samlibParseException = null;
             try {
                 URL url = new URL(sUrl);
                 res = _getURL(url, reader);
@@ -214,12 +215,21 @@ public class HttpClientController {
                     settingsHelper.log(DEBUG_TAG,"getURL: thread is interrupted throw SamlibInterruptException",e);
                     throw new SamlibInterruptException("getURL:InterruptedIOException");
                 }
-                Log.i(DEBUG_TAG,"getURL: thread is NOT interrupted throw InterruptedIOException",e);
-                settingsHelper.log(DEBUG_TAG,"getURL: thread is interrupted throw InterruptedIOException",e);
-                throw new InterruptedIOException("getURL:InterruptedIOException");
+                if (e instanceof SocketTimeoutException){
+                    slc.flipOrder();
+                    ioException = e;
+                    Log.i(DEBUG_TAG,"getURL: SocketTimeoutException make flip",e);
+                    settingsHelper.log(DEBUG_TAG,"getURL:  SocketTimeoutException make flip",e);
+                }
+                else {
+                    Log.i(DEBUG_TAG,"getURL: thread is NOT interrupted throw InterruptedIOException",e);
+                    settingsHelper.log(DEBUG_TAG,"getURL: thread is interrupted throw InterruptedIOException",e);
+                    throw new InterruptedIOException("getURL:InterruptedIOException");
+                }
+
             } catch (IOException e) {
                 slc.flipOrder();
-                exIo = e;
+                ioException = e;
                 if (Thread.interrupted()) {
                     Log.i(DEBUG_TAG,"getURL:1 thread is interrupted throw SamlibInterruptException",e);
                     settingsHelper.log(DEBUG_TAG,"getURL:1 thread is interrupted throw SamlibInterruptException",e);
@@ -230,19 +240,19 @@ public class HttpClientController {
                 settingsHelper.log(DEBUG_TAG, "getURL: IOException: " + sUrl, e);
             } catch (SamlibParseException e) {
                 slc.flipOrder();
-                exParse = e;
+                samlibParseException = e;
                 Log.e(DEBUG_TAG, "AuthorParseException: " + sUrl, e);
                 settingsHelper.log(DEBUG_TAG, "AuthorParseException: " + sUrl, e);
             }
 
-            if (exIo == null && exParse == null) {
+            if (ioException == null && samlibParseException == null) {
                 return res;
             }
         }
-        if (exIo != null) {
-            throw exIo;
+        if (ioException != null) {
+            throw ioException;
         } else {
-            throw exParse;
+            throw samlibParseException;
         }
     }
 
