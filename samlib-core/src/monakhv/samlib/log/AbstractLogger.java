@@ -18,18 +18,18 @@ package monakhv.samlib.log;
  * 2/12/15.
  */
 public interface AbstractLogger {
-    public void verbose(String tag, String mes);
-    public void debug(String tag, String mes);
-    public void info(String tag, String mes);
-    public void warn(String tag, String mes);
-    public void error(String tag, String mes);
+    void verbose(String tag, String mes);
+    void debug(String tag, String mes);
+    void info(String tag, String mes);
+    void warn(String tag, String mes);
+    void error(String tag, String mes);
 
 
-    public void verbose(String tag, String mes,Throwable ex);
-    public void debug(String tag, String mes,Throwable ex);
-    public void info(String tag, String mes,Throwable ex);
-    public void warn(String tag, String mes,Throwable ex);
-    public void error(String tag, String mes,Throwable ex);
+    void verbose(String tag, String mes,Throwable ex);
+    void debug(String tag, String mes,Throwable ex);
+    void info(String tag, String mes,Throwable ex);
+    void warn(String tag, String mes,Throwable ex);
+    void error(String tag, String mes,Throwable ex);
 
 
 

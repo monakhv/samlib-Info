@@ -24,8 +24,8 @@ import monakhv.samlib.db.entity.Tag2Author;
  * 02.07.15.
  */
 public interface DaoBuilder {
-    public Dao<Author, Integer> getAuthorDao();
-    public Dao<Book, Integer> getBookDao();
-    public Dao<Tag, Integer> getTagDao();
-    public Dao<Tag2Author, Integer> getT2aDao();
+    Dao<Author, Integer> getAuthorDao();
+    Dao<Book, Integer> getBookDao();
+    Dao<Tag, Integer> getTagDao();
+    Dao<Tag2Author, Integer> getT2aDao();
 }
