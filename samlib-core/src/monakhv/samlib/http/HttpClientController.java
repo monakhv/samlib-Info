@@ -206,13 +206,19 @@ public class HttpClientController {
                 res = _getURL(url, reader);
             } catch (InterruptedIOException e) {
                 if (Thread.interrupted()) {
+                    Log.i(DEBUG_TAG,"getURL: thread is interrupted throw SamlibInterruptException");
+                    settingsHelper.log(DEBUG_TAG,"getURL: thread is interrupted throw SamlibInterruptException");
                     throw new SamlibInterruptException("getURL:InterruptedIOException");
                 }
-                throw new InterruptedIOException();
+                Log.i(DEBUG_TAG,"getURL: thread is NOT interrupted throw InterruptedIOException");
+                settingsHelper.log(DEBUG_TAG,"getURL: thread is interrupted throw InterruptedIOException");
+                throw new InterruptedIOException("getURL:InterruptedIOException");
             } catch (IOException e) {
                 slc.flipOrder();
                 exIo = e;
                 if (Thread.interrupted()) {
+                    Log.i(DEBUG_TAG,"getURL:1 thread is interrupted throw SamlibInterruptException");
+                    settingsHelper.log(DEBUG_TAG,"getURL:1 thread is interrupted throw SamlibInterruptException");
                     throw new SamlibInterruptException("getURL:IOException");
                 }
 
@@ -263,11 +269,14 @@ public class HttpClientController {
                 try {
                     TimeUnit.SECONDS.sleep(loopCount);
                 } catch (InterruptedException ex1) {
-                    //Log.e(DEBUG_TAG, "_getURL:Sleep interrupted: "+Thread.interrupted(), ex);
+                    Log.w(DEBUG_TAG, "_getURL: InterruptedException throw SamlibInterruptException");
+                    settingsHelper.log(DEBUG_TAG, "_getURL: InterruptedException throw SamlibInterruptException");
                     throw new SamlibInterruptException("_getURL:Sleep interrupted");
                 }
                 if (loopCount >= RETRY_LIMIT) {
                     // retry = false;
+                    Log.e(DEBUG_TAG, "_getURL: Retry Limit exceeded");
+                    settingsHelper.log(DEBUG_TAG, "_getURL: Retry Limit exceeded");
                     throw new IOException("Retry Limit exceeded");
                 }
             }
@@ -313,12 +322,16 @@ public class HttpClientController {
         Response response;
         try {
             response = httpclient.newCall(request).execute();
-            Log.d(DEBUG_TAG, "Status Response: " + response.message());
+            Log.d(DEBUG_TAG, "__getURL: Status Response: " + response.message());
+            settingsHelper.log(DEBUG_TAG, "__getURL: Status Response: " + response.message());
         } catch (NullPointerException ex) {
-            Log.e(DEBUG_TAG, "Connection Error", ex);
+            Log.e(DEBUG_TAG, "__getURL: Connection Error", ex);
+            settingsHelper.log(DEBUG_TAG, "__getURL: Connection Error", ex);
             throw new IOException("Connection error: " + url.toString());
         }
         int status = response.code();
+        Log.d(DEBUG_TAG, "__getURL: Status - " + status);
+        settingsHelper.log(DEBUG_TAG, "__getURL: Status - " + status);
 
         if (status == 503) {
 

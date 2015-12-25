@@ -113,17 +113,19 @@ public class SamlibService {
 
             } catch (SamlibParseException ex) {//skip update for given author
                 Log.e(DEBUG_TAG, "runUpdate:Error parsing url: " + url + " skip update author ", ex);
-
+                settingsHelper.log(DEBUG_TAG, "runUpdate:Error parsing url: " + url + " skip update author ", ex);
                 ++skippedAuthors;
                 newA = a;
             } catch (SamlibInterruptException e) {
                 Log.i(DEBUG_TAG, "runUpdate: catch Interrupted", e);
+                settingsHelper.log(DEBUG_TAG, "runUpdate: catch Interrupted", e);
                 guiUpdate.finishUpdate(false, updatedAuthors);
                 return false;
             }
             if (a.update(newA)) {//we have update for the author
                 updatedAuthors.add(a);
                 Log.i(DEBUG_TAG, "We need update author: " + a.getName());
+                settingsHelper.log(DEBUG_TAG, "We need update author: " + a.getName());
                 authorController.update(a);
 
                 if (settingsHelper.getAutoLoadFlag()) {
@@ -142,9 +144,11 @@ public class SamlibService {
 
             try {
                 Log.d(DEBUG_TAG, "runUpdate: sleep " + sleep + " seconds");
+                settingsHelper.log(DEBUG_TAG, "runUpdate: sleep " + sleep + " seconds");
                 TimeUnit.SECONDS.sleep(sleep);
             } catch (InterruptedException e) {
                 Log.i(DEBUG_TAG, "Sleep interrupted exiting", e);
+                settingsHelper.log(DEBUG_TAG, "Sleep interrupted exiting", e);
                 guiUpdate.finishUpdate(false, updatedAuthors);
                 return false;
             }
