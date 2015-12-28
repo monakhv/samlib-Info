@@ -18,18 +18,20 @@
 
 package monakhv.samlib.db.entity;
 
+import com.bignerdranch.expandablerecyclerview.Model.ParentListItem;
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
 import monakhv.samlib.db.SQLController;
 
 import java.io.Serializable;
+import java.util.List;
 
 /**
  * Entity to Store Book group
  * Created by monakhv on 24.12.15.
  */
 @DatabaseTable(tableName = SQLController.TABLE_GROUP_BOOK)
-public class GroupBook  implements Serializable {
+public class GroupBook  implements Serializable,ParentListItem {
     @DatabaseField(columnName = SQLController.COL_ID, generatedId = true)
     protected int id;
     @DatabaseField(columnName = SQLController.COL_BOOK_AUTHOR_ID,foreign = true,canBeNull = false)
@@ -39,6 +41,7 @@ public class GroupBook  implements Serializable {
     @DatabaseField(columnName = SQLController.COL_isnew)
     protected boolean isNew = false;
     SqlOperation mSqlOperation;
+    private List<Book> mChildItemList;
 
     public GroupBook(){
         mSqlOperation=SqlOperation.DELETE;
@@ -102,5 +105,19 @@ public class GroupBook  implements Serializable {
 
     public SqlOperation getSqlOperation() {
         return mSqlOperation;
+    }
+
+    @Override
+    public List<Book> getChildItemList() {
+        return mChildItemList;
+    }
+
+    public void setChildItemList(List<Book> childItemList) {
+        mChildItemList = childItemList;
+    }
+
+    @Override
+    public boolean isInitiallyExpanded() {
+        return false;
     }
 }

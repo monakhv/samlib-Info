@@ -25,6 +25,8 @@ import monakhv.samlib.db.entity.GroupBook;
 import monakhv.samlib.log.Log;
 
 import java.sql.SQLException;
+
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -39,6 +41,52 @@ public class GroupBookController {
        dao =sql.getGroupBookDao();
     }
 
+    public void operate(List<GroupBook> groups) {
+
+        for (GroupBook groupBook : groups){
+            Log.i(DEBUG_TAG,"Group: >"+groupBook.getName()+"< Operation: "+groupBook.getSqlOperation().name());
+            switch (groupBook.getSqlOperation()) {
+                case DELETE:
+                    List<GroupBook> gg = new ArrayList<>();
+                    gg.add(groupBook);
+                    delete(gg);
+                    break;
+                case UPDATE:
+                    break;
+                case INSERT:
+                    insert(groupBook);
+                    break;
+                case NONE:
+                    break;
+            }
+
+        }
+    }
+
+    private int insert(GroupBook groupBook) {
+        int res = -1;
+        try {
+            res = dao.create(groupBook);
+        } catch (SQLException e) {
+            Log.e(DEBUG_TAG,"insert: error insert ",e);
+        }
+        return res;
+    }
+
+    public void delete(List<GroupBook> groupBooks) {
+        try {
+            dao.delete(groupBooks);
+        } catch (SQLException e) {
+            Log.e(DEBUG_TAG,"delete: delete error",e);
+        }
+
+    }
+
+    /**
+     *  get List of Group for given Author
+     * @param author Author object
+     * @return List of Group
+     */
     public List<GroupBook> getByAuthor(Author author){
         QueryBuilder<GroupBook,Integer> qb=dao.queryBuilder();
         try {
@@ -48,6 +96,27 @@ public class GroupBookController {
             Log.e(DEBUG_TAG,"getByAuthor error ",e);
             return null;
         }
+
+    }
+
+    public  GroupBook getByAuthorAndName(Author author, String name){
+
+        QueryBuilder<GroupBook,Integer> qb=dao.queryBuilder();
+        List<GroupBook> res;
+        try {
+            qb.where().eq(SQLController.COL_BOOK_AUTHOR_ID,author)
+            .and().eq(SQLController.COL_NAME,name);
+            res = dao.query(qb.prepare());
+        } catch (SQLException e) {
+            Log.e(DEBUG_TAG,"getByAuthorAndName: query error",e);
+            return null;
+        }
+
+        if (res.size() != 1){
+            Log.e(DEBUG_TAG,"getByAuthorAndName: result number error "+res.size()+"name >"+name+"<");
+            return null;
+        }
+        return res.get(0);
 
     }
 }

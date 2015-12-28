@@ -2,16 +2,18 @@ package monakhv.samlib.db;
 
 
 import com.j256.ormlite.dao.Dao;
-import com.j256.ormlite.stmt.DeleteBuilder;
 import com.j256.ormlite.stmt.PreparedQuery;
 import com.j256.ormlite.stmt.QueryBuilder;
 import monakhv.samlib.db.entity.Author;
 import monakhv.samlib.db.entity.Book;
+import monakhv.samlib.db.entity.GroupBook;
 import monakhv.samlib.db.entity.SelectedBook;
 import monakhv.samlib.log.Log;
 
 
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 
@@ -49,16 +51,64 @@ import java.util.List;
  * COL_BOOK_MTIME                    +" timestamp, "+//updated in the db
  * COL_BOOK_ISNEW                    +" BOOLEAN DEFAULT '0' NOT NULL"+
  */
-public class BookController implements AbstractController<Book> {
+public class BookController {
     private static final String DEBUG_TAG = "BookController";
 
     private final Dao<Book, Integer> dao;
     private final Dao<SelectedBook, Integer> selectedDao;
+    private final GroupBookController grpCtl;
 
     public BookController(DaoBuilder sql) {
 
         dao = sql.getBookDao();
         selectedDao = sql.getSelectedBookDao();
+        grpCtl = new GroupBookController(sql);
+
+    }
+
+    public void operate(Author author) {
+        HashMap<String, GroupBook> groupBookHashMap = new HashMap<>();//cache for GroupBook lookup
+        List<Book> books = new ArrayList<>();
+        for (Book book : author.getBooks()) {
+            Log.i(DEBUG_TAG,"Book: "+book.getUri()+" - "+book.isIsNew()+" Operation: "+book.getSqlOperation().name());
+            switch (book.getSqlOperation()) {
+                case DELETE:
+                    books.add(book);
+                    delete(books);
+                    break;
+                case UPDATE:
+                    restoreGroup(author, book, groupBookHashMap);
+                    update(book);
+                    break;
+                case INSERT:
+                    restoreGroup(author, book, groupBookHashMap);
+                    insert(book);
+                    break;
+                case NONE:
+                    break;
+            }
+        }
+    }
+
+    /**
+     * Restore GroupBook for the Book according to the Author and Group Name
+     *
+     * @param author           Author
+     * @param book             Book
+     * @param groupBookHashMap Cache to store lookup value
+     */
+    private void restoreGroup(Author author, Book book, HashMap<String, GroupBook> groupBookHashMap) {
+        String gName = book.getGroupBook().getName();
+
+        if (groupBookHashMap.containsKey(gName)) {//Group found into cache
+            book.setGroupBook(groupBookHashMap.get(gName));
+        } else {
+            GroupBook gb = grpCtl.getByAuthorAndName(author, gName);
+            if (gb != null) {
+                groupBookHashMap.put(gName, gb);
+                book.setGroupBook(gb);
+            }
+        }
 
     }
 
@@ -68,7 +118,7 @@ public class BookController implements AbstractController<Book> {
      * @param book The object to update
      * @return id
      */
-    @Override
+
     public int update(Book book) {
 
         int res;
@@ -90,7 +140,7 @@ public class BookController implements AbstractController<Book> {
      * @param book object to insert
      * @return id
      */
-    @Override
+
     public long insert(Book book) {
         int res;
         try {
@@ -105,14 +155,13 @@ public class BookController implements AbstractController<Book> {
     /**
      * Delete Book object
      *
-     * @param book object to delete
+     * @param books objects to delete
      * @return id
      */
-    @Override
-    public int delete(Book book) {
+    public int delete(List<Book> books) {
         int res;
         try {
-            res = dao.delete(book);
+            res = dao.delete(books);
         } catch (SQLException e) {
             Log.e(DEBUG_TAG, "can not delete: ", e);
             return -1;
@@ -121,23 +170,7 @@ public class BookController implements AbstractController<Book> {
         return res;
     }
 
-    /**
-     * Delete all book of the Author
-     *
-     * @param author The Author whose books to be deleted
-     */
-    void deleteByAuthor(Author author) {
-        DeleteBuilder<Book, Integer> deleteBuilder = dao.deleteBuilder();
-        try {
-            deleteBuilder.where().eq(SQLController.COL_BOOK_AUTHOR_ID, author);
-            deleteBuilder.delete();
-        } catch (SQLException e) {
-            Log.e(DEBUG_TAG, "Delete all Author book error", e);
-        }
 
-    }
-
-    @Override
     public List<Book> getAll() {
         return null;
     }
@@ -210,7 +243,7 @@ public class BookController implements AbstractController<Book> {
 
     }
 
-    @Override
+
     public Book getById(long id) {
         Integer dd = (int) id;
         try {

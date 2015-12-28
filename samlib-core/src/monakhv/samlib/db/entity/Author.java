@@ -215,6 +215,7 @@ public class Author  implements Serializable{
             int idx = mGroupBooks.indexOf(gb);
 
             if (idx == -1){
+                gb.setAuthor(this);
                 mGroupBooks.add(gb);//add new group
                 res = true;
             }
@@ -232,6 +233,7 @@ public class Author  implements Serializable{
             if (idx == -1) {//new book
                 b.setIsNew(true);
                 res = true;
+                b.setAuthor(this);
                 books.add(b);
             }
             else {//old book
@@ -248,8 +250,13 @@ public class Author  implements Serializable{
                 }
 
                 if (! ob.mGroupBook.equals(b.mGroupBook)){//group change!
-                    ob.mSqlOperation=SqlOperation.UPDATE;//need update
                     ob.mGroupBook = b.mGroupBook;
+                    ob.mSqlOperation=SqlOperation.UPDATE;//need update
+                }
+
+                if (! ob.title.equals(b.title)){//title change
+                    ob.title=b.title;
+                    ob.mSqlOperation=SqlOperation.UPDATE;//need update
                 }
                 books.set(idx,ob);
 
