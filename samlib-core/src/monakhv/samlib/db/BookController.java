@@ -70,7 +70,7 @@ public class BookController {
         HashMap<String, GroupBook> groupBookHashMap = new HashMap<>();//cache for GroupBook lookup
         List<Book> books = new ArrayList<>();
         for (Book book : author.getBooks()) {
-            Log.i(DEBUG_TAG,"Book: "+book.getUri()+" - "+book.isIsNew()+" Operation: "+book.getSqlOperation().name());
+            Log.i(DEBUG_TAG, "Book: " + book.getUri() + " - " + book.isIsNew() + " Operation: " + book.getSqlOperation().name());
             switch (book.getSqlOperation()) {
                 case DELETE:
                     books.add(book);
@@ -238,6 +238,21 @@ public class BookController {
 
         } catch (SQLException e) {
             Log.e(DEBUG_TAG, "getSelected: query error", e);
+            return null;
+        }
+
+    }
+
+    public List<Book> getBookForGroup(Author author, GroupBook groupBook) {
+        QueryBuilder<Book, Integer> qbBooks = dao.queryBuilder();
+        try {
+            qbBooks.where()
+                    .eq(SQLController.COL_BOOK_AUTHOR_ID, author)
+                    .and()
+                    .eq(SQLController.COL_BOOK_GROUP_ID, groupBook);
+            return dao.query(qbBooks.prepare());
+        } catch (SQLException e) {
+            Log.e(DEBUG_TAG,"getBookForGroup: query error",e);
             return null;
         }
 

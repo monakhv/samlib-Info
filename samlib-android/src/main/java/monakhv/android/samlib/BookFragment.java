@@ -19,11 +19,9 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 
-import monakhv.android.samlib.adapter.BookAdapter;
+import monakhv.android.samlib.adapter.*;
 
 
-import monakhv.android.samlib.adapter.BookLoader;
-import monakhv.android.samlib.adapter.RecyclerAdapter;
 import monakhv.android.samlib.data.DataExportImport;
 import monakhv.android.samlib.data.SettingsHelper;
 import monakhv.android.samlib.dialogs.ContextMenuDialog;
@@ -61,8 +59,8 @@ import java.util.List;
  */
 public class BookFragment extends Fragment implements
         ListSwipeListener.SwipeCallBack, LoaderManager.LoaderCallbacks<List<Book>>,
-        RecyclerAdapter.CallBack {
-    private AuthorController sql;
+        BookExpandableAdapter.CallBack {
+
 
     @Override
     public void refresh() {
@@ -86,7 +84,7 @@ public class BookFragment extends Fragment implements
     private static final int BOOK_LOADER_ID = 190;
     private RecyclerView bookRV;
     private long author_id;
-    private BookAdapter adapter;
+    private BookExpandableAdapter adapter;
     private Book book = null;//for context menu
     private BookSortOrder order;
     private GestureDetector detector;
@@ -99,6 +97,8 @@ public class BookFragment extends Fragment implements
     private DataExportImport dataExportImport;
     private SingleChoiceSelectDialog dialog = null;
     private Callbacks mCallbacks;
+    private AuthorController sql;
+
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -129,6 +129,7 @@ public class BookFragment extends Fragment implements
         }
         mCallbacks = (Callbacks) activity;
         sql = new AuthorController(mCallbacks.getDatabaseHelper());
+
     }
 
     @Override
@@ -143,7 +144,7 @@ public class BookFragment extends Fragment implements
         mProgressBar = (ProgressBar) view.findViewById(R.id.bookProgress);
 
 
-        adapter = new BookAdapter(getActivity(), this);
+        adapter = new BookExpandableAdapter(GroupListItem.getGroupList(sql,author_id), getActivity(),this);
         adapter.setAuthor_id(author_id);
         bookRV.setHasFixedSize(true);
         bookRV.setLayoutManager(new LinearLayoutManager(getActivity()));
@@ -174,7 +175,8 @@ public class BookFragment extends Fragment implements
 
     @Override
     public void onLoadFinished(Loader<List<Book>> loader, List<Book> data) {
-        adapter.setData(data);
+        //TODO: exp need revision
+        //adapter.setData(data);
         Log.d(DEBUG_TAG, "onLoadFinished: adapter size = " + adapter.getItemCount());
         mProgressBar.setVisibility(View.GONE);
         makeEmpty();
@@ -182,7 +184,8 @@ public class BookFragment extends Fragment implements
 
     @Override
     public void onLoaderReset(Loader<List<Book>> loader) {
-        adapter.setData(null);
+        //TODO: exp need revision
+        //adapter.setData(null);
     }
 
 
@@ -264,6 +267,7 @@ public class BookFragment extends Fragment implements
             Log.e(DEBUG_TAG, "Book is null");
             return false;
         }
+
         adapter.makeSelectedRead(true);
         return true;
     }
@@ -339,6 +343,7 @@ public class BookFragment extends Fragment implements
             launchBrowser(book);
         }
         if (item == menu_mark_read) {
+
             adapter.makeSelectedRead(true);
         }
         if (item == menu_selected) {
@@ -405,6 +410,7 @@ public class BookFragment extends Fragment implements
         Intent launchBrowser = new Intent(Intent.ACTION_VIEW, uri);
         SettingsHelper setting = new SettingsHelper(getActivity());
         if (setting.getAutoMarkFlag()) {
+
             adapter.makeSelectedRead(false);
         }
 
@@ -491,7 +497,7 @@ public class BookFragment extends Fragment implements
 
 
         if (settings.getAutoMarkFlag()) {
-            adapter.makeSelectedRead(false);
+           adapter.makeSelectedRead(false);
         }
         startActivity(launchBrowser);
     }

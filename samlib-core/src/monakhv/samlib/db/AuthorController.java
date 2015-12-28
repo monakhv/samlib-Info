@@ -346,6 +346,10 @@ public class AuthorController implements AbstractController<Author> {
         return bookCtl;
     }
 
+    public GroupBookController getGroupBookController(){
+        return grpCtl;
+    }
+
 
     /**
      * Set author new status according to the its book status
@@ -356,6 +360,7 @@ public class AuthorController implements AbstractController<Author> {
     public boolean testMarkRead(Author a) {
         boolean rr = getReadStatus(a);
         a.setIsNew(rr);
+        a.setBookLoaded(false);
         update(a);
         return false;
     }
