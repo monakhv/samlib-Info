@@ -66,7 +66,8 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper implements DaoBuilde
             authorDao.executeRawNoArgs(SQLController.DB_IDX2);
             authorDao.executeRawNoArgs(SQLController.DB_IDX3);
             authorDao.executeRawNoArgs(SQLController.DB_IDX4);
-            authorDao.executeRawNoArgs(SQLController.DB_IDX5);
+            authorDao.executeRawNoArgs(SQLController.DB_IDX51);
+            authorDao.executeRawNoArgs(SQLController.DB_IDX52);
 
         } catch (SQLException e) {
             Log.e(DEBUG_TAG, "Can not create the Schema",e);
@@ -125,7 +126,9 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper implements DaoBuilde
         TableUtils.createTable(connectionSource, GroupBook.class);//create additional table
         TableUtils.createTable(connectionSource, SelectedBook.class);//create additional table
         getAuthorDao();
-        authorDao.executeRawNoArgs(SQLController.DB_IDX5);//create additional index
+        authorDao.executeRawNoArgs(SQLController.DB_IDX51);//create additional index
+        authorDao.executeRawNoArgs(SQLController.DB_IDX52);//create additional index
+        authorDao.executeRawNoArgs(SQLController.ALTER8_1);
 
         QueryBuilder<Book, Integer> qb = getBookDao().queryBuilder();
         int SELECTED_GROUP_ID = 1;

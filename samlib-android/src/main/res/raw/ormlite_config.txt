@@ -1,5 +1,5 @@
 #
-# generated on 2015/12/24 01:57:22
+# generated on 2015/12/29 05:38:44
 #
 # --table-start--
 dataClass=monakhv.samlib.db.entity.Author
@@ -64,6 +64,10 @@ columnName=FORM
 # --field-start--
 fieldName=size
 columnName=SIZE
+# --field-end--
+# --field-start--
+fieldName=delta
+columnName=DELTA_SIZE
 # --field-end--
 # --field-start--
 fieldName=updateDate
@@ -185,8 +189,16 @@ fieldName=name
 columnName=NAME
 # --field-end--
 # --field-start--
+fieldName=displayName
+columnName=DISPLAY_NAME
+# --field-end--
+# --field-start--
 fieldName=isNew
 columnName=ISNEW
+# --field-end--
+# --field-start--
+fieldName=hidden
+columnName=IS_HIDDEN
 # --field-end--
 # --table-fields-end--
 # --table-end--

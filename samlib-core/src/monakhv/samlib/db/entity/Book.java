@@ -48,6 +48,8 @@ public class Book implements Serializable {
     protected String form;
     @DatabaseField(columnName = SQLController.COL_BOOK_SIZE)
     protected long size;
+    @DatabaseField(columnName = SQLController.COL_BOOK_DELTA)
+    protected long delta;
     @DatabaseField(columnName = SQLController.COL_BOOK_DATE)
     protected long updateDate;//read from samlib
     @DatabaseField(columnName = SQLController.COL_BOOK_MTIME)

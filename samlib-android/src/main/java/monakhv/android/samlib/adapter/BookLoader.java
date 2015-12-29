@@ -76,7 +76,7 @@ public class BookLoader extends AbstractLoader<GroupListItem> {
             } else {
                 for (GroupBook groupBook : rr) {
                     GroupListItem grr = new GroupListItem(groupBook);
-                    grr.mChildItemList = authorController.getBookController().getBookForGroup(a, groupBook, order);
+                    grr.mChildItemList = authorController.getBookController().getBookForGroup( groupBook, order);
                     res.add(grr);
                 }
             }

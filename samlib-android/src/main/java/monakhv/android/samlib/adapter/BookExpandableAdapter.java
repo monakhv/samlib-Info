@@ -97,7 +97,8 @@ public class BookExpandableAdapter extends ExpandableRecyclerAdapter<GroupViewHo
             groupViewHolder.groupTitle.setText(gi.getName());
             groupViewHolder.bookNumber.setText(mContext.getString(R.string.group_book_number)+" "+gi.getChildItemList().size());
 
-            if (gi.isHidden()){
+
+            if ( gi.getGroupBook() != null &&  gi.getGroupBook().isHidden()){
                 groupViewHolder.groupTitle.setAlpha(0.5f);
             }
             else {

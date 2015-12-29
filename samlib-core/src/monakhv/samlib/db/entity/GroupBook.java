@@ -24,6 +24,8 @@ import com.j256.ormlite.table.DatabaseTable;
 import monakhv.samlib.db.SQLController;
 
 import java.io.Serializable;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 
 /**
@@ -32,14 +34,19 @@ import java.io.Serializable;
  */
 @DatabaseTable(tableName = SQLController.TABLE_GROUP_BOOK)
 public class GroupBook  implements Serializable{
+    private static final Pattern PATTERN_HIDDEN = Pattern.compile("^@(.*)");
     @DatabaseField(columnName = SQLController.COL_ID, generatedId = true)
     protected int id;
-    @DatabaseField(columnName = SQLController.COL_BOOK_AUTHOR_ID,foreign = true,canBeNull = false)
+    @DatabaseField(columnName = SQLController.COL_GROUP_AUTHOR_ID,foreign = true,canBeNull = false)
     private Author author;
-    @DatabaseField(columnName = SQLController.COL_NAME)
+    @DatabaseField(columnName = SQLController.COL_GROUP_NAME)
     protected String name;
-    @DatabaseField(columnName = SQLController.COL_isnew)
+    @DatabaseField(columnName = SQLController.COL_GROUP_DISPLAY_NAME)
+    protected String displayName;
+    @DatabaseField(columnName = SQLController.COL_GROUP_isnew)
     protected boolean isNew = false;
+    @DatabaseField(columnName = SQLController.COL_GROUP_IS_HIDDEN)
+    protected boolean hidden = false;
     SqlOperation mSqlOperation;
 
 
@@ -53,6 +60,15 @@ public class GroupBook  implements Serializable{
         mSqlOperation=SqlOperation.INSERT;
         this.author=author;
         this.name=name;
+        Matcher m = PATTERN_HIDDEN.matcher(name);
+        if (m.find()){
+            hidden=true;
+            displayName=m.group(1);
+        }
+        else {
+            displayName=name;
+        }
+
     }
 
     public int getId() {
@@ -85,6 +101,14 @@ public class GroupBook  implements Serializable{
 
     public void setNew(boolean aNew) {
         isNew = aNew;
+    }
+
+    public String getDisplayName() {
+        return displayName;
+    }
+
+    public boolean isHidden() {
+        return hidden;
     }
 
     @Override

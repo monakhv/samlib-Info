@@ -89,6 +89,7 @@ public class GroupBookController {
      */
     public List<GroupBook> getByAuthor(Author author){
         QueryBuilder<GroupBook,Integer> qb=dao.queryBuilder();
+        qb.orderBy(SQLController.COL_GROUP_IS_HIDDEN,true);
         try {
             qb.where().eq(SQLController.COL_BOOK_AUTHOR_ID,author);
             return dao.query(qb.prepare());

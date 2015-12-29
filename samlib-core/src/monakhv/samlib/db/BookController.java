@@ -273,15 +273,14 @@ public class BookController {
 
     }
 
-    public List<Book> getBookForGroup(Author author, GroupBook groupBook,String order) {
+    public List<Book> getBookForGroup(GroupBook groupBook,String order) {
         QueryBuilder<Book, Integer> qbBooks = dao.queryBuilder();
         if (order != null) {
             qbBooks.orderByRaw(order);
         }
         try {
             qbBooks.where()
-                    .eq(SQLController.COL_BOOK_AUTHOR_ID, author)
-                    .and()
+
                     .eq(SQLController.COL_BOOK_GROUP_ID, groupBook);
             return dao.query(qbBooks.prepare());
         } catch (SQLException e) {

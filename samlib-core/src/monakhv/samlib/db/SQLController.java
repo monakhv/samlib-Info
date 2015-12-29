@@ -56,15 +56,26 @@ public class SQLController {
     public static final String COL_BOOK_TITLE                       ="TITLE";
     public static final String COL_BOOK_FORM                       ="FORM";
     public static final String COL_BOOK_SIZE                         ="SIZE";
+    public static final String COL_BOOK_DELTA                         ="DELTA_SIZE";//newSize-oldSize
     public static final String COL_BOOK_DATE                        ="DATE";    
     public static final String COL_BOOK_DESCRIPTION          ="DESCRIPTION";
     public static final String COL_BOOK_AUTHOR_ID             ="AUTHOR_ID";
     public static final String COL_BOOK_MTIME                      ="MTIME";
     public static final String COL_BOOK_ISNEW                      ="ISNEW";
     public static final String COL_BOOK_GROUP_ID                ="GROUP_ID";
-    public static final String COL_BOOK_OPT                ="OPTS";
+    public static final String COL_BOOK_OPT                             ="OPTS";
+
     public static final String COL_TAG_NAME= "NAME";
     public static final String COL_TAG_UCNAME= "UCNAME";
+
+    public static final String COL_GROUP_IS_HIDDEN                ="IS_HIDDEN";
+    public static final String COL_GROUP_AUTHOR_ID              ="AUTHOR_ID";
+    public static final String COL_GROUP_isnew                        ="ISNEW";
+    public static final String COL_GROUP_NAME                        = "NAME";
+    public static final String COL_GROUP_DISPLAY_NAME        = "DISPLAY_NAME";//to
+
+
+
     
     public static final String COL_T2A_TAGID         = "TAG_ID";
     public static final String COL_T2A_AUTHORID  = "AUTHOR_ID";
@@ -100,9 +111,11 @@ public class SQLController {
 
     public static final String DB_CREATE_GROUP_BOOK ="create table if not exists "+TABLE_GROUP_BOOK+"( "+
             COL_ID+"  integer primary key autoincrement, "+
-            COL_BOOK_AUTHOR_ID+" INTEGER NOT NULL, "+
-            COL_isnew+" BOOLEAN DEFAULT '0' NOT NULL,"+
-            COL_NAME   +" text "+
+            COL_GROUP_AUTHOR_ID+" INTEGER NOT NULL, "+
+            COL_GROUP_isnew+" BOOLEAN DEFAULT '0' NOT NULL,"+
+            COL_GROUP_IS_HIDDEN+" BOOLEAN DEFAULT '0' NOT NULL,"+
+            COL_GROUP_NAME   +" text,  "+
+            COL_GROUP_DISPLAY_NAME   +" text "+
             ");";
     public static final String DB_CREATE_BOOKS ="create table if not exists "+TABLE_BOOKS+"( "+
             COL_ID+"  integer primary key autoincrement, "+
@@ -111,6 +124,7 @@ public class SQLController {
             COL_BOOK_TITLE                     +" text,"+
             COL_BOOK_FORM                     +" text,"+
             COL_BOOK_SIZE                        +" INTEGER,"+
+            COL_BOOK_DELTA                    +" INTEGER,"+
             COL_BOOK_OPT                        +" INTEGER,"+
             COL_BOOK_GROUP_ID             +" INTEGER,"+
             COL_BOOK_DATE                      +" timestamp,"+//from the samlib we do not use it anymore
@@ -143,11 +157,13 @@ public class SQLController {
     public static final String DB_IDX2 = "CREATE INDEX if not exists book_author   ON Book(AUTHOR_ID);";
     public static final String DB_IDX3 = "CREATE INDEX if not exists tagName  ON Tags(UCNAME);";
     public static final String DB_IDX4 = "CREATE INDEX  if not exists tag_author     ON Tag2Author(TAG_ID,AUTHOR_ID);";
-    public static final String DB_IDX5 = "CREATE INDEX  if not exists group_author     ON GroupBook(NAME,AUTHOR_ID);";
+    public static final String DB_IDX51 = "CREATE INDEX  if not exists group_author     ON GroupBook(NAME,AUTHOR_ID);";
+    public static final String DB_IDX52 = "CREATE INDEX  if not exists book_group       ON Book(GROUP_ID);";
     ///public static final String ALTER2_1 = "ALTER TABLE  "+TABLE_AUTHOR+" DROP COLUMN "+COL_books+" ;";//Not Supported by SQLight
     public static final String ALTER2_2 = "UPDATE   "+TABLE_AUTHOR+" SET  "+COL_isnew+" =0;";
     public static final String ALTER6_1=  "ALTER TABLE "+TABLE_BOOKS+" ADD COLUMN "+COL_BOOK_OPT+" INTEGER;";
     public static final String ALTER7_1 = "ALTER TABLE   "+TABLE_AUTHOR+" ADD COLUMN  "+COL_ALL_TAGS_NAME+" text;";
+    public static final String ALTER8_1=  "ALTER TABLE "+TABLE_BOOKS+" ADD COLUMN "+COL_BOOK_DELTA+" INTEGER;";
 
 
             
