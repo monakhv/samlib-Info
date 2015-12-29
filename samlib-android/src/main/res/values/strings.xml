@@ -24,6 +24,7 @@ limitations under the License.
     
     <string name="update_update">Обновление</string>
     <string name="group_book_number">Колличество книг:</string>
+    <string name="group_book_new">Новые</string>
     
     <string name="dialog_title_filtr">Категория авторов</string>    
     <string name="dialog_title_file">Выбор файла</string>
@@ -151,7 +152,7 @@ limitations under the License.
     <string name="pref_title_wihi_only">Только по Wifi</string>
 
     <string name="pref_key_update_tag">pref_key_update_tag</string>
-    <string name="pref_title_update_tag">Проверяем авторов с тэгом ...</string>
+    <string name="pref_title_update_tag">Проверяем авторов с тэгом …</string>
 
 
     <string name="pref_update_all_title">Всё</string>

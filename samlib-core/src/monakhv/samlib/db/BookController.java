@@ -195,11 +195,41 @@ public class BookController {
 
             res = dao.query(getPrepared(qb, author));
         } catch (SQLException e) {
-            Log.e(DEBUG_TAG, "Query error: ", e);
+            Log.e(DEBUG_TAG, "getAll: Query error: ", e);
             return null;
         }
 
         return res;
+    }
+
+    /**
+     * Return list of new book for given author
+     * @param author Author
+     * @param order sort order
+     * @return List of author
+     */
+    public List<Book> getAllNew(Author author, String order) {
+        List<Book> res;
+        QueryBuilder<Book, Integer> qb = dao.queryBuilder();
+
+        if (order != null) {
+            qb.orderByRaw(order);
+        }
+
+        try {
+            qb.where()
+                    .eq(SQLController.COL_BOOK_AUTHOR_ID,author)
+                    .and()
+                    .eq(SQLController.COL_BOOK_ISNEW,true);
+            res=dao.query(qb.prepare());
+        }
+        catch (SQLException e){
+            Log.e(DEBUG_TAG, "getAllNew: Query error: ", e);
+            return null;
+        }
+        return res;
+
+
     }
 
     private PreparedQuery<Book> getPrepared(QueryBuilder<Book, Integer> qb, Author author) throws SQLException {

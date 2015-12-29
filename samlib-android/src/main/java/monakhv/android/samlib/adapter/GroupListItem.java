@@ -32,7 +32,7 @@ import java.util.regex.Pattern;
  * Created by monakhv on 28.12.15.
  */
 public class GroupListItem implements ParentListItem {
-    public static final GroupListItem BLIND=new GroupListItem("");
+    public static final GroupListItem BLIND=new GroupListItem();
     public static final List<GroupListItem> EMPTY;
     private static final Pattern PATTERN_HIDDEN = Pattern.compile("^@.*");
 
@@ -47,6 +47,11 @@ public class GroupListItem implements ParentListItem {
 
     List<Book> mChildItemList;
 
+    private GroupListItem(){
+        name=null;
+        initiallyExpanded=true;
+    }
+
     GroupListItem(GroupBook groupBook){
         mGroupBook=groupBook;
         name=mGroupBook.getName();
@@ -58,7 +63,7 @@ public class GroupListItem implements ParentListItem {
         }
     }
 
-    private GroupListItem(String name){
+    GroupListItem(String name){
         this.name=name;
         initiallyExpanded=true;
 

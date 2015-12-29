@@ -2,6 +2,7 @@ package monakhv.android.samlib.adapter;
 
 import android.content.Context;
 import android.util.Log;
+import monakhv.android.samlib.R;
 import monakhv.android.samlib.sql.DatabaseHelper;
 import monakhv.samlib.db.AuthorController;
 import monakhv.samlib.db.entity.Author;
@@ -32,11 +33,13 @@ public class BookLoader extends AbstractLoader<GroupListItem> {
     private final String DEBUG_TAG = "BookLoader";
 
     private final AuthorController authorController;
-    private long id;
-    private String order;
+    private final long id;
+    private final String order;
+    private final Context mContext;
 
     public BookLoader(final Context context, final DatabaseHelper databaseHelper, long id, String order) {
         super(context);
+        mContext=context;
         this.id = id;
         this.order = order;
         authorController = new AuthorController(databaseHelper);
@@ -46,30 +49,35 @@ public class BookLoader extends AbstractLoader<GroupListItem> {
     public List<GroupListItem> loadInBackground() {
 
         List<GroupListItem> res = new ArrayList<>();
+        GroupListItem gr = GroupListItem.BLIND;
 
-        if (id == SamLibConfig.SELECTED_BOOK_ID) {
-            GroupListItem gr = GroupListItem.BLIND;
+        if (id == SamLibConfig.SELECTED_BOOK_ID) {//load selected book
+
             gr.mChildItemList = authorController.getBookController().getSelected(order);
             res.add(gr);
             return res;
-        } else {
+        } else {//load book for the author
             Author a = authorController.getById(id);
 
-            if (a == null) {
+            if (a == null) {//no author found display empty screen
                 Log.e(DEBUG_TAG, "loadInBackground: author is not defined");
                 return GroupListItem.EMPTY;
             }
+            GroupListItem newGrp = new GroupListItem(mContext.getString(R.string.group_book_new));
+            newGrp.mChildItemList=authorController.getBookController().getAllNew(a, order);
+            res.add(newGrp);
+
             List<GroupBook> rr = authorController.getGroupBookController().getByAuthor(a);
 
             if (rr.isEmpty()) {
-                GroupListItem gr = GroupListItem.BLIND;
+
                 gr.mChildItemList = authorController.getBookController().getAll(a, order);
                 res.add(gr);
             } else {
                 for (GroupBook groupBook : rr) {
-                    GroupListItem gr = new GroupListItem(groupBook);
-                    gr.mChildItemList = authorController.getBookController().getBookForGroup(a, groupBook, order);
-                    res.add(gr);
+                    GroupListItem grr = new GroupListItem(groupBook);
+                    grr.mChildItemList = authorController.getBookController().getBookForGroup(a, groupBook, order);
+                    res.add(grr);
                 }
             }
             return res;
