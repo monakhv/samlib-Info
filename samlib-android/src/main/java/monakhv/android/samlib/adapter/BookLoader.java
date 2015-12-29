@@ -5,9 +5,10 @@ import android.util.Log;
 import monakhv.android.samlib.sql.DatabaseHelper;
 import monakhv.samlib.db.AuthorController;
 import monakhv.samlib.db.entity.Author;
-import monakhv.samlib.db.entity.Book;
+import monakhv.samlib.db.entity.GroupBook;
 import monakhv.samlib.db.entity.SamLibConfig;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /*
@@ -27,33 +28,51 @@ import java.util.List;
  *
  * 23.07.15.
  */
-public class BookLoader extends AbstractLoader<Book> {
-    private final String DEBUG_TAG="BookLoader";
+public class BookLoader extends AbstractLoader<GroupListItem> {
+    private final String DEBUG_TAG = "BookLoader";
 
     private final AuthorController authorController;
     private long id;
     private String order;
 
-    public BookLoader(final Context context,final DatabaseHelper databaseHelper,long id, String order) {
+    public BookLoader(final Context context, final DatabaseHelper databaseHelper, long id, String order) {
         super(context);
         this.id = id;
         this.order = order;
-        authorController=new AuthorController(databaseHelper);
+        authorController = new AuthorController(databaseHelper);
     }
 
     @Override
-    public List<Book> loadInBackground() {
-        if (id == SamLibConfig.SELECTED_BOOK_ID){
-            return authorController.getBookController().getSelected(order);
-        }
-        else {
-            Author a= authorController.getById(id);
+    public List<GroupListItem> loadInBackground() {
 
-            if (a == null){
+        List<GroupListItem> res = new ArrayList<>();
+
+        if (id == SamLibConfig.SELECTED_BOOK_ID) {
+            GroupListItem gr = GroupListItem.BLIND;
+            gr.mChildItemList = authorController.getBookController().getSelected(order);
+            res.add(gr);
+            return res;
+        } else {
+            Author a = authorController.getById(id);
+
+            if (a == null) {
                 Log.e(DEBUG_TAG, "loadInBackground: author is not defined");
-                return null;
+                return GroupListItem.EMPTY;
             }
-            return authorController.getBookController().getAll(a,order);
+            List<GroupBook> rr = authorController.getGroupBookController().getByAuthor(a);
+
+            if (rr.isEmpty()) {
+                GroupListItem gr = GroupListItem.BLIND;
+                gr.mChildItemList = authorController.getBookController().getAll(a, order);
+                res.add(gr);
+            } else {
+                for (GroupBook groupBook : rr) {
+                    GroupListItem gr = new GroupListItem(groupBook);
+                    gr.mChildItemList = authorController.getBookController().getBookForGroup(a, groupBook, order);
+                    res.add(gr);
+                }
+            }
+            return res;
         }
     }
 

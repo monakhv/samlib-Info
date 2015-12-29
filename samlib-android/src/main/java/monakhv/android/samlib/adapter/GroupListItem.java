@@ -19,8 +19,6 @@
 package monakhv.android.samlib.adapter;
 
 import com.bignerdranch.expandablerecyclerview.Model.ParentListItem;
-import monakhv.samlib.db.AuthorController;
-import monakhv.samlib.db.entity.Author;
 import monakhv.samlib.db.entity.Book;
 import monakhv.samlib.db.entity.GroupBook;
 
@@ -28,16 +26,23 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
+ * Class to represent GroupBook into UI List
  * Created by monakhv on 28.12.15.
  */
 public class GroupListItem implements ParentListItem {
+    public static final GroupListItem BLIND=new GroupListItem("");
+    public static final List<GroupListItem> EMPTY;
+
+    static {
+        EMPTY = new ArrayList<>();
+    }
     private String name;
     private GroupBook mGroupBook;
     private boolean  initiallyExpanded;
 
-    private List<Book> mChildItemList;
+    List<Book> mChildItemList;
 
-    private GroupListItem(GroupBook groupBook){
+    GroupListItem(GroupBook groupBook){
         mGroupBook=groupBook;
         name=mGroupBook.getName();
         initiallyExpanded=false;
@@ -67,27 +72,5 @@ public class GroupListItem implements ParentListItem {
         return initiallyExpanded;
     }
 
-    public static List<GroupListItem> getGroupList(AuthorController sql, long author_id) {
-        Author a = sql.getById(author_id);
-        List<GroupListItem> res = new ArrayList<>();
-        List<GroupBook> rr = sql.getGroupBookController().getByAuthor(a);
-
-        if (rr == null || rr.isEmpty()){
-            GroupListItem gi = new GroupListItem("");
-            gi.mChildItemList = sql.getBookController().getBooksByAuthor(a);
-            res.add(gi);
-
-        }
-        else {
-            for (GroupBook groupBook: rr){
-                GroupListItem gi = new GroupListItem(groupBook);
-                gi.mChildItemList=sql.getBookController().getBookForGroup(a,groupBook);
-                res.add(gi);
-            }
-        }
-        return res;
-
-
-    }
 
 }

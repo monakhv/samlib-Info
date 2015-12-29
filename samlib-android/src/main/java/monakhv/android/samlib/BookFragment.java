@@ -36,8 +36,10 @@ import monakhv.android.samlib.sortorder.BookSortOrder;
 import monakhv.android.samlib.sql.DatabaseHelper;
 import monakhv.samlib.db.AuthorController;
 import monakhv.samlib.db.entity.Book;
+import monakhv.samlib.db.entity.GroupBook;
 import monakhv.samlib.db.entity.SamLibConfig;
 
+import java.security.acl.Group;
 import java.util.List;
 
 /*
@@ -58,7 +60,7 @@ import java.util.List;
  * 12/11/14.
  */
 public class BookFragment extends Fragment implements
-        ListSwipeListener.SwipeCallBack, LoaderManager.LoaderCallbacks<List<Book>>,
+        ListSwipeListener.SwipeCallBack, LoaderManager.LoaderCallbacks<List<GroupListItem>>,
         BookExpandableAdapter.CallBack {
 
 
@@ -144,7 +146,7 @@ public class BookFragment extends Fragment implements
         mProgressBar = (ProgressBar) view.findViewById(R.id.bookProgress);
 
 
-        adapter = new BookExpandableAdapter(GroupListItem.getGroupList(sql,author_id), getActivity(),this);
+        adapter = new BookExpandableAdapter(GroupListItem.EMPTY, getActivity(),this);
         adapter.setAuthor_id(author_id);
         bookRV.setHasFixedSize(true);
         bookRV.setLayoutManager(new LinearLayoutManager(getActivity()));
@@ -169,23 +171,30 @@ public class BookFragment extends Fragment implements
     }
 
     @Override
-    public Loader<List<Book>> onCreateLoader(int id, Bundle args) {
+    public Loader<List<GroupListItem>> onCreateLoader(int id, Bundle args) {
         return new BookLoader(getActivity(), mCallbacks.getDatabaseHelper(), author_id, order.getOrder());
     }
 
     @Override
-    public void onLoadFinished(Loader<List<Book>> loader, List<Book> data) {
+    public void onLoadFinished(Loader<List<GroupListItem>> loader, List<GroupListItem> data) {
         //TODO: exp need revision
         //adapter.setData(data);
+        Log.i(DEBUG_TAG,"data = "+data);
+        adapter = new BookExpandableAdapter(data, getActivity(),this);
+        adapter.setAuthor_id(author_id);
+        bookRV.setAdapter(adapter);
         Log.d(DEBUG_TAG, "onLoadFinished: adapter size = " + adapter.getItemCount());
         mProgressBar.setVisibility(View.GONE);
         makeEmpty();
     }
 
     @Override
-    public void onLoaderReset(Loader<List<Book>> loader) {
+    public void onLoaderReset(Loader<List<GroupListItem>> loader) {
         //TODO: exp need revision
         //adapter.setData(null);
+        adapter = new BookExpandableAdapter(GroupListItem.EMPTY, getActivity(),this);
+        bookRV.setAdapter(adapter);
+
     }
 
 
