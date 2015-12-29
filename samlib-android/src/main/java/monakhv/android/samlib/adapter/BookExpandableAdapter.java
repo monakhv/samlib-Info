@@ -38,32 +38,37 @@ import java.util.HashMap;
 import java.util.List;
 
 /**
+ * Base on this
+ * https://www.bignerdranch.com/blog/expand-a-recyclerview-in-four-steps/
  * Created by monakhv on 28.12.15.
  */
-public class BookExpandableAdapter extends ExpandableRecyclerAdapter<GroupViewHolder,BookViewHolder> {
+public class BookExpandableAdapter extends ExpandableRecyclerAdapter<GroupViewHolder, BookViewHolder> {
     public interface CallBack {
         void makeNewFlip(int id);
-        void refresh();
+
+        Book reloadBook(int id);
     }
+
     private static final String DEBUG_TAG = "BookExpandableAdapter";
-    public static final int NOT_SELECTED=-1;
+    public static final int NOT_SELECTED = -1;
     private int selected = NOT_SELECTED;
 
 
     private final LayoutInflater mInflater;
     private final SettingsHelper settingsHelper;
     private long author_id;
-    private final HashMap<Integer,FlipIcon> flips;
+    private final HashMap<Integer, FlipIcon> flips;
     protected CallBack mCallBack;
 
     public BookExpandableAdapter(@NonNull List<? extends ParentListItem> parentItemList, Context context, CallBack callBack) {
         super(parentItemList);
 
-        mInflater= LayoutInflater.from(context);
-        settingsHelper = new SettingsHelper( context);
+        mInflater = LayoutInflater.from(context);
+        settingsHelper = new SettingsHelper(context);
         flips = new HashMap<>();
-        mCallBack=callBack;
+        mCallBack = callBack;
     }
+
     public void setAuthor_id(long author_id) {
         this.author_id = author_id;
     }
@@ -71,7 +76,7 @@ public class BookExpandableAdapter extends ExpandableRecyclerAdapter<GroupViewHo
 
     @Override
     public GroupViewHolder onCreateParentViewHolder(ViewGroup viewGroup) {
-        View v = mInflater.inflate(R.layout.group_row,viewGroup,false);
+        View v = mInflater.inflate(R.layout.group_row, viewGroup, false);
         return new GroupViewHolder(v);
     }
 
@@ -80,7 +85,7 @@ public class BookExpandableAdapter extends ExpandableRecyclerAdapter<GroupViewHo
         GroupListItem gi = (GroupListItem) parentListItem;
         groupViewHolder.groupTitle.setText(gi.getName());
 
-        if (gi.getGroupBook() == null){
+        if (gi.getGroupBook() == null) {
             groupViewHolder.groupTitle.setVisibility(View.GONE);
             groupViewHolder.icon.setVisibility(View.GONE);
         }
@@ -97,7 +102,7 @@ public class BookExpandableAdapter extends ExpandableRecyclerAdapter<GroupViewHo
 
 
     @Override
-    public void onBindChildViewHolder(BookViewHolder holder, int position, Object o) {
+    public void onBindChildViewHolder(BookViewHolder holder, final int position, Object o) {
 
         final Book book = (Book) o;
         holder.bookTitle.setText(Html.fromHtml(book.getTitle()));
@@ -107,7 +112,6 @@ public class BookExpandableAdapter extends ExpandableRecyclerAdapter<GroupViewHo
         } catch (Exception ex) {//This is because of old book scheme where Description could be null
             holder.bookDesc.setText("");
         }
-
 
 
         holder.bookAuthorName.setText(book.getAuthorName());
@@ -121,7 +125,7 @@ public class BookExpandableAdapter extends ExpandableRecyclerAdapter<GroupViewHo
         holder.bookSize.setText(book.getSize() + "K");
         holder.bookForm.setText(book.getForm());
 
-        final  int openBook = (R.drawable.open);
+        final int openBook = (R.drawable.open);
         final int closeBook = (R.drawable.closed);
         Flip3D.animationFlip3DListener listener;
 
@@ -136,10 +140,11 @@ public class BookExpandableAdapter extends ExpandableRecyclerAdapter<GroupViewHo
 
                 @Override
                 public void onEnd() {
-                    mCallBack.refresh();
+                    mItemList.set(position,mCallBack.reloadBook(book.getId()));
+                    toggleSelection(position);
                 }
             };
-            holder.flipIcon.setData(openBook,closeBook,listener,true);
+            holder.flipIcon.setData(openBook, closeBook, listener, true);
 
         } else {
             listener = new Flip3D.animationFlip3DListener() {
@@ -151,10 +156,11 @@ public class BookExpandableAdapter extends ExpandableRecyclerAdapter<GroupViewHo
 
                 @Override
                 public void onEnd() {
-                    mCallBack.refresh();
+                    mItemList.set(position,mCallBack.reloadBook(book.getId()));
+                    toggleSelection(position);
                 }
             };
-            holder.flipIcon.setData(closeBook,openBook,listener,true);
+            holder.flipIcon.setData(closeBook, openBook, listener, true);
 
         }
         holder.itemView.setActivated(position == getSelectedPosition());
@@ -168,11 +174,10 @@ public class BookExpandableAdapter extends ExpandableRecyclerAdapter<GroupViewHo
             holder.starIcon.setVisibility(View.GONE);
         }
 
-        if (book.isPreserve()){
+        if (book.isPreserve()) {
             holder.lockIcon.setImageResource(settingsHelper.getLockIcon());
             holder.lockIcon.setVisibility(View.VISIBLE);
-        }
-        else {
+        } else {
             holder.lockIcon.setImageResource(R.drawable.rating_not_important);
             holder.lockIcon.setVisibility(View.GONE);
         }
@@ -181,13 +186,15 @@ public class BookExpandableAdapter extends ExpandableRecyclerAdapter<GroupViewHo
         flips.put(position, holder.flipIcon);
 
     }
+
     /**
      * Change selection position
      * make notification by default
+     *
      * @param position new selected item position
      */
-    public void toggleSelection(int position){
-        toggleSelection(position,true);
+    public void toggleSelection(int position) {
+        toggleSelection(position, true);
     }
 
     /**
@@ -196,26 +203,26 @@ public class BookExpandableAdapter extends ExpandableRecyclerAdapter<GroupViewHo
      * @param position new selection position
      * @param notified whether make change item notification or not
      */
-    public void toggleSelection(int position,boolean notified){
-        if (position >0 && getItemViewType(position) == 0){
+    private void toggleSelection(int position, boolean notified) {
+        if (position > 0 && getItemViewType(position) == 0) {
             return;//ignore for parent type
         }
-        if (position == selected){
+        if (position == selected) {
             return;//selection is not changed - ignore it
         }
 
         int old_selection = selected;//preserve old selection position
         selected = position;//new position
 
-        if (old_selection!= NOT_SELECTED&&notified){
-           notifyItemChanged(old_selection);//clean up old selection
+        if (old_selection != NOT_SELECTED && notified) {
+            notifyItemChanged(old_selection);//clean up old selection
         }
-        if (selected != NOT_SELECTED&&notified){
-           notifyItemChanged(selected);//make new selection
+        if (selected != NOT_SELECTED && notified) {
+            notifyItemChanged(selected);//make new selection
         }
     }
 
-    public void cleanSelection(){
+    public void cleanSelection() {
         toggleSelection(NOT_SELECTED);
     }
 
@@ -223,45 +230,62 @@ public class BookExpandableAdapter extends ExpandableRecyclerAdapter<GroupViewHo
     public int getSelectedPosition() {
         return selected;
     }
+
     public Book getSelected() {
         int pos = getSelectedPosition();
-        Log.d(DEBUG_TAG,"getSelected: position = "+pos);
+        Log.d(DEBUG_TAG, "getSelected: position = " + pos);
         if (pos == NOT_SELECTED) {
             Log.e(DEBUG_TAG, "getSelected: position is NOT_SELECTED");
             return null;
         }
 
         Object o = mItemList.get(pos);
-        if (o instanceof Book){
+        if (o instanceof Book) {
             return (Book) o;
-        }
-        else {
+        } else {
             return null;
         }
 
     }
 
-    /**
-     * Mark selected book as read
-     * @param animation if true make icon animation
-     */
-    public void makeSelectedRead(boolean animation) {
-        Book book = getSelected();
-        if (book == null) {
-            Log.e(DEBUG_TAG,"Book is null");
-            return;
+    public Book getBook(int position) {
+        Object o = mItemList.get(position);
+
+        if ( ! (o instanceof Book)){
+            Log.e(DEBUG_TAG,"getBook wrong object type");
+            return null;
         }
-        if (book.isIsNew()) {
-
-            if ( animation) {
-                flips.get(getSelectedPosition()).makeFlip();
-                Log.i(DEBUG_TAG,"Making book flip animation at position: "+getSelectedPosition());
-
-            } else {
-                mCallBack.makeNewFlip(book.getId());
-
-            }
-        }
-
+        return (Book) o;
     }
+    public void makeRead(int position) {
+
+        if (getBook(position) != null){
+            flips.get(position).makeFlip();
+        }
+    }
+//    /**
+//     * Mark selected book as read
+//     *
+//     * @param animation if true make icon animation
+//     */
+//    public void makeSelectedRead(boolean animation) {
+//        Book book = getSelected();
+//        if (book == null) {
+//            Log.e(DEBUG_TAG, "makeSelectedRead: Book is null");
+//            return;
+//        }
+//        if (book.isIsNew()) {
+//            Log.d(DEBUG_TAG,"makeSelectedRead: selected position = "+getSelectedPosition());
+//
+//            if (animation) {
+//                flips.get(getSelectedPosition()).makeFlip();
+//                Log.i(DEBUG_TAG, "makeSelectedRead: Making book flip animation at position: " + getSelectedPosition());
+//
+//            } else {
+//                mCallBack.makeNewFlip(book.getId());
+//                notifyItemChanged(getSelectedPosition());
+//            }
+//        }
+//
+//    }
 }

@@ -63,8 +63,8 @@ public class BookFragment extends Fragment implements
 
 
     @Override
-    public void refresh() {
-        updateAdapter();
+    public Book reloadBook(int id) {
+        return sql.getBookController().getById(id);
     }
 
     @Override
@@ -242,15 +242,17 @@ public class BookFragment extends Fragment implements
     @Override
     public boolean singleClick(MotionEvent e) {
         int position = bookRV.getChildAdapterPosition(bookRV.findChildViewUnder(e.getX(), e.getY()));
-        adapter.toggleSelection(position);
 
 
-        final Book book1 = adapter.getSelected();
-        if (book1 == null) {
+        book = adapter.getBook(position);
+
+
+        if (book == null) {
             Log.e(DEBUG_TAG, "singleClick: null book error position = " + position);
             return false;
         }
-        loadBook(book1);
+        selected_position = position;
+        loadBook(book);
         bookRV.playSoundEffect(SoundEffectConstants.CLICK);
         return true;
     }
@@ -259,16 +261,8 @@ public class BookFragment extends Fragment implements
     public boolean swipeRight(MotionEvent e) {
         Log.v(DEBUG_TAG, "making swipeRight");
         int position = bookRV.getChildAdapterPosition(bookRV.findChildViewUnder(e.getX(), e.getY()));
-        adapter.toggleSelection(position, false);
 
-        book = adapter.getSelected();
-
-        if (book == null) {
-            Log.e(DEBUG_TAG, "Book is null");
-            return false;
-        }
-
-        adapter.makeSelectedRead(true);
+        adapter.makeRead(position);
         return true;
     }
 
@@ -294,6 +288,7 @@ public class BookFragment extends Fragment implements
     private final int menu_fixed = 6;
     private final int menu_choose_version = 7;
 
+    private int selected_position;
     @Override
     public void longPress(MotionEvent e) {
         int position = bookRV.getChildAdapterPosition(bookRV.findChildViewUnder(e.getX(), e.getY()));
@@ -304,6 +299,7 @@ public class BookFragment extends Fragment implements
         if (book == null) {
             return;
         }
+        selected_position = position;
         final MyMenuData menu = new MyMenuData();
 
         if (book.isIsNew()) {
@@ -344,7 +340,7 @@ public class BookFragment extends Fragment implements
         }
         if (item == menu_mark_read) {
 
-            adapter.makeSelectedRead(true);
+            adapter.makeRead(selected_position);
         }
         if (item == menu_selected) {
             sql.getBookController().setSelected(book);
@@ -411,7 +407,7 @@ public class BookFragment extends Fragment implements
         SettingsHelper setting = new SettingsHelper(getActivity());
         if (setting.getAutoMarkFlag()) {
 
-            adapter.makeSelectedRead(false);
+            adapter.makeRead(selected_position);
         }
 
         startActivity(launchBrowser);
@@ -497,7 +493,7 @@ public class BookFragment extends Fragment implements
 
 
         if (settings.getAutoMarkFlag()) {
-           adapter.makeSelectedRead(false);
+           adapter.makeRead(selected_position);
         }
         startActivity(launchBrowser);
     }

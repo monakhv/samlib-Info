@@ -148,7 +148,7 @@ public class BooksActivity extends MyAbstractAnimActivity implements BookFragmen
                 if (action.equalsIgnoreCase(AndroidGuiUpdater.ACTION_REFRESH)) {
                     int iObject = intent.getIntExtra(AndroidGuiUpdater.ACTION_REFRESH_OBJECT, AndroidGuiUpdater.ACTION_REFRESH_AUTHORS);
                     if (iObject == AndroidGuiUpdater.ACTION_REFRESH_BOTH) {
-                        listFragment.refresh();
+                        //listFragment.refresh();
                     }
                 }
             }

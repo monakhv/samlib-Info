@@ -568,7 +568,7 @@ public class MainActivity extends MyBaseAbstractActivity implements
                     }
 
                     if (twoPain && !isTagShow && (iObject == AndroidGuiUpdater.ACTION_REFRESH_BOTH)) {
-                        bookFragment.refresh();
+                        //bookFragment.refresh();
                     }
                     if (twoPain && (iObject == AndroidGuiUpdater.ACTION_REFRESH_TAGS)) {
                         refreshTags();
