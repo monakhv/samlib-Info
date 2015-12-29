@@ -26,6 +26,8 @@ import monakhv.android.samlib.R;
 import monakhv.android.samlib.animation.FlipIcon;
 
 /**
+ * Base on this
+ * https://www.bignerdranch.com/blog/expand-a-recyclerview-in-four-steps/
  * Created by monakhv on 28.12.15.
  */
 public class BookViewHolder extends ChildViewHolder {

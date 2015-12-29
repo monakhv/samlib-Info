@@ -22,7 +22,8 @@ limitations under the License.
     <string name="author_tag">Новый тэг</string>
     <string name="author_add_desc">Для добавления автора введите его фамилию или полный URL его страницы самиздата</string>
     
-    <string name="update_update">Обновление</string>    
+    <string name="update_update">Обновление</string>
+    <string name="group_book_number">Колличество книг:</string>
     
     <string name="dialog_title_filtr">Категория авторов</string>    
     <string name="dialog_title_file">Выбор файла</string>

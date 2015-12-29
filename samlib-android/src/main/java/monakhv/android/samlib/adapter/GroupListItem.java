@@ -24,6 +24,8 @@ import monakhv.samlib.db.entity.GroupBook;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Class to represent GroupBook into UI List
@@ -32,6 +34,7 @@ import java.util.List;
 public class GroupListItem implements ParentListItem {
     public static final GroupListItem BLIND=new GroupListItem("");
     public static final List<GroupListItem> EMPTY;
+    private static final Pattern PATTERN_HIDDEN = Pattern.compile("^@.*");
 
     static {
         EMPTY = new ArrayList<>();
@@ -39,6 +42,8 @@ public class GroupListItem implements ParentListItem {
     private String name;
     private GroupBook mGroupBook;
     private boolean  initiallyExpanded;
+    //TODO: move into GroupBook to persist to make possible order by it
+    private boolean hidden=false;
 
     List<Book> mChildItemList;
 
@@ -46,6 +51,11 @@ public class GroupListItem implements ParentListItem {
         mGroupBook=groupBook;
         name=mGroupBook.getName();
         initiallyExpanded=false;
+        Matcher m = PATTERN_HIDDEN.matcher(name);
+        if (m.find()){
+            hidden=true;
+            name=name.replaceAll("@","");
+        }
     }
 
     private GroupListItem(String name){
@@ -60,6 +70,10 @@ public class GroupListItem implements ParentListItem {
 
     public GroupBook getGroupBook() {
         return mGroupBook;
+    }
+
+    public boolean isHidden() {
+        return hidden;
     }
 
     @Override

@@ -25,14 +25,17 @@ import com.bignerdranch.expandablerecyclerview.ViewHolder.ParentViewHolder;
 import monakhv.android.samlib.R;
 
 /**
+ * Base on this
+ * https://www.bignerdranch.com/blog/expand-a-recyclerview-in-four-steps/
  * Created by monakhv on 28.12.15.
  */
 public class GroupViewHolder extends ParentViewHolder {
-    public TextView groupTitle;
+    public TextView groupTitle,bookNumber;
     public ImageView icon;
     public GroupViewHolder(View itemView) {
         super(itemView);
         groupTitle = (TextView) itemView.findViewById(R.id.group_title);
         icon = (ImageView) itemView.findViewById(R.id.group_icon);
+        bookNumber = (TextView) itemView.findViewById(R.id.group_number);
     }
 }

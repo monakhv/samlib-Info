@@ -58,6 +58,7 @@ public class BookExpandableAdapter extends ExpandableRecyclerAdapter<GroupViewHo
     private final SettingsHelper settingsHelper;
     private long author_id;
     private final HashMap<Integer, FlipIcon> flips;
+    private Context mContext;
     protected CallBack mCallBack;
 
     public BookExpandableAdapter(@NonNull List<? extends ParentListItem> parentItemList, Context context, CallBack callBack) {
@@ -67,6 +68,7 @@ public class BookExpandableAdapter extends ExpandableRecyclerAdapter<GroupViewHo
         settingsHelper = new SettingsHelper(context);
         flips = new HashMap<>();
         mCallBack = callBack;
+        mContext=context;
     }
 
     public void setAuthor_id(long author_id) {
@@ -88,6 +90,19 @@ public class BookExpandableAdapter extends ExpandableRecyclerAdapter<GroupViewHo
         if (gi.getGroupBook() == null) {
             groupViewHolder.groupTitle.setVisibility(View.GONE);
             groupViewHolder.icon.setVisibility(View.GONE);
+            groupViewHolder.bookNumber.setVisibility(View.GONE);
+        }
+        else {
+            groupViewHolder.groupTitle.setText(gi.getName());
+            groupViewHolder.bookNumber.setText(mContext.getString(R.string.group_book_number)+" "+gi.getChildItemList().size());
+
+            if (gi.isHidden()){
+                groupViewHolder.groupTitle.setAlpha(0.5f);
+            }
+            else {
+                groupViewHolder.groupTitle.setAlpha(1.f);
+            }
+
         }
 
     }
@@ -236,6 +251,10 @@ public class BookExpandableAdapter extends ExpandableRecyclerAdapter<GroupViewHo
         Log.d(DEBUG_TAG, "getSelected: position = " + pos);
         if (pos == NOT_SELECTED) {
             Log.e(DEBUG_TAG, "getSelected: position is NOT_SELECTED");
+            return null;
+        }
+        if (mItemList == null){
+            Log.e(DEBUG_TAG, "getSelected: itemList is null");
             return null;
         }
 
