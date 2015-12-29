@@ -23,6 +23,7 @@ import com.j256.ormlite.field.ForeignCollectionField;
 import com.j256.ormlite.table.DatabaseTable;
 import monakhv.samlib.data.AbstractSettings;
 import monakhv.samlib.db.SQLController;
+import monakhv.samlib.log.Log;
 
 
 import java.io.Serializable;
@@ -245,6 +246,7 @@ public class Author  implements Serializable{
                     ob.mSqlOperation=SqlOperation.UPDATE;//need update
                     ob.description = b.description;
                     ob.size = b.size;
+                    ob.delta= b.size-ob.size;
                     ob.modifyTime=b.modifyTime;
                     setIsNew(true);
                 }
@@ -258,6 +260,13 @@ public class Author  implements Serializable{
                     ob.title=b.title;
                     ob.mSqlOperation=SqlOperation.UPDATE;//need update
                 }
+
+                if (! ob.form.equals(b.form)){//form change
+                    ob.form=b.form;
+                    ob.mSqlOperation=SqlOperation.UPDATE;//need update
+                }
+
+
                 books.set(idx,ob);
 
             }
@@ -275,9 +284,9 @@ public class Author  implements Serializable{
      */
     public boolean update(Author newA) {
         if (testUpdate(newA)) {
-
-            setUpdateDate(newA.getUpdateDate());
-
+            if (isIsNew()){
+                setUpdateDate(newA.getUpdateDate());
+            }
             return true;
         }
         return false;
@@ -297,16 +306,5 @@ public class Author  implements Serializable{
         all_tags_name=sb.toString();
 
     }
-//    public void dump(){
-//        System.out.println(name);
-//        System.out.println(   new Date(updateDate)      );
-//
-//        System.out.println("----------Begin books---------------");
-//
-//        for (Book b : books){
-//
-//            System.out.println(" - "+b.toString());
-//        }
-//        System.out.println("----------End   books---------------");
-//    }
+
 }

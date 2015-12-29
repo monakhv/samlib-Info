@@ -129,6 +129,8 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper implements DaoBuilde
         authorDao.executeRawNoArgs(SQLController.DB_IDX51);//create additional index
         authorDao.executeRawNoArgs(SQLController.DB_IDX52);//create additional index
         authorDao.executeRawNoArgs(SQLController.ALTER8_1);
+        authorDao.executeRawNoArgs(SQLController.ALTER8_2);
+        authorDao.executeRawNoArgs(SQLController.ALTER8_3);
 
         QueryBuilder<Book, Integer> qb = getBookDao().queryBuilder();
         int SELECTED_GROUP_ID = 1;

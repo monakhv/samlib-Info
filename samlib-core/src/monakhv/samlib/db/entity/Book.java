@@ -99,9 +99,11 @@ public class Book implements Serializable {
             form = null;
         }
         description = bookMatcher.group(7);
-        if (description != null) {
-            description = description.replaceAll("\"", "&quot;");
+        if (description == null){
+            description=" ";//space for compatibility with old method
         }
+        description = description.replaceAll("\"", "&quot;");
+
     }
 
     public SqlOperation getSqlOperation() {

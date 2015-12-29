@@ -82,7 +82,7 @@ public class SamLibConfig {
     private static final String     REQUEST_AUTHOR_DATA           = "/cgi-bin/areader?q=razdel&order=date&object=";
     private static final String     REQUEST_BOOK_TEXT                = "/cgi-bin/areader?q=book&object=";
     private static final String     REQUEST_AUTHOR_SEARCH      = "/cgi-bin/areader?q=alpha&anum=_ANUM_&page=_PAGE_&pagelen=_PAGELEN_";
-    private static final String     REQUEST_INDEXDATE="/indexdate.shtml";
+    private static final String     REQUEST_INDEXDATE="indexdate.shtml";
 
     
     private static final String[]   ABC_LETTER = new String[]{
