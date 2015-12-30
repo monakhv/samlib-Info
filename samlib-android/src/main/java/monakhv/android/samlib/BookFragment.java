@@ -36,10 +36,9 @@ import monakhv.android.samlib.sortorder.BookSortOrder;
 import monakhv.android.samlib.sql.DatabaseHelper;
 import monakhv.samlib.db.AuthorController;
 import monakhv.samlib.db.entity.Book;
-import monakhv.samlib.db.entity.GroupBook;
 import monakhv.samlib.db.entity.SamLibConfig;
 
-import java.security.acl.Group;
+
 import java.util.List;
 
 /*
@@ -106,6 +105,7 @@ public class BookFragment extends Fragment implements
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Log.i(DEBUG_TAG, "onCreate");
+        adapterState=null;
 
         if (getActivity().getIntent().getExtras() == null) {
             author_id = 0;
@@ -177,9 +177,9 @@ public class BookFragment extends Fragment implements
 
     @Override
     public void onLoadFinished(Loader<List<GroupListItem>> loader, List<GroupListItem> data) {
-        //TODO: exp need revision
+
         //adapter.setData(data);
-        Log.i(DEBUG_TAG,"data = "+data);
+
         adapter = new BookExpandableAdapter(data, getActivity(),this);
         adapter.setAuthor_id(author_id);
         bookRV.setAdapter(adapter);
@@ -190,7 +190,7 @@ public class BookFragment extends Fragment implements
 
     @Override
     public void onLoaderReset(Loader<List<GroupListItem>> loader) {
-        //TODO: exp need revision
+
         //adapter.setData(null);
         adapter = new BookExpandableAdapter(GroupListItem.EMPTY, getActivity(),this);
         bookRV.setAdapter(adapter);
@@ -217,7 +217,7 @@ public class BookFragment extends Fragment implements
         }
     }
 
-    private void updateAdapter() {
+    void updateAdapter() {
         //very ugly hack
         if (order == null) {
             Context ctx = getActivity().getApplicationContext();
@@ -534,5 +534,29 @@ public class BookFragment extends Fragment implements
     private void updateBook(Book book) {
         sql.getBookController().update(book);
         updateAdapter();
+    }
+
+
+    private Bundle adapterState;
+    @Override
+    public void onResume() {
+        super.onResume();
+        Log.d(DEBUG_TAG,"onResume call");
+        if (adapterState != null){
+            Log.d(DEBUG_TAG,"onResume: load adapter data");
+            adapter.onRestoreInstanceState(adapterState);
+            adapterState.clear();
+        }
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        Log.d(DEBUG_TAG,"onPause call");
+        if (adapterState == null){
+            adapterState = new Bundle();
+        }
+
+        adapter.onSaveInstanceState(adapterState);
     }
 }
