@@ -49,7 +49,7 @@ public class SamLibConfig {
     public static final   int       TAG_AUTHOR_ALL     =-1;
     public static final   int       TAG_AUTHOR_NEW  =-2;
     public static final   int       TAG_AUTHOR_ID = -10;
-    public   static final Pattern  BOOK_PATTERN = Pattern.compile("^<DL><DT><li>.*HREF=(.*)><b>(.*)</b>.*<b>(\\d+)k</b>.*\\s+\"(.*)\"\\s+(\\S*)\\s*<.*?<br>(<DD><font\\scolor=\"#555555\">(.*)</font>|)(</DL>|<DD>)");
+    public   static final Pattern  BOOK_PATTERN = Pattern.compile("^<DL><DT><li>.*HREF=(.*)><b>(.*)</b>.*<b>(\\d+)k</b>.*\\s+\"(.*)\"\\s+(.*\\b|\\S*)\\s*<.*?<br>(<DD><font\\scolor=\"#555555\">(.*)</font>|)(</DL>|<DD>)");
     public   static final Pattern  AUTHOR_NAME_PATTERN =Pattern.compile("<h3>(.*):<br>");
     
     public static final String COLLATION_RULES_NEW = "&' '<'-'<'_'<','<';'<':'<'!'<'?'<'/'<'.'<0<1<2<3<4<5<6<7<8<9<a,A<b,B<c,C<d,D<ð,Ð<e,E<f,F<g,G<h,H<i,I<j,J<k,K<l,L<m,M<n,N<o,O"

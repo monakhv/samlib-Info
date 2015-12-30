@@ -73,8 +73,10 @@ public class BookController {
             Log.i(DEBUG_TAG, "Book: " + book.getUri() + " - " + book.isIsNew() + " Operation: " + book.getSqlOperation().name());
             switch (book.getSqlOperation()) {
                 case DELETE:
-                    books.add(book);
-                    delete(books);
+                    if (! book.isPreserve()){
+                        books.add(book);
+                        delete(books);
+                    }
                     break;
                 case UPDATE:
                     restoreGroup(author, book, groupBookHashMap);

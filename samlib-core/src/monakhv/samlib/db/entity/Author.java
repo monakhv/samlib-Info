@@ -240,6 +240,7 @@ public class Author  implements Serializable{
             else {//old book
                 Book ob =books.get(idx);
                 ob.mSqlOperation = SqlOperation.NONE;// do nothing by default
+                Log.i("AUTHOR","testing book:   "+ob.uri+"  "+ob.id);
 
                 if (! ob.isNeedUpdate(b)){//Author update the book
                     ob.isNew = true;
@@ -249,6 +250,7 @@ public class Author  implements Serializable{
                     ob.delta= b.size-ob.size;
                     ob.modifyTime=b.modifyTime;
                     setIsNew(true);
+                    Log.i("AUTHOR","UPDATE:   "+ob.uri+"  "+ob.id);
                 }
 
                 if (! ob.mGroupBook.equals(b.mGroupBook)){//group change!

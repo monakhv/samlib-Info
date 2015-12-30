@@ -22,6 +22,7 @@ import com.bignerdranch.expandablerecyclerview.Model.ParentListItem;
 import monakhv.samlib.db.entity.Book;
 import monakhv.samlib.db.entity.GroupBook;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -31,7 +32,7 @@ import java.util.List;
  * Class to represent GroupBook into UI List
  * Created by monakhv on 28.12.15.
  */
-public class GroupListItem implements ParentListItem {
+public class GroupListItem implements ParentListItem,Serializable {
     public static final GroupListItem BLIND=new GroupListItem();
     public static final List<GroupListItem> EMPTY;
 
@@ -42,7 +43,8 @@ public class GroupListItem implements ParentListItem {
     private String name;
     private GroupBook mGroupBook;
     private boolean  initiallyExpanded;
-    //TODO: move into GroupBook to persist to make possible order by it
+    private int id;
+
 
 
     List<Book> mChildItemList;
@@ -50,19 +52,36 @@ public class GroupListItem implements ParentListItem {
     private GroupListItem(){
         name=null;
         initiallyExpanded=true;
+        id=-1;
     }
 
     GroupListItem(GroupBook groupBook){
         mGroupBook=groupBook;
         name=mGroupBook.getDisplayName();
         initiallyExpanded=false;
-
+        id=groupBook.getId();
     }
 
     GroupListItem(String name){
         this.name=name;
         initiallyExpanded=true;
+        id=-2;
+    }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        GroupListItem that = (GroupListItem) o;
+
+        return id == that.id;
+
+    }
+
+    @Override
+    public int hashCode() {
+        return id;
     }
 
     public String getName() {

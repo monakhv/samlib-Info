@@ -95,14 +95,15 @@ public class Book implements Serializable {
         mGroupBook = new GroupBook(a,bookMatcher.group(4));
 
         form = bookMatcher.group(5);
-        if (form.equalsIgnoreCase("")) {
-            form = null;
-        }
+//        if (form.equalsIgnoreCase("")) {
+//            form = null;
+//        }
         description = bookMatcher.group(7);
         if (description == null){
             description=" ";//space for compatibility with old method
         }
         description = description.replaceAll("\"", "&quot;");
+        description = description.replaceAll("\'", "&quot;");//just for compatibility
 
     }
 

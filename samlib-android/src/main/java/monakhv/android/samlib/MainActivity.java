@@ -1,6 +1,8 @@
 package monakhv.android.samlib;
 
 
+import android.app.AlarmManager;
+import android.app.PendingIntent;
 import android.content.*;
 
 
@@ -656,11 +658,14 @@ public class MainActivity extends MyBaseAbstractActivity implements
     }
 
     private void restartApp() {
-        Intent i = getBaseContext().getPackageManager()
-                .getLaunchIntentForPackage(getBaseContext().getPackageName());
-
-        i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        finish();
-        startActivity(i);
+        restart(100);
     }
+
+    private void restart(int delay) {
+        PendingIntent intent = PendingIntent.getActivity(this.getBaseContext(), 0, new Intent(getIntent()),PendingIntent.FLAG_ONE_SHOT);
+        AlarmManager manager = (AlarmManager) this.getSystemService(Context.ALARM_SERVICE);
+        manager.set(AlarmManager.RTC, System.currentTimeMillis() + delay, intent);
+        System.exit(2);
+    }
+
 }
