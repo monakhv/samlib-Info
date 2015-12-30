@@ -197,16 +197,6 @@ public class Settings extends AbstractSettings {
         return new ProxyData(proxyHost, proxyPort, proxyUser, proxyPassword);
     }
 
-    @Override
-    public void log(String debugTag, String s) {
-
-    }
-
-    @Override
-    public void log(String debugTag, String s, Throwable e) {
-
-    }
-
 
     @Override
     public File getDataDirectory() {

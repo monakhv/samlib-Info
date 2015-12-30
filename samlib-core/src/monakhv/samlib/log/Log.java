@@ -21,34 +21,36 @@ import monakhv.samlib.data.AbstractSettings;
  */
 public class Log {
     protected static AbstractLogger logger;
-    protected static AbstractSettings settingsHelper;
+
 
     public static void  checkInit(AbstractLogger log,AbstractSettings sh){
-        if (logger == null || settingsHelper == null){
+        if (logger == null ){
             logger=log;
-            settingsHelper=sh;
         }
     }
 
+    public static void  forceInit(AbstractLogger log,AbstractSettings sh){
+       logger=log;
+    }
     public static void v (String tag, String msg) {
         logger.verbose(tag,msg);
-        settingsHelper.log(tag,msg);
+
     }
     public static void d (String tag, String msg) {
         logger.debug(tag, msg);
-        settingsHelper.log(tag,msg);
+
     }
     public static void i (String tag, String msg) {
         logger.info(tag, msg);
-        settingsHelper.log(tag,msg);
+
     }
     public static void w (String tag, String msg) {
         logger.warn(tag, msg);
-        settingsHelper.log(tag, msg);
+
     }
     public static void e (String tag, String msg) {
         logger.error(tag, msg);
-        settingsHelper.log(tag, msg);
+
     }
 
     public static void v (String tag, String msg,Throwable ex) {
@@ -59,14 +61,11 @@ public class Log {
     }
     public static void i (String tag, String msg,Throwable ex) {
         logger.info(tag,msg,ex);
-        settingsHelper.log(tag, msg,ex);
     }
     public static void w (String tag, String msg,Throwable ex) {
         logger.warn(tag,msg,ex);
-        settingsHelper.log(tag, msg,ex);
     }
     public static void e (String tag, String msg,Throwable ex) {
         logger.error(tag,msg,ex);
-        settingsHelper.log(tag,msg,ex);
     }
 }
