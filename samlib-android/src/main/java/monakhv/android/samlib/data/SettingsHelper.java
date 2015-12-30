@@ -43,6 +43,10 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 
 
+import ch.qos.logback.classic.LoggerContext;
+import ch.qos.logback.classic.encoder.PatternLayoutEncoder;
+import ch.qos.logback.classic.spi.ILoggingEvent;
+import ch.qos.logback.core.FileAppender;
 import monakhv.android.samlib.R;
 import monakhv.android.samlib.receiver.UpdateReceiver;
 import monakhv.samlib.data.AbstractSettings;
@@ -50,6 +54,8 @@ import monakhv.samlib.db.SQLController;
 import monakhv.samlib.db.entity.Book;
 import monakhv.samlib.db.entity.SamLibConfig;
 import monakhv.samlib.http.ProxyData;
+import org.slf4j.LoggerFactory;
+
 
 /**
  * @author monakhv
@@ -66,14 +72,38 @@ public class SettingsHelper extends AbstractSettings implements SharedPreference
     private static final String LIGHT = "LIGHT";
     private static final String DATE_FORMAT_DEBUG = "dd-MM-yyyy HH:mm:ss";
     private static final String DEBUG_FILE = SQLController.DB_NAME + ".log";
+    private static HashMap<String,org.slf4j.Logger> logger;
 
 
     public SettingsHelper(Context context) {
         this.context = context;
         this.prefs = context.getSharedPreferences(PREFS_NAME, 0);
         monakhv.samlib.log.Log.checkInit(new Logger(), this);
-
     }
+
+    private void initLogger() {
+        LoggerContext lc = (LoggerContext) LoggerFactory.getILoggerFactory();
+        lc.reset();
+
+        // setup FileAppender
+        PatternLayoutEncoder encoder1 = new PatternLayoutEncoder();
+        encoder1.setContext(lc);
+        encoder1.setPattern("%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n");
+        encoder1.start();
+        FileAppender<ILoggingEvent> fileAppender = new FileAppender<ILoggingEvent>();
+        fileAppender.setContext(lc);
+        File save = new File(getDataDirectory(), DEBUG_FILE);
+        fileAppender.setFile(save.getAbsolutePath());
+        fileAppender.setEncoder(encoder1);
+        fileAppender.setPrudent(true);
+        fileAppender.setLazy(false);
+        fileAppender.start();
+        ch.qos.logback.classic.Logger root = (ch.qos.logback.classic.Logger) LoggerFactory.getLogger(org.slf4j.Logger.ROOT_LOGGER_NAME);
+        root.addAppender(fileAppender);
+
+        logger = new HashMap<>();
+    }
+
 
     /**
      * unconditionally request backup data
@@ -369,6 +399,16 @@ public class SettingsHelper extends AbstractSettings implements SharedPreference
 
     }
 
+    private org.slf4j.Logger getLogger(String tag){
+        if (logger.containsKey(tag)){
+            return logger.get(tag);
+        }
+        else {
+            org.slf4j.Logger log = LoggerFactory.getLogger(tag);
+            logger.put(tag,log);
+            return log;
+        }
+    }
     /**
      * Log output
      *
@@ -378,40 +418,20 @@ public class SettingsHelper extends AbstractSettings implements SharedPreference
      */
     public void log(String tag, String msg, Throwable ex) {
         if (getDebugFlag()) {
-            SimpleDateFormat df = new SimpleDateFormat(DATE_FORMAT_DEBUG);
-            File save = new File(getDataDirectory(), DEBUG_FILE);
-            if (! save.exists()){
-                try {
-                    save.createNewFile();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+            if (logger == null){
+                initLogger();
             }
-            FileOutputStream dst;
-            Date date = Calendar.getInstance().getTime();
-
-            try {
-                dst = new FileOutputStream(save, true);
-                PrintStream ps = new PrintStream(dst);
-                ps.println(df.format(date) + "  " + tag + " " + msg);
-                if (ex != null) {
-                    ex.printStackTrace(ps);
-                }
-                ps.flush();
-                dst.flush();
-                ps.close();
-                dst.close();
-            } catch (Exception ex1) {
-                Log.e(DEBUG_TAG, "Log save error", ex1);
-            }
-
+          getLogger(tag).info(msg,ex);
         }
     }
 
 
     public void log(String tag, String msg) {
         if (getDebugFlag()) {
-            log(tag, msg, null);
+            if (logger == null){
+                initLogger();
+            }
+            getLogger(tag).info(msg);
         }
     }
 
