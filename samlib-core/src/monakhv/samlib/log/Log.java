@@ -32,9 +32,11 @@ public class Log {
 
     public static void v (String tag, String msg) {
         logger.verbose(tag,msg);
+        settingsHelper.log(tag,msg);
     }
     public static void d (String tag, String msg) {
         logger.debug(tag, msg);
+        settingsHelper.log(tag,msg);
     }
     public static void i (String tag, String msg) {
         logger.info(tag, msg);
