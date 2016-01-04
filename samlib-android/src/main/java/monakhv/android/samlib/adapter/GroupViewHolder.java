@@ -20,6 +20,7 @@ package monakhv.android.samlib.adapter;
 
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import com.bignerdranch.expandablerecyclerview.ViewHolder.ParentViewHolder;
 import monakhv.android.samlib.R;
@@ -32,10 +33,12 @@ import monakhv.android.samlib.R;
 public class GroupViewHolder extends ParentViewHolder {
     public TextView groupTitle,bookNumber;
     public ImageView icon;
+    public RelativeLayout rowLayout;
     public GroupViewHolder(View itemView) {
         super(itemView);
         groupTitle = (TextView) itemView.findViewById(R.id.group_title);
         icon = (ImageView) itemView.findViewById(R.id.group_icon);
         bookNumber = (TextView) itemView.findViewById(R.id.group_number);
+        rowLayout = (RelativeLayout) itemView.findViewById(R.id.group_row);
     }
 }

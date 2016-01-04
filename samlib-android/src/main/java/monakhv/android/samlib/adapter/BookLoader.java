@@ -65,6 +65,7 @@ public class BookLoader extends AbstractLoader<GroupListItem> {
             }
             GroupListItem newGrp = new GroupListItem(mContext.getString(R.string.group_book_new));
             newGrp.mChildItemList=authorController.getBookController().getAllNew(a, order);
+            newGrp.newNumber=newGrp.mChildItemList.size();
             res.add(newGrp);
 
             List<GroupBook> rr = authorController.getGroupBookController().getByAuthor(a);
@@ -72,6 +73,8 @@ public class BookLoader extends AbstractLoader<GroupListItem> {
             if (rr.isEmpty()) {
 
                 gr.mChildItemList = authorController.getBookController().getAll(a, order);
+                gr.setName(mContext.getString(R.string.group_book_all));
+                gr.newNumber=newGrp.newNumber;
                 res.add(gr);
             } else {
                 for (GroupBook groupBook : rr) {

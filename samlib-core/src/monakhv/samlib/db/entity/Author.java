@@ -29,6 +29,7 @@ import monakhv.samlib.log.Log;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -211,6 +212,7 @@ public class Author  implements Serializable{
 
         boolean res=false;
 
+        HashMap<String,GroupBook> gbCache = new HashMap<>();
         //Group Book check out cycle on new Group
         for (GroupBook gb : newA.mGroupBooks){
             int idx = mGroupBooks.indexOf(gb);
@@ -218,12 +220,14 @@ public class Author  implements Serializable{
             if (idx == -1){
                 gb.setAuthor(this);
                 mGroupBooks.add(gb);//add new group
+                gbCache.put(gb.getName(),gb);
                 res = true;
             }
             else {
                 GroupBook g = mGroupBooks.get(idx);
                 g.mSqlOperation=SqlOperation.NONE;
                 mGroupBooks.set(idx,g);
+                gbCache.put(g.getName(),g);
             }
         }
 
@@ -236,6 +240,7 @@ public class Author  implements Serializable{
                 res = true;
                 b.setAuthor(this);
                 books.add(b);
+                gbCache.get(b.mGroupBook.getName()).addNew();
             }
             else {//old book
                 Book ob =books.get(idx);
@@ -270,6 +275,9 @@ public class Author  implements Serializable{
 
 
                 books.set(idx,ob);
+                if (ob.isIsNew()){
+                    gbCache.get(ob.mGroupBook.getName()).addNew();
+                }
 
             }
         }

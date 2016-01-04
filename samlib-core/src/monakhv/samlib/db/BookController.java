@@ -312,11 +312,15 @@ public class BookController {
     public void markRead(Book book) {
         book.setIsNew(false);
         update(book);
+
+        grpCtl.updateNewFlag(book,false);
     }
 
     public void markUnRead(Book book) {
         book.setIsNew(true);
         update(book);
+
+        grpCtl.updateNewFlag(book,true);
     }
 
     /**

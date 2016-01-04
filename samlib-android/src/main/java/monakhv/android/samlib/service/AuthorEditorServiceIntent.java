@@ -31,7 +31,7 @@ import monakhv.samlib.service.SamlibService;
 public class AuthorEditorServiceIntent extends MyServiceIntent {
     public static final String RECEIVER_FILTER="AuthorEditorServiceIntent_RECEIVER_FILTER";
 
-    private static final String DEBUG_TAG="AddAuthorServiceIntent";
+    private static final String DEBUG_TAG="AuthorEditorServiceIntent";
     private static final String EXTRA_ADD_AUTHOR_DATA="AddAuthorServiceIntent_EXTRA_ADD_AUTHOR_DATA";
     private static final String EXTRA_OBJECT_ID ="AddAuthorServiceIntent_EXTRA_OBJECT_ID";
     public static final String EXTRA_ACTION_TYPE="AddAuthorServiceIntent_EXTRA_ACTION_TYPE";
@@ -52,7 +52,7 @@ public class AuthorEditorServiceIntent extends MyServiceIntent {
         Context context = this.getApplicationContext();
         SamlibService service = new SamlibService(getHelper(),new AndroidGuiUpdater(context,0), new SettingsHelper(context));
 
-        Log.d(DEBUG_TAG, "Got intent");
+        Log.d(DEBUG_TAG, "Got intent for action: "+action);
 
 
         if (action.equalsIgnoreCase(SamlibService.ACTION_ADD)){

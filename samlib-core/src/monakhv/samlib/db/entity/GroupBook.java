@@ -105,7 +105,19 @@ public class GroupBook  implements Serializable{
 
     public void addNew(){
         ++mNewNumber;
-        mSqlOperation=SqlOperation.UPDATE;
+        if (mSqlOperation==SqlOperation.NONE || mSqlOperation==SqlOperation.DELETE){
+            mSqlOperation=SqlOperation.UPDATE;
+        }
+    }
+
+    public void delNew(){
+        if (mNewNumber == 0){
+            return;
+        }
+        --mNewNumber;
+        if (mSqlOperation==SqlOperation.NONE || mSqlOperation==SqlOperation.DELETE){
+            mSqlOperation=SqlOperation.UPDATE;
+        }
     }
 
     public String getDisplayName() {

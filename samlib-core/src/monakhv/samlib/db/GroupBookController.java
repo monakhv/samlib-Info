@@ -21,6 +21,7 @@ package monakhv.samlib.db;
 import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.stmt.QueryBuilder;
 import monakhv.samlib.db.entity.Author;
+import monakhv.samlib.db.entity.Book;
 import monakhv.samlib.db.entity.GroupBook;
 import monakhv.samlib.log.Log;
 
@@ -93,6 +94,27 @@ public class GroupBookController {
         }
     }
 
+    public int updateNewFlag(Book book, boolean flag){
+        try {
+            GroupBook groupBook = dao.queryForId(book.getGroupBook().getId());
+            if (groupBook == null){
+                Log.w(DEBUG_TAG,"updateNewFlag: can not find the group for book: "+book.getUri());
+                return  -1;
+            }
+            if (flag) {
+                groupBook.addNew();
+            }
+            else {
+                groupBook.delNew();
+            }
+            return update(groupBook);
+        } catch (SQLException e) {
+            Log.e(DEBUG_TAG,"updateNewFlag: update error ",e);
+            return -1;
+        }
+
+    }
+
     /**
      *  get List of Group for given Author
      * @param author Author object
@@ -125,7 +147,7 @@ public class GroupBookController {
         }
 
         if (res.size() != 1){
-            Log.e(DEBUG_TAG,"getByAuthorAndName: result number error "+res.size()+"name >"+name+"<");
+            Log.e(DEBUG_TAG,"getByAuthorAndName: result number error "+res.size()+"  name >"+name+"<");
             return null;
         }
         return res.get(0);

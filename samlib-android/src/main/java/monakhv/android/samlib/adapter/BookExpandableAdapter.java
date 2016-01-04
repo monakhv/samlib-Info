@@ -87,25 +87,37 @@ public class BookExpandableAdapter extends ExpandableRecyclerAdapter<GroupViewHo
         GroupListItem gi = (GroupListItem) parentListItem;
         groupViewHolder.groupTitle.setText(gi.getName());
 
-        if (gi.getName() == null || gi.getChildItemList().isEmpty()) {
-            Log.i(DEBUG_TAG,"onBindParentViewHolder: empty for group "+gi.getName()+" size "+gi.getChildItemList().size());
-            groupViewHolder.groupTitle.setVisibility(View.GONE);
-            groupViewHolder.icon.setVisibility(View.GONE);
-            groupViewHolder.bookNumber.setVisibility(View.GONE);
-        }
-        else {
+//        if (gi.getName() == null || gi.getChildItemList().isEmpty()) {
+//            Log.i(DEBUG_TAG,"onBindParentViewHolder: empty for group "+gi.getName()+" size "+gi.getChildItemList().size());
+//            groupViewHolder.groupTitle.setVisibility(View.GONE);
+//            groupViewHolder.icon.setVisibility(View.GONE);
+//            groupViewHolder.bookNumber.setVisibility(View.GONE);
+//            groupViewHolder.rowLayout.setVisibility(View.GONE);
+//
+//        }
+
             groupViewHolder.groupTitle.setText(gi.getName());
-            groupViewHolder.bookNumber.setText(mContext.getString(R.string.group_book_number)+" "+gi.getChildItemList().size());
+            if (gi.newNumber == 0){
+                groupViewHolder.bookNumber.setText(mContext.getString(R.string.group_book_number)+" "+gi.getChildItemList().size());
+            }
+            else {
+                groupViewHolder.bookNumber.setText(mContext.getString(R.string.group_book_number)+" "+gi.getChildItemList().size()
+                +" "
+                +mContext.getString(R.string.group_book_number_new)
+                +" "
+                +gi.newNumber);
+            }
 
 
-            if ( gi.getGroupBook() != null &&  gi.getGroupBook().isHidden()){
+
+            if ( gi.hidden){
                 groupViewHolder.groupTitle.setAlpha(0.5f);
             }
             else {
                 groupViewHolder.groupTitle.setAlpha(1.f);
             }
 
-        }
+
 
     }
 
@@ -203,18 +215,29 @@ public class BookExpandableAdapter extends ExpandableRecyclerAdapter<GroupViewHo
 
     }
 
-    private void updateBook(Book book) {
+    private void updateBook(Book book,boolean isNew) {
 
         int parentListItemCount = getParentItemList().size();
         ParentListItem parentListItem;
         for (int i = 1; i < parentListItemCount; i++) {
             parentListItem = getParentItemList().get(i);
             GroupListItem gi = (GroupListItem) parentListItem;
+            if (isNew){
+                ++gi.newNumber;
+            }
+            else {
+                if (gi.newNumber>0){
+                    --gi.newNumber;
+                }
+
+            }
+
             int idx = gi.getChildItemList().indexOf(book);
             if (idx != -1){
 
                 gi.getChildItemList().set(idx,book);
                 notifyChildItemChanged(i,idx);
+                notifyParentItemChanged(i);
 
             }
 
@@ -228,11 +251,14 @@ public class BookExpandableAdapter extends ExpandableRecyclerAdapter<GroupViewHo
 
         int book_idx = getParentItemList().get(0).getChildItemList().indexOf(book);
         if (book_idx != -1){
-            getParentItemList().get(0).getChildItemList().remove(book_idx);
+
+            GroupListItem gi = (GroupListItem) getParentItemList().get(0);
+            gi.getChildItemList().remove(book_idx);
+            gi.newNumber=gi.getChildItemList().size();
             notifyChildItemRemoved(0,book_idx);
             notifyParentItemChanged(0);
         }
-        updateBook(book);
+        updateBook(book,false);
     }
 
     private void makeSetNew( Book b) {
@@ -240,11 +266,12 @@ public class BookExpandableAdapter extends ExpandableRecyclerAdapter<GroupViewHo
 
         GroupListItem gi = (GroupListItem) getParentItemList().get(0);
         gi.getChildItemList().add(book);
+        gi.newNumber=gi.getChildItemList().size();
         notifyChildItemInserted(0,gi.getChildItemList().size()-1);
         notifyParentItemChanged(0);
 
 
-        updateBook(book);
+        updateBook(book,true);
         notifyParentItemChanged(0);
 
 

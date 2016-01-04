@@ -24,7 +24,9 @@ limitations under the License.
     
     <string name="update_update">Обновление</string>
     <string name="group_book_number">Колличество книг:</string>
+    <string name="group_book_number_new">из них новых:</string>
     <string name="group_book_new">Новые</string>
+    <string name="group_book_all">Все</string>
     
     <string name="dialog_title_filtr">Категория авторов</string>    
     <string name="dialog_title_file">Выбор файла</string>

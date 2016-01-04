@@ -69,14 +69,15 @@ public class AuthorController implements AbstractController<Author> {
      * @return id of the Author
      */
     public int markRead(Author a) {
-        loadBooks(a);
+
         a.setIsNew(false);
         int ires = update(a);
 
+        loadBooks(a);
         for (Book book : a.getBooks()) {
             if (book.isIsNew()) {
-                book.setIsNew(false);
-                bookCtl.update(book);
+
+                bookCtl.markRead(book);
             }
         }
 
