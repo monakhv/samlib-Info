@@ -49,11 +49,12 @@ public class BookLoader extends AbstractLoader<GroupListItem> {
     public List<GroupListItem> loadInBackground() {
 
         List<GroupListItem> res = new ArrayList<>();
-        GroupListItem gr = GroupListItem.BLIND;
+        GroupListItem gr = new GroupListItem();
 
         if (id == SamLibConfig.SELECTED_BOOK_ID) {//load selected book
 
             gr.mChildItemList = authorController.getBookController().getSelected(order);
+            gr.setName(null);
             res.add(gr);
             return res;
         } else {//load book for the author

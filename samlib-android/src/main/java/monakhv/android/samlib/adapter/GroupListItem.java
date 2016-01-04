@@ -33,7 +33,7 @@ import java.util.List;
  * Created by monakhv on 28.12.15.
  */
 public class GroupListItem implements ParentListItem,Serializable {
-    public static final GroupListItem BLIND=new GroupListItem();
+
     public static final List<GroupListItem> EMPTY;
 
 
@@ -51,7 +51,7 @@ public class GroupListItem implements ParentListItem,Serializable {
 
     List<Book> mChildItemList;
 
-    private GroupListItem(){
+    GroupListItem(){
         name=null;
         initiallyExpanded=true;
         mGroupBook=new GroupBook();
