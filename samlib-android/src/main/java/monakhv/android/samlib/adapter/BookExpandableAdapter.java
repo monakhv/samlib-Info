@@ -87,25 +87,26 @@ public class BookExpandableAdapter extends ExpandableRecyclerAdapter<GroupViewHo
         GroupListItem gi = (GroupListItem) parentListItem;
         groupViewHolder.groupTitle.setText(gi.getName());
 
-//        if (gi.getName() == null || gi.getChildItemList().isEmpty()) {
-//            Log.i(DEBUG_TAG,"onBindParentViewHolder: empty for group "+gi.getName()+" size "+gi.getChildItemList().size());
-//            groupViewHolder.groupTitle.setVisibility(View.GONE);
-//            groupViewHolder.icon.setVisibility(View.GONE);
-//            groupViewHolder.bookNumber.setVisibility(View.GONE);
-//            groupViewHolder.rowLayout.setVisibility(View.GONE);
-//
-//        }
+        if ( gi.getName() == null || gi.getChildItemList().isEmpty()) {
+            Log.i(DEBUG_TAG,"onBindParentViewHolder: empty for group "+gi.getName()+" size "+gi.getChildItemList().size());
+            groupViewHolder.groupTitle.setVisibility(View.GONE);
+            groupViewHolder.icon.setVisibility(View.GONE);
+            groupViewHolder.bookNumber.setVisibility(View.GONE);
+            groupViewHolder.rowLayout.setVisibility(View.GONE);
+            groupViewHolder.rowLayout.setPadding(0,0,0,0);
 
+        }
+        else {
             groupViewHolder.groupTitle.setText(gi.getName());
             if (gi.newNumber == 0){
                 groupViewHolder.bookNumber.setText(mContext.getString(R.string.group_book_number)+" "+gi.getChildItemList().size());
             }
             else {
                 groupViewHolder.bookNumber.setText(mContext.getString(R.string.group_book_number)+" "+gi.getChildItemList().size()
-                +" "
-                +mContext.getString(R.string.group_book_number_new)
-                +" "
-                +gi.newNumber);
+                        +" "
+                        +mContext.getString(R.string.group_book_number_new)
+                        +" "
+                        +gi.newNumber);
             }
 
 
@@ -116,8 +117,7 @@ public class BookExpandableAdapter extends ExpandableRecyclerAdapter<GroupViewHo
             else {
                 groupViewHolder.groupTitle.setAlpha(1.f);
             }
-
-
+        }
 
     }
 
