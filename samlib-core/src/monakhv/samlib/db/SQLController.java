@@ -164,8 +164,8 @@ public class SQLController {
     public static final String ALTER6_1=  "ALTER TABLE "+TABLE_BOOKS+" ADD COLUMN "+COL_BOOK_OPT+" INTEGER;";
     public static final String ALTER7_1 = "ALTER TABLE   "+TABLE_AUTHOR+" ADD COLUMN  "+COL_ALL_TAGS_NAME+" text;";
     public static final String ALTER8_1=  "ALTER TABLE "+TABLE_BOOKS+" ADD COLUMN "+COL_BOOK_DELTA+" INTEGER;";
-    public static final String ALTER8_2 = "UPDATE   "+TABLE_BOOKS+" SET  "+COL_BOOK_DELTA+" =0;";
-    public static final String ALTER8_3 = "UPDATE   "+TABLE_BOOKS+" SET  "+COL_BOOK_GROUP_ID+" =0;";
+    public static final String UPDATE8_2 = "UPDATE   "+TABLE_BOOKS+" SET  "+COL_BOOK_DELTA+" =0;";
+    public static final String UPDATE8_3 = "UPDATE   "+TABLE_BOOKS+" SET  "+COL_BOOK_GROUP_ID+" =0;";
 
 
             

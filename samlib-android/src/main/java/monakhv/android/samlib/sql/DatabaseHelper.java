@@ -2,6 +2,7 @@ package monakhv.android.samlib.sql;
 
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
+import android.util.Log;
 import com.j256.ormlite.android.apptools.OrmLiteSqliteOpenHelper;
 import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.stmt.QueryBuilder;
@@ -11,7 +12,7 @@ import monakhv.android.samlib.R;
 import monakhv.samlib.db.DaoBuilder;
 import monakhv.samlib.db.SQLController;
 import monakhv.samlib.db.entity.*;
-import monakhv.samlib.log.Log;
+
 
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -122,15 +123,14 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper implements DaoBuilde
      * @throws SQLException
      */
     private void upgradeSchema7To8(ConnectionSource connectionSource) throws SQLException {
-        android.util.Log.d("upgradeSchema7To8", "Begin upgrade schema 7-8");
+        Log.d("upgradeSchema7To8", "Begin upgrade schema 7-8");
         TableUtils.createTable(connectionSource, GroupBook.class);//create additional table
         TableUtils.createTable(connectionSource, SelectedBook.class);//create additional table
         getAuthorDao();
         authorDao.executeRawNoArgs(SQLController.DB_IDX51);//create additional index
         authorDao.executeRawNoArgs(SQLController.DB_IDX52);//create additional index
         authorDao.executeRawNoArgs(SQLController.ALTER8_1);
-        authorDao.executeRawNoArgs(SQLController.ALTER8_2);
-        authorDao.executeRawNoArgs(SQLController.ALTER8_3);
+
 
         QueryBuilder<Book, Integer> qb = getBookDao().queryBuilder();
         int SELECTED_GROUP_ID = 1;
@@ -146,6 +146,9 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper implements DaoBuilde
             getSelectedBookDao().create(sb);
         }
 
+        authorDao.executeRawNoArgs(SQLController.UPDATE8_2);
+        authorDao.executeRawNoArgs(SQLController.UPDATE8_3);
+
     }
 
     /**
@@ -154,7 +157,7 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper implements DaoBuilde
      */
     private void upgradeSchema4To5() throws SQLException {
 
-        android.util.Log.d("upgradeSchema4To5", "Begin upgrade schema 4->5");
+        Log.d("upgradeSchema4To5", "Begin upgrade schema 4->5");
 
         QueryBuilder<Author, Integer> qb = authorDao.queryBuilder();
         List<Author> aa = authorDao.query(qb.prepare());
