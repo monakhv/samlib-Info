@@ -123,7 +123,9 @@ public class SamlibService {
                 return false;
             }
             if (a.update(newA)) {//we have update for the author
-                updatedAuthors.add(a);
+                if (a.isIsNew()){
+                    updatedAuthors.add(a);//sometimes we need update if the author has no new books
+                }
                 Log.i(DEBUG_TAG, "We need update author: " + a.getName());
                 settingsHelper.log(DEBUG_TAG, "We need update author: " + a.getName());
                 authorController.update(a);
@@ -147,8 +149,8 @@ public class SamlibService {
                 settingsHelper.log(DEBUG_TAG, "runUpdate: sleep " + sleep + " seconds");
                 TimeUnit.SECONDS.sleep(sleep);
             } catch (InterruptedException e) {
-                Log.i(DEBUG_TAG, "Sleep interrupted exiting", e);
-                settingsHelper.log(DEBUG_TAG, "Sleep interrupted exiting", e);
+                Log.i(DEBUG_TAG, "runUpdate: Sleep interrupted exiting", e);
+                settingsHelper.log(DEBUG_TAG, "runUpdate: Sleep interrupted exiting", e);
                 guiUpdate.finishUpdate(false, updatedAuthors);
                 return false;
             }
@@ -251,7 +253,7 @@ public class SamlibService {
      * @param urls list of author urls
      */
     public void makeAuthorAdd(ArrayList<String> urls) {
-
+        Random rnd = new Random(Calendar.getInstance().getTimeInMillis());
 
         for (String url : urls) {
             Author a = loadAuthor(authorController, url);
@@ -259,6 +261,24 @@ public class SamlibService {
                 author_id = authorController.insert(a);
                 ++numberOfAdded;
                 guiUpdate.makeUpdate(false);
+            }
+            long sleep;
+
+            if (settingsHelper.isUpdateDelay()) {
+                sleep = rnd.nextInt(SLEEP_DELAY_MAX - SLEEP_DELAY_MIN + 1) + SLEEP_DELAY_MIN;
+            } else {
+                sleep = SLEEP_INTERVAL_SECONDS;
+            }
+
+            try {
+                Log.d(DEBUG_TAG, "makeAuthorAdd: sleep " + sleep + " seconds");
+                settingsHelper.log(DEBUG_TAG, "makeAuthorAdd: sleep " + sleep + " seconds");
+                TimeUnit.SECONDS.sleep(sleep);
+            } catch (InterruptedException e) {
+                Log.i(DEBUG_TAG, "makeAuthorAdd: Sleep interrupted exiting", e);
+                settingsHelper.log(DEBUG_TAG, "makeAuthorAdd: Sleep interrupted exiting", e);
+                guiUpdate.finishUpdate(false, updatedAuthors);
+                return ;
             }
         }
 
