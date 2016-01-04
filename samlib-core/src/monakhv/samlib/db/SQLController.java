@@ -70,7 +70,7 @@ public class SQLController {
 
     public static final String COL_GROUP_IS_HIDDEN                ="IS_HIDDEN";
     public static final String COL_GROUP_AUTHOR_ID              ="AUTHOR_ID";
-    public static final String COL_GROUP_isnew                        ="ISNEW";
+    public static final String COL_GROUP_NEW_NUMBER                        ="NEW_NUMBER";
     public static final String COL_GROUP_NAME                        = "NAME";
     public static final String COL_GROUP_DISPLAY_NAME        = "DISPLAY_NAME";//to
 
@@ -112,7 +112,7 @@ public class SQLController {
     public static final String DB_CREATE_GROUP_BOOK ="create table if not exists "+TABLE_GROUP_BOOK+"( "+
             COL_ID+"  integer primary key autoincrement, "+
             COL_GROUP_AUTHOR_ID+" INTEGER NOT NULL, "+
-            COL_GROUP_isnew+" BOOLEAN DEFAULT '0' NOT NULL,"+
+            COL_GROUP_NEW_NUMBER+" INTEGER  NOT NULL,"+
             COL_GROUP_IS_HIDDEN+" BOOLEAN DEFAULT '0' NOT NULL,"+
             COL_GROUP_NAME   +" text,  "+
             COL_GROUP_DISPLAY_NAME   +" text "+

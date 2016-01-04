@@ -43,8 +43,8 @@ public class GroupBook  implements Serializable{
     protected String name;
     @DatabaseField(columnName = SQLController.COL_GROUP_DISPLAY_NAME)
     protected String displayName;
-    @DatabaseField(columnName = SQLController.COL_GROUP_isnew)
-    protected boolean isNew = false;
+    @DatabaseField(columnName = SQLController.COL_GROUP_NEW_NUMBER,canBeNull = false)
+    protected int mNewNumber = 0;
     @DatabaseField(columnName = SQLController.COL_GROUP_IS_HIDDEN)
     protected boolean hidden = false;
     SqlOperation mSqlOperation;
@@ -52,7 +52,7 @@ public class GroupBook  implements Serializable{
 
     public GroupBook(){
         mSqlOperation=SqlOperation.DELETE;
-        isNew=false;
+        mNewNumber=0;
     }
 
     public GroupBook(Author author, String name){
@@ -95,12 +95,17 @@ public class GroupBook  implements Serializable{
         this.name = name;
     }
 
-    public boolean isNew() {
-        return isNew;
+    public int getNewNumber() {
+        return mNewNumber;
     }
 
-    public void setNew(boolean aNew) {
-        isNew = aNew;
+    public void setNewNumber(int mNewNumber) {
+        this.mNewNumber = mNewNumber;
+    }
+
+    public void addNew(){
+        ++mNewNumber;
+        mSqlOperation=SqlOperation.UPDATE;
     }
 
     public String getDisplayName() {
