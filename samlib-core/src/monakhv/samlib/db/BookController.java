@@ -12,7 +12,7 @@ import monakhv.samlib.log.Log;
 
 
 import java.sql.SQLException;
-import java.util.ArrayList;
+
 import java.util.HashMap;
 import java.util.List;
 
@@ -68,21 +68,23 @@ public class BookController {
 
     public void operate(Author author) {
         HashMap<String, GroupBook> groupBookHashMap = new HashMap<>();//cache for GroupBook lookup
-        List<Book> books = new ArrayList<>();
+
         for (Book book : author.getBooks()) {
             Log.i(DEBUG_TAG, "Book: " + book.getUri() + " - " + book.isIsNew() + " Operation: " + book.getSqlOperation().name());
             switch (book.getSqlOperation()) {
                 case DELETE:
                     if (! book.isPreserve()){
-                        books.add(book);
-                        delete(books);
+
+                        delete(book);
                     }
                     break;
                 case UPDATE:
+                    book.setAuthor(author);
                     restoreGroup(author, book, groupBookHashMap);
                     update(book);
                     break;
                 case INSERT:
+                    book.setAuthor(author);
                     restoreGroup(author, book, groupBookHashMap);
                     insert(book);
                     break;
@@ -157,13 +159,13 @@ public class BookController {
     /**
      * Delete Book object
      *
-     * @param books objects to delete
+     * @param book objects to delete
      * @return id
      */
-    public int delete(List<Book> books) {
+    private int delete(Book book) {
         int res;
         try {
-            res = dao.delete(books);
+            res = dao.delete(book);
         } catch (SQLException e) {
             Log.e(DEBUG_TAG, "can not delete: ", e);
             return -1;

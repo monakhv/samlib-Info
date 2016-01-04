@@ -106,7 +106,7 @@ public class AuthorController implements AbstractController<Author> {
             return res ;
         }
 
-        grpCtl.operate(author.getGroupBooks());
+        grpCtl.operate(author);
         bookCtl.operate(author);
 
 
@@ -129,12 +129,13 @@ public class AuthorController implements AbstractController<Author> {
             return -1;
         }
 
-        //Insert book for the author
+        //Load Object from DB
         Author a = getByUrl(author.getUrl());
-        for (Book book : author.getBooks()) {
-            book.setAuthor(a);
-            bookCtl.insert(book);
-        }
+        a.setGroupBooks(author.getGroupBooks());//Groups to add
+        a.setBooks(author.getBooks());//Books to add
+
+        grpCtl.operate(a);//add Groups
+        bookCtl.operate(a);//add Books
         return a.getId();
     }
 
@@ -149,12 +150,13 @@ public class AuthorController implements AbstractController<Author> {
         loadBooks(author);
         loadGroupBooks(author);
         //Delete book of the author first
-        bookCtl.delete(author.getBooks());
+        bookCtl.operate(author);
+
 
         //Delete Tag2Author
         t2aCtl.deleteByAuthor(author);
 
-        grpCtl.delete(author.getGroupBooks());
+        grpCtl.operate(author);
 
         //Delete Author
 

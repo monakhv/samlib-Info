@@ -87,7 +87,7 @@ public class HttpClientController {
         proxy = settingsHelper.getProxy();
         proxy = settingsHelper.getProxy();
         setProxy(proxy);
-        //settingsHelper.setProxy(this);
+
     }
 
     public void cancelAll() {
@@ -104,7 +104,7 @@ public class HttpClientController {
      * @param a    Clear Author object
      * @return Author object
      * @throws java.io.IOException
-     * @throws monakhv.samlib.exception.SamlibParseException
+     * @throws SamlibParseException
      */
     public Author getAuthorByURL(String link, Author a) throws IOException, SamlibParseException, SamlibInterruptException {
 
@@ -171,13 +171,14 @@ public class HttpClientController {
      * @param page    number of page
      * @return Search Result
      * @throws IOException
-     * @throws monakhv.samlib.exception.SamlibParseException
+     * @throws SamlibParseException
      */
     public HashMap<String, ArrayList<AuthorCard>> searchAuthors(String pattern, int page) throws IOException, SamlibParseException, SamlibInterruptException {
         String str;
         try {
             str = getURL(slc.getSearchAuthorURL(pattern, page), new StringReader());
         } catch (NullPointerException ex) {
+            Log.w(DEBUG_TAG,"searchAuthors: Search error for pattern: "+pattern,ex);
             throw new SamlibParseException("Pattern: " + pattern);
         }
 

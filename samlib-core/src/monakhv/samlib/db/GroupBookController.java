@@ -26,13 +26,12 @@ import monakhv.samlib.log.Log;
 
 import java.sql.SQLException;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
  * Class to deal with GroupBook entity class
  *
- * Created by monakhv on 24.12.15.
+ * Created by Dmitry Monakhov on 24.12.15.
  */
 public class GroupBookController {
     private static final String DEBUG_TAG="GroupBookController";
@@ -41,19 +40,20 @@ public class GroupBookController {
        dao =sql.getGroupBookDao();
     }
 
-    public void operate(List<GroupBook> groups) {
+    public void operate(Author author) {
 
-        for (GroupBook groupBook : groups){
+        for (GroupBook groupBook : author.getGroupBooks()){
             Log.i(DEBUG_TAG,"Group: >"+groupBook.getName()+"< Operation: "+groupBook.getSqlOperation().name());
             switch (groupBook.getSqlOperation()) {
                 case DELETE:
-                    List<GroupBook> gg = new ArrayList<>();
-                    gg.add(groupBook);
-                    delete(gg);
+                    delete(groupBook);
                     break;
                 case UPDATE:
+                    groupBook.setAuthor(author);
+                    update(groupBook);
                     break;
                 case INSERT:
+                    groupBook.setAuthor(author);
                     insert(groupBook);
                     break;
                 case NONE:
@@ -73,13 +73,24 @@ public class GroupBookController {
         return res;
     }
 
-    public void delete(List<GroupBook> groupBooks) {
+    private int delete(GroupBook groupBook) {
         try {
-            dao.delete(groupBooks);
+            return dao.delete(groupBook);
         } catch (SQLException e) {
             Log.e(DEBUG_TAG,"delete: delete error",e);
+            return -1;
         }
 
+    }
+
+    private int update(GroupBook groupBook){
+        try {
+            return dao.update(groupBook);
+        } catch (SQLException e) {
+            Log.e(DEBUG_TAG,"update: update error",e);
+
+            return -1;
+        }
     }
 
     /**

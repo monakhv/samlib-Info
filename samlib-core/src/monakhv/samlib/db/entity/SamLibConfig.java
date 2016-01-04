@@ -18,6 +18,7 @@ package monakhv.samlib.db.entity;
 
 
 import monakhv.samlib.data.AbstractSettings;
+import monakhv.samlib.exception.SamlibParseException;
 import monakhv.samlib.log.Log;
 
 import java.io.BufferedReader;
@@ -79,7 +80,7 @@ public class SamLibConfig {
     private static final String     TMPL_ANUM="_ANUM_";
     private static final String     TMPL_PAGE="_PAGE_";
     private static final String     TMPL_PAGELEN ="_PAGELEN_";
-    private static final String     REQUEST_AUTHOR_DATA           = "/cgi-bin/areader?q=razdel&order=date&object=";
+    //private static final String     REQUEST_AUTHOR_DATA           = "/cgi-bin/areader?q=razdel&order=date&object=";
     private static final String     REQUEST_BOOK_TEXT                = "/cgi-bin/areader?q=book&object=";
     private static final String     REQUEST_AUTHOR_SEARCH      = "/cgi-bin/areader?q=alpha&anum=_ANUM_&page=_PAGE_&pagelen=_PAGELEN_";
     private static final String     REQUEST_INDEXDATE="indexdate.shtml";
@@ -209,10 +210,6 @@ public class SamLibConfig {
          * @param uu reduced author URL
          * @return  URL used to get author data from the site
          */
-        private String getAuthorRequestURL(String uu) {
-            return urlIP + REQUEST_AUTHOR_DATA +uu;
-
-        }
         private String getAuthorIndexDate(String uu) {
             return urlIP + uu+REQUEST_INDEXDATE;
         }
@@ -239,14 +236,22 @@ public class SamLibConfig {
          * @param page number of page
          * @return  URL to make search
          */
-        private String getSearchAuthorURL(String pattern,int page){
+        private String getSearchAuthorURL(String pattern,int page) throws SamlibParseException {
             //Log.i(DEBUG_TAG, "Got pattern: "+pattern);
             String res = urlIP+REQUEST_AUTHOR_SEARCH;
             //Log.i(DEBUG_TAG, "Template string: "+res);
             String first = pattern.substring(0, 1);
             first = first.toUpperCase();
-            //Log.i(DEBUG_TAG, "The first letter "+first);
-            //Log.i(DEBUG_TAG, "The code "+ABC.get(first));
+
+
+            if (!ABC.containsKey(first)){
+                Log.w(DEBUG_TAG,"Can not find Code for letter: "+first);
+                Log.d(DEBUG_TAG, "ABC length for keys: "+ABC.keySet().size()+" values: "+ABC.values().size());
+                Log.d(DEBUG_TAG,"Letter - 4 "+ABC_LETTER[4]);
+                Log.d(DEBUG_TAG, "The code "+ABC.get(first));
+                throw new SamlibParseException("Pattern: " + pattern);
+
+            }
             res = res.
                     replaceFirst(TMPL_ANUM, ABC.get(first)).
                     replaceFirst(TMPL_PAGE, String.valueOf(page)).
@@ -366,14 +371,6 @@ public class SamLibConfig {
      * @param a the author object to get data for
      * @return the list of url
      */
-    public List<String> getAuthorRequestURL(Author a) {
-        List<String> res = new ArrayList<>();
-        Iterator<SamIzdat> itr = getIterator();
-        while(itr.hasNext()){
-            res.add(itr.next().getAuthorRequestURL(a.getUrl()));
-        }
-        return res;
-    }
     public List<String> getAuthorIndexDate(Author a) {
         List<String> res = new ArrayList<>();
         Iterator<SamIzdat> itr = getIterator();
@@ -398,7 +395,7 @@ public class SamLibConfig {
      * @param page number of page
      * @return List of URL to make search
      */
-    public List<String> getSearchAuthorURL(String pattern,int page){
+    public List<String> getSearchAuthorURL(String pattern,int page) throws SamlibParseException {
         List<String> res = new ArrayList<>();
         Iterator<SamIzdat> itr = getIterator();
         while(itr.hasNext()){
