@@ -125,6 +125,7 @@ public class SamlibService {
             if (a.update(newA)) {//we have update for the author
                 if (a.isIsNew()){
                     updatedAuthors.add(a);//sometimes we need update if the author has no new books
+                    guiUpdate.makeUpdate(a);
                 }
                 Log.i(DEBUG_TAG, "We need update author: " + a.getName());
                 settingsHelper.log(DEBUG_TAG, "We need update author: " + a.getName());
@@ -134,7 +135,7 @@ public class SamlibService {
                     loadBook(a);
                 }
 
-                guiUpdate.makeUpdate(a);
+
             }
             long sleep;
 
