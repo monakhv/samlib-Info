@@ -24,7 +24,6 @@ import android.os.Binder;
 import android.os.IBinder;
 import android.os.PowerManager;
 import android.support.annotation.Nullable;
-import android.util.Log;
 import in.srain.cube.views.ptr.util.PrefsUtil;
 import monakhv.android.samlib.R;
 import monakhv.android.samlib.data.DataExportImport;
@@ -39,6 +38,7 @@ import monakhv.samlib.db.entity.Book;
 import monakhv.samlib.db.entity.SamLibConfig;
 import monakhv.samlib.db.entity.Tag;
 import monakhv.samlib.http.HttpClientController;
+import monakhv.samlib.log.Log;
 import monakhv.samlib.service.GuiUpdate;
 import monakhv.samlib.service.SamlibService;
 
@@ -162,7 +162,7 @@ public class UpdateLocalService extends MyService {
     private void makeUpdate(SamlibService.UpdateObjectSelector selector, int id) {
 
         if (isRun && (currentCaller == AndroidGuiUpdater.CALLER_IS_ACTIVITY)) {
-            Log.i(DEBUG_TAG, "Update already running exiting");
+            Log.i(DEBUG_TAG, "makeUpdate: Update already running exiting");
             return;
         }
         context = this.getApplicationContext();
@@ -183,7 +183,7 @@ public class UpdateLocalService extends MyService {
         String notificationTitle;
 
         if ((currentCaller == AndroidGuiUpdater.CALLER_IS_RECEIVER) && !SettingsHelper.haveInternetWIFI(context)) {
-            monakhv.samlib.log.Log.d(DEBUG_TAG, "Ignore update task - we have no internet connection");
+            Log.d(DEBUG_TAG, "makeUpdate: Ignore update task - we have no internet connection");
 
             return;
         }
@@ -196,9 +196,9 @@ public class UpdateLocalService extends MyService {
                 authors = new ArrayList<>();
                 authors.add(author);
                 notificationTitle = context.getString(R.string.notification_title_author) + " " + author.getName();
-                Log.i(DEBUG_TAG, "Check single Author: " + author.getName());
+                Log.i(DEBUG_TAG, "makeUpdate: Check single Author: " + author.getName());
             } else {
-                Log.e(DEBUG_TAG, "Can not find Author: " + id);
+                Log.e(DEBUG_TAG, "makeUpdate: Can not find Author: " + id);
                 return;
             }
         } else {//Check update for authors by TAG
@@ -216,11 +216,11 @@ public class UpdateLocalService extends MyService {
                 }
 
             }
-            Log.i(DEBUG_TAG, "selection index: " + id);
+            Log.i(DEBUG_TAG, "makeUpdate: selection index: " + id);
         }
         AndroidGuiUpdater guiUpdate = new AndroidGuiUpdater(context, currentCaller, notificationTitle);
         if (!SettingsHelper.haveInternet(context)) {
-            Log.e(DEBUG_TAG, "Ignore update - we have no internet connection");
+            Log.e(DEBUG_TAG, "makeUpdate: Ignore update - we have no internet connection");
 
             guiUpdate.finishUpdate(false, updatedAuthors);
             return;
@@ -245,7 +245,7 @@ public class UpdateLocalService extends MyService {
      */
     private void interrupt() {
         if (isRun && (currentCaller == AndroidGuiUpdater.CALLER_IS_ACTIVITY)) {
-            Log.d(DEBUG_TAG, "Making STOP");
+            Log.d(DEBUG_TAG, "interrupt: Making STOP");
             mThread.interrupt();
             http.cancelAll();
 
@@ -268,7 +268,7 @@ public class UpdateLocalService extends MyService {
         private SamlibService service;
         private List<Author> authors;
 
-        public UpdateTread(SamlibService service, List<Author> authors) {
+        public UpdateTread(SpecialSamlibService service, List<Author> authors) {
             this.service = service;
             this.authors = authors;
         }
@@ -320,7 +320,7 @@ public class UpdateLocalService extends MyService {
             if (currentCaller == AndroidGuiUpdater.CALLER_IS_RECEIVER) {
                 for (Book book : authorController.getBookController().getBooksByAuthor(a)) {//book cycle for the author to update
                     if (book.isIsNew() && settings.testAutoLoadLimit(book) && dataExportImport.needUpdateFile(book)) {
-                        monakhv.samlib.log.Log.i(DEBUG_TAG, "Auto Load book: " + book.getId());
+                        Log.i(DEBUG_TAG, "loadBook: Auto Load book: " + book.getId());
                         DownloadBookServiceIntent.start(context, book.getId(), AndroidGuiUpdater.CALLER_IS_RECEIVER);//we do not need GUI update
                     }
                 }
