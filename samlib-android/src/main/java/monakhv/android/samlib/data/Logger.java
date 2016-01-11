@@ -1,11 +1,11 @@
 package monakhv.android.samlib.data;
 
-import android.util.Log;
 import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.android.LogcatAppender;
 import ch.qos.logback.classic.encoder.PatternLayoutEncoder;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.FileAppender;
+import monakhv.android.samlib.BuildConfig;
 import monakhv.samlib.log.AbstractLogger;
 import org.slf4j.LoggerFactory;
 
@@ -48,37 +48,42 @@ public class Logger implements AbstractLogger  {
         ch.qos.logback.classic.Logger root = (ch.qos.logback.classic.Logger) LoggerFactory.getLogger(org.slf4j.Logger.ROOT_LOGGER_NAME);
 
 
-        // setup LogcatAppender
-        PatternLayoutEncoder encoder2 = new PatternLayoutEncoder();
-        encoder2.setContext(lc);
-        encoder2.setPattern("[%thread] %msg%n");
-        encoder2.start();
+        if (BuildConfig.DEBUG){
+            // setup LogcatAppender
+            PatternLayoutEncoder logCatEncoder = new PatternLayoutEncoder();
+            logCatEncoder.setContext(lc);
+            logCatEncoder.setPattern("monk-[%thread] %msg%n");
+            logCatEncoder.start();
 
-        LogcatAppender logcatAppender = new LogcatAppender();
-        logcatAppender.setContext(lc);
-        logcatAppender.setEncoder(encoder2);
-        logcatAppender.start();
+            LogcatAppender logcatAppender = new LogcatAppender();
+            logcatAppender.setContext(lc);
+            logcatAppender.setEncoder(logCatEncoder);
+            logcatAppender.start();
+
+            root.addAppender(logcatAppender);
+        }
+
 
 
         if (mSettingsHelper.getDebugFlag()){
             // setup FileAppender
             File logFile = new File(mSettingsHelper.getDataDirectoryPath(),SettingsHelper.DEBUG_FILE);
-            PatternLayoutEncoder encoder1 = new PatternLayoutEncoder();
-            encoder1.setContext(lc);
-            encoder1.setPattern("%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n");
-            encoder1.start();
-            FileAppender<ILoggingEvent> fileAppender = new FileAppender<ILoggingEvent>();
+            PatternLayoutEncoder fileEncoder = new PatternLayoutEncoder();
+            fileEncoder.setContext(lc);
+            fileEncoder.setPattern("%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n");
+            fileEncoder.start();
+            FileAppender<ILoggingEvent> fileAppender = new FileAppender<>();
             fileAppender.setContext(lc);
             File save = new File(logFile.getAbsolutePath());
             fileAppender.setFile(save.getAbsolutePath());
-            fileAppender.setEncoder(encoder1);
+            fileAppender.setEncoder(fileEncoder);
             fileAppender.setPrudent(true);
             fileAppender.setLazy(false);
             fileAppender.start();
 
             root.addAppender(fileAppender);
         }
-        root.addAppender(logcatAppender);
+
 
     }
 
