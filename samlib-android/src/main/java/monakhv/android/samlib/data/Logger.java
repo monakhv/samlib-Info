@@ -53,7 +53,7 @@ public class Logger implements AbstractLogger  {
             // setup LogcatAppender
             PatternLayoutEncoder logCatEncoder = new PatternLayoutEncoder();
             logCatEncoder.setContext(lc);
-            logCatEncoder.setPattern("[%thread] %msg%n");
+            logCatEncoder.setPattern("monk-[%thread] %msg%n");
             logCatEncoder.start();
 
             LogcatAppender logcatAppender = new LogcatAppender();
