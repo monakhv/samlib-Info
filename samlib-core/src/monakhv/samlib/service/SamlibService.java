@@ -113,12 +113,12 @@ public class SamlibService {
 
             } catch (SamlibParseException ex) {//skip update for given author
                 Log.e(DEBUG_TAG, "runUpdate:Error parsing url: " + url + " skip update author ", ex);
-                settingsHelper.log(DEBUG_TAG, "runUpdate:Error parsing url: " + url + " skip update author ", ex);
+
                 ++skippedAuthors;
                 newA = a;
             } catch (SamlibInterruptException e) {
                 Log.i(DEBUG_TAG, "runUpdate: catch Interrupted", e);
-                settingsHelper.log(DEBUG_TAG, "runUpdate: catch Interrupted", e);
+
                 guiUpdate.finishUpdate(false, updatedAuthors);
                 return false;
             }
@@ -127,8 +127,8 @@ public class SamlibService {
                     updatedAuthors.add(a);//sometimes we need update if the author has no new books
                     guiUpdate.makeUpdate(a);
                 }
-                Log.i(DEBUG_TAG, "We need update author: " + a.getName());
-                settingsHelper.log(DEBUG_TAG, "We need update author: " + a.getName());
+                Log.i(DEBUG_TAG, "runUpdate: We need update author: " + a.getName());
+
                 authorController.update(a);
 
                 if (settingsHelper.getAutoLoadFlag()) {
@@ -147,11 +147,11 @@ public class SamlibService {
 
             try {
                 Log.d(DEBUG_TAG, "runUpdate: sleep " + sleep + " seconds");
-                settingsHelper.log(DEBUG_TAG, "runUpdate: sleep " + sleep + " seconds");
+
                 TimeUnit.SECONDS.sleep(sleep);
             } catch (InterruptedException e) {
                 Log.i(DEBUG_TAG, "runUpdate: Sleep interrupted exiting", e);
-                settingsHelper.log(DEBUG_TAG, "runUpdate: Sleep interrupted exiting", e);
+
                 guiUpdate.finishUpdate(false, updatedAuthors);
                 return false;
             }
@@ -236,7 +236,7 @@ public class SamlibService {
     public void makeAuthorDel(int id) {
 
         int res = authorController.delete(authorController.getById(id));
-        Log.d(DEBUG_TAG, "Author id " + id + " deleted, status " + res);
+        Log.d(DEBUG_TAG, "makeAuthorDel: Author id " + id + " deleted, status " + res);
         if (res == 1) {
             ++numberOfDeleted;
             guiUpdate.makeUpdate(true);
@@ -273,11 +273,11 @@ public class SamlibService {
 
             try {
                 Log.d(DEBUG_TAG, "makeAuthorAdd: sleep " + sleep + " seconds");
-                settingsHelper.log(DEBUG_TAG, "makeAuthorAdd: sleep " + sleep + " seconds");
+
                 TimeUnit.SECONDS.sleep(sleep);
             } catch (InterruptedException e) {
                 Log.i(DEBUG_TAG, "makeAuthorAdd: Sleep interrupted exiting", e);
-                settingsHelper.log(DEBUG_TAG, "makeAuthorAdd: Sleep interrupted exiting", e);
+
                 guiUpdate.finishUpdate(false, updatedAuthors);
                 return ;
             }
@@ -296,7 +296,7 @@ public class SamlibService {
      * @throws SamlibParseException
      */
     public static List<AuthorCard> makeSearch(String pattern, AbstractSettings settings) throws IOException, SamlibParseException, SamlibInterruptException {
-        Log.i(DEBUG_TAG, "Search author with pattern: " + pattern);
+        Log.i(DEBUG_TAG, "makeSearch: Search author with pattern: " + pattern);
         List<AuthorCard> result = new ArrayList<>();
 
         int page = 1;
@@ -307,7 +307,7 @@ public class SamlibService {
         try {
             russianCollator = new RuleBasedCollator(settings.getCollationRule());
         } catch (ParseException ex) {
-            Log.e(DEBUG_TAG, "Collator error", ex);
+            Log.e(DEBUG_TAG, "makeSearch: Collator error", ex);
 
         }
 
@@ -321,7 +321,7 @@ public class SamlibService {
 
             Arrays.sort(keys, russianCollator);
             int ires = Arrays.binarySearch(keys, pattern, russianCollator);
-            Log.d(DEBUG_TAG, "Page number:" + page + "    search result " + ires + "   length is " + keys.length);
+            Log.d(DEBUG_TAG, "makeSearch: Page number:" + page + "    search result " + ires + "   length is " + keys.length);
 
             int iStart;
             if (ires < 0) {
@@ -342,7 +342,7 @@ public class SamlibService {
                     }
 
                 } else {
-                    Log.d(DEBUG_TAG, "Search for " + pattern + " stop by substring  -   " + sKey + "   " + keys.length + "         " + iStart + "  -  " + ires);
+                    Log.d(DEBUG_TAG, "makeSearch: Search for " + pattern + " stop by substring  -   " + sKey + "   " + keys.length + "         " + iStart + "  -  " + ires);
 
 
                     return result;
@@ -353,7 +353,7 @@ public class SamlibService {
             ++page;
             colAuthors = http.searchAuthors(pattern, page);
         }
-        Log.d(DEBUG_TAG, "Results: " + result.size());
+        Log.d(DEBUG_TAG, "makeSearch: Results: " + result.size());
 
         return result;
     }
@@ -365,14 +365,14 @@ public class SamlibService {
 
         text = testURL(url);
         if (text == null) {
-            Log.e(DEBUG_TAG, "URL syntax error: " + url);
+            Log.e(DEBUG_TAG, "loadAuthor: URL syntax error: " + url);
 
             return null;
         }
 
         Author ta = sql.getByUrl(text);
         if (ta != null) {
-            Log.i(DEBUG_TAG, "Ignore Double entries: " + text);
+            Log.i(DEBUG_TAG, "loadAuthor: Ignore Double entries: " + text);
 
             ++doubleAdd;
             return null;
@@ -380,16 +380,16 @@ public class SamlibService {
         try {
             a = http.addAuthor(text, new Author());
         } catch (IOException ex) {
-            Log.e(DEBUG_TAG, "DownLoad Error for URL: " + text, ex);
+            Log.e(DEBUG_TAG, "loadAuthor: DownLoad Error for URL: " + text, ex);
 
             return null;
 
         } catch (SamlibParseException ex) {
-            Log.e(DEBUG_TAG, "Author parsing Error: " + text, ex);
+            Log.e(DEBUG_TAG, "loadAuthor: Author parsing Error: " + text, ex);
 
             return null;
         } catch (IllegalArgumentException ex) {
-            Log.e(DEBUG_TAG, "URL Parsing exception: " + text, ex);
+            Log.e(DEBUG_TAG, "loadAuthor: URL Parsing exception: " + text, ex);
 
             return null;
         } catch (SamlibInterruptException e) {
@@ -407,7 +407,7 @@ public class SamlibService {
      * @return reduced URL without host prefix or NULL if the syntax is wrong
      */
     private String testURL(String url) {
-        Log.d(DEBUG_TAG, "Got text: " + url);
+        Log.d(DEBUG_TAG, "testURL: Got text: " + url);
 
         return SamLibConfig.reduceUrl(url);
 
@@ -438,7 +438,7 @@ public class SamlibService {
         Book book = authorController.getBookController().getById(book_id);
 
         AbstractSettings.FileType ft = settingsHelper.getFileType();
-        Log.d(DEBUG_TAG, "default type is  " + ft.toString());
+        Log.d(DEBUG_TAG, "downloadBook: default type is  " + ft.toString());
 
         switch (ft) {
             case HTML:
@@ -466,7 +466,7 @@ public class SamlibService {
 
             settingsHelper.cleanBookFile(book);//clean file on error
 
-            Log.e(DEBUG_TAG, "Download book error: " + book.getUri(), ex);
+            Log.e(DEBUG_TAG, "getBook: Download book error: " + book.getUri(), ex);
 
             return false;
         }

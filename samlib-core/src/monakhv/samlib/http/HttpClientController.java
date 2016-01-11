@@ -200,7 +200,7 @@ public class HttpClientController {
         SamlibParseException samlibParseException = null;//skip update for given author
         for (String sUrl : urls) {
             Log.i(DEBUG_TAG, "getURL: using urls: " + sUrl);
-            settingsHelper.log(DEBUG_TAG, "getURL: using urls: " + sUrl);
+
             ioException = null;
             samlibParseException = null;
             try {
@@ -209,18 +209,18 @@ public class HttpClientController {
             } catch (InterruptedIOException e) {
                 if (Thread.interrupted()) {
                     Log.i(DEBUG_TAG,"getURL: thread is interrupted throw SamlibInterruptException",e);
-                    settingsHelper.log(DEBUG_TAG,"getURL: thread is interrupted throw SamlibInterruptException",e);
+
                     throw new SamlibInterruptException("getURL:InterruptedIOException");
                 }
                 if (e instanceof SocketTimeoutException){
                     slc.flipOrder();
                     ioException = e;
                     Log.i(DEBUG_TAG,"getURL: SocketTimeoutException make flip",e);
-                    settingsHelper.log(DEBUG_TAG,"getURL:  SocketTimeoutException make flip",e);
+
                 }
                 else {
                     Log.i(DEBUG_TAG,"getURL: thread is NOT interrupted throw InterruptedIOException",e);
-                    settingsHelper.log(DEBUG_TAG,"getURL: thread is interrupted throw InterruptedIOException",e);
+
                     throw new InterruptedIOException("getURL:InterruptedIOException");
                 }
 
@@ -229,17 +229,17 @@ public class HttpClientController {
                 ioException = e;
                 if (Thread.interrupted()) {
                     Log.i(DEBUG_TAG,"getURL:1 thread is interrupted throw SamlibInterruptException",e);
-                    settingsHelper.log(DEBUG_TAG,"getURL:1 thread is interrupted throw SamlibInterruptException",e);
+
                     throw new SamlibInterruptException("getURL:IOException");
                 }
 
                 Log.e(DEBUG_TAG, "getURL: IOException: " + sUrl, e);
-                settingsHelper.log(DEBUG_TAG, "getURL: IOException: " + sUrl, e);
+
             } catch (SamlibParseException e) {
                 slc.flipOrder();
                 samlibParseException = e;
                 Log.e(DEBUG_TAG, "AuthorParseException: " + sUrl, e);
-                settingsHelper.log(DEBUG_TAG, "AuthorParseException: " + sUrl, e);
+
             }
 
             if (ioException == null && samlibParseException == null) {
@@ -276,18 +276,18 @@ public class HttpClientController {
             } catch (SamLibIsBusyException ex) {
                 loopCount++;
                 Log.w(DEBUG_TAG, "Retry number: " + loopCount + "  sleep 1 second");
-                settingsHelper.log(DEBUG_TAG, "Retry number: " + loopCount + "  sleep 1 second");
+
                 try {
                     TimeUnit.SECONDS.sleep(loopCount);
                 } catch (InterruptedException ex1) {
                     Log.w(DEBUG_TAG, "_getURL: InterruptedException throw SamlibInterruptException");
-                    settingsHelper.log(DEBUG_TAG, "_getURL: InterruptedException throw SamlibInterruptException");
+
                     throw new SamlibInterruptException("_getURL:Sleep interrupted");
                 }
                 if (loopCount >= RETRY_LIMIT) {
                     // retry = false;
                     Log.e(DEBUG_TAG, "_getURL: Retry Limit exceeded");
-                    settingsHelper.log(DEBUG_TAG, "_getURL: Retry Limit exceeded");
+
                     throw new IOException("Retry Limit exceeded");
                 }
             }
@@ -334,15 +334,15 @@ public class HttpClientController {
         try {
             response = httpclient.newCall(request).execute();
             Log.d(DEBUG_TAG, "__getURL: Status Response: " + response.message());
-            settingsHelper.log(DEBUG_TAG, "__getURL: Status Response: " + response.message());
+
         } catch (NullPointerException ex) {
             Log.e(DEBUG_TAG, "__getURL: Connection Error", ex);
-            settingsHelper.log(DEBUG_TAG, "__getURL: Connection Error", ex);
+
             throw new IOException("Connection error: " + url.toString());
         }
         int status = response.code();
         Log.d(DEBUG_TAG, "__getURL: Status - " + status);
-        settingsHelper.log(DEBUG_TAG, "__getURL: Status - " + status);
+
 
         if (status == 503) {
 

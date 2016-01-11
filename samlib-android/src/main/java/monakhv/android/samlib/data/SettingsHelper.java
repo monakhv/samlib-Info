@@ -28,7 +28,6 @@ import android.content.pm.PackageManager;
 import android.content.res.TypedArray;
 import android.os.Environment;
 import android.text.TextUtils;
-import android.util.Log;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.NetworkInfo.State;
@@ -36,10 +35,6 @@ import android.net.Uri;
 
 
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.PrintStream;
-import java.text.SimpleDateFormat;
 import java.util.*;
 
 
@@ -50,6 +45,8 @@ import monakhv.samlib.db.SQLController;
 import monakhv.samlib.db.entity.Book;
 import monakhv.samlib.db.entity.SamLibConfig;
 import monakhv.samlib.http.ProxyData;
+import monakhv.samlib.log.Log;
+
 
 /**
  * @author monakhv
@@ -64,16 +61,22 @@ public class SettingsHelper extends AbstractSettings implements SharedPreference
     private final SharedPreferences prefs;
     private static final String DARK = "DARK";
     private static final String LIGHT = "LIGHT";
-    private static final String DATE_FORMAT_DEBUG = "dd-MM-yyyy HH:mm:ss";
-    private static final String DEBUG_FILE = SQLController.DB_NAME + ".log";
+    static final String DEBUG_FILE = SQLController.DB_NAME + ".log";
+    private static Logger LOGGER;
+
 
 
     public SettingsHelper(Context context) {
         this.context = context;
         this.prefs = context.getSharedPreferences(PREFS_NAME, 0);
-        monakhv.samlib.log.Log.checkInit(new Logger(), this);
+        if (LOGGER == null){
+            LOGGER = new Logger(this);
+        }
 
+        monakhv.samlib.log.Log.checkInit(LOGGER, this);
     }
+
+
 
     /**
      * unconditionally request backup data
@@ -139,6 +142,10 @@ public class SettingsHelper extends AbstractSettings implements SharedPreference
             SamLibConfig sc = SamLibConfig.getInstance(this);
             sc.refreshData();
         }
+        if (key.equals(context.getString(R.string.pref_key_debug_options))){
+            LOGGER=new Logger(this);
+            monakhv.samlib.log.Log.forceInit(LOGGER, this);
+        }
     }
 
     /**
@@ -167,10 +174,7 @@ public class SettingsHelper extends AbstractSettings implements SharedPreference
      */
     private void cancelRecurringAlarm() {
         Log.i(DEBUG_TAG, "Cancel Updater service call");
-        if (getDebugFlag()) {
-            log(DEBUG_TAG, "Cancel Updater service call");
 
-        }
         /**
          * We are using receiver here to avoid possible interference with the Pending intend in ProgressNotification
          */
@@ -186,10 +190,7 @@ public class SettingsHelper extends AbstractSettings implements SharedPreference
      */
     private void setRecurringAlarm() {
         Log.i(DEBUG_TAG, "Update Updater service call");
-        if (getDebugFlag()) {
-            log(DEBUG_TAG, "Update Updater service call");
 
-        }
         //the fist time will be only after updatePeriod
         long updatePeriod = getUpdatePeriod();
         //temp
@@ -333,12 +334,7 @@ public class SettingsHelper extends AbstractSettings implements SharedPreference
 
 
         String str = getUpdatePeriodString();
-        if (getDebugFlag()) {
-            //TODO: remove this hack
-            //str = "15MINUTES";
-            log(DEBUG_TAG, "Update interval set to: " + str);
 
-        }
         Log.i(DEBUG_TAG, "Update interval: " + str);
 
         if (str.equals("1HOUR")) {
@@ -360,60 +356,14 @@ public class SettingsHelper extends AbstractSettings implements SharedPreference
             return AlarmManager.INTERVAL_FIFTEEN_MINUTES;
         }
         Log.e(DEBUG_TAG, "Period Format error us default one");
-        if (getDebugFlag()) {
-            log(DEBUG_TAG, "Period Format error us default one");
 
-        }
 
         return 3 * AlarmManager.INTERVAL_HOUR;
 
     }
 
-    /**
-     * Log output
-     *
-     * @param tag debug tag
-     * @param msg message
-     * @param ex  Exception
-     */
-    public void log(String tag, String msg, Throwable ex) {
-        if (getDebugFlag()) {
-            SimpleDateFormat df = new SimpleDateFormat(DATE_FORMAT_DEBUG);
-            File save = new File(getDataDirectory(), DEBUG_FILE);
-            if (! save.exists()){
-                try {
-                    save.createNewFile();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-            FileOutputStream dst;
-            Date date = Calendar.getInstance().getTime();
-
-            try {
-                dst = new FileOutputStream(save, true);
-                PrintStream ps = new PrintStream(dst);
-                ps.println(df.format(date) + "  " + tag + " " + msg);
-                if (ex != null) {
-                    ex.printStackTrace(ps);
-                }
-                ps.flush();
-                dst.flush();
-                ps.close();
-                dst.close();
-            } catch (Exception ex1) {
-                Log.e(DEBUG_TAG, "Log save error", ex1);
-            }
-
-        }
-    }
 
 
-    public void log(String tag, String msg) {
-        if (getDebugFlag()) {
-            log(tag, msg, null);
-        }
-    }
 
     public ProxyData getProxy(){
 

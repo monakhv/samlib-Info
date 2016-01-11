@@ -55,8 +55,7 @@ public abstract class AbstractSettings {
 
     public abstract String getFirstMirror();
     public abstract ProxyData getProxy();
-    public abstract void log(String debugTag, String s);//special logging for debug
-    public abstract void log(String debugTag, String s, Throwable e);//special logging for debug
+
     public abstract  File getDataDirectory();//where to store books
     public abstract String getCollationRule();//get Collation rule string
     public abstract boolean isUpdateDelay();//make delay after each author update
