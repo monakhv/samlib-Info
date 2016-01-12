@@ -29,7 +29,7 @@ import java.util.List;
  * 2/12/15.
  */
 public abstract class AbstractSettings {
-    private static final String DEBUG_TAG = "SettingsHelper";
+    private static final String DEBUG_TAG = "AbstractSettings";
     private static final String DATE_FORMAT_BOOK_FILE = "dd-MM-yyyy_HH-mm-ss";
     public static final String BOOKS_DIR = "Book//";
     public static final String sep = System.getProperty("file.separator");
@@ -101,7 +101,7 @@ public abstract class AbstractSettings {
         File ss = new File(getDataDirectory(), ff);
         File pp = ss.getParentFile();
         boolean res =pp.mkdirs();
-        Log.d(DEBUG_TAG, "Path: " + pp.getAbsolutePath() + " result is: " + res);
+        Log.d(DEBUG_TAG, "getBookFile: parent directory Path: >" + pp.getAbsolutePath() + "< result is: " + res);
         return ss;
 
     }
@@ -128,7 +128,10 @@ public abstract class AbstractSettings {
         SimpleDateFormat df = new SimpleDateFormat(DATE_FORMAT_BOOK_FILE);
 
         File dir =  new File(getDataDirectory(), BOOKS_DIR +sep+    book.getUri()    );
-        dir.mkdir();
+        boolean resMk= dir.mkdirs();
+        boolean resEx = dir.exists();
+        Log.d(DEBUG_TAG,"makePreserved: directory path:  >" +dir.getAbsolutePath() + "<   created = "+resMk+"  exist = "+resEx);
+
 
         File old = getBookFile(book,book.getFileType());
         if (old.exists()){
