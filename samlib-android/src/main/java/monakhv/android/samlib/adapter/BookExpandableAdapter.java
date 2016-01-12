@@ -155,10 +155,10 @@ public class BookExpandableAdapter extends ExpandableRecyclerAdapter<GroupViewHo
             long delta = book.getDelta();
             String str;
             if (delta<0){
-                str="("+book.getSize()+""+delta+")K";
+                str=""+book.getSize()+"K ("+delta+"K)";
             }
             else {
-                str="("+book.getSize()+"+"+delta+")K";
+                str=""+book.getSize()+"K (+"+delta+"K)";
             }
 
             holder.bookSize.setText(str);
