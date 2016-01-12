@@ -96,22 +96,22 @@
     </content>
     <orderEntry type="jdk" jdkName="Android API 23 Platform" jdkType="Android SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="library" exported="" name="ormlite-android-4.48" level="project" />
-    <orderEntry type="library" exported="" name="support-annotations-23.1.1" level="project" />
-    <orderEntry type="library" exported="" name="play-services-base-8.4.0" level="project" />
-    <orderEntry type="library" exported="" name="play-services-basement-8.4.0" level="project" />
-    <orderEntry type="library" exported="" name="design-23.1.1" level="project" />
-    <orderEntry type="library" exported="" name="expandablerecyclerview-2.0.4" level="project" />
-    <orderEntry type="library" exported="" name="logback-android-1.1.1-4" level="project" />
-    <orderEntry type="library" exported="" name="recyclerview-v7-23.1.1" level="project" />
-    <orderEntry type="library" exported="" name="support-v4-23.1.1" level="project" />
-    <orderEntry type="library" exported="" name="appcompat-v7-23.1.1" level="project" />
-    <orderEntry type="library" exported="" name="ormlite-core-4.48" level="project" />
-    <orderEntry type="library" exported="" name="okhttp-2.5.0" level="project" />
-    <orderEntry type="library" exported="" name="slf4j-api-1.7.10" level="project" />
     <orderEntry type="library" exported="" name="okio-1.6.0" level="project" />
+    <orderEntry type="library" exported="" name="okhttp-2.5.0" level="project" />
+    <orderEntry type="library" exported="" name="play-services-base-8.4.0" level="project" />
+    <orderEntry type="library" exported="" name="logback-android-1.1.1-4" level="project" />
+    <orderEntry type="library" exported="" name="design-23.1.1" level="project" />
+    <orderEntry type="library" exported="" name="ormlite-android-4.48" level="project" />
+    <orderEntry type="library" exported="" name="recyclerview-v7-23.1.1" level="project" />
+    <orderEntry type="library" exported="" name="ormlite-core-4.48" level="project" />
+    <orderEntry type="library" exported="" name="support-v4-23.1.1" level="project" />
     <orderEntry type="library" exported="" name="play-services-drive-8.4.0" level="project" />
-    <orderEntry type="module" module-name="samlib-core" exported="" />
+    <orderEntry type="library" exported="" name="support-annotations-23.1.1" level="project" />
+    <orderEntry type="library" exported="" name="slf4j-api-1.7.10" level="project" />
+    <orderEntry type="library" exported="" name="appcompat-v7-23.1.1" level="project" />
+    <orderEntry type="library" exported="" name="play-services-basement-8.4.0" level="project" />
+    <orderEntry type="library" exported="" name="expandablerecyclerview-2.0.4" level="project" />
     <orderEntry type="module" module-name="ptr-lib" exported="" />
+    <orderEntry type="module" module-name="samlib-core" exported="" />
   </component>
 </module>
