@@ -251,8 +251,8 @@ public class Author  implements Serializable{
                     ob.isNew = true;
                     ob.mSqlOperation=SqlOperation.UPDATE;//need update
                     ob.description = b.description;
-                    ob.size = b.size;
                     ob.delta= b.size-ob.size;
+                    ob.size = b.size;
                     ob.modifyTime=b.modifyTime;
                     setIsNew(true);
                     Log.i("AUTHOR","UPDATE:   "+ob.uri+"  "+ob.id);

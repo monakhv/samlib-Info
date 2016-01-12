@@ -219,6 +219,14 @@ public class Book implements Serializable {
         this.options = options;
     }
 
+    public long getDelta() {
+        return delta;
+    }
+
+    public void setDelta(long delta) {
+        this.delta = delta;
+    }
+
     public boolean isPreserve() {
         return isOptionSelected(OPT_PRESERVE);
     }

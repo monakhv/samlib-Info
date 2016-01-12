@@ -151,7 +151,22 @@ public class BookExpandableAdapter extends ExpandableRecyclerAdapter<GroupViewHo
             holder.bookAuthorName.setVisibility(View.VISIBLE);
         }
 
-        holder.bookSize.setText(book.getSize() + "K");
+        if (book.isIsNew() && book.getDelta() != 0){
+            long delta = book.getDelta();
+            String str;
+            if (delta<0){
+                str="("+book.getSize()+""+delta+")K";
+            }
+            else {
+                str="("+book.getSize()+"+"+delta+")K";
+            }
+
+            holder.bookSize.setText(str);
+        }
+        else {
+            holder.bookSize.setText(book.getSize() + "K");
+        }
+
         holder.bookForm.setText(book.getForm());
 
         final int openBook = (R.drawable.open);
@@ -170,7 +185,6 @@ public class BookExpandableAdapter extends ExpandableRecyclerAdapter<GroupViewHo
                 @Override
                 public void onEnd() {
                     makeCleanNew(book);
-                    //toggleSelection(position);
                 }
             };
             holder.flipIcon.setData(openBook, closeBook, listener, true);
