@@ -101,7 +101,7 @@ public abstract class AbstractSettings {
         File ss = new File(getDataDirectory(), ff);
         File pp = ss.getParentFile();
         boolean res =pp.mkdirs();
-        Log.d(DEBUG_TAG, "Path: " + pp.getAbsolutePath() + " result is: " + res);
+        Log.d(DEBUG_TAG, "getBookFile: parent directory Path: >" + pp.getAbsolutePath() + "< result is: " + res);
         return ss;
 
     }
@@ -118,7 +118,6 @@ public abstract class AbstractSettings {
         return getDataDirectory().getAbsolutePath();
     }
 
-
     /**
      * Create directory to store many versions for the book
      * Move existing version into the directory
@@ -128,7 +127,10 @@ public abstract class AbstractSettings {
         SimpleDateFormat df = new SimpleDateFormat(DATE_FORMAT_BOOK_FILE);
 
         File dir =  new File(getDataDirectory(), BOOKS_DIR +sep+    book.getUri()    );
-        dir.mkdir();
+        boolean resMk= dir.mkdirs();
+        boolean resEx = dir.exists();
+        Log.d(DEBUG_TAG,"makePreserved: directory path:  >" +dir.getAbsolutePath() + "<   created = "+resMk+"  exist = "+resEx);
+
 
         File old = getBookFile(book,book.getFileType());
         if (old.exists()){
