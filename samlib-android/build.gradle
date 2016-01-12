@@ -17,8 +17,8 @@ android {
         applicationId "monakhv.android.samlib"
         minSdkVersion 11
         targetSdkVersion 22
-        versionCode 10348
-        versionName "3.2.28"
+        versionCode 10349
+        versionName "3.2.29"
     }
 
 
