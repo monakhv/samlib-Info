@@ -34,14 +34,16 @@ import javax.inject.Inject;
 public class SamlibApplication extends Application {
     private static final String DEBUG_TAG="SamlibApplication";
 
+
     @Inject
     static Logger mLogger;
+    private static ApplicationComponent applicationComponent;
 
     @Override
     public void onCreate() {
         super.onCreate();
 
-        ApplicationComponent applicationComponent=DaggerApplicationComponent.builder()
+        applicationComponent=DaggerApplicationComponent.builder()
                 .applicationModule(new ApplicationModule(this))
                 .build();
         applicationComponent.inject(this);
@@ -51,4 +53,9 @@ public class SamlibApplication extends Application {
     public static void initLogger(){
         mLogger.initLogger();
     }
+
+    public ApplicationComponent getApplicationComponent() {
+        return applicationComponent;
+    }
+
 }

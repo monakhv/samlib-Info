@@ -21,7 +21,6 @@ import android.support.v7.widget.Toolbar;
 import android.widget.*;
 import monakhv.android.samlib.data.DataExportImport;
 import monakhv.android.samlib.data.GoogleDiskOperation;
-import monakhv.android.samlib.data.SettingsHelper;
 import monakhv.android.samlib.dialogs.SingleChoiceSelectDialog;
 
 import android.accounts.AccountManager;
@@ -59,16 +58,16 @@ public class ArchiveActivity extends MyBaseAbstractActivity {
     private static final String DEBUG_TAG = "ArchiveActivity";
     private SingleChoiceSelectDialog dialog = null;
     private String selectedFile;
-    private SettingsHelper setting;
+
     private DataExportImport dataExportImport;
     private AuthorEditReceiver authorReceiver;
     private CheckBox cb;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        setting = new SettingsHelper(this);
+
         dataExportImport = new DataExportImport(this);
-        setTheme(setting.getTheme());
+        setTheme(mSettingsHelper.getTheme());
         super.onCreate(savedInstanceState);
         setContentView(R.layout.archive);
 
@@ -81,11 +80,11 @@ public class ArchiveActivity extends MyBaseAbstractActivity {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 Log.d(DEBUG_TAG, "set Googe Auto to: " + isChecked);
-                setting.setGoogleAuto(isChecked);
+                mSettingsHelper.setGoogleAuto(isChecked);
             }
         });
-        cb.setChecked(setting.isGoogleAuto());
-        cb.setEnabled(setting.isGoogleAutoEnable());
+        cb.setChecked(mSettingsHelper.isGoogleAuto());
+        cb.setEnabled(mSettingsHelper.isGoogleAutoEnable());
 
     }
 
@@ -272,7 +271,7 @@ public class ArchiveActivity extends MyBaseAbstractActivity {
         progress.setCancelable(true);
         progress.setIndeterminate(true);
         progress.show();
-        new GoogleDiskOperation(this,setting.getGoogleAccount(),operation).execute();
+        new GoogleDiskOperation(this,mSettingsHelper.getGoogleAccount(),operation).execute();
 
     }
 
@@ -301,14 +300,14 @@ public class ArchiveActivity extends MyBaseAbstractActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         switch (requestCode){
             case GoogleDiskOperation.RESOLVE_CONNECTION_REQUEST_CODE:
-                if (setting == null){
+                if (mSettingsHelper == null){
                     Log.e(DEBUG_TAG,"settings is null!!");
                     return;
                 }
-                setting.setGoogleAccount(
+                mSettingsHelper.setGoogleAccount(
                     data.getStringExtra(AccountManager.KEY_ACCOUNT_NAME));
                 progress.show();
-                new GoogleDiskOperation(this,setting.getGoogleAccount(),operation).execute();
+                new GoogleDiskOperation(this,mSettingsHelper.getGoogleAccount(),operation).execute();
                 break;
         }
     }
@@ -333,7 +332,7 @@ public class ArchiveActivity extends MyBaseAbstractActivity {
                 return;
             }
             if (res && ot == GoogleDiskOperation.OperationType.EXPORT){
-                cb.setEnabled(setting.isGoogleAutoEnable());
+                cb.setEnabled(mSettingsHelper.isGoogleAutoEnable());
                 Toast.makeText(context, context.getString(R.string.res_export_google_good), Toast.LENGTH_LONG).show();
             }
             String error = intent.getStringExtra(EXTRA_ERROR);

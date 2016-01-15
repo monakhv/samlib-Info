@@ -7,7 +7,6 @@ import android.content.DialogInterface;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
 import android.support.v4.widget.SimpleCursorAdapter;
 import android.util.Log;
 import android.util.SparseBooleanArray;
@@ -17,7 +16,6 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
 import com.j256.ormlite.android.AndroidDatabaseResults;
-import monakhv.android.samlib.data.SettingsHelper;
 import monakhv.android.samlib.dialogs.EnterStringDialog;
 import monakhv.android.samlib.service.AuthorEditorServiceIntent;
 import monakhv.android.samlib.sql.DatabaseHelper;
@@ -47,7 +45,7 @@ import java.util.List;
  *
  * 4/9/15.
  */
-public class AuthorTagFragment extends Fragment {
+public class AuthorTagFragment extends MyBaseAbstractFragment {
     public interface AuthorTagCallback{
         void onFinish(long id);
         DatabaseHelper getDatabaseHelper();
@@ -55,7 +53,6 @@ public class AuthorTagFragment extends Fragment {
     private static final String DEBUG_TAG = "AuthorTagFragment";
     private long author_id=0;
     private SimpleCursorAdapter adapter;
-    private SettingsHelper helper;
     private AuthorTagCallback callBack;
 
     private boolean addVisible = false;
@@ -66,7 +63,7 @@ public class AuthorTagFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        helper = new SettingsHelper(getActivity());
+
         Bundle extra =getActivity(). getIntent().getExtras();
         if (extra != null){
             author_id =extra.getLong(AuthorTagsActivity.AUTHOR_ID);
@@ -246,7 +243,7 @@ public class AuthorTagFragment extends Fragment {
         Author a = sql.getById(author_id);
         sql.syncTags(a, tags);
         AuthorEditorServiceIntent.updateAllAuthorsTags(getActivity());
-        helper.requestBackup();
+        mSettingsHelper.requestBackup();
         a=sql.getById(author_id);
         //Log.d(DEBUG_TAG, "okClick:   " + a.getName() + ": " + a.getAll_tags_name() + "  -  " + a.getTagIds().size() + " = " + a.getTag2Authors().size());
         for (Integer ii : a.getTagIds()){

@@ -9,7 +9,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
 import android.support.v7.widget.DefaultItemAnimator;
@@ -32,7 +31,6 @@ import monakhv.android.samlib.adapter.AuthorAdapter;
 
 import monakhv.android.samlib.adapter.AuthorLoader;
 import monakhv.android.samlib.adapter.RecyclerAdapter;
-import monakhv.android.samlib.data.SettingsHelper;
 import monakhv.android.samlib.dialogs.ContextMenuDialog;
 import monakhv.android.samlib.dialogs.EnterStringDialog;
 
@@ -71,7 +69,7 @@ import static monakhv.android.samlib.ActivityUtils.getClipboardText;
  *
  * 12/5/14.
  */
-public class AuthorFragment extends Fragment implements
+public class AuthorFragment extends MyBaseAbstractFragment implements
         PtrHandler,
         ListSwipeListener.SwipeCallBack,
         RecyclerAdapter.CallBack,
@@ -94,7 +92,7 @@ public class AuthorFragment extends Fragment implements
 
     private View empty;
     private boolean canUpdate;
-    private SettingsHelper settingsHelper;
+    //private SettingsHelper settingsHelper;
     private int selectedTag = SamLibConfig.TAG_AUTHOR_ALL;
     private int aId = -1;//preserve selection
 
@@ -151,8 +149,8 @@ public class AuthorFragment extends Fragment implements
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        settingsHelper = new SettingsHelper(getActivity().getApplicationContext());
-        order = AuthorSortOrder.valueOf(settingsHelper.getAuthorSortOrderString());
+
+        order = AuthorSortOrder.valueOf(mSettingsHelper.getAuthorSortOrderString());
         detector = new GestureDetector(getActivity(), new ListSwipeListener(this));
         Intent service = new Intent(getActivity(), UpdateLocalService.class);
         getActivity().bindService(service, mConnection, Context.BIND_AUTO_CREATE);
@@ -494,7 +492,7 @@ public class AuthorFragment extends Fragment implements
      * @param a Author object
      */
     public void launchBrowser(Author a) {
-        Uri uri = Uri.parse(a.getUrlForBrowser(settingsHelper));
+        Uri uri = Uri.parse(a.getUrlForBrowser(mSettingsHelper));
         Intent launchBrowser = new Intent(Intent.ACTION_VIEW, uri);
         getActivity().startActivity(launchBrowser);
 

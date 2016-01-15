@@ -57,6 +57,8 @@ import monakhv.samlib.db.entity.SamLibConfig;
 import monakhv.samlib.db.entity.Tag;
 import monakhv.samlib.http.HttpClientController;
 
+import javax.inject.Inject;
+
 
 /**
  * @author monakhv
@@ -69,7 +71,8 @@ public class SamlibPreferencesFragment extends PreferenceFragment
 
     private static final String DEBUG_TAG = "SamlibPreferencesA";
     private static final int REQ_AUTH = 11;
-    private SettingsHelper helper;
+    @Inject
+    SettingsHelper helper;
     private final String[] autoSummaryFields = {"pref_key_update_Period", "pref_key_proxy_host",
             "pref_key_proxy_port", "pref_key_proxy_user", "pref_key_update_autoload_limit", "pref_key_book_lifetime",
             "pref_key_author_order", "pref_key_book_order", "pref_key_file_format","pref_key_theme",
@@ -90,7 +93,7 @@ public class SamlibPreferencesFragment extends PreferenceFragment
 
         super.onCreate(icicle);
 
-        helper = new SettingsHelper(getActivity());
+        ((SamlibApplication)getActivity().getApplication()).getApplicationComponent().inject(this);
         helper.getDataDirectoryPath();//just to make sure that preference is loaded
 
         getPreferenceManager().setSharedPreferencesName(

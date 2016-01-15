@@ -182,7 +182,7 @@ public class UpdateLocalService extends MyService {
 
         String notificationTitle;
 
-        if ((currentCaller == AndroidGuiUpdater.CALLER_IS_RECEIVER) && !SettingsHelper.haveInternetWIFI(context)) {
+        if ((currentCaller == AndroidGuiUpdater.CALLER_IS_RECEIVER) && !settings.haveInternetWIFI()) {
             monakhv.samlib.log.Log.d(DEBUG_TAG, "Ignore update task - we have no internet connection");
 
             return;

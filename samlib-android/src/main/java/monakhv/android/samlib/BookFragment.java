@@ -6,7 +6,6 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
 import android.support.v7.widget.DefaultItemAnimator;
@@ -58,7 +57,7 @@ import java.util.List;
  *
  * 12/11/14.
  */
-public class BookFragment extends Fragment implements
+public class BookFragment extends MyBaseAbstractFragment implements
         ListSwipeListener.SwipeCallBack, LoaderManager.LoaderCallbacks<List<GroupListItem>>,
         BookExpandableAdapter.CallBack {
 
@@ -89,7 +88,7 @@ public class BookFragment extends Fragment implements
     private Book book = null;//for context menu
     private BookSortOrder order;
     private GestureDetector detector;
-    private SettingsHelper settings;
+
     ProgressDialog progress;
     private ProgressBar mProgressBar;
     ContextMenuDialog contextMenuDialog;
@@ -116,8 +115,8 @@ public class BookFragment extends Fragment implements
 
         detector = new GestureDetector(getActivity(), new ListSwipeListener(this));
 
-        settings = new SettingsHelper(getActivity().getApplicationContext());
-        order = BookSortOrder.valueOf(settings.getBookSortOrderString());
+
+        order = BookSortOrder.valueOf(mSettingsHelper.getBookSortOrderString());
         dataExportImport = new DataExportImport(getActivity().getApplicationContext());
     }
 
@@ -224,8 +223,8 @@ public class BookFragment extends Fragment implements
             if (ctx == null) {
                 Log.e(DEBUG_TAG, "Context is NULL");
             }
-            settings = new SettingsHelper(ctx);
-            order = BookSortOrder.valueOf(settings.getBookSortOrderString());
+
+            order = BookSortOrder.valueOf(mSettingsHelper.getBookSortOrderString());
         }
         getLoaderManager().restartLoader(BOOK_LOADER_ID, null, this);
     }
@@ -359,7 +358,7 @@ public class BookFragment extends Fragment implements
         }
         if (item == menu_reload) {
 
-            settings.cleanBookFile(book);
+            mSettingsHelper.cleanBookFile(book);
 
 
             loadBook(book);
@@ -373,14 +372,14 @@ public class BookFragment extends Fragment implements
                 book.setPreserve(false);
             } else {
                 Log.i(DEBUG_TAG, "making book preserved " + book.getUri());
-                settings.makePreserved(book);
+                mSettingsHelper.makePreserved(book);
                 book.setPreserve(true);
             }
             updateBook(book);
 
         }
         if (item == menu_choose_version) {
-            final String[] files = settings.getBookFileVersions(book);
+            final String[] files = mSettingsHelper.getBookFileVersions(book);
             if (files.length == 0L) {
                 Log.i(DEBUG_TAG, "file is NULL");
                 //TODO: alarm no version is found
@@ -407,14 +406,14 @@ public class BookFragment extends Fragment implements
      */
     private void launchBrowser(Book book) {
 
-        String sUrl = book.getUrlForBrowser(settings);
+        String sUrl = book.getUrlForBrowser(mSettingsHelper);
 
         Log.d(DEBUG_TAG, "book url: " + sUrl);
 
         Uri uri = Uri.parse(sUrl);
         Intent launchBrowser = new Intent(Intent.ACTION_VIEW, uri);
-        SettingsHelper setting = new SettingsHelper(getActivity());
-        if (setting.getAutoMarkFlag()) {
+
+        if (mSettingsHelper.getAutoMarkFlag()) {
 
             adapter.makeRead(selected_position);
         }
@@ -454,7 +453,7 @@ public class BookFragment extends Fragment implements
 
 
     private void loadBook(Book book) {
-        book.setFileType(settings.getFileType());
+        book.setFileType(mSettingsHelper.getFileType());
         if (dataExportImport.needUpdateFile(book)) {
             progress = new ProgressDialog(getActivity());
             progress.setMessage(getActivity().getText(R.string.download_Loading));
@@ -490,9 +489,9 @@ public class BookFragment extends Fragment implements
     void launchReader(Book book, String file) {
         String url;
         if (file == null) {
-            url = settings.getBookFileURL(book);
+            url = mSettingsHelper.getBookFileURL(book);
         } else {
-            url = settings.getBookFileURL(book, file);
+            url = mSettingsHelper.getBookFileURL(book, file);
         }
 
 
@@ -501,7 +500,7 @@ public class BookFragment extends Fragment implements
         launchBrowser.setDataAndType(Uri.parse(url), book.getFileMime());
 
 
-        if (settings.getAutoMarkFlag()) {
+        if (mSettingsHelper.getAutoMarkFlag()) {
            adapter.makeRead(selected_position);
         }
         startActivity(launchBrowser);

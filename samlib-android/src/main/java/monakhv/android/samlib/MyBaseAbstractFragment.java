@@ -13,29 +13,30 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  *
- *  15.01.16 10:20
+ *  15.01.16 12:01
  *
  */
 
-package monakhv.android.samlib.dagger;
+package monakhv.android.samlib;
 
-import dagger.Component;
+import android.os.Bundle;
+import android.support.annotation.Nullable;
+import android.support.v4.app.Fragment;
+import monakhv.android.samlib.data.SettingsHelper;
 
-import javax.inject.Singleton;
-
-import monakhv.android.samlib.MyBaseAbstractActivity;
-import monakhv.android.samlib.MyBaseAbstractFragment;
-import monakhv.android.samlib.SamlibApplication;
-import monakhv.android.samlib.SamlibPreferencesFragment;
+import javax.inject.Inject;
 
 /**
  * Created by monakhv on 15.01.16.
  */
-@Component ( modules = {ApplicationModule.class})
-@Singleton
-public interface ApplicationComponent {
-    void inject(SamlibApplication application);
-    void inject(MyBaseAbstractActivity abstractActivity);
-    void inject(MyBaseAbstractFragment fragment);
-    void inject(SamlibPreferencesFragment fragment);
+public class MyBaseAbstractFragment extends Fragment {
+    @Inject
+    SettingsHelper mSettingsHelper;
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        ((SamlibApplication)getActivity().getApplication()).getApplicationComponent().inject(this);
+
+    }
 }

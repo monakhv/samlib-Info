@@ -20,7 +20,6 @@ package monakhv.android.samlib;
 import android.content.Intent;
 import android.support.v7.widget.Toolbar;
 import android.view.*;
-import monakhv.android.samlib.data.SettingsHelper;
 import android.os.Bundle;
 
 
@@ -37,14 +36,12 @@ public class AuthorTagsActivity extends MyBaseAbstractActivity implements Author
     public static final String AUTHOR_ID = "TAGS_AUTHOR_ID";
 
 
-    private SettingsHelper helper;
+
     private AuthorTagFragment authorTagFragment;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        helper = new SettingsHelper(this);
-        setTheme(helper.getTheme());
         super.onCreate(savedInstanceState);
         setContentView(R.layout.author_tags);
 

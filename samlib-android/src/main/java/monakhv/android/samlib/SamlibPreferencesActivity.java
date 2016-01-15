@@ -2,11 +2,10 @@ package monakhv.android.samlib;
 
 
 import android.os.Bundle;
-import android.support.v7.app.ActionBarActivity;
+
 
 import android.support.v7.widget.Toolbar;
-import monakhv.android.samlib.data.SettingsHelper;
-import monakhv.android.samlib.sql.DatabaseHelper;
+
 
 
 /*
@@ -31,8 +30,6 @@ public class SamlibPreferencesActivity  extends MyBaseAbstractActivity implement
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        SettingsHelper helper = new SettingsHelper(this);
-        setTheme(helper.getTheme());
         super.onCreate(savedInstanceState);
         setContentView(R.layout.preference_layout);
 
@@ -45,7 +42,7 @@ public class SamlibPreferencesActivity  extends MyBaseAbstractActivity implement
 
 
 
-        String title = getString(R.string.app_name) + " - " + helper.getVersionName();
+        String title = getString(R.string.app_name) + " - " + mSettingsHelper.getVersionName();
 
         getSupportActionBar().setTitle(title);
     }

@@ -97,7 +97,7 @@ public class UpdateServiceIntent extends MyServiceIntent {
         if (currentCaller == AndroidGuiUpdater.CALLER_IS_RECEIVER) {
             String stag = settings.getUpdateTag();
             idx = Integer.parseInt(stag);
-            if (!SettingsHelper.haveInternetWIFI(context)) {
+            if (!settings.haveInternetWIFI()) {
                 Log.d(DEBUG_TAG, "Ignore update task - we have no internet connection");
 
                 return;

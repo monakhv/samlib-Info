@@ -369,7 +369,7 @@ public class SettingsHelper extends AbstractSettings implements SharedPreference
             return null;
         }
         boolean wifiProxyFlag = prefs.getBoolean(context.getString(R.string.pref_key_use_proxy_wifi_flag), false);
-        if (wifiProxyFlag && !isWiFi(context)){
+        if (wifiProxyFlag && !isWiFi()){
             return null;//we have active flag but have not wifi, so do not use proxy
         }
         String user = prefs.getString(context.getString(R.string.pref_key_proxy_user), "");
@@ -393,21 +393,21 @@ public class SettingsHelper extends AbstractSettings implements SharedPreference
     /**
      * Checks if we have a valid Internet Connection on the device.
      *
-     * @param ctx Context
+     *
      * @return True if device has internet
      * <p/>
      * Code from: http://www.androidsnippets.org/snippets/131/
      */
-    public static boolean haveInternetWIFI(Context ctx) {
+    public boolean haveInternetWIFI() {
 
-        NetworkInfo info = ((ConnectivityManager) ctx
+        NetworkInfo info = ((ConnectivityManager) context
                 .getSystemService(Context.CONNECTIVITY_SERVICE)).getActiveNetworkInfo();
 
         if (info == null || !info.isConnected()) {
             return false;
         }
-        SettingsHelper helper = new SettingsHelper(ctx);
-        boolean workRoaming = helper.prefs.getBoolean(ctx.getString(R.string.pref_key_flag_roaming_work), false);
+        boolean workRoaming = prefs.getBoolean(context.getString(R.string.pref_key_flag_roaming_work), false);
+
         if (info.isRoaming() && !workRoaming) {
             // here is the roaming option you can change it if you want to
             // disable internet while roaming if user check do not work in Roaming
@@ -415,19 +415,19 @@ public class SettingsHelper extends AbstractSettings implements SharedPreference
         }
 
 
-        if (helper.getWifiOnlyFlag()) {
-            return isWiFi(ctx);
+        if (getWifiOnlyFlag()) {
+            return isWiFi();
         }
         return true;
     }
 
     /**
      * Check if we have WIFI active or not
-     * @param ctx
+     *
      * @return
      */
-    private static boolean isWiFi(Context ctx){
-        ConnectivityManager conMan = (ConnectivityManager) ctx.getSystemService(Context.CONNECTIVITY_SERVICE);
+    private  boolean isWiFi(){
+        ConnectivityManager conMan = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo inf = conMan.getNetworkInfo(1);
         State wifi;
         if (inf != null) {

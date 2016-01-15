@@ -100,9 +100,8 @@ public class MainActivity extends MyBaseAbstractActivity implements
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         Log.d(DEBUG_TAG, "onCreate");
-        final SettingsHelper settingsHelper = new SettingsHelper(this);
+
         getWindow().requestFeature(Window.FEATURE_ACTION_BAR_OVERLAY);
-        setTheme(settingsHelper.getTheme());
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main_layout);
         final String action = getIntent().getAction();
