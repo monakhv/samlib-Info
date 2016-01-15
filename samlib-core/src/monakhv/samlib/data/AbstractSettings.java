@@ -29,7 +29,7 @@ import java.util.List;
  * 2/12/15.
  */
 public abstract class AbstractSettings {
-    private static final String DEBUG_TAG = "SettingsHelper";
+    private static final String DEBUG_TAG = "AbstractSettings";
     private static final String DATE_FORMAT_BOOK_FILE = "dd-MM-yyyy_HH-mm-ss";
     public static final String BOOKS_DIR = "Book//";
     public static final String sep = System.getProperty("file.separator");
