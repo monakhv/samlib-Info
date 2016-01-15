@@ -241,6 +241,8 @@ public class Author  implements Serializable{
                 b.setAuthor(this);
                 books.add(b);
                 gbCache.get(b.mGroupBook.getName()).addNew();
+                setIsNew(true);
+                res=true;
             }
             else {//old book
                 Book ob =books.get(idx);
@@ -256,6 +258,8 @@ public class Author  implements Serializable{
                     ob.modifyTime=b.modifyTime;
                     setIsNew(true);
                     Log.i("AUTHOR","UPDATE:   "+ob.uri+"  "+ob.id);
+                    res = true;
+                    //addNEw for Group in end
                 }
 
                 if (! ob.mGroupBook.equals(b.mGroupBook)){//group change!
