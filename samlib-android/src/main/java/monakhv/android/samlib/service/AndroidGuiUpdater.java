@@ -67,7 +67,7 @@ public class AndroidGuiUpdater implements GuiUpdate {
     public AndroidGuiUpdater(SettingsHelper settingsHelper, int currentCaller, String notificationTitle) {
         this(settingsHelper, currentCaller);
         if (currentCaller == CALLER_IS_ACTIVITY){
-            mProgressNotification = new ProgressNotification(context, notificationTitle);
+            mProgressNotification = new ProgressNotification(settingsHelper, notificationTitle);
         }
 
     }
@@ -191,15 +191,15 @@ public class AndroidGuiUpdater implements GuiUpdate {
             if (result) {//we have updates
 
                 if (updatedAuthors.isEmpty()) {//DEBUG CASE
-                    notifyData.notifyUpdateDebug(context);
+                    notifyData.notifyUpdateDebug(mSettingsHelper);
 
                 } else {
 
-                    notifyData.notifyUpdate(context, updatedAuthors);
+                    notifyData.notifyUpdate(mSettingsHelper, updatedAuthors);
                 }
 
             } else {//connection Error
-                notifyData.notifyUpdateError(context);
+                notifyData.notifyUpdateError(mSettingsHelper);
 
             }
         }

@@ -7,7 +7,6 @@ import android.content.Intent;
 import java.util.ArrayList;
 
 
-import monakhv.android.samlib.data.SettingsHelper;
 import monakhv.samlib.log.Log;
 import monakhv.samlib.service.SamlibService;
 
@@ -49,8 +48,7 @@ public class AuthorEditorServiceIntent extends MyServiceIntent {
     protected void onHandleIntent(Intent intent) {
 
         String action = intent.getStringExtra(EXTRA_ACTION_TYPE);
-        Context context = this.getApplicationContext();
-        SamlibService service = new SamlibService(getHelper(),new AndroidGuiUpdater(mSettingsHelper,0), new SettingsHelper(context));
+        SamlibService service = new SamlibService(getHelper(),new AndroidGuiUpdater(mSettingsHelper,0), mSettingsHelper);
 
         Log.d(DEBUG_TAG, "Got intent for action: "+action);
 

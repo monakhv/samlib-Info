@@ -31,10 +31,10 @@ import dagger.Provides;
 import monakhv.android.samlib.data.Logger;
 import monakhv.android.samlib.data.SettingsHelper;
 
-import javax.inject.Inject;
 import javax.inject.Singleton;
 
 /**
+ * Application Module to provide Settings and Logger
  * Created by monakhv on 15.01.16.
  */
 @Module
@@ -55,8 +55,8 @@ public class ApplicationModule {
 
     @Provides
     @Singleton
-    SettingsHelper providesSettingsHelper(Context application){
-        return new SettingsHelper(application);
+    SettingsHelper providesSettingsHelper(Context context){
+        return new SettingsHelper(context);
     }
 
     @Provides

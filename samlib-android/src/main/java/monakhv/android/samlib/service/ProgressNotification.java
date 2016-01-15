@@ -40,27 +40,27 @@ public class ProgressNotification {
     NotificationCompat.InboxStyle mStyle;
 
 
-    public ProgressNotification(Context ctx, String notificationTitle) {
-        mSettingsHelper = new SettingsHelper(ctx);
-        mContext =ctx;
+    public ProgressNotification(SettingsHelper settingsHelper, String notificationTitle) {
+        mSettingsHelper = settingsHelper;
+        mContext =settingsHelper.getContext();
         mStyle=new NotificationCompat.InboxStyle();
 
 
-        mNotifyManager = (NotificationManager) ctx.getSystemService(Context.NOTIFICATION_SERVICE);
-        mBuilder = new NotificationCompat.Builder(ctx.getApplicationContext());
-        Intent intend = new Intent(ctx, UpdateLocalService.class);
+        mNotifyManager = (NotificationManager) mContext.getSystemService(Context.NOTIFICATION_SERVICE);
+        mBuilder = new NotificationCompat.Builder(mContext.getApplicationContext());
+        Intent intend = new Intent(mContext, UpdateLocalService.class);
         intend.setAction(UpdateLocalService.ACTION_STOP);
-        PendingIntent stopService = PendingIntent.getService(ctx, 0, intend, PendingIntent.FLAG_ONE_SHOT);//this remove notification and one shot will be good
+        PendingIntent stopService = PendingIntent.getService(mContext, 0, intend, PendingIntent.FLAG_ONE_SHOT);//this remove notification and one shot will be good
 
-        Intent notificationIntent = new Intent(ctx, MainActivity.class);
-        PendingIntent returnToActivity = PendingIntent.getActivity(ctx, 0, notificationIntent, PendingIntent.FLAG_CANCEL_CURRENT);//must be permanent because of update the same notification
+        Intent notificationIntent = new Intent(mContext, MainActivity.class);
+        PendingIntent returnToActivity = PendingIntent.getActivity(mContext, 0, notificationIntent, PendingIntent.FLAG_CANCEL_CURRENT);//must be permanent because of update the same notification
 
 
         mBuilder
                 .setOngoing(true)
                 .setAutoCancel(false)
                 .setSmallIcon(android.R.drawable.ic_popup_sync)
-                .addAction(R.drawable.ic_cancel_white_36dp, ctx.getText(R.string.Cancel), stopService)
+                .addAction(R.drawable.ic_cancel_white_36dp, mContext.getText(R.string.Cancel), stopService)
                 .setContentTitle(notificationTitle)
                 .setContentIntent(returnToActivity)
                 .setStyle(mStyle)
