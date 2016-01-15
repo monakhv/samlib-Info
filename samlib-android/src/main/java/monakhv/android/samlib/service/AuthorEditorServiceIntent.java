@@ -50,7 +50,7 @@ public class AuthorEditorServiceIntent extends MyServiceIntent {
 
         String action = intent.getStringExtra(EXTRA_ACTION_TYPE);
         Context context = this.getApplicationContext();
-        SamlibService service = new SamlibService(getHelper(),new AndroidGuiUpdater(context,0), new SettingsHelper(context));
+        SamlibService service = new SamlibService(getHelper(),new AndroidGuiUpdater(mSettingsHelper,0), new SettingsHelper(context));
 
         Log.d(DEBUG_TAG, "Got intent for action: "+action);
 

@@ -9,8 +9,12 @@ import android.content.Context;
 import android.os.ParcelFileDescriptor;
 import android.util.Log;
 import com.j256.ormlite.android.apptools.OpenHelperManager;
+import monakhv.android.samlib.dagger.ApplicationModule;
+import monakhv.android.samlib.dagger.DaggerApplicationComponent;
+import monakhv.android.samlib.data.SettingsHelper;
 import monakhv.android.samlib.sql.DatabaseHelper;
 
+import javax.inject.Inject;
 import java.io.IOException;
 
 
@@ -36,6 +40,8 @@ public class SamLibBackupAgentHelper extends BackupAgentHelper {
     private volatile DatabaseHelper helper;
     private volatile boolean created = false;
     private volatile boolean destroyed = false;
+    @Inject
+    SettingsHelper mSettingsHelper;
 
 
     // A key to uniquely identify the set of backup data
@@ -67,18 +73,21 @@ public class SamLibBackupAgentHelper extends BackupAgentHelper {
             helper = getHelperInternal(this);
             created = true;
         }
+        DaggerApplicationComponent.builder()
+                .applicationModule(new ApplicationModule(getApplicationContext()))
+                .build().inject(this);
     }
 
     @Override
     public void onBackup(ParcelFileDescriptor oldState, BackupDataOutput data, ParcelFileDescriptor newState) throws IOException {
-        AuthorStatePrefs.load(this, getDatabaseHelper());
+        AuthorStatePrefs.load(mSettingsHelper, getDatabaseHelper());
         super.onBackup(oldState, data, newState);
     }
 
     @Override
     public void onRestore(BackupDataInput data, int appVersionCode, ParcelFileDescriptor newState) throws IOException {
         super.onRestore(data, appVersionCode, newState);
-        AuthorStatePrefs.restore(this, getDatabaseHelper());
+        AuthorStatePrefs.restore(mSettingsHelper, getDatabaseHelper());
     }
 
     @Override

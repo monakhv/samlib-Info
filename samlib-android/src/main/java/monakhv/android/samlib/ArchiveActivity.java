@@ -66,7 +66,7 @@ public class ArchiveActivity extends MyBaseAbstractActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
-        dataExportImport = new DataExportImport(this);
+        dataExportImport = new DataExportImport(mSettingsHelper);
         setTheme(mSettingsHelper.getTheme());
         super.onCreate(savedInstanceState);
         setContentView(R.layout.archive);
@@ -271,7 +271,7 @@ public class ArchiveActivity extends MyBaseAbstractActivity {
         progress.setCancelable(true);
         progress.setIndeterminate(true);
         progress.show();
-        new GoogleDiskOperation(this,mSettingsHelper.getGoogleAccount(),operation).execute();
+        new GoogleDiskOperation(this,mSettingsHelper,operation).execute();
 
     }
 
@@ -307,7 +307,7 @@ public class ArchiveActivity extends MyBaseAbstractActivity {
                 mSettingsHelper.setGoogleAccount(
                     data.getStringExtra(AccountManager.KEY_ACCOUNT_NAME));
                 progress.show();
-                new GoogleDiskOperation(this,mSettingsHelper.getGoogleAccount(),operation).execute();
+                new GoogleDiskOperation(this,mSettingsHelper,operation).execute();
                 break;
         }
     }

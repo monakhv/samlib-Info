@@ -57,23 +57,23 @@ public class AddAuthorRestore extends AsyncTask<String, Void, Boolean> {
     private Context context = null;
     private int numberOfAdded;
     private int doubleAdd = 0;
-    private final SettingsHelper settings;
+    private final SettingsHelper mSettingsHelper;
     private final SharedPreferences prefs;
     private DatabaseHelper databaseHelper = null;
 
-    public AddAuthorRestore(Context c) {
-        context = c;
+    public AddAuthorRestore(SettingsHelper settingsHelper) {
+        context = settingsHelper.getContext();
         numberOfAdded = 0;
-        settings = new SettingsHelper(context);
+        mSettingsHelper = settingsHelper;
 
         prefs = context.getSharedPreferences(AuthorStatePrefs.PREF_NAME, 0);
-        databaseHelper= OpenHelperManager.getHelper(c,DatabaseHelper.class);
+        databaseHelper= OpenHelperManager.getHelper(context,DatabaseHelper.class);
     }
 
     @Override
     protected Boolean doInBackground(String... texts) {
 
-        HttpClientController http = HttpClientController.getInstance(settings);
+        HttpClientController http = HttpClientController.getInstance(mSettingsHelper);
         AuthorController sql = new AuthorController(databaseHelper);
         TagController tagController = new TagController(databaseHelper);
         PowerManager pm = (PowerManager) context.getSystemService(Context.POWER_SERVICE);

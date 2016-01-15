@@ -61,7 +61,7 @@ public class UpdateServiceIntent extends MyServiceIntent {
 
     private static final String DEBUG_TAG = "UpdateServiceIntent";
     private Context context;
-    private SettingsHelper settings;
+
     private DataExportImport dataExportImport;
     private final List<Author> updatedAuthors;
     private SharedPreferences mSharedPreferences;
@@ -76,14 +76,14 @@ public class UpdateServiceIntent extends MyServiceIntent {
     protected void onHandleIntent(Intent intent) {
         context = this.getApplicationContext();
         updatedAuthors.clear();
-        settings = new SettingsHelper(context);
+
         Log.d(DEBUG_TAG, "Got intent");
-        dataExportImport = new DataExportImport(context);
+        dataExportImport = new DataExportImport(mSettingsHelper);
         int currentCaller = intent.getIntExtra(AndroidGuiUpdater.CALLER_TYPE, 0);
         int idx = intent.getIntExtra(SELECT_INDEX, SamLibConfig.TAG_AUTHOR_ALL);
         mSharedPreferences= PrefsUtil.getSharedPreferences(context, PREF_NAME);
 
-        settings.requestFirstBackup();
+        mSettingsHelper.requestFirstBackup();
         if (currentCaller == 0) {
             Log.e(DEBUG_TAG, "Wrong Caller type");
 
@@ -92,12 +92,12 @@ public class UpdateServiceIntent extends MyServiceIntent {
         mSharedPreferences.edit().putInt(PREF_KEY_CALLER,currentCaller).commit();
         AuthorController ctl = new AuthorController(getHelper());
         List<Author> authors;
-        GuiUpdate guiUpdate = new AndroidGuiUpdater(context, currentCaller);
+        GuiUpdate guiUpdate = new AndroidGuiUpdater(mSettingsHelper, currentCaller);
 
         if (currentCaller == AndroidGuiUpdater.CALLER_IS_RECEIVER) {
-            String stag = settings.getUpdateTag();
+            String stag = mSettingsHelper.getUpdateTag();
             idx = Integer.parseInt(stag);
-            if (!settings.haveInternetWIFI()) {
+            if (!mSettingsHelper.haveInternetWIFI()) {
                 Log.d(DEBUG_TAG, "Ignore update task - we have no internet connection");
 
                 return;
@@ -131,7 +131,7 @@ public class UpdateServiceIntent extends MyServiceIntent {
         }
 
 
-        SamlibService service = new SpecialSamlibService(getHelper(), guiUpdate, settings);
+        SamlibService service = new SpecialSamlibService(getHelper(), guiUpdate, mSettingsHelper);
 
 
         PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
@@ -140,7 +140,7 @@ public class UpdateServiceIntent extends MyServiceIntent {
 
         service.runUpdate(authors);
 
-        if (settings.getLimitBookLifeTimeFlag()) {
+        if (mSettingsHelper.getLimitBookLifeTimeFlag()) {
             CleanBookServiceIntent.start(context);
         }
         mSharedPreferences.edit().putLong(PREF_KEY_LAST_UPDATE, Calendar.getInstance().getTime().getTime()).commit();
@@ -175,7 +175,7 @@ public class UpdateServiceIntent extends MyServiceIntent {
         public void loadBook(Author a) {
 
             for (Book book : authorController.getBookController().getBooksByAuthor(a)) {//book cycle for the author to update
-                if (book.isIsNew() && settings.testAutoLoadLimit(book) && dataExportImport.needUpdateFile(book)) {
+                if (book.isIsNew() && mSettingsHelper.testAutoLoadLimit(book) && dataExportImport.needUpdateFile(book)) {
                     Log.i(DEBUG_TAG, "Auto Load book: " + book.getId());
                     DownloadBookServiceIntent.start(context, book.getId(), AndroidGuiUpdater.CALLER_IS_RECEIVER);//we do not need GUI update
                 }

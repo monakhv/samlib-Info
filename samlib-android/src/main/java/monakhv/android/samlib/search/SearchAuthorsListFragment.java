@@ -45,8 +45,12 @@ import static monakhv.android.samlib.ActivityUtils.setDivider;
 import monakhv.android.samlib.ListSwipeListener;
 
 import monakhv.android.samlib.R;
+import monakhv.android.samlib.SamlibApplication;
+import monakhv.android.samlib.data.SettingsHelper;
 import monakhv.samlib.db.entity.AuthorCard;
 import monakhv.android.samlib.tasks.SearchAuthor;
+
+import javax.inject.Inject;
 
 
 /**
@@ -63,6 +67,9 @@ public class SearchAuthorsListFragment extends ListFragment implements ListSwipe
     private List<AuthorCard> result;
     private GestureDetector detector;
 
+    @Inject
+    SettingsHelper mSettingsHelper;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -70,6 +77,8 @@ public class SearchAuthorsListFragment extends ListFragment implements ListSwipe
             result = (List<AuthorCard>) savedInstanceState.getSerializable(KEY_RESULT_DATA);
         }
         pattern = getActivity().getIntent().getExtras().getString(SearchAuthorActivity.EXTRA_PATTERN);
+
+        ((SamlibApplication)getActivity().getApplication()).getApplicationComponent().inject(this);
 
         if (result == null) {
             result = new ArrayList<>();
@@ -111,7 +120,7 @@ public class SearchAuthorsListFragment extends ListFragment implements ListSwipe
         }
 
         pattern = ptr;
-        SearchAuthor task = new SearchAuthor(getActivity());
+        SearchAuthor task = new SearchAuthor(getActivity(),mSettingsHelper);
         progress = new ProgressDialog(getActivity());
         progress.setMessage(getActivity().getText(R.string.search_Loading));
         progress.setCancelable(true);

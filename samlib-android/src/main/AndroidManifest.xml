@@ -91,7 +91,7 @@ limitations under the License.
                 android:name=".service.UpdateLocalService">
         </service>
         <service
-                android:name=".data.GoogleAutoService">
+                android:name=".service.GoogleAutoService">
         </service>
         <service
                 android:name=".service.DownloadBookServiceIntent">

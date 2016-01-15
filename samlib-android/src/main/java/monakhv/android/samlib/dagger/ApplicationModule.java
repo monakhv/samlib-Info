@@ -24,7 +24,8 @@
 
 package monakhv.android.samlib.dagger;
 
-import android.app.Application;
+
+import android.content.Context;
 import dagger.Module;
 import dagger.Provides;
 import monakhv.android.samlib.data.Logger;
@@ -38,23 +39,23 @@ import javax.inject.Singleton;
  */
 @Module
 public class ApplicationModule {
-    private Application mApplication;
+    private Context mContext;
 
 
 
-    public ApplicationModule(Application application){
-        mApplication=application;
+    public ApplicationModule(Context context){
+        mContext=context;
     }
 
     @Provides
     @Singleton
-    Application providesApplication(){
-        return mApplication;
+    Context providesContext(){
+        return mContext;
     }
 
     @Provides
     @Singleton
-    SettingsHelper providesSettingsHelper(Application application){
+    SettingsHelper providesSettingsHelper(Context application){
         return new SettingsHelper(application);
     }
 

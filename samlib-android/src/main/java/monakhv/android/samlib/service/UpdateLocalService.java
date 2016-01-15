@@ -71,7 +71,6 @@ public class UpdateLocalService extends MyService {
     private static UpdateTread mThread;
     private static HttpClientController http;
     private int currentCaller = 0;
-    private SettingsHelper settings;
     private DataExportImport dataExportImport;
     private Context context;
 
@@ -167,13 +166,13 @@ public class UpdateLocalService extends MyService {
         }
         context = this.getApplicationContext();
         updatedAuthors.clear();
-        settings = new SettingsHelper(context);
+
         Log.d(DEBUG_TAG, "makeUpdate");
-        dataExportImport = new DataExportImport(context);
+        dataExportImport = new DataExportImport(mSettingsHelper);
 
 
         mSharedPreferences = PrefsUtil.getSharedPreferences(context, UpdateServiceIntent.PREF_NAME);
-        settings.requestFirstBackup();
+        mSettingsHelper.requestFirstBackup();
 
         mSharedPreferences.edit().putInt(UpdateServiceIntent.PREF_KEY_CALLER, currentCaller).apply();
         AuthorController ctl = new AuthorController(getHelper());
@@ -182,7 +181,7 @@ public class UpdateLocalService extends MyService {
 
         String notificationTitle;
 
-        if ((currentCaller == AndroidGuiUpdater.CALLER_IS_RECEIVER) && !settings.haveInternetWIFI()) {
+        if ((currentCaller == AndroidGuiUpdater.CALLER_IS_RECEIVER) && !mSettingsHelper.haveInternetWIFI()) {
             monakhv.samlib.log.Log.d(DEBUG_TAG, "Ignore update task - we have no internet connection");
 
             return;
@@ -218,7 +217,7 @@ public class UpdateLocalService extends MyService {
             }
             Log.i(DEBUG_TAG, "selection index: " + id);
         }
-        AndroidGuiUpdater guiUpdate = new AndroidGuiUpdater(context, currentCaller, notificationTitle);
+        AndroidGuiUpdater guiUpdate = new AndroidGuiUpdater(mSettingsHelper, currentCaller, notificationTitle);
         if (!SettingsHelper.haveInternet(context)) {
             Log.e(DEBUG_TAG, "Ignore update - we have no internet connection");
 
@@ -226,8 +225,8 @@ public class UpdateLocalService extends MyService {
             return;
         }
 
-        http = HttpClientController.getInstance(settings);
-        SpecialSamlibService service = new SpecialSamlibService(getHelper(), guiUpdate, settings, http);
+        http = HttpClientController.getInstance(mSettingsHelper);
+        SpecialSamlibService service = new SpecialSamlibService(getHelper(), guiUpdate, mSettingsHelper, http);
 
 
         PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
@@ -280,7 +279,7 @@ public class UpdateLocalService extends MyService {
             boolean result = service.runUpdate(authors);
 
             if (result) {
-                if (settings.getLimitBookLifeTimeFlag() && (currentCaller == AndroidGuiUpdater.CALLER_IS_RECEIVER)) {
+                if (mSettingsHelper.getLimitBookLifeTimeFlag() && (currentCaller == AndroidGuiUpdater.CALLER_IS_RECEIVER)) {
                     CleanBookServiceIntent.start(context);
                 }
 
@@ -319,7 +318,7 @@ public class UpdateLocalService extends MyService {
 
             if (currentCaller == AndroidGuiUpdater.CALLER_IS_RECEIVER) {
                 for (Book book : authorController.getBookController().getBooksByAuthor(a)) {//book cycle for the author to update
-                    if (book.isIsNew() && settings.testAutoLoadLimit(book) && dataExportImport.needUpdateFile(book)) {
+                    if (book.isIsNew() && mSettingsHelper.testAutoLoadLimit(book) && dataExportImport.needUpdateFile(book)) {
                         monakhv.samlib.log.Log.i(DEBUG_TAG, "Auto Load book: " + book.getId());
                         DownloadBookServiceIntent.start(context, book.getId(), AndroidGuiUpdater.CALLER_IS_RECEIVER);//we do not need GUI update
                     }

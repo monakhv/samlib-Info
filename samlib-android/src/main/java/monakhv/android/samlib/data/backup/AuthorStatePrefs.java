@@ -46,16 +46,16 @@ public class AuthorStatePrefs {
     private Context context;
     private SharedPreferences prefs;
     private static AuthorStatePrefs instance;
-    private SettingsHelper settings;
+    private final SettingsHelper settings;
     private DaoBuilder dao;
 
 
-    private AuthorStatePrefs(Context context ,DatabaseHelper helper) {
+    private AuthorStatePrefs(SettingsHelper settings ,DatabaseHelper helper) {
 
-        this.context = context;
+        this.context = settings.getContext();
         this.dao=helper;
         this.prefs = getPrefs();
-        this.settings = new SettingsHelper(this.context);
+        this.settings = settings;
     }
 
     /**
@@ -90,7 +90,7 @@ public class AuthorStatePrefs {
         Map<String, ?> map = prefs.getAll();
         settings.restore(map);
 
-        AddAuthorRestore adder = new AddAuthorRestore(context);
+        AddAuthorRestore adder = new AddAuthorRestore(settings);
 
         for (String u : map.keySet().toArray(new String[1])) {
             Log.d(DEBUG_TAG, "get: " + u + " - " + map.get(u).toString());
@@ -127,20 +127,20 @@ public class AuthorStatePrefs {
         return context.getSharedPreferences(fn, Context.MODE_PRIVATE);
     }
 
-    static AuthorStatePrefs getInstance(Context ctx,DatabaseHelper helper) {
+    static AuthorStatePrefs getInstance(SettingsHelper settings,DatabaseHelper helper) {
         if (instance == null) {
-            instance = new AuthorStatePrefs(ctx,helper);
+            instance = new AuthorStatePrefs(settings,helper);
         }
         return instance;
     }
 
-    public static void load(Context ctx,DatabaseHelper helper) {
-        AuthorStatePrefs ins = getInstance(ctx,helper);
+    public static void load(SettingsHelper settings,DatabaseHelper helper) {
+        AuthorStatePrefs ins = getInstance(settings,helper);
         ins.load();
     }
 
-    public static void restore(Context ctx,DatabaseHelper helper) {
-        AuthorStatePrefs ins = getInstance(ctx,helper);
+    public static void restore(SettingsHelper settings,DatabaseHelper helper) {
+        AuthorStatePrefs ins = getInstance(settings,helper);
         ins.restore();
     }
 

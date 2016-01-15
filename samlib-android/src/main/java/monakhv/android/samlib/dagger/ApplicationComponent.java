@@ -27,6 +27,11 @@ import monakhv.android.samlib.MyBaseAbstractActivity;
 import monakhv.android.samlib.MyBaseAbstractFragment;
 import monakhv.android.samlib.SamlibApplication;
 import monakhv.android.samlib.SamlibPreferencesFragment;
+import monakhv.android.samlib.data.backup.SamLibBackupAgentHelper;
+import monakhv.android.samlib.receiver.AutoStartUp;
+import monakhv.android.samlib.search.SearchAuthorsListFragment;
+import monakhv.android.samlib.service.MyService;
+import monakhv.android.samlib.service.MyServiceIntent;
 
 /**
  * Created by monakhv on 15.01.16.
@@ -35,7 +40,15 @@ import monakhv.android.samlib.SamlibPreferencesFragment;
 @Singleton
 public interface ApplicationComponent {
     void inject(SamlibApplication application);
+
     void inject(MyBaseAbstractActivity abstractActivity);
+    void inject (MyService service);
+    void inject(MyServiceIntent serviceIntent);
     void inject(MyBaseAbstractFragment fragment);
     void inject(SamlibPreferencesFragment fragment);
+
+    void inject (AutoStartUp receiver);
+    void inject (SearchAuthorsListFragment fragment);
+    void inject (SamLibBackupAgentHelper helper);
+
 }

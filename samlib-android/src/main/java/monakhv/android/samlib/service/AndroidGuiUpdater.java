@@ -4,7 +4,6 @@ import android.content.Context;
 import android.content.Intent;
 import monakhv.android.samlib.DownloadReceiver;
 import monakhv.android.samlib.R;
-import monakhv.android.samlib.data.GoogleAutoService;
 import monakhv.android.samlib.data.SettingsHelper;
 import monakhv.samlib.data.AbstractSettings;
 import monakhv.samlib.db.entity.Author;
@@ -54,17 +53,19 @@ public class AndroidGuiUpdater implements GuiUpdate {
 
     private final Context context;
     private final int currentCaller;
+    private final SettingsHelper mSettingsHelper;
     private ProgressNotification mProgressNotification;
 
-    public AndroidGuiUpdater(Context context,int currentCaller) {
-        this.context = context;
+    public AndroidGuiUpdater(SettingsHelper settingsHelper,int currentCaller) {
+        this.mSettingsHelper=settingsHelper;
+        this.context = settingsHelper.getContext();
         this.currentCaller = currentCaller;
 
 
     }
 
-    public AndroidGuiUpdater(Context context, int currentCaller, String notificationTitle) {
-        this(context, currentCaller);
+    public AndroidGuiUpdater(SettingsHelper settingsHelper, int currentCaller, String notificationTitle) {
+        this(settingsHelper, currentCaller);
         if (currentCaller == CALLER_IS_ACTIVITY){
             mProgressNotification = new ProgressNotification(context, notificationTitle);
         }
@@ -146,9 +147,9 @@ public class AndroidGuiUpdater implements GuiUpdate {
     @Override
     public void finishUpdate(boolean result, List<Author> updatedAuthors) {
         Log.d(DEBUG_TAG, "Finish intent.");
-        SettingsHelper settings = new SettingsHelper(context);
 
-        if (settings.isGoogleAuto() && result && !updatedAuthors.isEmpty()) {
+
+        if (mSettingsHelper.isGoogleAuto() && result && !updatedAuthors.isEmpty()) {
             GoogleAutoService.startService(context);
         }
 
@@ -178,11 +179,11 @@ public class AndroidGuiUpdater implements GuiUpdate {
         if (currentCaller == CALLER_IS_RECEIVER) {//Call as a regular service
 
 
-            if (result && updatedAuthors.isEmpty() && !settings.getDebugFlag()) {
+            if (result && updatedAuthors.isEmpty() && !mSettingsHelper.getDebugFlag()) {
                 return;//no errors and no updates - no notification
             }
 
-            if (!result && settings.getIgnoreErrorFlag()) {
+            if (!result && mSettingsHelper.getIgnoreErrorFlag()) {
                 return;//error and we ignore them
             }
 
@@ -253,8 +254,8 @@ public class AndroidGuiUpdater implements GuiUpdate {
         context.sendBroadcast(broadcastIntent);
 
         if (numberOfAdded!=0 || numberOfDeleted != 0){
-            SettingsHelper settings = new SettingsHelper(context);
-            settings.requestBackup();
+
+            mSettingsHelper.requestBackup();
         }
 
 

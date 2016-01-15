@@ -48,14 +48,14 @@ public class SearchAuthor extends AsyncTask<String, Void, Boolean> {
         Empty(R.string.author_search_empty),
         Limit(R.string.author_search_limit),
         Good(0);
-        private final int imessage;
+        private final int iMessage;
 
-        ResultStatus(int imesg) {
-            imessage = imesg;
+        ResultStatus(int msg) {
+            iMessage = msg;
         }
 
         public String getMessage(Context ctx) {
-            return ctx.getString(imessage);
+            return ctx.getString(iMessage);
         }
     }
 
@@ -64,13 +64,13 @@ public class SearchAuthor extends AsyncTask<String, Void, Boolean> {
     private Context context = null;
 
     private  List<AuthorCard> result;
-    private final SettingsHelper settings;
+    private final SettingsHelper mSettingsHelper;
 
-    public SearchAuthor(Context ctx) {
+    public SearchAuthor(Context ctx, SettingsHelper settings) {
         status = ResultStatus.Good;
 
         context = ctx;
-        settings = new SettingsHelper(context);
+        mSettingsHelper=settings ;
 
     }
 
@@ -81,7 +81,7 @@ public class SearchAuthor extends AsyncTask<String, Void, Boolean> {
         for (String pattern : params) {
 
             try {
-                result = SamlibService.makeSearch(pattern,settings);
+                result = SamlibService.makeSearch(pattern,mSettingsHelper);
                 if (result.isEmpty()){
                     status = ResultStatus.Empty;
                 }

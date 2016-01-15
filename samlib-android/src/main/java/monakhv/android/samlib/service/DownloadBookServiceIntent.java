@@ -37,7 +37,6 @@ public class DownloadBookServiceIntent extends MyServiceIntent {
 
     private int  currentCaller;
     private long book_id;
-    private SettingsHelper helper;
 
     public DownloadBookServiceIntent() {
         super("DownloadBookServiceIntent");
@@ -45,13 +44,13 @@ public class DownloadBookServiceIntent extends MyServiceIntent {
 
     @Override
     protected void onHandleIntent(Intent intent) {
-        helper = new SettingsHelper(this);
+
         Log.d(DEBUG_TAG, "Got intent");
         book_id = intent.getLongExtra(BOOK_ID, 0);
         currentCaller = intent.getIntExtra(AndroidGuiUpdater.CALLER_TYPE,AndroidGuiUpdater.CALLER_IS_RECEIVER);//do not send update by default
 
-        GuiUpdate guiUpdate = new AndroidGuiUpdater(this,currentCaller);
-        SamlibService service = new SamlibService(getHelper(),guiUpdate,helper );
+        GuiUpdate guiUpdate = new AndroidGuiUpdater(mSettingsHelper,currentCaller);
+        SamlibService service = new SamlibService(getHelper(),guiUpdate,mSettingsHelper );
 
         service.downloadBook(book_id);
 

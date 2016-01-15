@@ -22,7 +22,6 @@ import monakhv.android.samlib.adapter.*;
 
 
 import monakhv.android.samlib.data.DataExportImport;
-import monakhv.android.samlib.data.SettingsHelper;
 import monakhv.android.samlib.dialogs.ContextMenuDialog;
 import monakhv.android.samlib.dialogs.MyMenuData;
 import monakhv.android.samlib.dialogs.SingleChoiceSelectDialog;
@@ -117,7 +116,7 @@ public class BookFragment extends MyBaseAbstractFragment implements
 
 
         order = BookSortOrder.valueOf(mSettingsHelper.getBookSortOrderString());
-        dataExportImport = new DataExportImport(getActivity().getApplicationContext());
+        dataExportImport = new DataExportImport(mSettingsHelper);
     }
 
 
@@ -145,7 +144,7 @@ public class BookFragment extends MyBaseAbstractFragment implements
         mProgressBar = (ProgressBar) view.findViewById(R.id.bookProgress);
 
 
-        adapter = new BookExpandableAdapter(GroupListItem.EMPTY, getActivity(),this);
+        adapter = new BookExpandableAdapter(GroupListItem.EMPTY, getActivity(),this,mSettingsHelper);
         adapter.setAuthor_id(author_id);
         bookRV.setHasFixedSize(true);
         bookRV.setLayoutManager(new LinearLayoutManager(getActivity()));
@@ -179,7 +178,7 @@ public class BookFragment extends MyBaseAbstractFragment implements
 
         //adapter.setData(data);
 
-        adapter = new BookExpandableAdapter(data, getActivity(),this);
+        adapter = new BookExpandableAdapter(data, getActivity(),this,mSettingsHelper);
         adapter.setAuthor_id(author_id);
         bookRV.setAdapter(adapter);
         Log.d(DEBUG_TAG, "onLoadFinished: adapter size = " + adapter.getItemCount());
@@ -191,7 +190,7 @@ public class BookFragment extends MyBaseAbstractFragment implements
     public void onLoaderReset(Loader<List<GroupListItem>> loader) {
 
         //adapter.setData(null);
-        adapter = new BookExpandableAdapter(GroupListItem.EMPTY, getActivity(),this);
+        adapter = new BookExpandableAdapter(GroupListItem.EMPTY, getActivity(),this,mSettingsHelper);
         bookRV.setAdapter(adapter);
 
     }
