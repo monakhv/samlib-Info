@@ -79,7 +79,7 @@ public class HttpClientController {
         return instance;
     }
 
-    private HttpClientController(AbstractSettings context) {
+    public HttpClientController(AbstractSettings context) {
         httpclient = new OkHttpClient();
         slc = SamLibConfig.getInstance(context);
 

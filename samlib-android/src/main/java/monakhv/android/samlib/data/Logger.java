@@ -35,14 +35,14 @@ public class Logger implements AbstractLogger  {
     private SettingsHelper mSettingsHelper;
 
 
-    Logger(SettingsHelper settingsHelper){
+    public Logger(SettingsHelper settingsHelper){
         mSettingsHelper=settingsHelper;
 
         logger = new HashMap<>();
         initLogger();
     }
 
-    private void initLogger() {
+    public final void initLogger() {
         LoggerContext lc = (LoggerContext) LoggerFactory.getILoggerFactory();
         lc.reset();
 

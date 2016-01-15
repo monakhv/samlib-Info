@@ -39,6 +39,7 @@ import java.util.*;
 
 
 import monakhv.android.samlib.R;
+import monakhv.android.samlib.SamlibApplication;
 import monakhv.android.samlib.receiver.UpdateReceiver;
 import monakhv.samlib.data.AbstractSettings;
 import monakhv.samlib.db.SQLController;
@@ -62,18 +63,14 @@ public class SettingsHelper extends AbstractSettings implements SharedPreference
     private static final String DARK = "DARK";
     private static final String LIGHT = "LIGHT";
     static final String DEBUG_FILE = SQLController.DB_NAME + ".log";
-    private static Logger LOGGER;
+
 
 
 
     public SettingsHelper(Context context) {
         this.context = context;
         this.prefs = context.getSharedPreferences(PREFS_NAME, 0);
-        if (LOGGER == null){
-            LOGGER = new Logger(this);
-        }
 
-        monakhv.samlib.log.Log.checkInit(LOGGER, this);
     }
 
 
@@ -143,8 +140,8 @@ public class SettingsHelper extends AbstractSettings implements SharedPreference
             sc.refreshData();
         }
         if (key.equals(context.getString(R.string.pref_key_debug_options))){
-            LOGGER=new Logger(this);
-            monakhv.samlib.log.Log.forceInit(LOGGER, this);
+            SamlibApplication.initLogger();
+
         }
     }
 
