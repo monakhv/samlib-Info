@@ -27,6 +27,7 @@ import android.support.annotation.Nullable;
 import android.util.Log;
 import in.srain.cube.views.ptr.util.PrefsUtil;
 import monakhv.android.samlib.R;
+
 import monakhv.android.samlib.data.DataExportImport;
 import monakhv.android.samlib.data.SettingsHelper;
 import monakhv.android.samlib.sortorder.AuthorSortOrder;
@@ -41,7 +42,6 @@ import monakhv.samlib.db.entity.Tag;
 import monakhv.samlib.http.HttpClientController;
 import monakhv.samlib.service.GuiUpdate;
 import monakhv.samlib.service.SamlibService;
-
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
@@ -69,7 +69,7 @@ public class UpdateLocalService extends MyService {
     private static boolean isRun = false;
     private static PowerManager.WakeLock wl;
     private static UpdateTread mThread;
-    private static HttpClientController http;
+
     private int currentCaller = 0;
     private DataExportImport dataExportImport;
     private Context context;
@@ -228,7 +228,8 @@ public class UpdateLocalService extends MyService {
             return;
         }
 
-        http = HttpClientController.getInstance(mSettingsHelper);
+
+        //http = HttpClientController.getInstance(mSettingsHelper);
         SpecialSamlibService service = new SpecialSamlibService(getHelper(), guiUpdate, mSettingsHelper, http);
 
 

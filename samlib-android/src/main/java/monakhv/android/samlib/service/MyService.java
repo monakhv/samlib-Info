@@ -24,6 +24,7 @@ import com.j256.ormlite.android.apptools.OpenHelperManager;
 import monakhv.android.samlib.SamlibApplication;
 import monakhv.android.samlib.data.SettingsHelper;
 import monakhv.android.samlib.sql.DatabaseHelper;
+import monakhv.samlib.http.HttpClientController;
 
 import javax.inject.Inject;
 
@@ -37,6 +38,8 @@ public abstract class MyService extends Service {
     private volatile boolean destroyed = false;
     @Inject
     SettingsHelper mSettingsHelper;
+    @Inject
+    static HttpClientController http;
 
 
     @Override
@@ -48,6 +51,7 @@ public abstract class MyService extends Service {
         super.onCreate();
 
         ((SamlibApplication)getApplication()).getApplicationComponent().inject(this);
+
     }
 
     @Override

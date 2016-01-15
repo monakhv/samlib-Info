@@ -69,5 +69,4 @@ public class ApplicationModule {
     HttpClientController providesHttpClientController(SettingsHelper settingsHelper){
         return new HttpClientController(settingsHelper);
     }
-
 }
