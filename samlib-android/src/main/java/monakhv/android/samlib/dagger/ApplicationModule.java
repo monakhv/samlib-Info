@@ -30,6 +30,7 @@ import dagger.Module;
 import dagger.Provides;
 import monakhv.android.samlib.data.Logger;
 import monakhv.android.samlib.data.SettingsHelper;
+import monakhv.samlib.http.HttpClientController;
 
 import javax.inject.Singleton;
 
@@ -40,8 +41,6 @@ import javax.inject.Singleton;
 @Module
 public class ApplicationModule {
     private Context mContext;
-
-
 
     public ApplicationModule(Context context){
         mContext=context;
@@ -63,6 +62,12 @@ public class ApplicationModule {
     @Singleton
     Logger providesLogger(SettingsHelper helper) {
         return new Logger(helper);
+    }
+
+    @Provides
+    @Singleton
+    HttpClientController providesHttpClientController(SettingsHelper settingsHelper){
+        return new HttpClientController(settingsHelper);
     }
 
 }
