@@ -53,27 +53,5 @@ public class ApplicationModule {
         return mContext;
     }
 
-    @Provides
-    @Singleton
-    SettingsHelper providesSettingsHelper(Context context){
-        return new SettingsHelper(context);
-    }
 
-    @Provides
-    @Singleton
-    Logger providesLogger(SettingsHelper helper) {
-        return new Logger(helper);
-    }
-
-    @Provides
-    @Singleton
-    HttpClientController providesHttpClientController(SettingsHelper settingsHelper){
-        return new HttpClientController(settingsHelper);
-    }
-
-    @Provides
-    @Singleton
-    DataExportImport providesDataExportImport(SettingsHelper settingsHelper){
-        return new DataExportImport(settingsHelper);
-    }
 }

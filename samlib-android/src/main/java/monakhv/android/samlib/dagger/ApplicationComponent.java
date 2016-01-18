@@ -34,9 +34,13 @@ import monakhv.android.samlib.service.MyService;
 import monakhv.android.samlib.service.MyServiceIntent;
 
 /**
+ * Root Component of the graph
  * Created by monakhv on 15.01.16.
  */
-@Component ( modules = {ApplicationModule.class})
+@Component (
+        modules = {
+                ApplicationModule.class,
+                ApiModule.class})
 @Singleton
 public interface ApplicationComponent {
     void inject(SamlibApplication application);
