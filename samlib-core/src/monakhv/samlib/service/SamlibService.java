@@ -25,6 +25,7 @@ import monakhv.samlib.exception.SamlibParseException;
 import monakhv.samlib.http.HttpClientController;
 import monakhv.samlib.log.Log;
 
+import javax.inject.Inject;
 import java.io.IOException;
 import java.text.Collator;
 import java.text.ParseException;
@@ -66,15 +67,8 @@ public class SamlibService {
     private final AbstractSettings settingsHelper;
     private final HttpClientController http;
 
-//    public SamlibService(AuthorController sql, GuiUpdate guiUpdate, AbstractSettings settingsHelper) {
-//        this.guiUpdate = guiUpdate;
-//        this.settingsHelper = settingsHelper;
-//        authorController =sql;
-//        updatedAuthors = new ArrayList<>();
-//        http = HttpClientController.getInstance(settingsHelper);
-//
-//    }
 
+    @Inject
     public SamlibService(AuthorController sql,  GuiUpdate guiUpdate, AbstractSettings settingsHelper, HttpClientController httpClientController) {
         this.guiUpdate = guiUpdate;
         this.settingsHelper = settingsHelper;

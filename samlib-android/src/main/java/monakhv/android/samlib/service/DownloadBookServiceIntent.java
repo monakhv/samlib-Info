@@ -20,6 +20,7 @@ import android.content.Context;
 import android.content.Intent;
 
 
+import monakhv.android.samlib.SamlibApplication;
 import monakhv.android.samlib.data.SettingsHelper;
 import monakhv.samlib.db.AuthorController;
 import monakhv.samlib.http.HttpClientController;
@@ -37,9 +38,7 @@ public class DownloadBookServiceIntent extends MyServiceIntent {
     private static final String DEBUG_TAG = "DownloadBookServiceIntent";
     public static final  String BOOK_ID = "BOOK_ID";
 
-
-    private long book_id;
-
+    SamlibApplication mSamlibApplication;
     public DownloadBookServiceIntent() {
         super("DownloadBookServiceIntent");
     }
@@ -48,17 +47,19 @@ public class DownloadBookServiceIntent extends MyServiceIntent {
     protected void onHandleIntent(Intent intent) {
 
         Log.d(DEBUG_TAG, "Got intent");
-        book_id = intent.getLongExtra(BOOK_ID, 0);
+        long book_id = intent.getLongExtra(BOOK_ID, 0);
+        mSamlibApplication= (SamlibApplication) getApplication();
         //currentCaller
         UpdateObject updateObject=      intent.getParcelableExtra(AndroidGuiUpdater.CALLER_TYPE_EXTRA);
 
 
 
         GuiUpdate guiUpdate = new AndroidGuiUpdater(mSettingsHelper,updateObject,null);
-        SamlibService service = new SamlibService(new AuthorController(getHelper()),guiUpdate,mSettingsHelper,new HttpClientController(mSettingsHelper));
+        SamlibService service =mSamlibApplication.getServiceComponent(updateObject,getHelper()).getSamlibService();
+                //new SamlibService(new AuthorController(getHelper()),guiUpdate,mSettingsHelper,new HttpClientController(mSettingsHelper));
 
         service.downloadBook(book_id);
-
+        mSamlibApplication.releaseServiceComponent();
 
     }
 
