@@ -13,6 +13,8 @@ import monakhv.android.samlib.dagger.ApplicationModule;
 import monakhv.android.samlib.dagger.DaggerApplicationComponent;
 import monakhv.android.samlib.data.SettingsHelper;
 import monakhv.android.samlib.sql.DatabaseHelper;
+import monakhv.samlib.db.AuthorController;
+import monakhv.samlib.http.HttpClientController;
 
 import javax.inject.Inject;
 import java.io.IOException;
@@ -42,8 +44,8 @@ public class SamLibBackupAgentHelper extends BackupAgentHelper {
     private volatile boolean destroyed = false;
     @Inject
     SettingsHelper mSettingsHelper;
-
-
+    @Inject
+    HttpClientController mHttpClientController;
     // A key to uniquely identify the set of backup data
     static final String PREFS_SETTINGS_KEY = "prefs";
 
@@ -80,14 +82,14 @@ public class SamLibBackupAgentHelper extends BackupAgentHelper {
 
     @Override
     public void onBackup(ParcelFileDescriptor oldState, BackupDataOutput data, ParcelFileDescriptor newState) throws IOException {
-        AuthorStatePrefs.load(mSettingsHelper, getDatabaseHelper());
+        AuthorStatePrefs.load(mSettingsHelper, new AuthorController(getDatabaseHelper()),mHttpClientController);
         super.onBackup(oldState, data, newState);
     }
 
     @Override
     public void onRestore(BackupDataInput data, int appVersionCode, ParcelFileDescriptor newState) throws IOException {
         super.onRestore(data, appVersionCode, newState);
-        AuthorStatePrefs.restore(mSettingsHelper, getDatabaseHelper());
+        AuthorStatePrefs.restore(mSettingsHelper, new AuthorController(getDatabaseHelper()),mHttpClientController);
     }
 
     @Override
@@ -96,12 +98,14 @@ public class SamLibBackupAgentHelper extends BackupAgentHelper {
         destroyed = true;
         super.onDestroy();
     }
+
     protected DatabaseHelper getHelperInternal(Context context) {
-        @SuppressWarnings({ "unchecked", "deprecation" })
-        DatabaseHelper newHelper = (DatabaseHelper) OpenHelperManager.getHelper(context,DatabaseHelper.class);
+        @SuppressWarnings({"unchecked", "deprecation"})
+        DatabaseHelper newHelper = (DatabaseHelper) OpenHelperManager.getHelper(context, DatabaseHelper.class);
 
         return newHelper;
     }
+
     protected void releaseHelper(DatabaseHelper helper) {
         OpenHelperManager.releaseHelper();
 

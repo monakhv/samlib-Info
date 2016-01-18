@@ -27,8 +27,10 @@ import java.util.List;
 
 
 import monakhv.android.samlib.R;
-import monakhv.android.samlib.data.SettingsHelper;
+import monakhv.android.samlib.SamlibApplication;
 import monakhv.android.samlib.search.SearchAuthorActivity.SearchReceiver;
+import monakhv.android.samlib.service.UpdateObject;
+import monakhv.android.samlib.sql.DatabaseHelper;
 import monakhv.samlib.exception.SamlibInterruptException;
 import monakhv.samlib.exception.SamlibParseException;
 import monakhv.samlib.db.entity.AuthorCard;
@@ -61,16 +63,15 @@ public class SearchAuthor extends AsyncTask<String, Void, Boolean> {
 
     private ResultStatus status;
     private static final String DEBUG_TAG = "SearchAuthor";
-    private Context context = null;
 
     private  List<AuthorCard> result;
-    private final SettingsHelper mSettingsHelper;
+    private final SamlibApplication mSamlibApplication;
+    private final SamlibService mSamlibService;
 
-    public SearchAuthor(Context ctx, SettingsHelper settings) {
+    public SearchAuthor(SamlibApplication samlibApplication, DatabaseHelper helper) {
         status = ResultStatus.Good;
-
-        context = ctx;
-        mSettingsHelper=settings ;
+        mSamlibApplication=samlibApplication;
+        mSamlibService=mSamlibApplication.getServiceComponent(UpdateObject.UNDEF,helper).getSamlibService();
 
     }
 
@@ -81,7 +82,7 @@ public class SearchAuthor extends AsyncTask<String, Void, Boolean> {
         for (String pattern : params) {
 
             try {
-                result = SamlibService.makeSearch(pattern,mSettingsHelper);
+                result = mSamlibService.makeSearch(pattern);
                 if (result.isEmpty()){
                     status = ResultStatus.Empty;
                 }
@@ -111,11 +112,12 @@ public class SearchAuthor extends AsyncTask<String, Void, Boolean> {
     @Override
     protected void onPostExecute(Boolean res) {
 
+        mSamlibApplication.releaseServiceComponent();
         Intent broadcastIntent = new Intent();
         broadcastIntent.addCategory(Intent.CATEGORY_DEFAULT);
         broadcastIntent.setAction(SearchReceiver.ACTION_RESP);
         if (status != ResultStatus.Good) {
-            broadcastIntent.putExtra(SearchReceiver.EXTRA_MESSAGE, status.getMessage(context));
+            broadcastIntent.putExtra(SearchReceiver.EXTRA_MESSAGE, status.getMessage(mSamlibApplication));
         }
 
         if (result == null){
@@ -128,7 +130,7 @@ public class SearchAuthor extends AsyncTask<String, Void, Boolean> {
         broadcastIntent.putExtra(SearchReceiver.EXTRA_RESULT, (Serializable) result);
 
 
-        context.sendBroadcast(broadcastIntent);
+        mSamlibApplication.sendBroadcast(broadcastIntent);
 
     }
 

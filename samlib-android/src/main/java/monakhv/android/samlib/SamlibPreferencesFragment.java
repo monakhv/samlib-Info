@@ -21,7 +21,6 @@ import android.accounts.AccountManager;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -73,6 +72,8 @@ public class SamlibPreferencesFragment extends PreferenceFragment
     private static final int REQ_AUTH = 11;
     @Inject
     SettingsHelper helper;
+    @Inject
+    HttpClientController mHttpClientController;
     private final String[] autoSummaryFields = {"pref_key_update_Period", "pref_key_proxy_host",
             "pref_key_proxy_port", "pref_key_proxy_user", "pref_key_update_autoload_limit", "pref_key_book_lifetime",
             "pref_key_author_order", "pref_key_book_order", "pref_key_file_format","pref_key_theme",
@@ -200,7 +201,7 @@ public class SamlibPreferencesFragment extends PreferenceFragment
         helper.updateService();
         helper.unRegisterListener();
         //if http instance already exist make sure we have right proxy settings
-        HttpClientController.getInstance(helper).setProxy(helper.getProxy());
+        mHttpClientController.setProxy(helper.getProxy());
         Log.d(DEBUG_TAG, "onPause");
         getPreferenceScreen().getSharedPreferences().unregisterOnSharedPreferenceChangeListener(this);
 

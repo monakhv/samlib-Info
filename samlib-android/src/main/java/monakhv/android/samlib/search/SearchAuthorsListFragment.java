@@ -42,11 +42,13 @@ import java.util.List;
 import static monakhv.android.samlib.ActivityUtils.setDivider;
 
 
+import com.j256.ormlite.android.apptools.OpenHelperManager;
 import monakhv.android.samlib.ListSwipeListener;
 
 import monakhv.android.samlib.R;
 import monakhv.android.samlib.SamlibApplication;
 import monakhv.android.samlib.data.SettingsHelper;
+import monakhv.android.samlib.sql.DatabaseHelper;
 import monakhv.samlib.db.entity.AuthorCard;
 import monakhv.android.samlib.tasks.SearchAuthor;
 
@@ -66,9 +68,10 @@ public class SearchAuthorsListFragment extends ListFragment implements ListSwipe
     ProgressDialog progress;
     private List<AuthorCard> result;
     private GestureDetector detector;
+    private DatabaseHelper mDatabaseHelper;
 
-    @Inject
-    SettingsHelper mSettingsHelper;
+//    @Inject
+//    SettingsHelper mSettingsHelper;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -88,6 +91,7 @@ public class SearchAuthorsListFragment extends ListFragment implements ListSwipe
 
         setListAdapter(adapter);
         detector = new GestureDetector(getActivity(), new ListSwipeListener(this));
+        mDatabaseHelper = (DatabaseHelper) OpenHelperManager.getHelper(getActivity(), DatabaseHelper.class);
     }
 
     @Override
@@ -101,6 +105,16 @@ public class SearchAuthorsListFragment extends ListFragment implements ListSwipe
             }
         });
         setDivider(getListView());
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        if (mDatabaseHelper != null){
+            OpenHelperManager.releaseHelper();
+            mDatabaseHelper=null;
+        }
+
     }
 
     @Override
@@ -120,7 +134,7 @@ public class SearchAuthorsListFragment extends ListFragment implements ListSwipe
         }
 
         pattern = ptr;
-        SearchAuthor task = new SearchAuthor(getActivity(),mSettingsHelper);
+        SearchAuthor task = new SearchAuthor((SamlibApplication) getActivity().getApplication(),mDatabaseHelper);
         progress = new ProgressDialog(getActivity());
         progress.setMessage(getActivity().getText(R.string.search_Loading));
         progress.setCancelable(true);

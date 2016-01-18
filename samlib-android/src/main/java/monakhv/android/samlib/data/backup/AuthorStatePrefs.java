@@ -11,11 +11,10 @@ import java.util.Map;
 
 import monakhv.android.samlib.data.SettingsHelper;
 
-import monakhv.android.samlib.sql.DatabaseHelper;
 import monakhv.samlib.db.AuthorController;
-import monakhv.samlib.db.DaoBuilder;
 import monakhv.samlib.db.entity.Author;
 import monakhv.android.samlib.tasks.AddAuthorRestore;
+import monakhv.samlib.http.HttpClientController;
 
 /*
  * Copyright 2014  Dmitry Monakhov
@@ -43,19 +42,22 @@ public class AuthorStatePrefs {
     private static final String DEBUG_TAG = "AuthorStatePrefs";
     public static final String PREF_NAME = "AuthorStatePrefs";
 
-    private Context context;
+    private final Context context;
     private SharedPreferences prefs;
     private static AuthorStatePrefs instance;
     private final SettingsHelper settings;
-    private DaoBuilder dao;
+    private final AuthorController mAuthorController;
+    private final HttpClientController mHttpClientController;
 
 
-    private AuthorStatePrefs(SettingsHelper settings ,DatabaseHelper helper) {
+    private AuthorStatePrefs(SettingsHelper settings ,AuthorController authorController,HttpClientController httpClientController) {
 
+        mAuthorController = authorController;
         this.context = settings.getContext();
-        this.dao=helper;
+
         this.prefs = getPrefs();
         this.settings = settings;
+        mHttpClientController=httpClientController;
     }
 
     /**
@@ -69,8 +71,8 @@ public class AuthorStatePrefs {
         editor.commit();
         settings.backup(prefs);
         editor = prefs.edit();
-        AuthorController sql = new AuthorController(dao);
-        for (Author a : sql.getAll()) {
+
+        for (Author a : mAuthorController.getAll()) {
             editor.putString(a.getUrlForBrowser(settings), a.getAll_tags_name());
 
             Log.d(DEBUG_TAG, "url: " + a.getUrlForBrowser(settings) + " - " + a.getAll_tags_name());
@@ -90,7 +92,7 @@ public class AuthorStatePrefs {
         Map<String, ?> map = prefs.getAll();
         settings.restore(map);
 
-        AddAuthorRestore adder = new AddAuthorRestore(settings);
+        AddAuthorRestore adder = new AddAuthorRestore(settings,mHttpClientController,mAuthorController);
 
         for (String u : map.keySet().toArray(new String[1])) {
             Log.d(DEBUG_TAG, "get: " + u + " - " + map.get(u).toString());
@@ -127,20 +129,20 @@ public class AuthorStatePrefs {
         return context.getSharedPreferences(fn, Context.MODE_PRIVATE);
     }
 
-    static AuthorStatePrefs getInstance(SettingsHelper settings,DatabaseHelper helper) {
+    static AuthorStatePrefs getInstance(SettingsHelper settings,AuthorController authorController,HttpClientController httpClientController) {
         if (instance == null) {
-            instance = new AuthorStatePrefs(settings,helper);
+            instance = new AuthorStatePrefs(settings,authorController,httpClientController);
         }
         return instance;
     }
 
-    public static void load(SettingsHelper settings,DatabaseHelper helper) {
-        AuthorStatePrefs ins = getInstance(settings,helper);
+    public static void load(SettingsHelper settings,AuthorController authorController,HttpClientController httpClientController) {
+        AuthorStatePrefs ins = getInstance(settings,authorController,httpClientController);
         ins.load();
     }
 
-    public static void restore(SettingsHelper settings,DatabaseHelper helper) {
-        AuthorStatePrefs ins = getInstance(settings,helper);
+    public static void restore(SettingsHelper settings, AuthorController authorController, HttpClientController httpClientController) {
+        AuthorStatePrefs ins = getInstance(settings,authorController,httpClientController);
         ins.restore();
     }
 

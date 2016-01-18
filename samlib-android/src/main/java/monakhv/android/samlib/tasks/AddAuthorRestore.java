@@ -31,7 +31,6 @@ import com.j256.ormlite.android.apptools.OpenHelperManager;
 import monakhv.android.samlib.R;
 import monakhv.android.samlib.data.SettingsHelper;
 import monakhv.android.samlib.data.backup.AuthorStatePrefs;
-import monakhv.android.samlib.sql.DatabaseHelper;
 import monakhv.samlib.db.AuthorController;
 import monakhv.samlib.db.TagController;
 import monakhv.samlib.exception.SamlibInterruptException;
@@ -57,36 +56,39 @@ public class AddAuthorRestore extends AsyncTask<String, Void, Boolean> {
     private Context context = null;
     private int numberOfAdded;
     private int doubleAdd = 0;
-    private final SettingsHelper mSettingsHelper;
-    private final SharedPreferences prefs;
-    private DatabaseHelper databaseHelper = null;
 
-    public AddAuthorRestore(SettingsHelper settingsHelper) {
+    private final SharedPreferences prefs;
+    private final AuthorController mAuthorController;
+    private final HttpClientController mHttpClientController;
+
+    public AddAuthorRestore(SettingsHelper settingsHelper,HttpClientController httpClientController,AuthorController authorController) {
+        mAuthorController = authorController;
         context = settingsHelper.getContext();
         numberOfAdded = 0;
-        mSettingsHelper = settingsHelper;
+
+        mHttpClientController=httpClientController;
 
         prefs = context.getSharedPreferences(AuthorStatePrefs.PREF_NAME, 0);
-        databaseHelper= OpenHelperManager.getHelper(context,DatabaseHelper.class);
+
     }
 
     @Override
     protected Boolean doInBackground(String... texts) {
 
-        HttpClientController http = HttpClientController.getInstance(mSettingsHelper);
-        AuthorController sql = new AuthorController(databaseHelper);
-        TagController tagController = new TagController(databaseHelper);
+
+
+        TagController tagController = mAuthorController.getTagController();
         PowerManager pm = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
         PowerManager.WakeLock wl = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, DEBUG_TAG);
         wl.acquire();
         for (String url : texts) {
-            Author a = loadAuthor(http, sql, url);
+            Author a = loadAuthor(mHttpClientController, mAuthorController, url);
 
             if (a != null) {
                 String allTags = prefs.getString(url, "");
                 Log.d(DEBUG_TAG, "got tags: " + allTags);
-                long idAuthor = sql.insert(a);
-                a = sql.getById(idAuthor);
+                long idAuthor = mAuthorController.insert(a);
+                a = mAuthorController.getById(idAuthor);
                 ++numberOfAdded;
 
                 String[] tags = allTags.split(",");
@@ -101,7 +103,7 @@ public class AddAuthorRestore extends AsyncTask<String, Void, Boolean> {
                         }
                     }
                 }
-                sql.syncTags(a, Tags);
+                mAuthorController.syncTags(a, Tags);
 
 
             }
