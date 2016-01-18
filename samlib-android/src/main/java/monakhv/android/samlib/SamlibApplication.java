@@ -69,7 +69,7 @@ public class SamlibApplication extends Application {
     }
 
     public ServiceComponent getServiceComponent(UpdateObject updateObject, DatabaseHelper databaseHelper) {
-        mServiceComponent=applicationComponent.plus(new ServiceModule(updateObject,databaseHelper));
+        mServiceComponent=applicationComponent.plus(new DatabaseModule(databaseHelper)).plus(new ServiceModule(updateObject));
         return mServiceComponent;
     }
 

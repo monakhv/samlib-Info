@@ -26,31 +26,24 @@ import monakhv.android.samlib.data.SettingsHelper;
 import monakhv.android.samlib.service.AndroidGuiUpdater;
 import monakhv.android.samlib.service.SpecialSamlibService;
 import monakhv.android.samlib.service.UpdateObject;
-import monakhv.android.samlib.sql.DatabaseHelper;
 import monakhv.samlib.db.AuthorController;
 import monakhv.samlib.http.HttpClientController;
 import monakhv.samlib.service.SamlibService;
 
 /**
+ * To care inject constructor for services
  * Created by monakhv on 15.01.16.
  */
 @Module
 public class ServiceModule {
     private final UpdateObject mUpdateObject;
-    private final DatabaseHelper mDatabaseHelper;
 
 
-    public ServiceModule(UpdateObject updateObject,DatabaseHelper databaseHelper){
+    public ServiceModule(UpdateObject updateObject){
         mUpdateObject=updateObject;
-        mDatabaseHelper=databaseHelper;
 
     }
 
-    @Provides
-    @UpdateScope
-    AuthorController providesAuthorController() {
-        return new AuthorController(mDatabaseHelper);
-    }
 
     @Provides
     @UpdateScope
