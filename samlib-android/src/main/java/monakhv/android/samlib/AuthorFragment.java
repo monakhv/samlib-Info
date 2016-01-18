@@ -39,7 +39,6 @@ import monakhv.android.samlib.dialogs.MyMenuData;
 import monakhv.android.samlib.recyclerview.DividerItemDecoration;
 import monakhv.android.samlib.service.AuthorEditorServiceIntent;
 import monakhv.android.samlib.service.UpdateLocalService;
-import monakhv.android.samlib.service.UpdateServiceIntent;
 import monakhv.android.samlib.sortorder.AuthorSortOrder;
 
 import monakhv.android.samlib.sql.DatabaseHelper;
@@ -221,7 +220,7 @@ public class AuthorFragment extends MyBaseAbstractFragment implements
     public void makePulToRefresh() {
         mPtrFrame = (PtrClassicFrameLayout) view.findViewById(R.id.ptr_frame);
         mPtrFrame.setPtrHandler(this);
-        mPtrFrame.setLastUpdateTimeKey(UpdateServiceIntent.PREF_NAME, UpdateServiceIntent.PREF_KEY_LAST_UPDATE);
+        mPtrFrame.setLastUpdateTimeKey(UpdateLocalService.PREF_NAME, UpdateLocalService.PREF_KEY_LAST_UPDATE);
 
     }
 

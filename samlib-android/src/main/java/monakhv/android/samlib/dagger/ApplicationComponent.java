@@ -51,4 +51,7 @@ public interface ApplicationComponent {
     void inject (SearchAuthorsListFragment fragment);
     void inject (SamLibBackupAgentHelper helper);
 
+    ServiceComponent plus(ServiceModule module);
+
+
 }

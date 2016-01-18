@@ -7,6 +7,8 @@ import android.content.Intent;
 import java.util.ArrayList;
 
 
+import monakhv.samlib.db.AuthorController;
+import monakhv.samlib.http.HttpClientController;
 import monakhv.samlib.log.Log;
 import monakhv.samlib.service.SamlibService;
 
@@ -48,7 +50,8 @@ public class AuthorEditorServiceIntent extends MyServiceIntent {
     protected void onHandleIntent(Intent intent) {
 
         String action = intent.getStringExtra(EXTRA_ACTION_TYPE);
-        SamlibService service = new SamlibService(getHelper(),new AndroidGuiUpdater(mSettingsHelper,0), mSettingsHelper);
+
+        SamlibService service = new SamlibService(new AuthorController(getHelper()),new AndroidGuiUpdater(mSettingsHelper,UpdateObject.UNDEF,null), mSettingsHelper,new HttpClientController(mSettingsHelper));
 
         Log.d(DEBUG_TAG, "Got intent for action: "+action);
 

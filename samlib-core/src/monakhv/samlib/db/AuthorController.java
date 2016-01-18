@@ -349,6 +349,10 @@ public class AuthorController implements AbstractController<Author> {
         return bookCtl;
     }
 
+    public TagController getTagController(){
+        return tagCtl;
+    }
+
     public GroupBookController getGroupBookController(){
         return grpCtl;
     }

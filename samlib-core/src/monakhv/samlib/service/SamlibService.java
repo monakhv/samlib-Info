@@ -18,11 +18,8 @@ package monakhv.samlib.service;
 
 import monakhv.samlib.data.AbstractSettings;
 import monakhv.samlib.db.AuthorController;
-import monakhv.samlib.db.DaoBuilder;
-import monakhv.samlib.db.entity.Author;
-import monakhv.samlib.db.entity.AuthorCard;
-import monakhv.samlib.db.entity.Book;
-import monakhv.samlib.db.entity.SamLibConfig;
+import monakhv.samlib.db.SQLController;
+import monakhv.samlib.db.entity.*;
 import monakhv.samlib.exception.SamlibInterruptException;
 import monakhv.samlib.exception.SamlibParseException;
 import monakhv.samlib.http.HttpClientController;
@@ -45,7 +42,9 @@ import java.util.concurrent.TimeUnit;
 public class SamlibService {
     public enum UpdateObjectSelector {
         Tag,
-        Author
+        Author,
+        Book,
+        UNDEF
     }
 
     private static final String DEBUG_TAG = "SamlibService";
@@ -67,22 +66,45 @@ public class SamlibService {
     private final AbstractSettings settingsHelper;
     private final HttpClientController http;
 
-    public SamlibService(DaoBuilder sql, GuiUpdate guiUpdate, AbstractSettings settingsHelper) {
+//    public SamlibService(AuthorController sql, GuiUpdate guiUpdate, AbstractSettings settingsHelper) {
+//        this.guiUpdate = guiUpdate;
+//        this.settingsHelper = settingsHelper;
+//        authorController =sql;
+//        updatedAuthors = new ArrayList<>();
+//        http = HttpClientController.getInstance(settingsHelper);
+//
+//    }
+
+    public SamlibService(AuthorController sql,  GuiUpdate guiUpdate, AbstractSettings settingsHelper, HttpClientController httpClientController) {
         this.guiUpdate = guiUpdate;
         this.settingsHelper = settingsHelper;
-        authorController = new AuthorController(sql);
-        updatedAuthors = new ArrayList<>();
-        http = HttpClientController.getInstance(settingsHelper);
-
-    }
-
-    public SamlibService(DaoBuilder sql, GuiUpdate guiUpdate, AbstractSettings settingsHelper, HttpClientController httpClientController) {
-        this.guiUpdate = guiUpdate;
-        this.settingsHelper = settingsHelper;
-        authorController = new AuthorController(sql);
+        authorController = sql;
         updatedAuthors = new ArrayList<>();
         http = httpClientController;
 
+    }
+    public boolean runUpdate(SamlibService.UpdateObjectSelector selector, int id){
+        List<Author> authors;
+        if (selector == SamlibService.UpdateObjectSelector.Author) {//Check update for the only Author
+
+            //int id = intent.getIntExtra(SELECT_ID, 0);//author_id
+            Author author = authorController.getById(id);
+            if (author != null) {
+                authors = new ArrayList<>();
+                authors.add(author);
+
+                Log.i(DEBUG_TAG, "runUpdate: Check single Author: " + author.getName());
+            } else {
+                Log.e(DEBUG_TAG, "runUpdate: Can not find Author: " + id);
+                return false;
+            }
+        } else {//Check update for authors by TAG
+            authors = authorController.getAll(id, SQLController.COL_mtime + " DESC");
+
+
+            Log.i(DEBUG_TAG, "runUpdate: selection index: " + id);
+        }
+        return runUpdate(authors);
     }
 
     /**

@@ -29,6 +29,7 @@ import monakhv.android.samlib.recyclerview.DividerItemDecoration;
 import monakhv.android.samlib.service.AndroidGuiUpdater;
 import monakhv.android.samlib.service.AuthorEditorServiceIntent;
 import monakhv.android.samlib.service.DownloadBookServiceIntent;
+import monakhv.android.samlib.service.UpdateObject;
 import monakhv.android.samlib.sortorder.BookSortOrder;
 
 import monakhv.android.samlib.sql.DatabaseHelper;
@@ -459,7 +460,7 @@ public class BookFragment extends MyBaseAbstractFragment implements
             progress.setCancelable(true);
             progress.setIndeterminate(true);
             progress.show();
-            DownloadBookServiceIntent.start(getActivity(), book.getId(), AndroidGuiUpdater.CALLER_IS_ACTIVITY);
+            DownloadBookServiceIntent.start(getActivity(), book.getId(), UpdateObject.ACTIVITY_CALLER);
 
 
         } else {

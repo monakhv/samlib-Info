@@ -6,11 +6,14 @@ import monakhv.android.samlib.DownloadReceiver;
 import monakhv.android.samlib.R;
 import monakhv.android.samlib.data.SettingsHelper;
 import monakhv.samlib.data.AbstractSettings;
+import monakhv.samlib.db.AuthorController;
+import monakhv.samlib.db.TagController;
 import monakhv.samlib.db.entity.Author;
+import monakhv.samlib.db.entity.SamLibConfig;
+import monakhv.samlib.db.entity.Tag;
 import monakhv.samlib.log.Log;
 import monakhv.samlib.service.GuiUpdate;
 import monakhv.samlib.service.SamlibService;
-
 import java.util.List;
 
 /*
@@ -31,6 +34,11 @@ import java.util.List;
  * 09.07.15.
  */
 public class AndroidGuiUpdater implements GuiUpdate {
+    public enum CALLER_TYPE {
+        CALLER_IS_ACTIVITY,
+        CALLER_IS_RECEIVER,
+        CALLER_IS_UNDEF
+    }
     private static final String DEBUG_TAG="AndroidGuiUpdater";
     public static final String ACTION_RESP = "monakhv.android.samlib.action.UPDATED";
     public static final String TOAST_STRING = "TOAST_STRING";
@@ -43,34 +51,68 @@ public class AndroidGuiUpdater implements GuiUpdate {
     public static final int     ACTION_REFRESH_AUTHORS = 10;
     public static final int     ACTION_REFRESH_BOTH     = 20;//authors & books
     public static final int     ACTION_REFRESH_TAGS        = 30;
-    public static final String CALLER_TYPE = "CALLER_TYPE";
-    public static final int CALLER_IS_ACTIVITY = 1;
-    public static final int CALLER_IS_RECEIVER = 2;
 
+
+
+    public static final String CALLER_TYPE_EXTRA="monakhv.android.samlib.action.CALLER_TYPE_EXTRA";
     public static final String RESULT_AUTHOR_ID="RESULT_AUTHOR_ID";
 
 
 
     private final Context context;
-    private final int currentCaller;
+    private final CALLER_TYPE mCallerType;
     private final SettingsHelper mSettingsHelper;
     private ProgressNotification mProgressNotification;
 
-    public AndroidGuiUpdater(SettingsHelper settingsHelper,int currentCaller) {
+    public AndroidGuiUpdater(SettingsHelper settingsHelper,UpdateObject updateObject, AuthorController ctl) {
         this.mSettingsHelper=settingsHelper;
         this.context = settingsHelper.getContext();
-        this.currentCaller = currentCaller;
+        this.mCallerType = updateObject.getCALLER_type();
 
-
-    }
-
-    public AndroidGuiUpdater(SettingsHelper settingsHelper, int currentCaller, String notificationTitle) {
-        this(settingsHelper, currentCaller);
-        if (currentCaller == CALLER_IS_ACTIVITY){
-            mProgressNotification = new ProgressNotification(settingsHelper, notificationTitle);
+        if (ctl != null){
+            init(updateObject,ctl);
         }
 
     }
+
+    private void init( UpdateObject updateObject, AuthorController ctl){
+
+        String notificationTitle;
+        if (updateObject.getObjectType() == SamlibService.UpdateObjectSelector.Author) {//Check update for the only Author
+
+            //int id = intent.getIntExtra(SELECT_ID, 0);//author_id
+            Author author = ctl.getById(updateObject.getObjectId());
+            if (author != null) {
+
+                notificationTitle = context.getString(R.string.notification_title_author) + " " + author.getName();
+                android.util.Log.i(DEBUG_TAG, "Check single Author: " + author.getName());
+            } else {
+                android.util.Log.e(DEBUG_TAG, "Can not find Author: " + updateObject.getObjectId());
+                return;
+            }
+        } else {//Check update for authors by TAG
+
+            notificationTitle = context.getString(R.string.notification_title_TAG);
+            if (updateObject.getObjectId() == SamLibConfig.TAG_AUTHOR_ALL) {
+                notificationTitle += " " + context.getString(R.string.filter_all);
+            } else if (updateObject.getObjectId() == SamLibConfig.TAG_AUTHOR_NEW) {
+                notificationTitle += " " + context.getString(R.string.filter_new);
+            } else {
+                TagController tagCtl =ctl.getTagController();
+                Tag tag = tagCtl.getById(updateObject.getObjectId());
+                if (tag != null) {
+                    notificationTitle += " " + tag.getName();
+                }
+
+            }
+            android.util.Log.i(DEBUG_TAG, "selection index: " + updateObject.getObjectId());
+        }
+        if (updateObject.callerIsActivity()){
+            mProgressNotification = new ProgressNotification(mSettingsHelper, notificationTitle);
+        }
+    }
+
+
 
     @Override
     public void makeUpdate(boolean isBoth){
@@ -113,7 +155,7 @@ public class AndroidGuiUpdater implements GuiUpdate {
     public void finishBookLoad(  boolean b, AbstractSettings.FileType ft, long book_id) {
         Log.d(DEBUG_TAG, "finish result: " + b);
         Log.d(DEBUG_TAG, "file type:  " + ft.toString());
-        if (currentCaller == CALLER_IS_RECEIVER){
+        if (mCallerType == CALLER_TYPE.CALLER_IS_RECEIVER){
             return;
         }
         CharSequence msg;
@@ -138,7 +180,7 @@ public class AndroidGuiUpdater implements GuiUpdate {
 
     @Override
     public void sendAuthorUpdateProgress(int total, int iCurrent, String name) {
-        if (currentCaller == CALLER_IS_RECEIVER) {//Call as a regular service
+        if (mCallerType == CALLER_TYPE.CALLER_IS_RECEIVER) {//Call as a regular service
             return;//we do not send update for regular service
         }
         mProgressNotification.updateProgress(total,iCurrent,name);
@@ -153,7 +195,7 @@ public class AndroidGuiUpdater implements GuiUpdate {
             GoogleAutoService.startService(context);
         }
 
-        if (currentCaller == CALLER_IS_ACTIVITY) {//Call from activity
+        if (mCallerType == CALLER_TYPE.CALLER_IS_ACTIVITY) {//Call from activity
             mProgressNotification.cancel();
 
             CharSequence text;
@@ -176,7 +218,7 @@ public class AndroidGuiUpdater implements GuiUpdate {
             context.sendBroadcast(broadcastIntent);
         }
 
-        if (currentCaller == CALLER_IS_RECEIVER) {//Call as a regular service
+        if (mCallerType == CALLER_TYPE.CALLER_IS_RECEIVER) {//Call as a regular service
 
 
             if (result && updatedAuthors.isEmpty() && !mSettingsHelper.getDebugFlag()) {
