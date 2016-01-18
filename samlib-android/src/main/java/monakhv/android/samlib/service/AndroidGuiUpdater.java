@@ -14,6 +14,8 @@ import monakhv.samlib.db.entity.Tag;
 import monakhv.samlib.log.Log;
 import monakhv.samlib.service.GuiUpdate;
 import monakhv.samlib.service.SamlibService;
+
+import javax.inject.Inject;
 import java.util.List;
 
 /*
@@ -64,6 +66,7 @@ public class AndroidGuiUpdater implements GuiUpdate {
     private final SettingsHelper mSettingsHelper;
     private ProgressNotification mProgressNotification;
 
+    @Inject
     public AndroidGuiUpdater(SettingsHelper settingsHelper,UpdateObject updateObject, AuthorController ctl) {
         this.mSettingsHelper=settingsHelper;
         this.context = settingsHelper.getContext();

@@ -21,11 +21,15 @@ package monakhv.android.samlib.dagger;
 
 import dagger.Module;
 import dagger.Provides;
+import monakhv.android.samlib.data.DataExportImport;
 import monakhv.android.samlib.data.SettingsHelper;
 import monakhv.android.samlib.service.AndroidGuiUpdater;
+import monakhv.android.samlib.service.SpecialSamlibService;
 import monakhv.android.samlib.service.UpdateObject;
 import monakhv.android.samlib.sql.DatabaseHelper;
 import monakhv.samlib.db.AuthorController;
+import monakhv.samlib.http.HttpClientController;
+import monakhv.samlib.service.SamlibService;
 
 /**
  * Created by monakhv on 15.01.16.
@@ -52,5 +56,17 @@ public class ServiceModule {
     @UpdateScope
     AndroidGuiUpdater providesAndroidGuiUpdater(SettingsHelper settingsHelper,AuthorController authorController){
         return new AndroidGuiUpdater(settingsHelper, mUpdateObject, authorController);
+    }
+
+    @Provides
+    @UpdateScope
+    SpecialSamlibService providesSpecialSamlibService(AuthorController authorController, AndroidGuiUpdater guiUpdate, SettingsHelper settingsHelper, HttpClientController http, DataExportImport dataExportImport){
+        return new SpecialSamlibService( authorController,  guiUpdate,  settingsHelper,  http, mUpdateObject,  dataExportImport);
+    }
+
+    @Provides
+    @UpdateScope
+    SamlibService providesSamlibService(AuthorController sql, AndroidGuiUpdater guiUpdate, SettingsHelper settingsHelper, HttpClientController httpClientController){
+        return new  SamlibService(sql,guiUpdate,settingsHelper,httpClientController);
     }
 }

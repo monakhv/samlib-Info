@@ -28,6 +28,7 @@ package monakhv.android.samlib.dagger;
 import android.content.Context;
 import dagger.Module;
 import dagger.Provides;
+import monakhv.android.samlib.data.DataExportImport;
 import monakhv.android.samlib.data.Logger;
 import monakhv.android.samlib.data.SettingsHelper;
 import monakhv.samlib.http.HttpClientController;
@@ -68,5 +69,11 @@ public class ApplicationModule {
     @Singleton
     HttpClientController providesHttpClientController(SettingsHelper settingsHelper){
         return new HttpClientController(settingsHelper);
+    }
+
+    @Provides
+    @Singleton
+    DataExportImport providesDataExportImport(SettingsHelper settingsHelper){
+        return new DataExportImport(settingsHelper);
     }
 }

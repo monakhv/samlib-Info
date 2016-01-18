@@ -20,15 +20,16 @@
 package monakhv.android.samlib;
 
 import android.app.Application;
-import monakhv.android.samlib.dagger.ApplicationComponent;
-import monakhv.android.samlib.dagger.ApplicationModule;
-import monakhv.android.samlib.dagger.DaggerApplicationComponent;
+import monakhv.android.samlib.dagger.*;
 import monakhv.android.samlib.data.Logger;
+import monakhv.android.samlib.service.UpdateObject;
+import monakhv.android.samlib.sql.DatabaseHelper;
 import monakhv.samlib.log.Log;
 
 import javax.inject.Inject;
 
 /**
+ * Application to care Dagger 2 injection
  * Created by monakhv on 15.01.16.
  */
 public class SamlibApplication extends Application {
@@ -37,6 +38,8 @@ public class SamlibApplication extends Application {
 
     @Inject
     static Logger mLogger;
+    private ServiceComponent mServiceComponent;
+
     private static ApplicationComponent applicationComponent;
 
     @Override
@@ -58,4 +61,12 @@ public class SamlibApplication extends Application {
         return applicationComponent;
     }
 
+    public ServiceComponent getServiceComponent(UpdateObject updateObject, DatabaseHelper databaseHelper) {
+        mServiceComponent=applicationComponent.plus(new ServiceModule(updateObject,databaseHelper));
+        return mServiceComponent;
+    }
+
+    public void releaseServiceComponent(){
+        mServiceComponent=null;
+    }
 }

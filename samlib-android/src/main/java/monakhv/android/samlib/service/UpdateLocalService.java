@@ -28,6 +28,8 @@ import android.util.Log;
 import in.srain.cube.views.ptr.util.PrefsUtil;
 
 
+import monakhv.android.samlib.SamlibApplication;
+import monakhv.android.samlib.dagger.ServiceComponent;
 import monakhv.android.samlib.data.DataExportImport;
 import monakhv.android.samlib.data.SettingsHelper;
 import monakhv.samlib.db.AuthorController;
@@ -66,6 +68,7 @@ public class UpdateLocalService extends MyService {
 
     private AndroidGuiUpdater.CALLER_TYPE mCALLER_type;
     private Context context;
+    SamlibApplication mSamlibApplication;
 
 
     public UpdateLocalService() {
@@ -170,12 +173,11 @@ public class UpdateLocalService extends MyService {
 
             return;
         }
+        mSamlibApplication= (SamlibApplication) getApplication();
 
-        DataExportImport dataExportImport = new DataExportImport(mSettingsHelper);
-        AuthorController ctl = new AuthorController(getHelper());
+        ServiceComponent serviceComponent=mSamlibApplication.getServiceComponent(updateObject,getHelper());
 
-
-        AndroidGuiUpdater guiUpdate = new AndroidGuiUpdater(mSettingsHelper, updateObject,ctl);
+        AndroidGuiUpdater guiUpdate =serviceComponent.getAndroidGuiUpdater();
         if (!SettingsHelper.haveInternet(context)) {
             Log.e(DEBUG_TAG, "Ignore update - we have no internet connection");
 
@@ -185,7 +187,8 @@ public class UpdateLocalService extends MyService {
 
 
         //http = HttpClientController.getInstance(mSettingsHelper);
-        SpecialSamlibService service = new SpecialSamlibService(ctl, guiUpdate, mSettingsHelper, http,updateObject,dataExportImport);
+        SpecialSamlibService service =serviceComponent.getSpecialSamlibService();
+                //= new SpecialSamlibService(ctl, guiUpdate, mSettingsHelper, http,updateObject,dataExportImport);
 
 
         PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
@@ -207,6 +210,7 @@ public class UpdateLocalService extends MyService {
             mThread.interrupt();
             http.cancelAll();
 
+            UpdateLocalService.this.mSamlibApplication.releaseServiceComponent();
             releaseLock();
         }
     }
@@ -246,6 +250,7 @@ public class UpdateLocalService extends MyService {
             }
 
             isRun = false;
+            UpdateLocalService.this.mSamlibApplication.releaseServiceComponent();
             releaseLock();
             UpdateLocalService.this.stopSelf();
         }

@@ -6,6 +6,7 @@ import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import com.j256.ormlite.android.apptools.OpenHelperManager;
 import com.j256.ormlite.support.ConnectionSource;
+import monakhv.android.samlib.data.DataExportImport;
 import monakhv.android.samlib.data.SettingsHelper;
 import monakhv.android.samlib.sql.DatabaseHelper;
 
@@ -33,6 +34,8 @@ public class MyBaseAbstractActivity extends AppCompatActivity {
     private volatile DatabaseHelper helper;
     @Inject
     SettingsHelper mSettingsHelper;
+    @Inject
+    DataExportImport mDataExportImport;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {

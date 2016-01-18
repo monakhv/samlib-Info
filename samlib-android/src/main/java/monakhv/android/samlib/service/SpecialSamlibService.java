@@ -28,6 +28,8 @@ import monakhv.samlib.http.HttpClientController;
 import monakhv.samlib.service.GuiUpdate;
 import monakhv.samlib.service.SamlibService;
 
+import javax.inject.Inject;
+
 /**
  * Created by monakhv on 18.01.16.
  */
@@ -37,6 +39,7 @@ public class SpecialSamlibService extends SamlibService {
     private final SettingsHelper mSettingsHelper;
     private final DataExportImport mDataExportImport;
 
+    @Inject
     public SpecialSamlibService(AuthorController authorController, GuiUpdate guiUpdate, SettingsHelper settingsHelper, HttpClientController http, UpdateObject updateObject, DataExportImport dataExportImport) {
         super(authorController, guiUpdate, settingsHelper, http);
         mUpdateObject=updateObject;

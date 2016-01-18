@@ -19,7 +19,6 @@ package monakhv.android.samlib;
 
 import android.support.v7.widget.Toolbar;
 import android.widget.*;
-import monakhv.android.samlib.data.DataExportImport;
 import monakhv.android.samlib.data.GoogleDiskOperation;
 import monakhv.android.samlib.dialogs.SingleChoiceSelectDialog;
 
@@ -59,15 +58,12 @@ public class ArchiveActivity extends MyBaseAbstractActivity {
     private SingleChoiceSelectDialog dialog = null;
     private String selectedFile;
 
-    private DataExportImport dataExportImport;
+
     private AuthorEditReceiver authorReceiver;
     private CheckBox cb;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-
-        dataExportImport = new DataExportImport(mSettingsHelper);
-        setTheme(mSettingsHelper.getTheme());
         super.onCreate(savedInstanceState);
         setContentView(R.layout.archive);
 
@@ -118,7 +114,7 @@ public class ArchiveActivity extends MyBaseAbstractActivity {
 
     @SuppressWarnings("UnusedParameters")
     public void exportDB(View v) {
-        String file = dataExportImport.exportDB();
+        String file = mDataExportImport.exportDB();
 
         String text;
         if (file != null) {
@@ -133,7 +129,7 @@ public class ArchiveActivity extends MyBaseAbstractActivity {
 
     @SuppressWarnings("UnusedParameters")
     public void importDB(View v) {
-        final String[] files = dataExportImport.getFilesToImportDB();
+        final String[] files = mDataExportImport.getFilesToImportDB();
         OnItemClickListener listener = new OnItemClickListener() {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 selectedFile = files[position];
@@ -152,7 +148,7 @@ public class ArchiveActivity extends MyBaseAbstractActivity {
     }
 
     private void _importDB(String fileName) {
-        boolean res = dataExportImport.importDB( fileName);
+        boolean res = mDataExportImport.importDB( fileName);
 
         String text;
         if (res) {
@@ -182,7 +178,7 @@ public class ArchiveActivity extends MyBaseAbstractActivity {
 
     @SuppressWarnings("UnusedParameters")
     public void exportTxt(View v) {
-        String file = dataExportImport.exportAuthorList(getDatabaseHelper());
+        String file = mDataExportImport.exportAuthorList(getDatabaseHelper());
         String text;
         if (file != null) {
             text = getString(R.string.res_export_txt_good) + " " + file;
@@ -196,7 +192,7 @@ public class ArchiveActivity extends MyBaseAbstractActivity {
 
     @SuppressWarnings("UnusedParameters")
     public void importTxt(View v) {
-        final String[] files = dataExportImport.getFilesToImportTxt();
+        final String[] files = mDataExportImport.getFilesToImportTxt();
         OnItemClickListener listener = new OnItemClickListener() {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 selectedFile = files[position];
@@ -216,7 +212,7 @@ public class ArchiveActivity extends MyBaseAbstractActivity {
 
     private void _importTxt(String file) {
         
-        ArrayList<String> urls =  dataExportImport.importAuthorList(file);
+        ArrayList<String> urls =  mDataExportImport.importAuthorList(file);
         if (!urls.isEmpty()){
             AuthorEditorServiceIntent.addAuthor(this,urls);
             progress = new ProgressDialog(this);

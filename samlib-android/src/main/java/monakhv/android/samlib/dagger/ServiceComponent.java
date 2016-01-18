@@ -19,10 +19,10 @@
 
 package monakhv.android.samlib.dagger;
 
-import android.app.Service;
-import dagger.Component;
 import dagger.Subcomponent;
 import monakhv.android.samlib.service.AndroidGuiUpdater;
+import monakhv.android.samlib.service.SpecialSamlibService;
+import monakhv.samlib.service.SamlibService;
 
 /**
  * Created by monakhv on 15.01.16.
@@ -31,4 +31,9 @@ import monakhv.android.samlib.service.AndroidGuiUpdater;
 @Subcomponent(modules = {ServiceModule.class})
 public interface ServiceComponent {
     AndroidGuiUpdater getAndroidGuiUpdater();
+    SpecialSamlibService getSpecialSamlibService();
+    SamlibService getSamlibService();
+
+//    SamlibApplication getSamlibApplication();
+
 }
