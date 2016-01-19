@@ -13,15 +13,16 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  *
- *  15.01.16 18:19
+ *  19.01.16 18:01
  *
  */
 
-package monakhv.android.samlib.dagger;
+package monakhv.android.samlib.dagger.module;
 
 import android.content.Context;
 import dagger.Module;
 import dagger.Provides;
+import monakhv.android.samlib.dagger.UpdateScope;
 import monakhv.android.samlib.data.DataExportImport;
 import monakhv.android.samlib.data.SettingsHelper;
 import monakhv.android.samlib.service.AndroidGuiUpdater;

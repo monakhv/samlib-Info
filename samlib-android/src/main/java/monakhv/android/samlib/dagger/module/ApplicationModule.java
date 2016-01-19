@@ -1,3 +1,5 @@
+
+
 /*
  *  Copyright 2016 Dmitry Monakhov.
  *
@@ -13,37 +15,44 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  *
- *  15.01.16 10:20
+ *  19.01.16 18:01
  *
  */
 
-package monakhv.android.samlib.dagger;
 
-import dagger.Component;
+
+
+
+package monakhv.android.samlib.dagger.module;
+
+
+import android.content.Context;
+import dagger.Module;
+import dagger.Provides;
+import monakhv.android.samlib.data.DataExportImport;
+import monakhv.android.samlib.data.Logger;
+import monakhv.android.samlib.data.SettingsHelper;
+import monakhv.samlib.http.HttpClientController;
 
 import javax.inject.Singleton;
 
-import monakhv.android.samlib.SamlibApplication;
-import monakhv.android.samlib.receiver.AutoStartUp;
-import monakhv.samlib.http.HttpClientController;
-
 /**
- * Root Component of the graph
+ * Application Module to provide Settings and Logger
  * Created by monakhv on 15.01.16.
  */
-@Component (
-        modules = {
-                ApplicationModule.class,
-                ApiModule.class})
-@Singleton
-public interface ApplicationComponent {
-    void inject(SamlibApplication application);
+@Module
+public class ApplicationModule {
+    private Context mContext;
 
-    void inject (AutoStartUp receiver);
+    public ApplicationModule(Context context){
+        mContext=context;
+    }
 
-    HttpClientController getHttpClientController();
-
-    DatabaseComponent plus(DatabaseModule module);
+    @Provides
+    @Singleton
+    Context providesContext(){
+        return mContext;
+    }
 
 
 }

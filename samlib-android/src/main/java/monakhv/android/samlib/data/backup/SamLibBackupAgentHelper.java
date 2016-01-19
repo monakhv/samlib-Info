@@ -9,10 +9,10 @@ import android.content.Context;
 import android.os.ParcelFileDescriptor;
 import android.util.Log;
 import com.j256.ormlite.android.apptools.OpenHelperManager;
-import monakhv.android.samlib.dagger.ApplicationModule;
-import monakhv.android.samlib.dagger.DaggerApplicationComponent;
-import monakhv.android.samlib.dagger.DatabaseComponent;
-import monakhv.android.samlib.dagger.DatabaseModule;
+import monakhv.android.samlib.dagger.component.DaggerApplicationComponent;
+import monakhv.android.samlib.dagger.component.DatabaseComponent;
+import monakhv.android.samlib.dagger.module.ApplicationModule;
+import monakhv.android.samlib.dagger.module.DatabaseModule;
 import monakhv.android.samlib.sql.DatabaseHelper;
 
 import java.io.IOException;

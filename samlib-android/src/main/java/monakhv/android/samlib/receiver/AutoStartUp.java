@@ -19,8 +19,9 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 
-import monakhv.android.samlib.dagger.ApplicationModule;
-import monakhv.android.samlib.dagger.DaggerApplicationComponent;
+import monakhv.android.samlib.dagger.component.DaggerApplicationComponent;
+import monakhv.android.samlib.dagger.module.ApplicationModule;
+
 import monakhv.android.samlib.data.SettingsHelper;
 import monakhv.samlib.log.Log;
 

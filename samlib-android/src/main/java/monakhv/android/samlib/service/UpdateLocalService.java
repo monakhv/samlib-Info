@@ -29,7 +29,7 @@ import in.srain.cube.views.ptr.util.PrefsUtil;
 
 
 import monakhv.android.samlib.SamlibApplication;
-import monakhv.android.samlib.dagger.ServiceComponent;
+import monakhv.android.samlib.dagger.component.ServiceComponent;
 import monakhv.android.samlib.data.SettingsHelper;
 import monakhv.samlib.db.entity.Author;
 import monakhv.samlib.service.SamlibService;

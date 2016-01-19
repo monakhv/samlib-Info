@@ -13,14 +13,15 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  *
- *  18.01.16 17:40
+ *  19.01.16 18:01
  *
  */
 
-package monakhv.android.samlib.dagger;
+package monakhv.android.samlib.dagger.module;
 
 import dagger.Module;
 import dagger.Provides;
+import monakhv.android.samlib.dagger.DatabaseScope;
 import monakhv.android.samlib.data.SettingsHelper;
 import monakhv.android.samlib.data.backup.AuthorStatePrefs;
 import monakhv.android.samlib.sql.DatabaseHelper;

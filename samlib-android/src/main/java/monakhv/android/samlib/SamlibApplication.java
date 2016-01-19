@@ -20,7 +20,13 @@
 package monakhv.android.samlib;
 
 import android.app.Application;
-import monakhv.android.samlib.dagger.*;
+import monakhv.android.samlib.dagger.component.ApplicationComponent;
+import monakhv.android.samlib.dagger.component.DaggerApplicationComponent;
+import monakhv.android.samlib.dagger.component.DatabaseComponent;
+import monakhv.android.samlib.dagger.component.ServiceComponent;
+import monakhv.android.samlib.dagger.module.ApplicationModule;
+import monakhv.android.samlib.dagger.module.DatabaseModule;
+import monakhv.android.samlib.dagger.module.ServiceModule;
 import monakhv.android.samlib.data.DataExportImport;
 import monakhv.android.samlib.data.Logger;
 import monakhv.android.samlib.data.SettingsHelper;
@@ -53,7 +59,7 @@ public class SamlibApplication extends Application {
     public void onCreate() {
         super.onCreate();
 
-        applicationComponent=DaggerApplicationComponent.builder()
+        applicationComponent= DaggerApplicationComponent.builder()
                 .applicationModule(new ApplicationModule(this))
                 .build();
         applicationComponent.inject(this);

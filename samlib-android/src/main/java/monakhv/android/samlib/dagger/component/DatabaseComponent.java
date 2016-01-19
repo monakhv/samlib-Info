@@ -13,29 +13,27 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  *
- *  15.01.16 18:23
+ *  19.01.16 18:02
  *
  */
 
-package monakhv.android.samlib.dagger;
+package monakhv.android.samlib.dagger.component;
 
 import dagger.Subcomponent;
-import monakhv.android.samlib.service.AndroidGuiUpdater;
-import monakhv.android.samlib.service.SpecialSamlibService;
-import monakhv.android.samlib.tasks.SearchAuthor;
-import monakhv.samlib.service.SamlibService;
+import monakhv.android.samlib.dagger.DatabaseScope;
+import monakhv.android.samlib.dagger.module.DatabaseModule;
+import monakhv.android.samlib.dagger.module.ServiceModule;
+import monakhv.android.samlib.data.backup.AuthorStatePrefs;
+import monakhv.samlib.db.AuthorController;
 
 /**
- * Created by monakhv on 15.01.16.
+ * Component for database module
+ * Created by monakhv on 18.01.16.
  */
-@UpdateScope
-@Subcomponent(modules = {ServiceModule.class})
-public interface ServiceComponent {
-    AndroidGuiUpdater getAndroidGuiUpdater();
-    SpecialSamlibService getSpecialSamlibService();
-    SamlibService getSamlibService();
-    SearchAuthor getSearchAuthor();
-
-//    SamlibApplication getSamlibApplication();
-
+@DatabaseScope
+@Subcomponent(modules = {DatabaseModule.class})
+public interface DatabaseComponent {
+    ServiceComponent plus(ServiceModule module);
+    AuthorController getAuthorController();
+    AuthorStatePrefs getAuthorStatePrefs();
 }
