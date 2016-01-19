@@ -22,6 +22,7 @@ package monakhv.android.samlib.dagger;
 import dagger.Subcomponent;
 import monakhv.android.samlib.service.AndroidGuiUpdater;
 import monakhv.android.samlib.service.SpecialSamlibService;
+import monakhv.android.samlib.tasks.SearchAuthor;
 import monakhv.samlib.service.SamlibService;
 
 /**
@@ -33,6 +34,7 @@ public interface ServiceComponent {
     AndroidGuiUpdater getAndroidGuiUpdater();
     SpecialSamlibService getSpecialSamlibService();
     SamlibService getSamlibService();
+    SearchAuthor getSearchAuthor();
 
 //    SamlibApplication getSamlibApplication();
 

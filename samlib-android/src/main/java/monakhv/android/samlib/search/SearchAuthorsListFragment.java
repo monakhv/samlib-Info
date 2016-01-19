@@ -47,6 +47,7 @@ import monakhv.android.samlib.ListSwipeListener;
 import monakhv.android.samlib.MyBaseAbstractFragment;
 import monakhv.android.samlib.R;
 import monakhv.android.samlib.SamlibApplication;
+import monakhv.android.samlib.service.UpdateObject;
 import monakhv.samlib.db.entity.AuthorCard;
 import monakhv.android.samlib.tasks.SearchAuthor;
 
@@ -65,6 +66,7 @@ public class SearchAuthorsListFragment extends ListFragment implements ListSwipe
     private List<AuthorCard> result;
     private GestureDetector detector;
     private MyBaseAbstractFragment.DaggerCaller mDaggerCaller;
+    private SamlibApplication mSamlibApplication;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -74,7 +76,7 @@ public class SearchAuthorsListFragment extends ListFragment implements ListSwipe
         }
         pattern = getActivity().getIntent().getExtras().getString(SearchAuthorActivity.EXTRA_PATTERN);
 
-        ((SamlibApplication)getActivity().getApplication()).getApplicationComponent().inject(this);
+        mSamlibApplication=(SamlibApplication) getActivity().getApplication();
 
         if (result == null) {
             result = new ArrayList<>();
@@ -84,6 +86,7 @@ public class SearchAuthorsListFragment extends ListFragment implements ListSwipe
 
         setListAdapter(adapter);
         detector = new GestureDetector(getActivity(), new ListSwipeListener(this));
+
 
     }
 
@@ -132,7 +135,7 @@ public class SearchAuthorsListFragment extends ListFragment implements ListSwipe
         }
 
         pattern = ptr;
-        SearchAuthor task = new SearchAuthor((SamlibApplication) getActivity().getApplication(),mDaggerCaller.getDatabaseHelper());
+        SearchAuthor task = mSamlibApplication.getServiceComponent(UpdateObject.UNDEF,mDaggerCaller.getDbHelper()).getSearchAuthor();
         progress = new ProgressDialog(getActivity());
         progress.setMessage(getActivity().getText(R.string.search_Loading));
         progress.setCancelable(true);

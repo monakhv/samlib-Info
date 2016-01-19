@@ -9,7 +9,6 @@ import android.widget.Toast;
 
 import monakhv.android.samlib.data.SettingsHelper;
 import monakhv.samlib.db.BookController;
-import monakhv.samlib.db.DaoBuilder;
 import monakhv.samlib.db.entity.Book;
 
 /*
@@ -37,26 +36,26 @@ public  class DownloadReceiver extends BroadcastReceiver {
     public static final String FILE_TYPE = "FILE_TYPE";
     private static final String DEBUG_TAG = "DownloadReceiver";
 
-    private BookFragment books;
-    private DaoBuilder sql;
-            ;
+    private final BookFragment books;
+    private final BookController mBookController;
 
-    public DownloadReceiver(BookFragment books,DaoBuilder sql){
+
+    public DownloadReceiver(BookFragment books,BookController bookController){
         this.books=books;
-        this.sql = sql;
+        mBookController=bookController;
     }
 
     @Override
     public void onReceive(Context context, Intent intent) {
         Log.d(DEBUG_TAG, "Starting onReceive");
-        String mesg = intent.getStringExtra(MESG);
+        String msg = intent.getStringExtra(MESG);
         long book_id = intent.getLongExtra(BOOK_ID, 0);
 
         boolean res = intent.getBooleanExtra(RESULT, false);
 
 
-        BookController bCtl= new BookController(sql);
-        Book book = bCtl.getById(book_id);
+
+        Book book = mBookController.getById(book_id);
         String ft = intent.getStringExtra(FILE_TYPE);
         book.setFileType(SettingsHelper.FileType.valueOf(ft));
 
@@ -73,7 +72,7 @@ public  class DownloadReceiver extends BroadcastReceiver {
                 books.launchReader(book);
             }
         } else {
-            Toast toast = Toast.makeText(context, mesg, Toast.LENGTH_SHORT);
+            Toast toast = Toast.makeText(context, msg, Toast.LENGTH_SHORT);
 
             toast.show();
         }

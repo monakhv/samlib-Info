@@ -24,6 +24,7 @@ import android.support.v4.app.Fragment;
 import monakhv.android.samlib.data.DataExportImport;
 import monakhv.android.samlib.data.SettingsHelper;
 import monakhv.android.samlib.sql.DatabaseHelper;
+import monakhv.samlib.db.AuthorController;
 
 
 /**
@@ -34,7 +35,8 @@ public class MyBaseAbstractFragment extends Fragment {
     public interface DaggerCaller {
         SettingsHelper getSettingsHelper();
         DataExportImport getDataExportImport();
-        DatabaseHelper getDatabaseHelper();
+        AuthorController getAuthorController();
+        DatabaseHelper getDbHelper();
     }
     private DaggerCaller mDaggerCaller;
 
@@ -58,7 +60,7 @@ public class MyBaseAbstractFragment extends Fragment {
     protected DataExportImport getDataExportImport(){
         return mDaggerCaller.getDataExportImport();
     }
-    protected DatabaseHelper getDatabaseHelper(){
-        return mDaggerCaller.getDatabaseHelper();
+    protected AuthorController getAuthorController(){
+        return mDaggerCaller.getAuthorController();
     }
 }

@@ -50,7 +50,6 @@ import java.util.List;
 
 
 import monakhv.android.samlib.data.SettingsHelper;
-import monakhv.android.samlib.sql.DatabaseHelper;
 import monakhv.samlib.db.TagController;
 import monakhv.samlib.db.entity.SamLibConfig;
 import monakhv.samlib.db.entity.Tag;
@@ -64,9 +63,7 @@ import javax.inject.Inject;
  */
 public class SamlibPreferencesFragment extends PreferenceFragment
         implements OnSharedPreferenceChangeListener, Preference.OnPreferenceChangeListener {
-    public interface CallBack{
-        DatabaseHelper getDatabaseHelper();
-    }
+
 
     private static final String DEBUG_TAG = "SamlibPreferencesA";
     private static final int REQ_AUTH = 11;
@@ -82,7 +79,7 @@ public class SamlibPreferencesFragment extends PreferenceFragment
     private RingtonePreference ringtonePref;
      Preference googlePrefs;
     private EditTextPreference storageDir;
-    private CallBack mCallbacks;
+    private MyBaseAbstractFragment.DaggerCaller mCallbacks;
 
     /**
      * Called when the activity is first created.
@@ -129,7 +126,7 @@ public class SamlibPreferencesFragment extends PreferenceFragment
 
         ListPreference updateTagPref = (ListPreference) findPreference(getString(R.string.pref_key_update_tag));
 
-        TagController tagCtl = new TagController(mCallbacks.getDatabaseHelper());
+        TagController tagCtl = mCallbacks.getAuthorController().getTagController();
         List<Tag> tags = tagCtl.getAll();
 
         CharSequence [] entries = new CharSequence[1+tags.size()];
@@ -155,11 +152,11 @@ public class SamlibPreferencesFragment extends PreferenceFragment
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
-        if (!(activity instanceof CallBack)) {
+        if (!(activity instanceof MyBaseAbstractFragment.DaggerCaller)) {
             throw new IllegalStateException(
                     "Activity must implement fragment's callbacks.");
         }
-        mCallbacks = (CallBack) activity;
+        mCallbacks = (MyBaseAbstractFragment.DaggerCaller) activity;
     }
 
     @Override

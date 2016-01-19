@@ -178,7 +178,7 @@ public class ArchiveActivity extends MyBaseAbstractActivity {
 
     @SuppressWarnings("UnusedParameters")
     public void exportTxt(View v) {
-        String file = getDataExportImport().exportAuthorList(getDatabaseHelper());
+        String file = getDataExportImport().exportAuthorList(getAuthorController());
         String text;
         if (file != null) {
             text = getString(R.string.res_export_txt_good) + " " + file;

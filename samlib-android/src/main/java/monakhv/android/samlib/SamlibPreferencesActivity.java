@@ -25,7 +25,7 @@ import android.support.v7.widget.Toolbar;
  *
  * 12/3/14.
  */
-public class SamlibPreferencesActivity  extends MyBaseAbstractActivity implements  SamlibPreferencesFragment.CallBack {
+public class SamlibPreferencesActivity  extends MyBaseAbstractActivity  {
     private  SamlibPreferencesFragment prefs;
 
     @Override

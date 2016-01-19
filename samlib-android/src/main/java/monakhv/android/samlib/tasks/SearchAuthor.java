@@ -27,10 +27,7 @@ import java.util.List;
 
 
 import monakhv.android.samlib.R;
-import monakhv.android.samlib.SamlibApplication;
 import monakhv.android.samlib.search.SearchAuthorActivity.SearchReceiver;
-import monakhv.android.samlib.service.UpdateObject;
-import monakhv.android.samlib.sql.DatabaseHelper;
 import monakhv.samlib.exception.SamlibInterruptException;
 import monakhv.samlib.exception.SamlibParseException;
 import monakhv.samlib.db.entity.AuthorCard;
@@ -65,13 +62,15 @@ public class SearchAuthor extends AsyncTask<String, Void, Boolean> {
     private static final String DEBUG_TAG = "SearchAuthor";
 
     private  List<AuthorCard> result;
-    private final SamlibApplication mSamlibApplication;
-    private final SamlibService mSamlibService;
 
-    public SearchAuthor(SamlibApplication samlibApplication, DatabaseHelper helper) {
+    private final SamlibService mSamlibService;
+    private final Context mContext;
+
+    public SearchAuthor(Context context,SamlibService samlibService) {
         status = ResultStatus.Good;
-        mSamlibApplication=samlibApplication;
-        mSamlibService=mSamlibApplication.getServiceComponent(UpdateObject.UNDEF,helper).getSamlibService();
+        mContext=context;
+
+        mSamlibService=samlibService;
 
     }
 
@@ -112,12 +111,12 @@ public class SearchAuthor extends AsyncTask<String, Void, Boolean> {
     @Override
     protected void onPostExecute(Boolean res) {
 
-        mSamlibApplication.releaseServiceComponent();
+
         Intent broadcastIntent = new Intent();
         broadcastIntent.addCategory(Intent.CATEGORY_DEFAULT);
         broadcastIntent.setAction(SearchReceiver.ACTION_RESP);
         if (status != ResultStatus.Good) {
-            broadcastIntent.putExtra(SearchReceiver.EXTRA_MESSAGE, status.getMessage(mSamlibApplication));
+            broadcastIntent.putExtra(SearchReceiver.EXTRA_MESSAGE, status.getMessage(mContext));
         }
 
         if (result == null){
@@ -130,7 +129,7 @@ public class SearchAuthor extends AsyncTask<String, Void, Boolean> {
         broadcastIntent.putExtra(SearchReceiver.EXTRA_RESULT, (Serializable) result);
 
 
-        mSamlibApplication.sendBroadcast(broadcastIntent);
+        mContext.sendBroadcast(broadcastIntent);
 
     }
 

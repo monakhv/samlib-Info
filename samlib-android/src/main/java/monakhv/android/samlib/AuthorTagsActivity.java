@@ -60,7 +60,7 @@ public class AuthorTagsActivity extends MyBaseAbstractActivity implements Author
     @Override
     protected void onResume() {
         super.onResume();
-        AuthorController sql = new AuthorController(getDatabaseHelper());
+        AuthorController sql = getAuthorController();
         Author a = sql.getById(authorTagFragment.getAuthor_id());
 
         if (a.getTag2Authors().isEmpty()){

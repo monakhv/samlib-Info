@@ -41,8 +41,7 @@ import monakhv.android.samlib.service.AuthorEditorServiceIntent;
 import monakhv.android.samlib.service.UpdateLocalService;
 import monakhv.android.samlib.sortorder.AuthorSortOrder;
 
-import monakhv.android.samlib.sql.DatabaseHelper;
-import monakhv.samlib.db.AuthorController;
+
 import monakhv.samlib.db.entity.Author;
 import monakhv.samlib.db.entity.SamLibConfig;
 
@@ -73,6 +72,16 @@ public class AuthorFragment extends MyBaseAbstractFragment implements
         ListSwipeListener.SwipeCallBack,
         RecyclerAdapter.CallBack,
         LoaderManager.LoaderCallbacks<List<Author>> {
+    public interface Callbacks {
+
+        void onAuthorSelected(long id);
+
+        void cleanBookSelection();
+
+        void drawerToggle();
+
+
+    }
     private static final String DEBUG_TAG = "AuthorFragment";
     private static final int AUTHOR_LOADER_ID = 201;
 
@@ -130,17 +139,7 @@ public class AuthorFragment extends MyBaseAbstractFragment implements
     }
 
 
-    public interface Callbacks {
-        DatabaseHelper getDatabaseHelper();
 
-        void onAuthorSelected(long id);
-
-        void cleanBookSelection();
-
-        void drawerToggle();
-
-
-    }
 
     private Callbacks mCallbacks;
 
@@ -232,7 +231,7 @@ public class AuthorFragment extends MyBaseAbstractFragment implements
 
     @Override
     public Loader<List<Author>> onCreateLoader(int id, Bundle args) {
-        return new AuthorLoader(getActivity(), mCallbacks.getDatabaseHelper(), selectedTag, order.getOrder());
+        return new AuthorLoader(getActivity(), getAuthorController(), selectedTag, order.getOrder());
     }
 
     @Override
@@ -472,8 +471,8 @@ public class AuthorFragment extends MyBaseAbstractFragment implements
     }
 
     private void updateAuthor(Author author) {
-        AuthorController sql = new AuthorController(mCallbacks.getDatabaseHelper());
-        sql.update(author);
+
+        getAuthorController().update(author);
         updateAdapter();
     }
 

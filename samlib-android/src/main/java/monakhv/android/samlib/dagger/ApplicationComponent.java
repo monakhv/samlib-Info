@@ -52,7 +52,6 @@ public interface ApplicationComponent {
     void inject(SamlibPreferencesFragment fragment);
 
     void inject (AutoStartUp receiver);
-    void inject (SearchAuthorsListFragment fragment);
     void inject (SamLibBackupAgentHelper helper);
 
     DatabaseComponent plus(DatabaseModule module);

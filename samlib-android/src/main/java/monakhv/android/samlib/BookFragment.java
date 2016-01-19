@@ -31,7 +31,6 @@ import monakhv.android.samlib.service.DownloadBookServiceIntent;
 import monakhv.android.samlib.service.UpdateObject;
 import monakhv.android.samlib.sortorder.BookSortOrder;
 
-import monakhv.android.samlib.sql.DatabaseHelper;
 import monakhv.samlib.db.AuthorController;
 import monakhv.samlib.db.entity.Book;
 import monakhv.samlib.db.entity.SamLibConfig;
@@ -59,6 +58,10 @@ import java.util.List;
 public class BookFragment extends MyBaseAbstractFragment implements
         ListSwipeListener.SwipeCallBack, LoaderManager.LoaderCallbacks<List<GroupListItem>>,
         BookExpandableAdapter.CallBack {
+    public interface Callbacks {
+
+        void showTags(long author_id);
+    }
 
 
     @Override
@@ -72,11 +75,7 @@ public class BookFragment extends MyBaseAbstractFragment implements
     }
 
 
-    public interface Callbacks {
-        DatabaseHelper getDatabaseHelper();
 
-        void showTags(long author_id);
-    }
 
     private static final String DEBUG_TAG = "BookFragment";
     public static final String AUTHOR_ID = "AUTHOR_ID";
@@ -128,7 +127,7 @@ public class BookFragment extends MyBaseAbstractFragment implements
                     "Activity must implement fragment's callbacks.");
         }
         mCallbacks = (Callbacks) activity;
-        sql = new AuthorController(mCallbacks.getDatabaseHelper());
+        sql = getAuthorController();
 
     }
 
@@ -170,7 +169,7 @@ public class BookFragment extends MyBaseAbstractFragment implements
 
     @Override
     public Loader<List<GroupListItem>> onCreateLoader(int id, Bundle args) {
-        return new BookLoader(getActivity(), mCallbacks.getDatabaseHelper(), author_id, order.getOrder());
+        return new BookLoader(getActivity(), getAuthorController(), author_id, order.getOrder());
     }
 
     @Override

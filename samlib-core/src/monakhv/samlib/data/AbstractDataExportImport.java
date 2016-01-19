@@ -1,7 +1,6 @@
 package monakhv.samlib.data;
 
 import monakhv.samlib.db.AuthorController;
-import monakhv.samlib.db.DaoBuilder;
 import monakhv.samlib.db.SQLController;
 import monakhv.samlib.db.entity.Author;
 import monakhv.samlib.db.entity.Book;
@@ -194,7 +193,7 @@ public abstract class AbstractDataExportImport {
      *
      * @return File Name where the list of urls is stored
      */
-    public String exportAuthorList(DaoBuilder helper,File dir) {
+    public String exportAuthorList(AuthorController authorController,File dir) {
         String backupTxtPath = null;
         BufferedWriter bw =null;
         try {
@@ -205,7 +204,7 @@ public abstract class AbstractDataExportImport {
 
                 bw = new BufferedWriter(new FileWriter(backupTxt));
 
-                for (String u : getAuthorUrls(helper)) {
+                for (String u : getAuthorUrls(authorController)) {
                     bw.write(u);
                     bw.newLine();
                 }
@@ -224,12 +223,12 @@ public abstract class AbstractDataExportImport {
         return backupTxtPath;
 
     }
-    public  String exportAuthorList(DaoBuilder helper) {
-        return exportAuthorList(helper,backupDIR);
+    public  String exportAuthorList(AuthorController authorController) {
+        return exportAuthorList(authorController,backupDIR);
     }
-    public List<String> getAuthorUrls(DaoBuilder helper){
+    public List<String> getAuthorUrls(AuthorController sql){
         List<String> res = new ArrayList<>();
-        AuthorController sql = new AuthorController(helper);
+
         List<Author> authors = sql.getAll();
         for (Author a : authors) {
             res.add(a.getUrlForBrowser(settings));

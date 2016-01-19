@@ -5,10 +5,10 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import com.j256.ormlite.android.apptools.OpenHelperManager;
-import com.j256.ormlite.support.ConnectionSource;
 import monakhv.android.samlib.data.DataExportImport;
 import monakhv.android.samlib.data.SettingsHelper;
 import monakhv.android.samlib.sql.DatabaseHelper;
+import monakhv.samlib.db.AuthorController;
 
 
 /*
@@ -49,10 +49,20 @@ public class MyBaseAbstractActivity extends AppCompatActivity implements MyBaseA
         return mSamlibApplication.getDataExportImport();
     }
 
+    @Override
+    public AuthorController getAuthorController() {
+        return mSamlibApplication.getDatabaseComponent(getDatabaseHelper()).getAuthorController();
+    }
+
+    @Override
+    public DatabaseHelper getDbHelper() {
+        return getDatabaseHelper();
+    }
+
     /**
      * Get a helper for this action.
      */
-    public DatabaseHelper getDatabaseHelper() {
+    private DatabaseHelper getDatabaseHelper() {
         if (helper == null) {
             helper = getHelperInternal(this);
         }
@@ -62,9 +72,9 @@ public class MyBaseAbstractActivity extends AppCompatActivity implements MyBaseA
     /**
      * Get a connection source for this action.
      */
-    public ConnectionSource getConnectionSource() {
-        return getDatabaseHelper().getConnectionSource();
-    }
+//    public ConnectionSource getConnectionSource() {
+//        return getDatabaseHelper().getConnectionSource();
+//    }
 
 
     @Override
@@ -73,6 +83,7 @@ public class MyBaseAbstractActivity extends AppCompatActivity implements MyBaseA
         if (helper != null) {
             releaseHelper(helper);
         }
+        mSamlibApplication.releaseDatabaseComponent();
     }
 
 
@@ -88,7 +99,7 @@ public class MyBaseAbstractActivity extends AppCompatActivity implements MyBaseA
      */
     protected DatabaseHelper getHelperInternal(Context context) {
         @SuppressWarnings({"unchecked", "deprecation"})
-        DatabaseHelper newHelper = (DatabaseHelper) OpenHelperManager.getHelper(context, DatabaseHelper.class);
+        DatabaseHelper newHelper =  OpenHelperManager.getHelper(context, DatabaseHelper.class);
 
         return newHelper;
     }

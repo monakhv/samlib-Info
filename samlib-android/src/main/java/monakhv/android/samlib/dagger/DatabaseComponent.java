@@ -20,6 +20,7 @@
 package monakhv.android.samlib.dagger;
 
 import dagger.Subcomponent;
+import monakhv.samlib.db.AuthorController;
 
 /**
  * Component for database module
@@ -29,4 +30,5 @@ import dagger.Subcomponent;
 @Subcomponent(modules = {DatabaseModule.class})
 public interface DatabaseComponent {
     ServiceComponent plus(ServiceModule module);
+    AuthorController getAuthorController();
 }

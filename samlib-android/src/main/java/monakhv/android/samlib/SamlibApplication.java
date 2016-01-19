@@ -45,6 +45,7 @@ public class SamlibApplication extends Application {
     @Inject
     static DataExportImport dataExportImport;
     private ServiceComponent mServiceComponent;
+    private DatabaseComponent mDatabaseComponent;
 
     private static ApplicationComponent applicationComponent;
 
@@ -78,6 +79,15 @@ public class SamlibApplication extends Application {
     public ServiceComponent getServiceComponent(UpdateObject updateObject, DatabaseHelper databaseHelper) {
         mServiceComponent=applicationComponent.plus(new DatabaseModule(databaseHelper)).plus(new ServiceModule(updateObject));
         return mServiceComponent;
+    }
+
+    public DatabaseComponent getDatabaseComponent(DatabaseHelper databaseHelper){
+        mDatabaseComponent=applicationComponent.plus(new DatabaseModule(databaseHelper));
+        return mDatabaseComponent;
+    }
+
+    public void releaseDatabaseComponent(){
+        mDatabaseComponent=null;
     }
 
     public void releaseServiceComponent(){

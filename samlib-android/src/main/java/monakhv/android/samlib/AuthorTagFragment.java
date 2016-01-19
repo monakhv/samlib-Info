@@ -18,7 +18,6 @@ import android.widget.ListView;
 import com.j256.ormlite.android.AndroidDatabaseResults;
 import monakhv.android.samlib.dialogs.EnterStringDialog;
 import monakhv.android.samlib.service.AuthorEditorServiceIntent;
-import monakhv.android.samlib.sql.DatabaseHelper;
 import monakhv.samlib.db.AuthorController;
 import monakhv.samlib.db.SQLController;
 import monakhv.samlib.db.TagController;
@@ -48,7 +47,7 @@ import java.util.List;
 public class AuthorTagFragment extends MyBaseAbstractFragment {
     public interface AuthorTagCallback{
         void onFinish(long id);
-        DatabaseHelper getDatabaseHelper();
+
     }
     private static final String DEBUG_TAG = "AuthorTagFragment";
     private long author_id=0;
@@ -57,6 +56,7 @@ public class AuthorTagFragment extends MyBaseAbstractFragment {
 
     private boolean addVisible = false;
     private ListView listView;
+    private TagController mTagController;
 
 
 
@@ -69,6 +69,7 @@ public class AuthorTagFragment extends MyBaseAbstractFragment {
             author_id =extra.getLong(AuthorTagsActivity.AUTHOR_ID);
         }
 
+        mTagController = getAuthorController().getTagController();
 
 
         String[] from = {SQLController.COL_TAG_NAME};
@@ -180,10 +181,10 @@ public class AuthorTagFragment extends MyBaseAbstractFragment {
         public void onClick(DialogInterface dialog, int which) {
             switch (which) {
                 case Dialog.BUTTON_POSITIVE:
-                    TagController sql = new TagController(callBack.getDatabaseHelper());
+
                     if (cursor != null) {
-                        Tag tag = sql.getById(cursor.getInt(cursor.getColumnIndex(SQLController.COL_ID)));
-                        sql.delete(tag);
+                        Tag tag = mTagController.getById(cursor.getInt(cursor.getColumnIndex(SQLController.COL_ID)));
+                        mTagController.delete(tag);
                         cursor = null;
                         AuthorEditorServiceIntent.updateAllAuthorsTags(getActivity());
                         refreshList();
@@ -206,14 +207,14 @@ public class AuthorTagFragment extends MyBaseAbstractFragment {
             alert.show();
         }
         if (item.getItemId() == edit_menu_id && cursor != null) {
-            final TagController sql = new TagController(callBack.getDatabaseHelper());
-            final Tag tag = sql.getById(cursor.getInt(cursor.getColumnIndex(SQLController.COL_ID)));
+
+            final Tag tag = mTagController.getById(cursor.getInt(cursor.getColumnIndex(SQLController.COL_ID)));
 
 
             EnterStringDialog dialog = new EnterStringDialog(getActivity(), new EnterStringDialog.ClickListener() {
                 public void okClick(String txt) {
                     tag.setName(txt);
-                    sql.update(tag);
+                    mTagController.update(tag);
                     AuthorEditorServiceIntent.updateAllAuthorsTags(getActivity());
                     refreshList();
                 }
@@ -230,16 +231,16 @@ public class AuthorTagFragment extends MyBaseAbstractFragment {
 
         SparseBooleanArray checked = listView.getCheckedItemPositions();
         List<Tag> tags = new ArrayList<>();
-        TagController tagCtl = new TagController(callBack.getDatabaseHelper());
+
         for (int i = 0; i < checked.size(); i++) {
             if (checked.valueAt(i)) {
                 Object o = listView.getItemAtPosition(checked.keyAt(i));
                 Cursor cur = (Cursor) o;//selected cursors
                 Log.d(DEBUG_TAG, "okClick: selected: " + cur.getString(cur.getColumnIndex(SQLController.COL_TAG_NAME)));
-                tags.add(tagCtl.getById(cur.getInt(cur.getColumnIndex(SQLController.COL_ID))));
+                tags.add(mTagController.getById(cur.getInt(cur.getColumnIndex(SQLController.COL_ID))));
             }
         }
-        AuthorController sql = new AuthorController(callBack.getDatabaseHelper());
+        final AuthorController sql = getAuthorController();
         Author a = sql.getById(author_id);
         sql.syncTags(a, tags);
         AuthorEditorServiceIntent.updateAllAuthorsTags(getActivity());
@@ -263,8 +264,8 @@ public class AuthorTagFragment extends MyBaseAbstractFragment {
      * @return Cursor
      */
     private Cursor getCursor() {
-        TagController tagSQL = new TagController(callBack.getDatabaseHelper());
-        AndroidDatabaseResults results = (AndroidDatabaseResults) tagSQL.getRowResult();
+
+        AndroidDatabaseResults results = (AndroidDatabaseResults) mTagController.getRowResult();
         return results.getRawCursor();
     }
 
@@ -288,9 +289,9 @@ public class AuthorTagFragment extends MyBaseAbstractFragment {
 
         Log.i(DEBUG_TAG, "adding tag: " + text + " ...");
 
-        TagController sql = new TagController(callBack.getDatabaseHelper());
+
         Tag tag = new Tag(text);
-        sql.insert(tag);
+        mTagController.insert(tag);
 
         addVisible = !addVisible;
 
@@ -316,7 +317,7 @@ public class AuthorTagFragment extends MyBaseAbstractFragment {
             return;
         }
         int size =listView.getAdapter().getCount();
-        AuthorController sql = new AuthorController(callBack.getDatabaseHelper());
+        final AuthorController sql = getAuthorController();
         Author a = sql.getById(author_id);
         if (a==null){
             Log.e(DEBUG_TAG,"loadTagData: author is NULL");
