@@ -26,6 +26,7 @@ import monakhv.samlib.db.entity.*;
 import monakhv.samlib.log.Log;
 
 
+import javax.inject.Inject;
 import java.sql.SQLException;
 import java.util.List;
 
@@ -49,6 +50,7 @@ public class AuthorController implements AbstractController<Author> {
     private final Dao<Tag2Author, Integer> t2aDao;
 
 
+    @Inject
     public AuthorController(DaoBuilder sql) {
 
         dao = sql.getAuthorDao();
@@ -219,6 +221,7 @@ public class AuthorController implements AbstractController<Author> {
      * @param object     Object for WHERE =
      * @return preparedQuery
      */
+    @SuppressWarnings("unchecked")
     private PreparedQuery<Author> getPrepared(QueryBuilder<Author, Integer> cb, String ColumnName, Object object) {
 
         try {
