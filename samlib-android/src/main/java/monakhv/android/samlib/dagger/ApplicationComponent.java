@@ -46,8 +46,6 @@ import monakhv.samlib.http.HttpClientController;
 public interface ApplicationComponent {
     void inject(SamlibApplication application);
 
-    void inject(SamlibPreferencesFragment fragment);
-
     void inject (AutoStartUp receiver);
     void inject (SamLibBackupAgentHelper helper);
 
