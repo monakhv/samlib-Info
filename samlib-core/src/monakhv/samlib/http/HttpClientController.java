@@ -65,19 +65,19 @@ public class HttpClientController {
     protected static final String USER_AGENT = "Android reader";
     private static final String DEBUG_TAG = "HttpClientController";
     private ProxyData proxy;
-    private static HttpClientController instance = null;
+    //private static HttpClientController instance = null;
     private final SamLibConfig slc;
     private final OkHttpClient httpclient;
 
     private final AbstractSettings settingsHelper;
 
-    public static HttpClientController getInstance(AbstractSettings context) {
-        if (instance == null) {
-            instance = new HttpClientController(context);
-        }
-
-        return instance;
-    }
+//    public static HttpClientController getInstance(AbstractSettings context) {
+//        if (instance == null) {
+//            instance = new HttpClientController(context);
+//        }
+//
+//        return instance;
+//    }
 
     public HttpClientController(AbstractSettings context) {
         httpclient = new OkHttpClient();

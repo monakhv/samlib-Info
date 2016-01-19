@@ -58,7 +58,7 @@ public class BookController {
     private final Dao<SelectedBook, Integer> selectedDao;
     private final GroupBookController grpCtl;
 
-    public BookController(DaoBuilder sql) {
+    BookController(DaoBuilder sql) {
 
         dao = sql.getBookDao();
         selectedDao = sql.getSelectedBookDao();

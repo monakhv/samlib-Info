@@ -37,7 +37,7 @@ import java.util.List;
 public class GroupBookController {
     private static final String DEBUG_TAG="GroupBookController";
     private Dao<GroupBook,Integer> dao;
-    public GroupBookController(DaoBuilder sql){
+    GroupBookController(DaoBuilder sql){
        dao =sql.getGroupBookDao();
     }
 
