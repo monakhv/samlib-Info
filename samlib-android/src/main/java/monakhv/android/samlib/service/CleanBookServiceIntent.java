@@ -18,7 +18,7 @@ package monakhv.android.samlib.service;
 import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
-import monakhv.android.samlib.data.DataExportImport;
+
 
 
 /**
@@ -38,8 +38,8 @@ public class CleanBookServiceIntent extends MyServiceIntent {
     @Override
     protected void onHandleIntent(Intent intent) {
         Log.d(DEBUG_TAG, "Got intent");
-        DataExportImport data = new DataExportImport(mSettingsHelper);
-        data.findDeleteBookFile();
+
+        getDataExportImport().findDeleteBookFile();
 
     }
 

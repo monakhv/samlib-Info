@@ -30,9 +30,7 @@ import in.srain.cube.views.ptr.util.PrefsUtil;
 
 import monakhv.android.samlib.SamlibApplication;
 import monakhv.android.samlib.dagger.ServiceComponent;
-import monakhv.android.samlib.data.DataExportImport;
 import monakhv.android.samlib.data.SettingsHelper;
-import monakhv.samlib.db.AuthorController;
 import monakhv.samlib.db.entity.Author;
 import monakhv.samlib.service.SamlibService;
 import java.util.ArrayList;
@@ -162,13 +160,13 @@ public class UpdateLocalService extends MyService {
 
 
         mSharedPreferences = PrefsUtil.getSharedPreferences(context, PREF_NAME);
-        mSettingsHelper.requestFirstBackup();
+        getSettingsHelper().requestFirstBackup();
 
         mSharedPreferences.edit().putString(PREF_KEY_CALLER, updateObject.getCALLER_type().name()).apply();
 
 
 
-        if ((updateObject.callerIsReceiver()) && !mSettingsHelper.haveInternetWIFI()) {
+        if ((updateObject.callerIsReceiver()) && !getSettingsHelper().haveInternetWIFI()) {
             monakhv.samlib.log.Log.d(DEBUG_TAG, "Ignore update task - we have no internet connection");
 
             return;
@@ -208,7 +206,7 @@ public class UpdateLocalService extends MyService {
         if (isRun && (mCALLER_type == AndroidGuiUpdater.CALLER_TYPE.CALLER_IS_ACTIVITY)) {
             Log.d(DEBUG_TAG, "Making STOP");
             mThread.interrupt();
-            http.cancelAll();
+            getHttpClientController().cancelAll();
 
             UpdateLocalService.this.mSamlibApplication.releaseServiceComponent();
             releaseLock();
@@ -242,7 +240,7 @@ public class UpdateLocalService extends MyService {
             boolean result = service.runUpdate(mUpdateObject.getObjectType(),mUpdateObject.getObjectId());
 
             if (result) {
-                if (mSettingsHelper.getLimitBookLifeTimeFlag() && (mUpdateObject.callerIsReceiver())) {
+                if (getSettingsHelper().getLimitBookLifeTimeFlag() && (mUpdateObject.callerIsReceiver())) {
                     CleanBookServiceIntent.start(context);
                 }
 

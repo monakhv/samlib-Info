@@ -21,12 +21,8 @@ import android.content.Intent;
 
 
 import monakhv.android.samlib.SamlibApplication;
-import monakhv.android.samlib.data.SettingsHelper;
-import monakhv.samlib.db.AuthorController;
-import monakhv.samlib.http.HttpClientController;
 import monakhv.samlib.log.Log;
 import monakhv.samlib.service.SamlibService;
-import monakhv.samlib.service.GuiUpdate;
 
 /**
  * Service to download book file
@@ -52,9 +48,6 @@ public class DownloadBookServiceIntent extends MyServiceIntent {
         //currentCaller
         UpdateObject updateObject=      intent.getParcelableExtra(AndroidGuiUpdater.CALLER_TYPE_EXTRA);
 
-
-
-        GuiUpdate guiUpdate = new AndroidGuiUpdater(mSettingsHelper,updateObject,null);
         SamlibService service =mSamlibApplication.getServiceComponent(updateObject,getHelper()).getSamlibService();
                 //new SamlibService(new AuthorController(getHelper()),guiUpdate,mSettingsHelper,new HttpClientController(mSettingsHelper));
 

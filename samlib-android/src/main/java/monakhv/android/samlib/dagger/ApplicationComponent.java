@@ -32,6 +32,7 @@ import monakhv.android.samlib.receiver.AutoStartUp;
 import monakhv.android.samlib.search.SearchAuthorsListFragment;
 import monakhv.android.samlib.service.MyService;
 import monakhv.android.samlib.service.MyServiceIntent;
+import monakhv.samlib.http.HttpClientController;
 
 /**
  * Root Component of the graph
@@ -45,14 +46,12 @@ import monakhv.android.samlib.service.MyServiceIntent;
 public interface ApplicationComponent {
     void inject(SamlibApplication application);
 
-
-    void inject (MyService service);
-    void inject(MyServiceIntent serviceIntent);
-
     void inject(SamlibPreferencesFragment fragment);
 
     void inject (AutoStartUp receiver);
     void inject (SamLibBackupAgentHelper helper);
+
+    HttpClientController getHttpClientController();
 
     DatabaseComponent plus(DatabaseModule module);
 

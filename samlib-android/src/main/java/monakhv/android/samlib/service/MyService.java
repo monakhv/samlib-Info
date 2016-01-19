@@ -26,7 +26,6 @@ import monakhv.android.samlib.data.SettingsHelper;
 import monakhv.android.samlib.sql.DatabaseHelper;
 import monakhv.samlib.http.HttpClientController;
 
-import javax.inject.Inject;
 
 /**
  * General Service which contains ORMLite DBHelper methods
@@ -36,10 +35,8 @@ public abstract class MyService extends Service {
     private volatile DatabaseHelper helper;
     private volatile boolean created = false;
     private volatile boolean destroyed = false;
-    @Inject
-    SettingsHelper mSettingsHelper;
-    @Inject
-    static HttpClientController http;
+
+    private SamlibApplication mSamlibApplication;
 
 
     @Override
@@ -50,8 +47,16 @@ public abstract class MyService extends Service {
         }
         super.onCreate();
 
-        ((SamlibApplication)getApplication()).getApplicationComponent().inject(this);
+        mSamlibApplication = (SamlibApplication) getApplication();
 
+    }
+
+    public SettingsHelper getSettingsHelper(){
+        return mSamlibApplication.getSettingsHelper();
+    }
+
+    public HttpClientController getHttpClientController(){
+        return mSamlibApplication.getApplicationComponent().getHttpClientController();
     }
 
     @Override
@@ -59,6 +64,8 @@ public abstract class MyService extends Service {
         super.onDestroy();
         releaseHelper();
         destroyed = true;
+        mSamlibApplication.releaseDatabaseComponent();
+        mSamlibApplication.releaseServiceComponent();
     }
 
     public DatabaseHelper getHelper() {

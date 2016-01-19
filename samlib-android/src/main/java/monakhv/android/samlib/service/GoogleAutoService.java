@@ -55,7 +55,7 @@ public class GoogleAutoService extends MyService {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
 
-        GoogleCopy gc = new GoogleCopy(this, mSettingsHelper.getGoogleAccount());
+        GoogleCopy gc = new GoogleCopy(this, getSettingsHelper().getGoogleAccount());
 
         gc.execute();
 
@@ -71,7 +71,7 @@ public class GoogleAutoService extends MyService {
 
         @Override
         protected Boolean doInBackgroundConnected(Void... params) {
-            DataExportImport dei = new DataExportImport(mSettingsHelper);
+            DataExportImport dei = new DataExportImport(getSettingsHelper());
             File dataBase = dei.getDataBase();
             reSync();
             List<DriveFile> files = getFile(GoogleDiskOperation.FileName);
@@ -96,7 +96,7 @@ public class GoogleAutoService extends MyService {
             }
 
             if (aBoolean) {
-                Log.i(DEBUG_TAG, "Copy compleate");
+                Log.i(DEBUG_TAG, "Copy complete");
             } else {
                 Log.e(DEBUG_TAG, getErrorMsg());
             }
@@ -109,7 +109,7 @@ public class GoogleAutoService extends MyService {
      * Start the service
      * Using in AndroidGUIAdapter class in
      *
-     * @param context
+     * @param context Context
      */
     public static void startService(Context context) {
         Intent intent = new Intent(context, GoogleAutoService.class);
