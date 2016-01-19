@@ -13,20 +13,21 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  *
- *  18.01.16 17:41
+ *  18.01.16 18:01
  *
  */
 
 package monakhv.android.samlib.dagger;
 
-import dagger.Subcomponent;
+import javax.inject.Scope;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 
 /**
- * Component for database module
+ * Scope to deal with database close to Activity scope
  * Created by monakhv on 18.01.16.
  */
-@DatabaseScope
-@Subcomponent(modules = {DatabaseModule.class})
-public interface DatabaseComponent {
-    ServiceComponent plus(ServiceModule module);
+@Scope
+@Retention(RetentionPolicy.RUNTIME)
+public @interface DatabaseScope {
 }

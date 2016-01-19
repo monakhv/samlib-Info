@@ -25,6 +25,7 @@ import monakhv.android.samlib.sql.DatabaseHelper;
 import monakhv.samlib.db.AuthorController;
 
 /**
+ * Database Module
  * Created by monakhv on 18.01.16.
  */
 @Module
@@ -35,7 +36,7 @@ public class DatabaseModule {
     }
 
     @Provides
-    @UpdateScope
+    @DatabaseScope
     AuthorController providesAuthorController() {
         return new AuthorController(mDatabaseHelper);
     }
