@@ -23,15 +23,8 @@ import dagger.Component;
 
 import javax.inject.Singleton;
 
-import monakhv.android.samlib.MyBaseAbstractActivity;
-import monakhv.android.samlib.MyBaseAbstractFragment;
 import monakhv.android.samlib.SamlibApplication;
-import monakhv.android.samlib.SamlibPreferencesFragment;
-import monakhv.android.samlib.data.backup.SamLibBackupAgentHelper;
 import monakhv.android.samlib.receiver.AutoStartUp;
-import monakhv.android.samlib.search.SearchAuthorsListFragment;
-import monakhv.android.samlib.service.MyService;
-import monakhv.android.samlib.service.MyServiceIntent;
 import monakhv.samlib.http.HttpClientController;
 
 /**
@@ -47,7 +40,6 @@ public interface ApplicationComponent {
     void inject(SamlibApplication application);
 
     void inject (AutoStartUp receiver);
-    void inject (SamLibBackupAgentHelper helper);
 
     HttpClientController getHttpClientController();
 

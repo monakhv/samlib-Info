@@ -11,12 +11,10 @@ import android.util.Log;
 import com.j256.ormlite.android.apptools.OpenHelperManager;
 import monakhv.android.samlib.dagger.ApplicationModule;
 import monakhv.android.samlib.dagger.DaggerApplicationComponent;
-import monakhv.android.samlib.data.SettingsHelper;
+import monakhv.android.samlib.dagger.DatabaseComponent;
+import monakhv.android.samlib.dagger.DatabaseModule;
 import monakhv.android.samlib.sql.DatabaseHelper;
-import monakhv.samlib.db.AuthorController;
-import monakhv.samlib.http.HttpClientController;
 
-import javax.inject.Inject;
 import java.io.IOException;
 
 
@@ -42,10 +40,7 @@ public class SamLibBackupAgentHelper extends BackupAgentHelper {
     private volatile DatabaseHelper helper;
     private volatile boolean created = false;
     private volatile boolean destroyed = false;
-    @Inject
-    SettingsHelper mSettingsHelper;
-    @Inject
-    HttpClientController mHttpClientController;
+
     // A key to uniquely identify the set of backup data
     static final String PREFS_SETTINGS_KEY = "prefs";
 
@@ -55,12 +50,12 @@ public class SamLibBackupAgentHelper extends BackupAgentHelper {
     public DatabaseHelper getDatabaseHelper() {
         if (helper == null) {
             if (!created) {
-                throw new IllegalStateException("A call has not been made to onCreate() yet so the helper is null");
+                throw new IllegalStateException(DEBUG_TAG+": A call has not been made to onCreate() yet so the helper is null");
             } else if (destroyed) {
                 throw new IllegalStateException(
-                        "A call to onDestroy has already been made and the helper cannot be used after that point");
+                        DEBUG_TAG+": A call to onDestroy has already been made and the helper cannot be used after that point");
             } else {
-                throw new IllegalStateException("Helper is null for some unknown reason");
+                throw new IllegalStateException(DEBUG_TAG+": Helper is null for some unknown reason");
             }
         } else {
             return helper;
@@ -75,38 +70,46 @@ public class SamLibBackupAgentHelper extends BackupAgentHelper {
             helper = getHelperInternal(this);
             created = true;
         }
-        DaggerApplicationComponent.builder()
+
+    }
+
+    private DatabaseComponent getDatabaseComponent(){
+        return DaggerApplicationComponent.builder()
                 .applicationModule(new ApplicationModule(getApplicationContext()))
-                .build().inject(this);
+                .build().plus(new DatabaseModule(getDatabaseHelper()));
     }
 
     @Override
     public void onBackup(ParcelFileDescriptor oldState, BackupDataOutput data, ParcelFileDescriptor newState) throws IOException {
-        AuthorStatePrefs.load(mSettingsHelper, new AuthorController(getDatabaseHelper()),mHttpClientController);
+        //        AuthorStatePrefs.load(mSettingsHelper, new AuthorController(getDatabaseHelper()),mHttpClientController);
+        AuthorStatePrefs authorStatePrefs =getDatabaseComponent().getAuthorStatePrefs();
+        authorStatePrefs.load();
         super.onBackup(oldState, data, newState);
     }
 
     @Override
     public void onRestore(BackupDataInput data, int appVersionCode, ParcelFileDescriptor newState) throws IOException {
         super.onRestore(data, appVersionCode, newState);
-        AuthorStatePrefs.restore(mSettingsHelper, new AuthorController(getDatabaseHelper()),mHttpClientController);
+        AuthorStatePrefs authorStatePrefs =getDatabaseComponent().getAuthorStatePrefs();
+        authorStatePrefs.restore();
+        //AuthorStatePrefs.restore(mSettingsHelper, new AuthorController(getDatabaseHelper()),mHttpClientController);
     }
 
     @Override
     public void onDestroy() {
-        releaseHelper(helper);
+        releaseHelper();
         destroyed = true;
         super.onDestroy();
     }
 
     protected DatabaseHelper getHelperInternal(Context context) {
         @SuppressWarnings({"unchecked", "deprecation"})
-        DatabaseHelper newHelper = (DatabaseHelper) OpenHelperManager.getHelper(context, DatabaseHelper.class);
+        DatabaseHelper newHelper =  OpenHelperManager.getHelper(context, DatabaseHelper.class);
 
         return newHelper;
     }
 
-    protected void releaseHelper(DatabaseHelper helper) {
+    protected void releaseHelper() {
         OpenHelperManager.releaseHelper();
 
         this.helper = null;

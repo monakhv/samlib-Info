@@ -16,6 +16,8 @@ import monakhv.samlib.db.entity.Author;
 import monakhv.android.samlib.tasks.AddAuthorRestore;
 import monakhv.samlib.http.HttpClientController;
 
+import javax.inject.Inject;
+
 /*
  * Copyright 2014  Dmitry Monakhov
  *
@@ -44,13 +46,13 @@ public class AuthorStatePrefs {
 
     private final Context context;
     private SharedPreferences prefs;
-    private static AuthorStatePrefs instance;
     private final SettingsHelper settings;
     private final AuthorController mAuthorController;
     private final HttpClientController mHttpClientController;
 
 
-    private AuthorStatePrefs(SettingsHelper settings ,AuthorController authorController,HttpClientController httpClientController) {
+    @Inject
+    public AuthorStatePrefs(SettingsHelper settings ,AuthorController authorController,HttpClientController httpClientController) {
 
         mAuthorController = authorController;
         this.context = settings.getContext();
@@ -129,21 +131,16 @@ public class AuthorStatePrefs {
         return context.getSharedPreferences(fn, Context.MODE_PRIVATE);
     }
 
-    static AuthorStatePrefs getInstance(SettingsHelper settings,AuthorController authorController,HttpClientController httpClientController) {
-        if (instance == null) {
-            instance = new AuthorStatePrefs(settings,authorController,httpClientController);
-        }
-        return instance;
-    }
 
-    public static void load(SettingsHelper settings,AuthorController authorController,HttpClientController httpClientController) {
-        AuthorStatePrefs ins = getInstance(settings,authorController,httpClientController);
-        ins.load();
-    }
 
-    public static void restore(SettingsHelper settings, AuthorController authorController, HttpClientController httpClientController) {
-        AuthorStatePrefs ins = getInstance(settings,authorController,httpClientController);
-        ins.restore();
-    }
+//    public static void load(SettingsHelper settings,AuthorController authorController,HttpClientController httpClientController) {
+//        AuthorStatePrefs ins = getInstance(settings,authorController,httpClientController);
+//        ins.load();
+//    }
+//
+//    public static void restore(SettingsHelper settings, AuthorController authorController, HttpClientController httpClientController) {
+//        AuthorStatePrefs ins = getInstance(settings,authorController,httpClientController);
+//        ins.restore();
+//    }
 
 }

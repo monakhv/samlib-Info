@@ -20,6 +20,7 @@
 package monakhv.android.samlib.dagger;
 
 import dagger.Subcomponent;
+import monakhv.android.samlib.data.backup.AuthorStatePrefs;
 import monakhv.samlib.db.AuthorController;
 
 /**
@@ -31,4 +32,5 @@ import monakhv.samlib.db.AuthorController;
 public interface DatabaseComponent {
     ServiceComponent plus(ServiceModule module);
     AuthorController getAuthorController();
+    AuthorStatePrefs getAuthorStatePrefs();
 }

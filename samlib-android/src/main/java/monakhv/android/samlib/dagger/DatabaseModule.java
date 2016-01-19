@@ -21,8 +21,11 @@ package monakhv.android.samlib.dagger;
 
 import dagger.Module;
 import dagger.Provides;
+import monakhv.android.samlib.data.SettingsHelper;
+import monakhv.android.samlib.data.backup.AuthorStatePrefs;
 import monakhv.android.samlib.sql.DatabaseHelper;
 import monakhv.samlib.db.AuthorController;
+import monakhv.samlib.http.HttpClientController;
 
 /**
  * Database Module
@@ -39,6 +42,12 @@ public class DatabaseModule {
     @DatabaseScope
     AuthorController providesAuthorController() {
         return new AuthorController(mDatabaseHelper);
+    }
+
+    @Provides
+    @DatabaseScope
+    AuthorStatePrefs providesAuthorStatePrefs(SettingsHelper settings,AuthorController authorController,HttpClientController httpClientController){
+        return new AuthorStatePrefs( settings, authorController,  httpClientController);
     }
 
 }
