@@ -45,10 +45,10 @@ import monakhv.android.samlib.service.MyServiceIntent;
 public interface ApplicationComponent {
     void inject(SamlibApplication application);
 
-    void inject(MyBaseAbstractActivity abstractActivity);
+
     void inject (MyService service);
     void inject(MyServiceIntent serviceIntent);
-    void inject(MyBaseAbstractFragment fragment);
+
     void inject(SamlibPreferencesFragment fragment);
 
     void inject (AutoStartUp receiver);

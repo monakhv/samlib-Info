@@ -21,6 +21,7 @@ package monakhv.android.samlib;
 
 import android.app.Application;
 import monakhv.android.samlib.dagger.*;
+import monakhv.android.samlib.data.DataExportImport;
 import monakhv.android.samlib.data.Logger;
 import monakhv.android.samlib.data.SettingsHelper;
 import monakhv.android.samlib.service.UpdateObject;
@@ -40,7 +41,9 @@ public class SamlibApplication extends Application {
     @Inject
     static Logger mLogger;
     @Inject
-    static SettingsHelper mSettingsHelper;
+    static SettingsHelper settingsHelper;
+    @Inject
+    static DataExportImport dataExportImport;
     private ServiceComponent mServiceComponent;
 
     private static ApplicationComponent applicationComponent;
@@ -65,7 +68,11 @@ public class SamlibApplication extends Application {
     }
 
     public SettingsHelper getSettingsHelper() {
-        return mSettingsHelper;
+        return settingsHelper;
+    }
+
+    public DataExportImport getDataExportImport() {
+        return dataExportImport;
     }
 
     public ServiceComponent getServiceComponent(UpdateObject updateObject, DatabaseHelper databaseHelper) {

@@ -149,7 +149,7 @@ public class AuthorFragment extends MyBaseAbstractFragment implements
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        order = AuthorSortOrder.valueOf(mSettingsHelper.getAuthorSortOrderString());
+        order = AuthorSortOrder.valueOf(getSettingsHelper().getAuthorSortOrderString());
         detector = new GestureDetector(getActivity(), new ListSwipeListener(this));
         Intent service = new Intent(getActivity(), UpdateLocalService.class);
         getActivity().bindService(service, mConnection, Context.BIND_AUTO_CREATE);
@@ -491,7 +491,7 @@ public class AuthorFragment extends MyBaseAbstractFragment implements
      * @param a Author object
      */
     public void launchBrowser(Author a) {
-        Uri uri = Uri.parse(a.getUrlForBrowser(mSettingsHelper));
+        Uri uri = Uri.parse(a.getUrlForBrowser(getSettingsHelper()));
         Intent launchBrowser = new Intent(Intent.ACTION_VIEW, uri);
         getActivity().startActivity(launchBrowser);
 

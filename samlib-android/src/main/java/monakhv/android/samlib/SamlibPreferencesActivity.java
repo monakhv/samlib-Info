@@ -42,7 +42,7 @@ public class SamlibPreferencesActivity  extends MyBaseAbstractActivity implement
 
 
 
-        String title = getString(R.string.app_name) + " - " + mSettingsHelper.getVersionName();
+        String title = getString(R.string.app_name) + " - " + getSettingsHelper().getVersionName();
 
         getSupportActionBar().setTitle(title);
     }

@@ -42,17 +42,13 @@ import java.util.List;
 import static monakhv.android.samlib.ActivityUtils.setDivider;
 
 
-import com.j256.ormlite.android.apptools.OpenHelperManager;
-import monakhv.android.samlib.ListSwipeListener;
 
+import monakhv.android.samlib.ListSwipeListener;
+import monakhv.android.samlib.MyBaseAbstractFragment;
 import monakhv.android.samlib.R;
 import monakhv.android.samlib.SamlibApplication;
-import monakhv.android.samlib.data.SettingsHelper;
-import monakhv.android.samlib.sql.DatabaseHelper;
 import monakhv.samlib.db.entity.AuthorCard;
 import monakhv.android.samlib.tasks.SearchAuthor;
-
-import javax.inject.Inject;
 
 
 /**
@@ -68,10 +64,7 @@ public class SearchAuthorsListFragment extends ListFragment implements ListSwipe
     ProgressDialog progress;
     private List<AuthorCard> result;
     private GestureDetector detector;
-    private DatabaseHelper mDatabaseHelper;
-
-//    @Inject
-//    SettingsHelper mSettingsHelper;
+    private MyBaseAbstractFragment.DaggerCaller mDaggerCaller;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -91,8 +84,21 @@ public class SearchAuthorsListFragment extends ListFragment implements ListSwipe
 
         setListAdapter(adapter);
         detector = new GestureDetector(getActivity(), new ListSwipeListener(this));
-        mDatabaseHelper = (DatabaseHelper) OpenHelperManager.getHelper(getActivity(), DatabaseHelper.class);
+
     }
+
+    @Override
+    public void onAttach(Context context) {
+
+        super.onAttach(context);
+        if (!(context instanceof MyBaseAbstractFragment.DaggerCaller)) {
+            throw new IllegalStateException(
+                    "MyBaseAbstractFragment: Activity must implement fragment's callbacks.");
+        }
+        mDaggerCaller = (MyBaseAbstractFragment.DaggerCaller) context;
+
+    }
+
 
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
@@ -107,15 +113,7 @@ public class SearchAuthorsListFragment extends ListFragment implements ListSwipe
         setDivider(getListView());
     }
 
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        if (mDatabaseHelper != null){
-            OpenHelperManager.releaseHelper();
-            mDatabaseHelper=null;
-        }
 
-    }
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
@@ -134,7 +132,7 @@ public class SearchAuthorsListFragment extends ListFragment implements ListSwipe
         }
 
         pattern = ptr;
-        SearchAuthor task = new SearchAuthor((SamlibApplication) getActivity().getApplication(),mDatabaseHelper);
+        SearchAuthor task = new SearchAuthor((SamlibApplication) getActivity().getApplication(),mDaggerCaller.getDatabaseHelper());
         progress = new ProgressDialog(getActivity());
         progress.setMessage(getActivity().getText(R.string.search_Loading));
         progress.setCancelable(true);

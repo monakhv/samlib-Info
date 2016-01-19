@@ -19,24 +19,46 @@
 
 package monakhv.android.samlib;
 
-import android.os.Bundle;
-import android.support.annotation.Nullable;
+import android.content.Context;
 import android.support.v4.app.Fragment;
+import monakhv.android.samlib.data.DataExportImport;
 import monakhv.android.samlib.data.SettingsHelper;
+import monakhv.android.samlib.sql.DatabaseHelper;
 
-import javax.inject.Inject;
 
 /**
+ * General Fragment
  * Created by monakhv on 15.01.16.
  */
 public class MyBaseAbstractFragment extends Fragment {
-    @Inject
-    SettingsHelper mSettingsHelper;
+    public interface DaggerCaller {
+        SettingsHelper getSettingsHelper();
+        DataExportImport getDataExportImport();
+        DatabaseHelper getDatabaseHelper();
+    }
+    private DaggerCaller mDaggerCaller;
+
+
 
     @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        ((SamlibApplication)getActivity().getApplication()).getApplicationComponent().inject(this);
+    public void onAttach(Context context) {
 
+        super.onAttach(context);
+        if (!(context instanceof DaggerCaller)) {
+            throw new IllegalStateException(
+                    "MyBaseAbstractFragment: Activity must implement fragment's callbacks.");
+        }
+        mDaggerCaller = (DaggerCaller) context;
+
+    }
+
+    protected SettingsHelper getSettingsHelper(){
+        return mDaggerCaller.getSettingsHelper();
+    }
+    protected DataExportImport getDataExportImport(){
+        return mDaggerCaller.getDataExportImport();
+    }
+    protected DatabaseHelper getDatabaseHelper(){
+        return mDaggerCaller.getDatabaseHelper();
     }
 }

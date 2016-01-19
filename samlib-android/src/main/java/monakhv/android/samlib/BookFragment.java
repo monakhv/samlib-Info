@@ -26,7 +26,6 @@ import monakhv.android.samlib.dialogs.ContextMenuDialog;
 import monakhv.android.samlib.dialogs.MyMenuData;
 import monakhv.android.samlib.dialogs.SingleChoiceSelectDialog;
 import monakhv.android.samlib.recyclerview.DividerItemDecoration;
-import monakhv.android.samlib.service.AndroidGuiUpdater;
 import monakhv.android.samlib.service.AuthorEditorServiceIntent;
 import monakhv.android.samlib.service.DownloadBookServiceIntent;
 import monakhv.android.samlib.service.UpdateObject;
@@ -116,8 +115,8 @@ public class BookFragment extends MyBaseAbstractFragment implements
         detector = new GestureDetector(getActivity(), new ListSwipeListener(this));
 
 
-        order = BookSortOrder.valueOf(mSettingsHelper.getBookSortOrderString());
-        dataExportImport = new DataExportImport(mSettingsHelper);
+        order = BookSortOrder.valueOf(getSettingsHelper().getBookSortOrderString());
+        dataExportImport = new DataExportImport(getSettingsHelper());
     }
 
 
@@ -145,7 +144,7 @@ public class BookFragment extends MyBaseAbstractFragment implements
         mProgressBar = (ProgressBar) view.findViewById(R.id.bookProgress);
 
 
-        adapter = new BookExpandableAdapter(GroupListItem.EMPTY, getActivity(),this,mSettingsHelper);
+        adapter = new BookExpandableAdapter(GroupListItem.EMPTY, getActivity(),this,getSettingsHelper());
         adapter.setAuthor_id(author_id);
         bookRV.setHasFixedSize(true);
         bookRV.setLayoutManager(new LinearLayoutManager(getActivity()));
@@ -179,7 +178,7 @@ public class BookFragment extends MyBaseAbstractFragment implements
 
         //adapter.setData(data);
 
-        adapter = new BookExpandableAdapter(data, getActivity(),this,mSettingsHelper);
+        adapter = new BookExpandableAdapter(data, getActivity(),this,getSettingsHelper());
         adapter.setAuthor_id(author_id);
         bookRV.setAdapter(adapter);
         Log.d(DEBUG_TAG, "onLoadFinished: adapter size = " + adapter.getItemCount());
@@ -191,7 +190,7 @@ public class BookFragment extends MyBaseAbstractFragment implements
     public void onLoaderReset(Loader<List<GroupListItem>> loader) {
 
         //adapter.setData(null);
-        adapter = new BookExpandableAdapter(GroupListItem.EMPTY, getActivity(),this,mSettingsHelper);
+        adapter = new BookExpandableAdapter(GroupListItem.EMPTY, getActivity(),this,getSettingsHelper());
         bookRV.setAdapter(adapter);
 
     }
@@ -224,7 +223,7 @@ public class BookFragment extends MyBaseAbstractFragment implements
                 Log.e(DEBUG_TAG, "Context is NULL");
             }
 
-            order = BookSortOrder.valueOf(mSettingsHelper.getBookSortOrderString());
+            order = BookSortOrder.valueOf(getSettingsHelper().getBookSortOrderString());
         }
         getLoaderManager().restartLoader(BOOK_LOADER_ID, null, this);
     }
@@ -358,7 +357,7 @@ public class BookFragment extends MyBaseAbstractFragment implements
         }
         if (item == menu_reload) {
 
-            mSettingsHelper.cleanBookFile(book);
+            getSettingsHelper().cleanBookFile(book);
 
 
             loadBook(book);
@@ -372,14 +371,14 @@ public class BookFragment extends MyBaseAbstractFragment implements
                 book.setPreserve(false);
             } else {
                 Log.i(DEBUG_TAG, "making book preserved " + book.getUri());
-                mSettingsHelper.makePreserved(book);
+                getSettingsHelper().makePreserved(book);
                 book.setPreserve(true);
             }
             updateBook(book);
 
         }
         if (item == menu_choose_version) {
-            final String[] files = mSettingsHelper.getBookFileVersions(book);
+            final String[] files = getSettingsHelper().getBookFileVersions(book);
             if (files.length == 0L) {
                 Log.i(DEBUG_TAG, "file is NULL");
                 //TODO: alarm no version is found
@@ -406,14 +405,14 @@ public class BookFragment extends MyBaseAbstractFragment implements
      */
     private void launchBrowser(Book book) {
 
-        String sUrl = book.getUrlForBrowser(mSettingsHelper);
+        String sUrl = book.getUrlForBrowser(getSettingsHelper());
 
         Log.d(DEBUG_TAG, "book url: " + sUrl);
 
         Uri uri = Uri.parse(sUrl);
         Intent launchBrowser = new Intent(Intent.ACTION_VIEW, uri);
 
-        if (mSettingsHelper.getAutoMarkFlag()) {
+        if (getSettingsHelper().getAutoMarkFlag()) {
 
             adapter.makeRead(selected_position);
         }
@@ -453,7 +452,7 @@ public class BookFragment extends MyBaseAbstractFragment implements
 
 
     private void loadBook(Book book) {
-        book.setFileType(mSettingsHelper.getFileType());
+        book.setFileType(getSettingsHelper().getFileType());
         if (dataExportImport.needUpdateFile(book)) {
             progress = new ProgressDialog(getActivity());
             progress.setMessage(getActivity().getText(R.string.download_Loading));
@@ -489,9 +488,9 @@ public class BookFragment extends MyBaseAbstractFragment implements
     void launchReader(Book book, String file) {
         String url;
         if (file == null) {
-            url = mSettingsHelper.getBookFileURL(book);
+            url = getSettingsHelper().getBookFileURL(book);
         } else {
-            url = mSettingsHelper.getBookFileURL(book, file);
+            url = getSettingsHelper().getBookFileURL(book, file);
         }
 
 
@@ -500,7 +499,7 @@ public class BookFragment extends MyBaseAbstractFragment implements
         launchBrowser.setDataAndType(Uri.parse(url), book.getFileMime());
 
 
-        if (mSettingsHelper.getAutoMarkFlag()) {
+        if (getSettingsHelper().getAutoMarkFlag()) {
            adapter.makeRead(selected_position);
         }
         startActivity(launchBrowser);

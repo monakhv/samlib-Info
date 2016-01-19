@@ -10,8 +10,6 @@ import monakhv.android.samlib.data.DataExportImport;
 import monakhv.android.samlib.data.SettingsHelper;
 import monakhv.android.samlib.sql.DatabaseHelper;
 
-import javax.inject.Inject;
-
 
 /*
  * Copyright 2014  Dmitry Monakhov
@@ -30,19 +28,25 @@ import javax.inject.Inject;
  *
  * 12/11/14.
  */
-public class MyBaseAbstractActivity extends AppCompatActivity {
+public class MyBaseAbstractActivity extends AppCompatActivity implements MyBaseAbstractFragment.DaggerCaller {
     private volatile DatabaseHelper helper;
-    @Inject
-    SettingsHelper mSettingsHelper;
-    @Inject
-    DataExportImport mDataExportImport;
-
+    private SamlibApplication mSamlibApplication;
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
-        ((SamlibApplication) getApplication()).getApplicationComponent().inject(this);
-        setTheme(mSettingsHelper.getTheme());
+        mSamlibApplication=(SamlibApplication) getApplication();
+        setTheme(mSamlibApplication.getSettingsHelper().getTheme());
         super.onCreate(savedInstanceState);
 
+    }
+
+    @Override
+    public SettingsHelper getSettingsHelper(){
+        return mSamlibApplication.getSettingsHelper();
+    }
+
+    @Override
+    public DataExportImport getDataExportImport(){
+        return mSamlibApplication.getDataExportImport();
     }
 
     /**

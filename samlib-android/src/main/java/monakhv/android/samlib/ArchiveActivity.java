@@ -76,11 +76,11 @@ public class ArchiveActivity extends MyBaseAbstractActivity {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 Log.d(DEBUG_TAG, "set Googe Auto to: " + isChecked);
-                mSettingsHelper.setGoogleAuto(isChecked);
+                getSettingsHelper().setGoogleAuto(isChecked);
             }
         });
-        cb.setChecked(mSettingsHelper.isGoogleAuto());
-        cb.setEnabled(mSettingsHelper.isGoogleAutoEnable());
+        cb.setChecked(getSettingsHelper().isGoogleAuto());
+        cb.setEnabled(getSettingsHelper().isGoogleAutoEnable());
 
     }
 
@@ -114,7 +114,7 @@ public class ArchiveActivity extends MyBaseAbstractActivity {
 
     @SuppressWarnings("UnusedParameters")
     public void exportDB(View v) {
-        String file = mDataExportImport.exportDB();
+        String file = getDataExportImport().exportDB();
 
         String text;
         if (file != null) {
@@ -129,7 +129,7 @@ public class ArchiveActivity extends MyBaseAbstractActivity {
 
     @SuppressWarnings("UnusedParameters")
     public void importDB(View v) {
-        final String[] files = mDataExportImport.getFilesToImportDB();
+        final String[] files = getDataExportImport().getFilesToImportDB();
         OnItemClickListener listener = new OnItemClickListener() {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 selectedFile = files[position];
@@ -148,7 +148,7 @@ public class ArchiveActivity extends MyBaseAbstractActivity {
     }
 
     private void _importDB(String fileName) {
-        boolean res = mDataExportImport.importDB( fileName);
+        boolean res = getDataExportImport().importDB( fileName);
 
         String text;
         if (res) {
@@ -178,7 +178,7 @@ public class ArchiveActivity extends MyBaseAbstractActivity {
 
     @SuppressWarnings("UnusedParameters")
     public void exportTxt(View v) {
-        String file = mDataExportImport.exportAuthorList(getDatabaseHelper());
+        String file = getDataExportImport().exportAuthorList(getDatabaseHelper());
         String text;
         if (file != null) {
             text = getString(R.string.res_export_txt_good) + " " + file;
@@ -192,7 +192,7 @@ public class ArchiveActivity extends MyBaseAbstractActivity {
 
     @SuppressWarnings("UnusedParameters")
     public void importTxt(View v) {
-        final String[] files = mDataExportImport.getFilesToImportTxt();
+        final String[] files = getDataExportImport().getFilesToImportTxt();
         OnItemClickListener listener = new OnItemClickListener() {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 selectedFile = files[position];
@@ -212,7 +212,7 @@ public class ArchiveActivity extends MyBaseAbstractActivity {
 
     private void _importTxt(String file) {
         
-        ArrayList<String> urls =  mDataExportImport.importAuthorList(file);
+        ArrayList<String> urls =  getDataExportImport().importAuthorList(file);
         if (!urls.isEmpty()){
             AuthorEditorServiceIntent.addAuthor(this,urls);
             progress = new ProgressDialog(this);
@@ -267,7 +267,7 @@ public class ArchiveActivity extends MyBaseAbstractActivity {
         progress.setCancelable(true);
         progress.setIndeterminate(true);
         progress.show();
-        new GoogleDiskOperation(this,mSettingsHelper,operation).execute();
+        new GoogleDiskOperation(this,getSettingsHelper(),operation).execute();
 
     }
 
@@ -296,14 +296,14 @@ public class ArchiveActivity extends MyBaseAbstractActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         switch (requestCode){
             case GoogleDiskOperation.RESOLVE_CONNECTION_REQUEST_CODE:
-                if (mSettingsHelper == null){
+                if (getSettingsHelper() == null){
                     Log.e(DEBUG_TAG,"settings is null!!");
                     return;
                 }
-                mSettingsHelper.setGoogleAccount(
+                getSettingsHelper().setGoogleAccount(
                     data.getStringExtra(AccountManager.KEY_ACCOUNT_NAME));
                 progress.show();
-                new GoogleDiskOperation(this,mSettingsHelper,operation).execute();
+                new GoogleDiskOperation(this,getSettingsHelper(),operation).execute();
                 break;
         }
     }
@@ -328,7 +328,7 @@ public class ArchiveActivity extends MyBaseAbstractActivity {
                 return;
             }
             if (res && ot == GoogleDiskOperation.OperationType.EXPORT){
-                cb.setEnabled(mSettingsHelper.isGoogleAutoEnable());
+                cb.setEnabled(getSettingsHelper().isGoogleAutoEnable());
                 Toast.makeText(context, context.getString(R.string.res_export_google_good), Toast.LENGTH_LONG).show();
             }
             String error = intent.getStringExtra(EXTRA_ERROR);

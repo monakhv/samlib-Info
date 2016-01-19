@@ -243,7 +243,7 @@ public class AuthorTagFragment extends MyBaseAbstractFragment {
         Author a = sql.getById(author_id);
         sql.syncTags(a, tags);
         AuthorEditorServiceIntent.updateAllAuthorsTags(getActivity());
-        mSettingsHelper.requestBackup();
+        getSettingsHelper().requestBackup();
         a=sql.getById(author_id);
         //Log.d(DEBUG_TAG, "okClick:   " + a.getName() + ": " + a.getAll_tags_name() + "  -  " + a.getTagIds().size() + " = " + a.getTag2Authors().size());
         for (Integer ii : a.getTagIds()){
