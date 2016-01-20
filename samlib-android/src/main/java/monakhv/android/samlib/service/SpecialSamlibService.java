@@ -31,6 +31,7 @@ import monakhv.samlib.service.SamlibService;
 import javax.inject.Inject;
 
 /**
+ * Version of SamlibService where we can download books after update
  * Created by monakhv on 18.01.16.
  */
 public class SpecialSamlibService extends SamlibService {

@@ -41,6 +41,8 @@ import monakhv.samlib.db.entity.Tag;
 import monakhv.samlib.http.HttpClientController;
 import monakhv.samlib.log.Log;
 
+import javax.inject.Inject;
+
 /**
  * The task to load Author into data base.
  * Take the array of full Authors URL
@@ -61,6 +63,7 @@ public class AddAuthorRestore extends AsyncTask<String, Void, Boolean> {
     private final AuthorController mAuthorController;
     private final HttpClientController mHttpClientController;
 
+    @Inject
     public AddAuthorRestore(SettingsHelper settingsHelper,HttpClientController httpClientController,AuthorController authorController) {
         mAuthorController = authorController;
         context = settingsHelper.getContext();

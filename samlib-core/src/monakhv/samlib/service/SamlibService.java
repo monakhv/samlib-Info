@@ -87,18 +87,18 @@ public class SamlibService {
                 authors = new ArrayList<>();
                 authors.add(author);
 
-                Log.i(DEBUG_TAG, "runUpdate: Check single Author: " + author.getName());
+                Log.i(DEBUG_TAG, "runUpdateAuthors: Check single Author: " + author.getName());
             } else {
-                Log.e(DEBUG_TAG, "runUpdate: Can not find Author: " + id);
+                Log.e(DEBUG_TAG, "runUpdateAuthors: Can not find Author: " + id);
                 return false;
             }
         } else {//Check update for authors by TAG
             authors = authorController.getAll(id, SQLController.COL_mtime + " DESC");
 
 
-            Log.i(DEBUG_TAG, "runUpdate: selection index: " + id);
+            Log.i(DEBUG_TAG, "runUpdateAuthors: selection index: " + id);
         }
-        return runUpdate(authors);
+        return runUpdateAuthors(authors);
     }
 
     /**
@@ -107,7 +107,7 @@ public class SamlibService {
      * @param authors List of the Authors to check update
      * @return true if update successful false if error or interrupted
      */
-    public boolean runUpdate(List<Author> authors) {
+    private boolean runUpdateAuthors(List<Author> authors) {
         updatedAuthors.clear();
         int skippedAuthors = 0;
         Random rnd = new Random(Calendar.getInstance().getTimeInMillis());
@@ -123,17 +123,17 @@ public class SamlibService {
             try {
                 newA = http.getAuthorByURL(url, newA);
             } catch (IOException ex) {//here we abort cycle author and total update
-                Log.i(DEBUG_TAG, "runUpdate: Connection Error: " + url, ex);
+                Log.i(DEBUG_TAG, "runUpdateAuthors: Connection Error: " + url, ex);
                 guiUpdate.finishUpdate(false, updatedAuthors);
                 return false;
 
             } catch (SamlibParseException ex) {//skip update for given author
-                Log.e(DEBUG_TAG, "runUpdate:Error parsing url: " + url + " skip update author ", ex);
+                Log.e(DEBUG_TAG, "runUpdateAuthors:Error parsing url: " + url + " skip update author ", ex);
 
                 ++skippedAuthors;
                 newA = a;
             } catch (SamlibInterruptException e) {
-                Log.i(DEBUG_TAG, "runUpdate: catch Interrupted", e);
+                Log.i(DEBUG_TAG, "runUpdateAuthors: catch Interrupted", e);
 
                 guiUpdate.finishUpdate(false, updatedAuthors);
                 return false;
@@ -143,7 +143,7 @@ public class SamlibService {
                     updatedAuthors.add(a);//sometimes we need update if the author has no new books
                     guiUpdate.makeUpdate(a);
                 }
-                Log.i(DEBUG_TAG, "runUpdate: We need update author: " + a.getName());
+                Log.i(DEBUG_TAG, "runUpdateAuthors: We need update author: " + a.getName());
 
                 authorController.update(a);
 
@@ -162,11 +162,11 @@ public class SamlibService {
             }
 
             try {
-                Log.d(DEBUG_TAG, "runUpdate: sleep " + sleep + " seconds");
+                Log.d(DEBUG_TAG, "runUpdateAuthors: sleep " + sleep + " seconds");
 
                 TimeUnit.SECONDS.sleep(sleep);
             } catch (InterruptedException e) {
-                Log.i(DEBUG_TAG, "runUpdate: Sleep interrupted exiting", e);
+                Log.i(DEBUG_TAG, "runUpdateAuthors: Sleep interrupted exiting", e);
 
                 guiUpdate.finishUpdate(false, updatedAuthors);
                 return false;

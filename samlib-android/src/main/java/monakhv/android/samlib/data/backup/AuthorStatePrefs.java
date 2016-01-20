@@ -14,7 +14,7 @@ import monakhv.android.samlib.data.SettingsHelper;
 import monakhv.samlib.db.AuthorController;
 import monakhv.samlib.db.entity.Author;
 import monakhv.android.samlib.tasks.AddAuthorRestore;
-import monakhv.samlib.http.HttpClientController;
+
 
 import javax.inject.Inject;
 
@@ -48,18 +48,19 @@ public class AuthorStatePrefs {
     private SharedPreferences prefs;
     private final SettingsHelper settings;
     private final AuthorController mAuthorController;
-    private final HttpClientController mHttpClientController;
+    private final AddAuthorRestore mAddAuthorRestore;
 
 
     @Inject
-    public AuthorStatePrefs(SettingsHelper settings ,AuthorController authorController,HttpClientController httpClientController) {
+    public AuthorStatePrefs(SettingsHelper settings , AddAuthorRestore addAuthorRestore, AuthorController authorController) {
 
         mAuthorController = authorController;
         this.context = settings.getContext();
+        mAddAuthorRestore=addAuthorRestore;
 
         this.prefs = getPrefs();
         this.settings = settings;
-        mHttpClientController=httpClientController;
+
     }
 
     /**
@@ -94,12 +95,12 @@ public class AuthorStatePrefs {
         Map<String, ?> map = prefs.getAll();
         settings.restore(map);
 
-        AddAuthorRestore adder = new AddAuthorRestore(settings,mHttpClientController,mAuthorController);
+
 
         for (String u : map.keySet().toArray(new String[1])) {
             Log.d(DEBUG_TAG, "get: " + u + " - " + map.get(u).toString());
         }
-        adder.execute(map.keySet().toArray(new String[1]));
+        mAddAuthorRestore.execute(map.keySet().toArray(new String[1]));
 
 
     }
@@ -131,16 +132,5 @@ public class AuthorStatePrefs {
         return context.getSharedPreferences(fn, Context.MODE_PRIVATE);
     }
 
-
-
-//    public static void load(SettingsHelper settings,AuthorController authorController,HttpClientController httpClientController) {
-//        AuthorStatePrefs ins = getInstance(settings,authorController,httpClientController);
-//        ins.load();
-//    }
-//
-//    public static void restore(SettingsHelper settings, AuthorController authorController, HttpClientController httpClientController) {
-//        AuthorStatePrefs ins = getInstance(settings,authorController,httpClientController);
-//        ins.restore();
-//    }
 
 }

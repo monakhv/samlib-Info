@@ -25,6 +25,7 @@ import monakhv.android.samlib.dagger.DatabaseScope;
 import monakhv.android.samlib.data.SettingsHelper;
 import monakhv.android.samlib.data.backup.AuthorStatePrefs;
 import monakhv.android.samlib.sql.DatabaseHelper;
+import monakhv.android.samlib.tasks.AddAuthorRestore;
 import monakhv.samlib.db.AuthorController;
 import monakhv.samlib.http.HttpClientController;
 
@@ -47,8 +48,13 @@ public class DatabaseModule {
 
     @Provides
     @DatabaseScope
-    AuthorStatePrefs providesAuthorStatePrefs(SettingsHelper settings,AuthorController authorController,HttpClientController httpClientController){
-        return new AuthorStatePrefs( settings, authorController,  httpClientController);
+    AddAuthorRestore providesAddAuthorRestore(SettingsHelper settings,HttpClientController httpClientController,AuthorController authorController){
+        return new AddAuthorRestore( settings, httpClientController,authorController);
+    }
+    @Provides
+    @DatabaseScope
+    AuthorStatePrefs providesAuthorStatePrefs(SettingsHelper settings,AuthorController authorController, AddAuthorRestore addAuthorRestore){
+        return new AuthorStatePrefs( settings, addAuthorRestore, authorController);
     }
 
 }

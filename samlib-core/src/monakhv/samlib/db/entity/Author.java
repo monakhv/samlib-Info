@@ -291,7 +291,7 @@ public class Author  implements Serializable{
 
     /**
      * Update Author information by data of new Author object If need
-     * Call from SamLibService.runUpdate only !!!
+     * Call from SamLibService.runUpdateAuthors only !!!
      *
      * @param newA new just downloaded author
      * @return true if data is updated false in other case
