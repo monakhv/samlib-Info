@@ -64,10 +64,10 @@ public class BookLoader extends AbstractLoader<GroupListItem> {
                 Log.e(DEBUG_TAG, "loadInBackground: author is not defined");
                 return GroupListItem.EMPTY;
             }
-            GroupListItem newGrp = new GroupListItem(mContext.getString(R.string.group_book_new));
-            newGrp.mChildItemList=mAuthorController.getBookController().getAllNew(a, order);
-            newGrp.newNumber=newGrp.mChildItemList.size();
-            res.add(newGrp);
+//            GroupListItem newGrp = new GroupListItem(mContext.getString(R.string.group_book_new));
+//            newGrp.mChildItemList=mAuthorController.getBookController().getAllNew(a, order);
+//            newGrp.newNumber=newGrp.mChildItemList.size();
+//            res.add(newGrp);
 
             List<GroupBook> rr = mAuthorController.getGroupBookController().getByAuthor(a);
 
@@ -75,7 +75,7 @@ public class BookLoader extends AbstractLoader<GroupListItem> {
 
                 gr.mChildItemList = mAuthorController.getBookController().getAll(a, order);
                 gr.setName(mContext.getString(R.string.group_book_all));
-                gr.newNumber=newGrp.newNumber;
+                gr.newNumber=mAuthorController.getBookController().getAllNew(a, order).size();
                 res.add(gr);
             } else {
                 for (GroupBook groupBook : rr) {

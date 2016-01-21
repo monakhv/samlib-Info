@@ -36,15 +36,17 @@ public class GroupViewHolder extends ParentViewHolder {
     private static final float INITIAL_POSITION = 0.0f;
     private static final float ROTATED_POSITION = 180f;
 
-    public TextView groupTitle,bookNumber;
-    public ImageView icon;
+    public TextView groupTitle, bookNumber;
+    public ImageView icon, newIcon;
     public RelativeLayout rowLayout;
+
     public GroupViewHolder(View itemView) {
         super(itemView);
         groupTitle = (TextView) itemView.findViewById(R.id.group_title);
         icon = (ImageView) itemView.findViewById(R.id.group_icon);
         bookNumber = (TextView) itemView.findViewById(R.id.group_number);
         rowLayout = (RelativeLayout) itemView.findViewById(R.id.group_row);
+        newIcon = (ImageView) itemView.findViewById(R.id.group_new_icon);
     }
 
     @Override

@@ -18,10 +18,10 @@
 
 package monakhv.android.samlib.adapter;
 
+import android.app.Activity;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.text.Html;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -33,6 +33,7 @@ import monakhv.android.samlib.animation.FlipIcon;
 import monakhv.android.samlib.data.SettingsHelper;
 import monakhv.samlib.db.entity.Book;
 import monakhv.samlib.db.entity.SamLibConfig;
+import monakhv.samlib.log.Log;
 
 import java.util.HashMap;
 import java.util.List;
@@ -61,14 +62,14 @@ public class BookExpandableAdapter extends ExpandableRecyclerAdapter<GroupViewHo
     private Context mContext;
     protected CallBack mCallBack;
 
-    public BookExpandableAdapter(@NonNull List<? extends ParentListItem> parentItemList, Context context, CallBack callBack, SettingsHelper settingsHelper) {
+    public BookExpandableAdapter(@NonNull List<? extends ParentListItem> parentItemList, Activity context, CallBack callBack, SettingsHelper settingsHelper) {
         super(parentItemList);
 
         mInflater = LayoutInflater.from(context);
         flips = new HashMap<>();
         mCallBack = callBack;
-        mContext=context;
-        mSettingsHelper=settingsHelper;
+        mContext = context;
+        mSettingsHelper = settingsHelper;
     }
 
     public void setAuthor_id(long author_id) {
@@ -87,34 +88,32 @@ public class BookExpandableAdapter extends ExpandableRecyclerAdapter<GroupViewHo
         GroupListItem gi = (GroupListItem) parentListItem;
         groupViewHolder.groupTitle.setText(gi.getName());
 
-        if ( gi.getName() == null || gi.getChildItemList().isEmpty()) {
-            Log.i(DEBUG_TAG,"onBindParentViewHolder: empty for group "+gi.getName()+" size "+gi.getChildItemList().size());
+        if (gi.getName() == null || gi.getChildItemList().isEmpty()) {
+            Log.i(DEBUG_TAG, "onBindParentViewHolder: empty for group " + gi.getName() + " size " + gi.getChildItemList().size());
             groupViewHolder.groupTitle.setVisibility(View.GONE);
             groupViewHolder.icon.setVisibility(View.GONE);
             groupViewHolder.bookNumber.setVisibility(View.GONE);
             groupViewHolder.rowLayout.setVisibility(View.GONE);
-            groupViewHolder.rowLayout.setPadding(0,0,0,0);
+            groupViewHolder.rowLayout.setPadding(0, 0, 0, 0);
 
-        }
-        else {
+        } else {
             groupViewHolder.groupTitle.setText(gi.getName());
-            if (gi.newNumber == 0){
-                groupViewHolder.bookNumber.setText(mContext.getString(R.string.group_book_number)+" "+gi.getChildItemList().size());
+            if (gi.newNumber == 0) {
+                groupViewHolder.bookNumber.setText(mContext.getString(R.string.group_book_number) + " " + gi.getChildItemList().size());
+                groupViewHolder.newIcon.setVisibility(View.GONE);
+            } else {
+                groupViewHolder.newIcon.setVisibility(View.VISIBLE);
+                groupViewHolder.bookNumber.setText(mContext.getString(R.string.group_book_number) + " " + gi.getChildItemList().size()
+                        + " "
+                        + mContext.getString(R.string.group_book_number_new)
+                        + " "
+                        + gi.newNumber);
             }
-            else {
-                groupViewHolder.bookNumber.setText(mContext.getString(R.string.group_book_number)+" "+gi.getChildItemList().size()
-                        +" "
-                        +mContext.getString(R.string.group_book_number_new)
-                        +" "
-                        +gi.newNumber);
-            }
 
 
-
-            if ( gi.hidden){
+            if (gi.hidden) {
                 groupViewHolder.groupTitle.setAlpha(0.5f);
-            }
-            else {
+            } else {
                 groupViewHolder.groupTitle.setAlpha(1.f);
             }
         }
@@ -151,19 +150,17 @@ public class BookExpandableAdapter extends ExpandableRecyclerAdapter<GroupViewHo
             holder.bookAuthorName.setVisibility(View.VISIBLE);
         }
 
-        if (book.isIsNew() && book.getDelta() != 0){
+        if (book.isIsNew() && book.getDelta() != 0) {
             long delta = book.getDelta();
             String str;
-            if (delta<0){
-                str=""+book.getSize()+"K ("+delta+"K)";
-            }
-            else {
-                str=""+book.getSize()+"K (+"+delta+"K)";
+            if (delta < 0) {
+                str = "" + book.getSize() + "K (" + delta + "K)";
+            } else {
+                str = "" + book.getSize() + "K (+" + delta + "K)";
             }
 
             holder.bookSize.setText(str);
-        }
-        else {
+        } else {
             holder.bookSize.setText(book.getSize() + "K");
         }
 
@@ -178,7 +175,7 @@ public class BookExpandableAdapter extends ExpandableRecyclerAdapter<GroupViewHo
             listener = new Flip3D.animationFlip3DListener() {
                 @Override
                 public void onStart() {
-                    Log.i(DEBUG_TAG, "Making book read!");
+                    Log.i(DEBUG_TAG, "Making book read: " + book.getUri());
                     mCallBack.makeNewFlip(book.getId());
                 }
 
@@ -193,13 +190,13 @@ public class BookExpandableAdapter extends ExpandableRecyclerAdapter<GroupViewHo
             listener = new Flip3D.animationFlip3DListener() {
                 @Override
                 public void onStart() {
-                    Log.i(DEBUG_TAG, "Making book new!!");
+                    Log.i(DEBUG_TAG, "Making book new: " + book.getUri());
                     mCallBack.makeNewFlip(book.getId());
                 }
 
                 @Override
                 public void onEnd() {
-                   makeSetNew(book);
+                    makeSetNew(book);
                 }
             };
             holder.flipIcon.setData(closeBook, openBook, listener, true);
@@ -229,68 +226,81 @@ public class BookExpandableAdapter extends ExpandableRecyclerAdapter<GroupViewHo
 
     }
 
-    private void updateBook(Book book,boolean isNew) {
+    private void updateBook(Book book, boolean isNew) {
 
         int parentListItemCount = getParentItemList().size();
+        Log.i(DEBUG_TAG, "updateBook: parent list size:  " + parentListItemCount);
         ParentListItem parentListItem;
-        for (int i = 1; i < parentListItemCount; i++) {
+        for (int i = 0; i < parentListItemCount; i++) {
             parentListItem = getParentItemList().get(i);
             GroupListItem gi = (GroupListItem) parentListItem;
-            if (isNew){
-                ++gi.newNumber;
-            }
-            else {
-                if (gi.newNumber>0){
-                    --gi.newNumber;
-                }
-
-            }
 
             int idx = gi.getChildItemList().indexOf(book);
-            if (idx != -1){
+            if (idx != -1) {
+                if (isNew) {
+                    ++gi.newNumber;
+                } else {
+                    if (gi.newNumber > 0) {
+                        --gi.newNumber;
+                    }
 
-                gi.getChildItemList().set(idx,book);
-                notifyChildItemChanged(i,idx);
+                }
+
+
+                Log.i(DEBUG_TAG, "updateBook: update parent: " + i + "  update child: " + idx);
+                gi.getChildItemList().set(idx, book);
+                notifyChildItemChanged(i, idx);
                 notifyParentItemChanged(i);
+                return;
 
             }
 
-        }
+        }//end parent item cycle
 
-
+        Log.w(DEBUG_TAG, "updateBook: No book found to update!");
     }
-    private void makeCleanNew( Book b) {
+
+    /**
+     * Clean New mark for book and its group
+     *
+     * @param b Book to clean new mark
+     */
+    private void makeCleanNew(Book b) {
         Book book = mCallBack.reloadBook(b.getId());
 
 
-        int book_idx = getParentItemList().get(0).getChildItemList().indexOf(book);
-        if (book_idx != -1){
-
-            GroupListItem gi = (GroupListItem) getParentItemList().get(0);
-            gi.getChildItemList().remove(book_idx);
-            gi.newNumber=gi.getChildItemList().size();
-            notifyChildItemRemoved(0,book_idx);
-            notifyParentItemChanged(0);
-        }
-        updateBook(book,false);
+//        int book_idx = getParentItemList().get(0).getChildItemList().indexOf(book);
+//        if (book_idx != -1){
+//
+//            GroupListItem gi = (GroupListItem) getParentItemList().get(0);
+//            gi.getChildItemList().remove(book_idx);
+//            gi.newNumber=gi.getChildItemList().size();
+//            notifyChildItemRemoved(0,book_idx);
+//            notifyParentItemChanged(0);
+//        }
+        updateBook(book, false);
     }
 
-    private void makeSetNew( Book b) {
+    /**
+     * Set new mark for book and its group
+     *
+     * @param b Book object to set new mark
+     */
+    private void makeSetNew(Book b) {
         Book book = mCallBack.reloadBook(b.getId());
 
-        GroupListItem gi = (GroupListItem) getParentItemList().get(0);
-        gi.getChildItemList().add(book);
-        gi.newNumber=gi.getChildItemList().size();
-        notifyChildItemInserted(0,gi.getChildItemList().size()-1);
-        notifyParentItemChanged(0);
+//        GroupListItem gi = (GroupListItem) getParentItemList().get(0);
+//        gi.getChildItemList().add(book);
+//        gi.newNumber=gi.getChildItemList().size();
+//        notifyChildItemInserted(0,gi.getChildItemList().size()-1);
+//        notifyParentItemChanged(0);
 
 
-        updateBook(book,true);
+        updateBook(book, true);
         notifyParentItemChanged(0);
 
 
     }
-
 
 
     /**
@@ -344,7 +354,7 @@ public class BookExpandableAdapter extends ExpandableRecyclerAdapter<GroupViewHo
             Log.e(DEBUG_TAG, "getSelected: position is NOT_SELECTED");
             return null;
         }
-        if (mItemList == null){
+        if (mItemList == null) {
             Log.e(DEBUG_TAG, "getSelected: itemList is null");
             return null;
         }
@@ -359,20 +369,21 @@ public class BookExpandableAdapter extends ExpandableRecyclerAdapter<GroupViewHo
     }
 
     public Book getBook(int position) {
-        if (position <0){
+        if (position < 0) {
             return null;
         }
         Object o = mItemList.get(position);
 
-        if ( ! (o instanceof Book)){
-            Log.e(DEBUG_TAG,"getBook wrong object type");
+        if (!(o instanceof Book)) {
+            Log.e(DEBUG_TAG, "getBook wrong object type");
             return null;
         }
         return (Book) o;
     }
+
     public void makeRead(int position) {
 
-        if (getBook(position) != null){
+        if (getBook(position) != null) {
             flips.get(position).makeFlip();
         }
     }

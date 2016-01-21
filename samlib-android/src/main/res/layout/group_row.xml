@@ -26,18 +26,33 @@
             android:orientation="vertical"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
-        <TextView
-                android:id="@+id/group_title"
-                android:layout_width="match_parent"
+        <LinearLayout
                 android:layout_height="wrap_content"
-                android:textColor="?attr/colorText"
-                android:textSize="@dimen/text_size_head"/>
+                android:layout_width="match_parent"
+                android:orientation="horizontal">
+
+            <TextView
+                    android:id="@+id/group_title"
+                    android:layout_width="0dp"
+                    android:layout_weight="10"
+                    android:layout_height="wrap_content"
+                    android:textColor="?attr/colorText"
+                    android:textSize="@dimen/text_size_head"/>
+            <ImageView
+                    android:id="@+id/group_new_icon"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:src="@drawable/label_blue_new"/>
+
+        </LinearLayout>
+        >
         <TextView
                 android:id="@+id/group_number"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentBottom="true"
-                android:textSize="@dimen/text_size_small" />
+                android:textSize="@dimen/text_size_small"/>
     </LinearLayout>
 
     <ImageView
