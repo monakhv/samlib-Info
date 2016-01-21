@@ -42,9 +42,12 @@ import java.util.List;
 import static monakhv.android.samlib.ActivityUtils.setDivider;
 
 
-import monakhv.android.samlib.ListSwipeListener;
 
+import monakhv.android.samlib.ListSwipeListener;
+import monakhv.android.samlib.MyBaseAbstractFragment;
 import monakhv.android.samlib.R;
+import monakhv.android.samlib.SamlibApplication;
+import monakhv.android.samlib.service.UpdateObject;
 import monakhv.samlib.db.entity.AuthorCard;
 import monakhv.android.samlib.tasks.SearchAuthor;
 
@@ -62,6 +65,8 @@ public class SearchAuthorsListFragment extends ListFragment implements ListSwipe
     ProgressDialog progress;
     private List<AuthorCard> result;
     private GestureDetector detector;
+    private MyBaseAbstractFragment.DaggerCaller mDaggerCaller;
+    private SamlibApplication mSamlibApplication;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -71,6 +76,8 @@ public class SearchAuthorsListFragment extends ListFragment implements ListSwipe
         }
         pattern = getActivity().getIntent().getExtras().getString(SearchAuthorActivity.EXTRA_PATTERN);
 
+        mSamlibApplication=(SamlibApplication) getActivity().getApplication();
+
         if (result == null) {
             result = new ArrayList<>();
             search(pattern);
@@ -79,7 +86,22 @@ public class SearchAuthorsListFragment extends ListFragment implements ListSwipe
 
         setListAdapter(adapter);
         detector = new GestureDetector(getActivity(), new ListSwipeListener(this));
+
+
     }
+
+    @Override
+    public void onAttach(Context context) {
+
+        super.onAttach(context);
+        if (!(context instanceof MyBaseAbstractFragment.DaggerCaller)) {
+            throw new IllegalStateException(
+                    "MyBaseAbstractFragment: Activity must implement fragment's callbacks.");
+        }
+        mDaggerCaller = (MyBaseAbstractFragment.DaggerCaller) context;
+
+    }
+
 
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
@@ -93,6 +115,8 @@ public class SearchAuthorsListFragment extends ListFragment implements ListSwipe
         });
         setDivider(getListView());
     }
+
+
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
@@ -111,7 +135,7 @@ public class SearchAuthorsListFragment extends ListFragment implements ListSwipe
         }
 
         pattern = ptr;
-        SearchAuthor task = new SearchAuthor(getActivity());
+        SearchAuthor task = mSamlibApplication.getServiceComponent(UpdateObject.UNDEF,mDaggerCaller.getDbHelper()).getSearchAuthor();
         progress = new ProgressDialog(getActivity());
         progress.setMessage(getActivity().getText(R.string.search_Loading));
         progress.setCancelable(true);

@@ -19,9 +19,7 @@ package monakhv.android.samlib;
 
 import android.support.v7.widget.Toolbar;
 import android.widget.*;
-import monakhv.android.samlib.data.DataExportImport;
 import monakhv.android.samlib.data.GoogleDiskOperation;
-import monakhv.android.samlib.data.SettingsHelper;
 import monakhv.android.samlib.dialogs.SingleChoiceSelectDialog;
 
 import android.accounts.AccountManager;
@@ -59,16 +57,13 @@ public class ArchiveActivity extends MyBaseAbstractActivity {
     private static final String DEBUG_TAG = "ArchiveActivity";
     private SingleChoiceSelectDialog dialog = null;
     private String selectedFile;
-    private SettingsHelper setting;
-    private DataExportImport dataExportImport;
+
+
     private AuthorEditReceiver authorReceiver;
     private CheckBox cb;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        setting = new SettingsHelper(this);
-        dataExportImport = new DataExportImport(this);
-        setTheme(setting.getTheme());
         super.onCreate(savedInstanceState);
         setContentView(R.layout.archive);
 
@@ -81,11 +76,11 @@ public class ArchiveActivity extends MyBaseAbstractActivity {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 Log.d(DEBUG_TAG, "set Googe Auto to: " + isChecked);
-                setting.setGoogleAuto(isChecked);
+                getSettingsHelper().setGoogleAuto(isChecked);
             }
         });
-        cb.setChecked(setting.isGoogleAuto());
-        cb.setEnabled(setting.isGoogleAutoEnable());
+        cb.setChecked(getSettingsHelper().isGoogleAuto());
+        cb.setEnabled(getSettingsHelper().isGoogleAutoEnable());
 
     }
 
@@ -119,7 +114,7 @@ public class ArchiveActivity extends MyBaseAbstractActivity {
 
     @SuppressWarnings("UnusedParameters")
     public void exportDB(View v) {
-        String file = dataExportImport.exportDB();
+        String file = getDataExportImport().exportDB();
 
         String text;
         if (file != null) {
@@ -134,7 +129,7 @@ public class ArchiveActivity extends MyBaseAbstractActivity {
 
     @SuppressWarnings("UnusedParameters")
     public void importDB(View v) {
-        final String[] files = dataExportImport.getFilesToImportDB();
+        final String[] files = getDataExportImport().getFilesToImportDB();
         OnItemClickListener listener = new OnItemClickListener() {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 selectedFile = files[position];
@@ -153,7 +148,7 @@ public class ArchiveActivity extends MyBaseAbstractActivity {
     }
 
     private void _importDB(String fileName) {
-        boolean res = dataExportImport.importDB( fileName);
+        boolean res = getDataExportImport().importDB( fileName);
 
         String text;
         if (res) {
@@ -183,7 +178,7 @@ public class ArchiveActivity extends MyBaseAbstractActivity {
 
     @SuppressWarnings("UnusedParameters")
     public void exportTxt(View v) {
-        String file = dataExportImport.exportAuthorList(getDatabaseHelper());
+        String file = getDataExportImport().exportAuthorList(getAuthorController());
         String text;
         if (file != null) {
             text = getString(R.string.res_export_txt_good) + " " + file;
@@ -197,7 +192,7 @@ public class ArchiveActivity extends MyBaseAbstractActivity {
 
     @SuppressWarnings("UnusedParameters")
     public void importTxt(View v) {
-        final String[] files = dataExportImport.getFilesToImportTxt();
+        final String[] files = getDataExportImport().getFilesToImportTxt();
         OnItemClickListener listener = new OnItemClickListener() {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 selectedFile = files[position];
@@ -217,7 +212,7 @@ public class ArchiveActivity extends MyBaseAbstractActivity {
 
     private void _importTxt(String file) {
         
-        ArrayList<String> urls =  dataExportImport.importAuthorList(file);
+        ArrayList<String> urls =  getDataExportImport().importAuthorList(file);
         if (!urls.isEmpty()){
             AuthorEditorServiceIntent.addAuthor(this,urls);
             progress = new ProgressDialog(this);
@@ -272,7 +267,7 @@ public class ArchiveActivity extends MyBaseAbstractActivity {
         progress.setCancelable(true);
         progress.setIndeterminate(true);
         progress.show();
-        new GoogleDiskOperation(this,setting.getGoogleAccount(),operation).execute();
+        new GoogleDiskOperation(this,getSettingsHelper(),operation).execute();
 
     }
 
@@ -301,14 +296,14 @@ public class ArchiveActivity extends MyBaseAbstractActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         switch (requestCode){
             case GoogleDiskOperation.RESOLVE_CONNECTION_REQUEST_CODE:
-                if (setting == null){
+                if (getSettingsHelper() == null){
                     Log.e(DEBUG_TAG,"settings is null!!");
                     return;
                 }
-                setting.setGoogleAccount(
+                getSettingsHelper().setGoogleAccount(
                     data.getStringExtra(AccountManager.KEY_ACCOUNT_NAME));
                 progress.show();
-                new GoogleDiskOperation(this,setting.getGoogleAccount(),operation).execute();
+                new GoogleDiskOperation(this,getSettingsHelper(),operation).execute();
                 break;
         }
     }
@@ -333,7 +328,7 @@ public class ArchiveActivity extends MyBaseAbstractActivity {
                 return;
             }
             if (res && ot == GoogleDiskOperation.OperationType.EXPORT){
-                cb.setEnabled(setting.isGoogleAutoEnable());
+                cb.setEnabled(getSettingsHelper().isGoogleAutoEnable());
                 Toast.makeText(context, context.getString(R.string.res_export_google_good), Toast.LENGTH_LONG).show();
             }
             String error = intent.getStringExtra(EXTRA_ERROR);

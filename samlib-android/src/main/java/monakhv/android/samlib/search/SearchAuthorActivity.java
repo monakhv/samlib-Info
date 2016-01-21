@@ -20,7 +20,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
-import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -38,27 +37,25 @@ import java.io.Serializable;
 import java.util.List;
 
 
+import monakhv.android.samlib.MyBaseAbstractActivity;
 import monakhv.android.samlib.R;
-import monakhv.android.samlib.data.SettingsHelper;
 import monakhv.samlib.db.entity.AuthorCard;
 
 /**
  *
  * @author Dmitry Monakhov
  */
-public class SearchAuthorActivity extends ActionBarActivity {
+public class SearchAuthorActivity extends MyBaseAbstractActivity {
     
     static private final String DEBUG_TAG = "SearchAuthorActivity";
     public static final String EXTRA_PATTERN = "EXTRA_PATTERN";
     private SearchReceiver receiver;
     private SearchAuthorsListFragment listFragment;
     private View searchPanel;
-    private SettingsHelper settings;
+
     
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        settings = new SettingsHelper(this);
-        setTheme(settings.getTheme());
         super.onCreate(savedInstanceState);
         
         setContentView(R.layout.search_authors);

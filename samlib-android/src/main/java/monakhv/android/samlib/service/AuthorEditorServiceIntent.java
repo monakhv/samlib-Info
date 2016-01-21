@@ -7,7 +7,9 @@ import android.content.Intent;
 import java.util.ArrayList;
 
 
-import monakhv.android.samlib.data.SettingsHelper;
+import monakhv.android.samlib.SamlibApplication;
+import monakhv.samlib.db.AuthorController;
+import monakhv.samlib.http.HttpClientController;
 import monakhv.samlib.log.Log;
 import monakhv.samlib.service.SamlibService;
 
@@ -41,6 +43,7 @@ public class AuthorEditorServiceIntent extends MyServiceIntent {
     public static final String ACTION_ALL_TAGS_UPDATE="AddAuthorServiceIntent_ACTION_ALL_TAGS_UPDATE";
 
 
+    SamlibApplication mSamlibApplication;
     public AuthorEditorServiceIntent() {
         super(DEBUG_TAG);
     }
@@ -49,8 +52,11 @@ public class AuthorEditorServiceIntent extends MyServiceIntent {
     protected void onHandleIntent(Intent intent) {
 
         String action = intent.getStringExtra(EXTRA_ACTION_TYPE);
-        Context context = this.getApplicationContext();
-        SamlibService service = new SamlibService(getHelper(),new AndroidGuiUpdater(context,0), new SettingsHelper(context));
+
+        mSamlibApplication= (SamlibApplication) getApplication();
+
+        SamlibService service =mSamlibApplication.getServiceComponent(UpdateObject.UNDEF,getHelper()).getSamlibService();
+                //new SamlibService(new AuthorController(getHelper()),new AndroidGuiUpdater(mSettingsHelper,UpdateObject.UNDEF,null), mSettingsHelper,new HttpClientController(mSettingsHelper));
 
         Log.d(DEBUG_TAG, "Got intent for action: "+action);
 
@@ -62,11 +68,13 @@ public class AuthorEditorServiceIntent extends MyServiceIntent {
 
             if (ll == null){
                 Log.e(DEBUG_TAG,"Null add data - nothing to add!");
+                mSamlibApplication.releaseServiceComponent();
                 return;
             }
 
             service.makeAuthorAdd(ll);
 
+            mSamlibApplication.releaseServiceComponent();
             return;
 
         }
@@ -75,29 +83,35 @@ public class AuthorEditorServiceIntent extends MyServiceIntent {
             int id =intent.getIntExtra(EXTRA_OBJECT_ID,-1);
             if (id <0){
                 Log.e(DEBUG_TAG,"Null del data - nothing to del!");
+                mSamlibApplication.releaseServiceComponent();
                 return;
             }
             service.makeAuthorDel(id);
 
+            mSamlibApplication.releaseServiceComponent();
             return;
         }
         if (action.equals(ACTION_AUTHOR_READ)){
             int id =intent.getIntExtra(EXTRA_OBJECT_ID,-1);
             if (id <0){
                 Log.e(DEBUG_TAG,"Null author data, can not make it read");
+                mSamlibApplication.releaseServiceComponent();
                 return;
             }
             service.makeAuthorRead(id);
 
+            mSamlibApplication.releaseServiceComponent();
             return;
         }
         if (action.equals(ACTION_BOOK_READ_FLIP)){
             int id =intent.getIntExtra(EXTRA_OBJECT_ID,-1);
             if (id <0){
                 Log.e(DEBUG_TAG,"Null book data, can not make it read/unread");
+                mSamlibApplication.releaseServiceComponent();
                 return;
             }
             service.makeBookReadFlip(id);
+            mSamlibApplication.releaseServiceComponent();
 
             return;
         }
@@ -105,6 +119,7 @@ public class AuthorEditorServiceIntent extends MyServiceIntent {
         if (action.equals(ACTION_ALL_TAGS_UPDATE)){
             service.makeUpdateTags();
 
+            mSamlibApplication.releaseServiceComponent();
             return;
         }
 

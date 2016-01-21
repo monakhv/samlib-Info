@@ -19,8 +19,13 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 
+import monakhv.android.samlib.dagger.component.DaggerApplicationComponent;
+import monakhv.android.samlib.dagger.module.ApplicationModule;
+
 import monakhv.android.samlib.data.SettingsHelper;
 import monakhv.samlib.log.Log;
+
+import javax.inject.Inject;
 
 
 /**
@@ -30,13 +35,19 @@ import monakhv.samlib.log.Log;
 public class AutoStartUp extends BroadcastReceiver {
     private static final String DEBUG_TAG = "monakhv.samlib.AutoStartUp";
 
+    @Inject
+    SettingsHelper mSettingsHelper;
     @Override
     public void onReceive(Context context, Intent intent) {
+        DaggerApplicationComponent.builder()
+                .applicationModule(new ApplicationModule(context.getApplicationContext()))
+                .build().inject(this);
 
-        SettingsHelper helper = new SettingsHelper(context.getApplicationContext());
+        mSettingsHelper.updateServiceForce();
+
         Log.d(DEBUG_TAG, "AutoStart service");
 
-        helper.updateServiceForce();
+
         
     }
     

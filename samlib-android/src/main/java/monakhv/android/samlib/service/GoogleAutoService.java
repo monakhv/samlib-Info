@@ -1,25 +1,26 @@
 /*
- *   Copyright 2015 Dmitry Monakhov.
+ *  Copyright 2016 Dmitry Monakhov.
  *
- *   Licensed under the Apache License, Version 2.0 (the "License");
- *   you may not use this file except in compliance with the License.
- *   You may obtain a copy of the License at
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
  *
- *        http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
- *   Unless required by applicable law or agreed to in writing, software
- *   distributed under the License is distributed on an "AS IS" BASIS,
- *   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *   See the License for the specific language governing permissions and
- *   limitations under the License.
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
  *
+ *  15.01.16 14:48
  *
  */
 
-package monakhv.android.samlib.data;
+package monakhv.android.samlib.service;
 
 
-import android.app.Service;
+
 import android.content.Context;
 import android.content.Intent;
 import android.os.IBinder;
@@ -27,6 +28,9 @@ import android.support.annotation.Nullable;
 import android.util.Log;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.drive.DriveFile;
+import monakhv.android.samlib.data.ApiClientAsyncTask;
+import monakhv.android.samlib.data.DataExportImport;
+import monakhv.android.samlib.data.GoogleDiskOperation;
 
 import java.io.File;
 import java.util.List;
@@ -38,7 +42,7 @@ import java.util.List;
  * Started from Android GUI Adapter
  * Created by monakhv on 01.12.15.
  */
-public class GoogleAutoService extends Service {
+public class GoogleAutoService extends MyService {
     private static final String DEBUG_TAG = "GoogleAutoService";
 
     @Nullable
@@ -50,8 +54,8 @@ public class GoogleAutoService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        SettingsHelper settingsHelper = new SettingsHelper(this);
-        GoogleCopy gc = new GoogleCopy(this, settingsHelper.getGoogleAccount());
+
+        GoogleCopy gc = new GoogleCopy(this, getSettingsHelper().getGoogleAccount());
 
         gc.execute();
 
@@ -67,7 +71,7 @@ public class GoogleAutoService extends Service {
 
         @Override
         protected Boolean doInBackgroundConnected(Void... params) {
-            DataExportImport dei = new DataExportImport(GoogleAutoService.this);
+            DataExportImport dei = new DataExportImport(getSettingsHelper());
             File dataBase = dei.getDataBase();
             reSync();
             List<DriveFile> files = getFile(GoogleDiskOperation.FileName);
@@ -92,7 +96,7 @@ public class GoogleAutoService extends Service {
             }
 
             if (aBoolean) {
-                Log.i(DEBUG_TAG, "Copy compleate");
+                Log.i(DEBUG_TAG, "Copy complete");
             } else {
                 Log.e(DEBUG_TAG, getErrorMsg());
             }
@@ -105,7 +109,7 @@ public class GoogleAutoService extends Service {
      * Start the service
      * Using in AndroidGUIAdapter class in
      *
-     * @param context
+     * @param context Context
      */
     public static void startService(Context context) {
         Intent intent = new Intent(context, GoogleAutoService.class);

@@ -16,73 +16,74 @@ limitations under the License.
 -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
           package="monakhv.android.samlib"
-          >
+>
 
     <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
-    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>    
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+    <uses-permission android:name="android.permission.WAKE_LOCK"/>
     <application
-        android:label="@string/app_name"
-        android:restoreAnyVersion="false"
-        android:backupAgent=".data.backup.SamLibBackupAgentHelper"
-        android:icon="@drawable/ic_launcher"
-        android:theme="@style/MyTheme"
-        android:allowBackup="true"
-        android:allowClearUserData="true" >
+            android:name=".SamlibApplication"
+            android:label="@string/app_name"
+            android:restoreAnyVersion="false"
+            android:backupAgent=".data.backup.SamLibBackupAgentHelper"
+            android:icon="@drawable/ic_launcher"
+            android:theme="@style/MyTheme"
+            android:allowBackup="true"
+            android:allowClearUserData="true">
         <meta-data
-            android:name="com.google.android.gms.version"
-            android:value="@integer/google_play_services_version"
-            />
+                android:name="com.google.android.gms.version"
+                android:value="@integer/google_play_services_version"
+        />
         <meta-data
-            android:name="com.google.android.backup.api_key"
-            android:value="AEdPqrEAAAAI7SvTEhzwIRxC6fJ8z52wEta3A46aZEnBJSqpfQ"
-            />
+                android:name="com.google.android.backup.api_key"
+                android:value="AEdPqrEAAAAI7SvTEhzwIRxC6fJ8z52wEta3A46aZEnBJSqpfQ"
+        />
         <activity android:name=".MainActivity"
-            android:launchMode="singleTask"
+                  android:launchMode="singleTask"
                   android:label="@string/app_name">
             <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-                <category android:name="android.intent.category.MULTIWINDOW_LAUNCHER" />
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+                <category android:name="android.intent.category.MULTIWINDOW_LAUNCHER"/>
             </intent-filter>
         </activity>
         <activity
-            android:name=".SamlibPreferencesActivity" 
-            android:parentActivityName="monakhv.android.samlib.MainActivity" >
-            <meta-data 
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value="monakhv.android.samlib.MainActivity"/>
+                android:name=".SamlibPreferencesActivity"
+                android:parentActivityName="monakhv.android.samlib.MainActivity">
+            <meta-data
+                    android:name="android.support.PARENT_ACTIVITY"
+                    android:value="monakhv.android.samlib.MainActivity"/>
         </activity>
         <activity
-            android:name=".ArchiveActivity" 
-            android:parentActivityName="monakhv.android.samlib.MainActivity" >
-            <meta-data 
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value="monakhv.android.samlib.MainActivity"/>
+                android:name=".ArchiveActivity"
+                android:parentActivityName="monakhv.android.samlib.MainActivity">
+            <meta-data
+                    android:name="android.support.PARENT_ACTIVITY"
+                    android:value="monakhv.android.samlib.MainActivity"/>
         </activity>
         <activity
-            android:name=".BooksActivity"
-            android:parentActivityName="monakhv.android.samlib.MainActivity" >
-            <meta-data 
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value="monakhv.android.samlib.MainActivity"/>
+                android:name=".BooksActivity"
+                android:parentActivityName="monakhv.android.samlib.MainActivity">
+            <meta-data
+                    android:name="android.support.PARENT_ACTIVITY"
+                    android:value="monakhv.android.samlib.MainActivity"/>
         </activity>
 
         <activity
-            android:name=".AuthorTagsActivity" 
-            android:parentActivityName="monakhv.android.samlib.BooksActivity" >
-            <meta-data 
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value="monakhv.android.samlib.BooksActivity"/>
+                android:name=".AuthorTagsActivity"
+                android:parentActivityName="monakhv.android.samlib.BooksActivity">
+            <meta-data
+                    android:name="android.support.PARENT_ACTIVITY"
+                    android:value="monakhv.android.samlib.BooksActivity"/>
         </activity>
         <activity
-            android:name=".search.SearchAuthorActivity" 
-            android:parentActivityName="monakhv.android.samlib.MainActivity" >
-            <meta-data 
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value="monakhv.android.samlib.MainActivity"/>
+                android:name=".search.SearchAuthorActivity"
+                android:parentActivityName="monakhv.android.samlib.MainActivity">
+            <meta-data
+                    android:name="android.support.PARENT_ACTIVITY"
+                    android:value="monakhv.android.samlib.MainActivity"/>
         </activity>
 
 
@@ -90,34 +91,35 @@ limitations under the License.
                 android:name=".service.UpdateLocalService">
         </service>
         <service
-                android:name=".data.GoogleAutoService">
+                android:name=".service.GoogleAutoService">
         </service>
         <service
-            android:name=".service.DownloadBookServiceIntent">
+                android:name=".service.DownloadBookServiceIntent">
         </service>
         <service
-            android:name=".service.CleanBookServiceIntent">
+                android:name=".service.CleanBookServiceIntent">
         </service>
         <service
-            android:name=".service.CleanNotificationData">
+                android:name=".service.CleanNotificationData">
         </service>
         <service
-            android:name=".service.AuthorEditorServiceIntent">
+                android:name=".service.AuthorEditorServiceIntent">
         </service>
         <receiver
-            android:name=".receiver.UpdateReceiver">
-        </receiver>        
-        <receiver android:name=".receiver.AutoStartUp" android:enabled="true" android:exported="false" android:permission="android.permission.RECEIVE_BOOT_COMPLETED">
+                android:name=".receiver.UpdateReceiver">
+        </receiver>
+        <receiver android:name=".receiver.AutoStartUp" android:enabled="true" android:exported="false"
+                  android:permission="android.permission.RECEIVE_BOOT_COMPLETED">
             <intent-filter>
-                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.BOOT_COMPLETED"/>
             </intent-filter>
         </receiver>
-        <uses-library android:required="false"  android:name="com.sec.android.app.multiwindow" />
-        <meta-data android:name="com.sec.android.support.multiwindow" android:value="true" />
-        <meta-data android:name="com.sec.android.multiwindow.DEFAULT_SIZE_W" android:value="632.0dpi" />
-        <meta-data android:name="com.sec.android.multiwindow.DEFAULT_SIZE_H"  android:value="598.0dpi" />
-        <meta-data android:name="com.sec.android.multiwindow.MINIMUM_SIZE_W"  android:value="632.0dpi" />
-        <meta-data android:name="com.sec.android.multiwindow.MINIMUM_SIZE_H"   android:value="598.0dpi" />
-                
+        <uses-library android:required="false" android:name="com.sec.android.app.multiwindow"/>
+        <meta-data android:name="com.sec.android.support.multiwindow" android:value="true"/>
+        <meta-data android:name="com.sec.android.multiwindow.DEFAULT_SIZE_W" android:value="632.0dpi"/>
+        <meta-data android:name="com.sec.android.multiwindow.DEFAULT_SIZE_H" android:value="598.0dpi"/>
+        <meta-data android:name="com.sec.android.multiwindow.MINIMUM_SIZE_W" android:value="632.0dpi"/>
+        <meta-data android:name="com.sec.android.multiwindow.MINIMUM_SIZE_H" android:value="598.0dpi"/>
+
     </application>
 </manifest>

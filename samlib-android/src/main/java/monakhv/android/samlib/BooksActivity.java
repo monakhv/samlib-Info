@@ -105,7 +105,7 @@ public class BooksActivity extends MyAbstractAnimActivity implements BookFragmen
 
 
         if (author_id != SamLibConfig.SELECTED_BOOK_ID) {
-            AuthorController sql = new AuthorController(getDatabaseHelper());
+            AuthorController sql = getAuthorController();
             Author a = sql.getById(author_id);
             if (a != null) {
                 setTitle(a.getName());
@@ -116,7 +116,7 @@ public class BooksActivity extends MyAbstractAnimActivity implements BookFragmen
         }
 
 
-        receiver = new DownloadReceiver(listFragment, getDatabaseHelper());
+        receiver = new DownloadReceiver(listFragment, getAuthorController().getBookController());
         IntentFilter filter = new IntentFilter(DownloadReceiver.ACTION_RESP);
         filter.addCategory(Intent.CATEGORY_DEFAULT);
         registerReceiver(receiver, filter);

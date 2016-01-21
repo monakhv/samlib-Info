@@ -26,6 +26,7 @@ import monakhv.samlib.db.entity.*;
 import monakhv.samlib.log.Log;
 
 
+import javax.inject.Inject;
 import java.sql.SQLException;
 import java.util.List;
 
@@ -49,6 +50,7 @@ public class AuthorController implements AbstractController<Author> {
     private final Dao<Tag2Author, Integer> t2aDao;
 
 
+    @Inject
     public AuthorController(DaoBuilder sql) {
 
         dao = sql.getAuthorDao();
@@ -219,6 +221,7 @@ public class AuthorController implements AbstractController<Author> {
      * @param object     Object for WHERE =
      * @return preparedQuery
      */
+    @SuppressWarnings("unchecked")
     private PreparedQuery<Author> getPrepared(QueryBuilder<Author, Integer> cb, String ColumnName, Object object) {
 
         try {
@@ -283,12 +286,12 @@ public class AuthorController implements AbstractController<Author> {
      * SamLibConfig.TAG_AUTHOR_ALL - all authors
      * SamLibConfig.TAG_AUTHOR_NEW - authors with new books
      *
-     * @param iselectTag ALL, New or TAG-id
+     * @param iSelectTag ALL, New or TAG-id
      * @param rowSort    -- SQL order part statement - can be null
      * @return list of the authors
      */
-    public synchronized List<Author> getAll(int iselectTag, String rowSort) {
-        PreparedQuery<Author> prep = getPrepared(iselectTag, rowSort);
+    public synchronized List<Author> getAll(int iSelectTag, String rowSort) {
+        PreparedQuery<Author> prep = getPrepared(iSelectTag, rowSort);
 
         if (prep == null) {
             Log.e(DEBUG_TAG, "getAll: prepare error");
@@ -299,21 +302,21 @@ public class AuthorController implements AbstractController<Author> {
     }
 
 
-    private PreparedQuery<Author> getPrepared(int isel, String rowSort) {
+    private PreparedQuery<Author> getPrepared(int iSel, String rowSort) {
         QueryBuilder<Author, Integer> statement = dao.queryBuilder();
         if (rowSort != null) {
             statement.orderByRaw(rowSort);
         }
-        if (isel == SamLibConfig.TAG_AUTHOR_ALL) {//return ALL Authors
+        if (iSel == SamLibConfig.TAG_AUTHOR_ALL) {//return ALL Authors
             //Log.d(DEBUG_TAG, "getPrepared: query ALL Authors");
             return getPrepared(statement, null, null);
         }
-        if (isel == SamLibConfig.TAG_AUTHOR_NEW) {//return Authors with new Books
+        if (iSel == SamLibConfig.TAG_AUTHOR_NEW) {//return Authors with new Books
             return getPrepared(statement, SQLController.COL_isnew, true);
         }
-        Tag tag = tagCtl.getById(isel);
+        Tag tag = tagCtl.getById(iSel);
         if (tag == null) {
-            Log.e(DEBUG_TAG, "getPrepared: wrong tag: " + isel + "<");
+            Log.e(DEBUG_TAG, "getPrepared: wrong tag: " + iSel + "<");
             return null;
         }
         QueryBuilder<Tag2Author, Integer> t2aqb = t2aDao.queryBuilder();
@@ -347,6 +350,10 @@ public class AuthorController implements AbstractController<Author> {
 
     public BookController getBookController() {
         return bookCtl;
+    }
+
+    public TagController getTagController(){
+        return tagCtl;
     }
 
     public GroupBookController getGroupBookController(){
@@ -395,13 +402,13 @@ public class AuthorController implements AbstractController<Author> {
      */
     public boolean syncTags(Author author, List<Tag> tags) {
 
-        boolean bres = t2aCtl.sync(author, tags);
+        boolean bRes = t2aCtl.sync(author, tags);
         author = getById(author.getId());
-        if (bres) {
+        if (bRes) {
             //Log.d(DEBUG_TAG, "syncTags: making update for All_Tags_String for " + author.getName());
             updateTags(author);
         }
-        return bres;
+        return bRes;
     }
 
     /**

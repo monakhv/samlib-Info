@@ -21,7 +21,6 @@ import android.accounts.AccountManager;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -51,11 +50,10 @@ import java.util.List;
 
 
 import monakhv.android.samlib.data.SettingsHelper;
-import monakhv.android.samlib.sql.DatabaseHelper;
 import monakhv.samlib.db.TagController;
 import monakhv.samlib.db.entity.SamLibConfig;
 import monakhv.samlib.db.entity.Tag;
-import monakhv.samlib.http.HttpClientController;
+
 
 
 /**
@@ -63,13 +61,11 @@ import monakhv.samlib.http.HttpClientController;
  */
 public class SamlibPreferencesFragment extends PreferenceFragment
         implements OnSharedPreferenceChangeListener, Preference.OnPreferenceChangeListener {
-    public interface CallBack{
-        DatabaseHelper getDatabaseHelper();
-    }
+
 
     private static final String DEBUG_TAG = "SamlibPreferencesA";
     private static final int REQ_AUTH = 11;
-    private SettingsHelper helper;
+
     private final String[] autoSummaryFields = {"pref_key_update_Period", "pref_key_proxy_host",
             "pref_key_proxy_port", "pref_key_proxy_user", "pref_key_update_autoload_limit", "pref_key_book_lifetime",
             "pref_key_author_order", "pref_key_book_order", "pref_key_file_format","pref_key_theme",
@@ -78,7 +74,7 @@ public class SamlibPreferencesFragment extends PreferenceFragment
     private RingtonePreference ringtonePref;
      Preference googlePrefs;
     private EditTextPreference storageDir;
-    private CallBack mCallbacks;
+    private MyBaseAbstractFragment.DaggerCaller mCallbacks;
 
     /**
      * Called when the activity is first created.
@@ -90,8 +86,8 @@ public class SamlibPreferencesFragment extends PreferenceFragment
 
         super.onCreate(icicle);
 
-        helper = new SettingsHelper(getActivity());
-        helper.getDataDirectoryPath();//just to make sure that preference is loaded
+
+        mCallbacks.getSettingsHelper().getDataDirectoryPath();//just to make sure that preference is loaded
 
         getPreferenceManager().setSharedPreferencesName(
                 SettingsHelper.PREFS_NAME);
@@ -109,11 +105,11 @@ public class SamlibPreferencesFragment extends PreferenceFragment
 //                return helper.isDirectoryWritable ((String )newValue);
 //            }
 //        });
-        googlePrefs.setSummary(helper.getGoogleAccount());
+        googlePrefs.setSummary(mCallbacks.getSettingsHelper().getGoogleAccount());
         googlePrefs.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
             public boolean onPreferenceClick(Preference preference) {
-                String email = helper.getGoogleAccount();
+                String email = mCallbacks.getSettingsHelper().getGoogleAccount();
                 Account curAccount = (email == null) ? null : new Account(email, GoogleAuthUtil.GOOGLE_ACCOUNT_TYPE);
                 Intent intent = AccountPicker.newChooseAccountIntent(curAccount, null,
                         new String[]{GoogleAuthUtil.GOOGLE_ACCOUNT_TYPE}, false, null, null, null, null);
@@ -125,7 +121,7 @@ public class SamlibPreferencesFragment extends PreferenceFragment
 
         ListPreference updateTagPref = (ListPreference) findPreference(getString(R.string.pref_key_update_tag));
 
-        TagController tagCtl = new TagController(mCallbacks.getDatabaseHelper());
+        TagController tagCtl = mCallbacks.getAuthorController().getTagController();
         List<Tag> tags = tagCtl.getAll();
 
         CharSequence [] entries = new CharSequence[1+tags.size()];
@@ -145,17 +141,17 @@ public class SamlibPreferencesFragment extends PreferenceFragment
         updateTagPref.setEntryValues(entryValues);
 
 
-        updateTagPref.setValue(helper.getUpdateTag());
+        updateTagPref.setValue(mCallbacks.getSettingsHelper().getUpdateTag());
 
     }
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
-        if (!(activity instanceof CallBack)) {
+        if (!(activity instanceof MyBaseAbstractFragment.DaggerCaller)) {
             throw new IllegalStateException(
                     "Activity must implement fragment's callbacks.");
         }
-        mCallbacks = (CallBack) activity;
+        mCallbacks = (MyBaseAbstractFragment.DaggerCaller) activity;
     }
 
     @Override
@@ -167,15 +163,15 @@ public class SamlibPreferencesFragment extends PreferenceFragment
         }
         switch (requestCode) {
             case REQ_AUTH:
-                helper.setGoogleAccount(it.getStringExtra(AccountManager.KEY_ACCOUNT_NAME));
-                googlePrefs.setSummary(helper.getGoogleAccount());
+                mCallbacks.getSettingsHelper().setGoogleAccount(it.getStringExtra(AccountManager.KEY_ACCOUNT_NAME));
+                googlePrefs.setSummary(mCallbacks.getSettingsHelper().getGoogleAccount());
                 break;
         }
     }
 
     public void makeResume() {
         super.onResume();
-        helper.registerListener();
+        mCallbacks.getSettingsHelper().registerListener();
         getPreferenceScreen().getSharedPreferences().registerOnSharedPreferenceChangeListener(this);
         Log.d(DEBUG_TAG, "onResume");
 
@@ -186,7 +182,7 @@ public class SamlibPreferencesFragment extends PreferenceFragment
         // A patch to overcome OnSharedPreferenceChange not being called by RingtonePreference bug 
 
         ringtonePref.setOnPreferenceChangeListener(this);
-        updateRingtoneSummary(ringtonePref, helper.getNotificationRingToneURI());
+        updateRingtoneSummary(ringtonePref, mCallbacks.getSettingsHelper().getNotificationRingToneURI());
         storageDir.setOnPreferenceChangeListener(this);
 
     }
@@ -194,10 +190,12 @@ public class SamlibPreferencesFragment extends PreferenceFragment
 
     public void makePause() {
         super.onPause();
-        helper.updateService();
-        helper.unRegisterListener();
+        mCallbacks.getSettingsHelper().updateService();
+        mCallbacks.getSettingsHelper().unRegisterListener();
         //if http instance already exist make sure we have right proxy settings
-        HttpClientController.getInstance(helper).setProxy(helper.getProxy());
+        final SamlibApplication samlibApplication= (SamlibApplication) getActivity().getApplication();
+
+        samlibApplication.getApplicationComponent().getHttpClientController().setProxy(mCallbacks.getSettingsHelper().getProxy());
         Log.d(DEBUG_TAG, "onPause");
         getPreferenceScreen().getSharedPreferences().unregisterOnSharedPreferenceChangeListener(this);
 
@@ -208,7 +206,7 @@ public class SamlibPreferencesFragment extends PreferenceFragment
         if (key.equals(getString(R.string.pref_key_directory))){
 
             EditTextPreference pr = (EditTextPreference) getPreferenceScreen().findPreference(key);
-            pr.setSummary(helper.getDataDirectoryPath());
+            pr.setSummary(mCallbacks.getSettingsHelper().getDataDirectoryPath());
             return;
         }
         if (autoSumKeys.contains(key)) {
@@ -274,8 +272,8 @@ public class SamlibPreferencesFragment extends PreferenceFragment
         Log.d(DEBUG_TAG, "onPreferenceChange: " + preference.getKey());
         if (preference.getKey().equals(getString(R.string.pref_key_directory))){
             Log.d(DEBUG_TAG,"DIR - new "+newValue);
-            Log.d(DEBUG_TAG,"DIR - old "+helper.getDataDirectoryPath());
-            return helper.isDirectoryWritable((String) newValue);
+            Log.d(DEBUG_TAG,"DIR - old "+mCallbacks.getSettingsHelper().getDataDirectoryPath());
+            return mCallbacks.getSettingsHelper().isDirectoryWritable((String) newValue);
         }
         if (preference.getKey().equalsIgnoreCase(getString(R.string.pref_key_notification_ringtone))) {
             Log.d(DEBUG_TAG, "new ringtone: " + newValue);

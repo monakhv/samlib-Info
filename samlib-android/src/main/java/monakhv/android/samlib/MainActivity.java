@@ -26,7 +26,7 @@ import android.view.Window;
 import android.widget.*;
 
 
-import monakhv.android.samlib.data.SettingsHelper;
+
 import monakhv.android.samlib.search.SearchAuthorActivity;
 import monakhv.android.samlib.search.SearchAuthorsListFragment;
 import monakhv.android.samlib.service.AndroidGuiUpdater;
@@ -100,9 +100,8 @@ public class MainActivity extends MyBaseAbstractActivity implements
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         Log.d(DEBUG_TAG, "onCreate");
-        final SettingsHelper settingsHelper = new SettingsHelper(this);
+
         getWindow().requestFeature(Window.FEATURE_ACTION_BAR_OVERLAY);
-        setTheme(settingsHelper.getTheme());
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main_layout);
         final String action = getIntent().getAction();
@@ -166,7 +165,7 @@ public class MainActivity extends MyBaseAbstractActivity implements
             Log.i(DEBUG_TAG, "onCreate: one pane");
         }
 
-        tagSQL = new TagController(getDatabaseHelper());
+        tagSQL = getAuthorController().getTagController();
         mAppBarLayout = (AppBarLayout) findViewById(R.id.appBarLayout);
         createDrawer();
 
@@ -351,7 +350,7 @@ public class MainActivity extends MyBaseAbstractActivity implements
             if (bookFragment == null) {
                 Log.e(DEBUG_TAG, "Fragment is NULL for two pane layout!!");
             }
-            downloadReceiver = new DownloadReceiver(bookFragment, getDatabaseHelper());
+            downloadReceiver = new DownloadReceiver(bookFragment, getAuthorController().getBookController());
             IntentFilter filter = new IntentFilter(DownloadReceiver.ACTION_RESP);
             filter.addCategory(Intent.CATEGORY_DEFAULT);
             registerReceiver(downloadReceiver, filter);

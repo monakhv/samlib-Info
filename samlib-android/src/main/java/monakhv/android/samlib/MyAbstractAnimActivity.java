@@ -31,8 +31,6 @@ public class MyAbstractAnimActivity extends MyBaseAbstractActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        settingsHelper = new SettingsHelper(this);
-        setTheme(settingsHelper.getTheme());
         super.onCreate(savedInstanceState);
         if (settingsHelper.isAnimation()){
             overridePendingTransition(R.anim.pull_in_from_right, R.anim.hold);

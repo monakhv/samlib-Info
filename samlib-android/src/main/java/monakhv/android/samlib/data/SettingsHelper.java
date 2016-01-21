@@ -39,6 +39,7 @@ import java.util.*;
 
 
 import monakhv.android.samlib.R;
+import monakhv.android.samlib.SamlibApplication;
 import monakhv.android.samlib.receiver.UpdateReceiver;
 import monakhv.samlib.data.AbstractSettings;
 import monakhv.samlib.db.SQLController;
@@ -55,25 +56,25 @@ public class SettingsHelper extends AbstractSettings implements SharedPreference
     private static final String DATA_DIR = "/SamLib-Info/";
 
     public final static String PREFS_NAME = "samlib_prefs";
-    private Context context = null;
+    private Context mContext = null;
     private static final String DEBUG_TAG = "SettingsHelper";
     private boolean updateService = false;
     private final SharedPreferences prefs;
     private static final String DARK = "DARK";
     private static final String LIGHT = "LIGHT";
     static final String DEBUG_FILE = SQLController.DB_NAME + ".log";
-    private static Logger LOGGER;
+
 
 
 
     public SettingsHelper(Context context) {
-        this.context = context;
+        this.mContext = context;
         this.prefs = context.getSharedPreferences(PREFS_NAME, 0);
-        if (LOGGER == null){
-            LOGGER = new Logger(this);
-        }
 
-        monakhv.samlib.log.Log.checkInit(LOGGER, this);
+    }
+
+    public Context getContext(){
+        return mContext;
     }
 
 
@@ -82,7 +83,7 @@ public class SettingsHelper extends AbstractSettings implements SharedPreference
      * unconditionally request backup data
      */
     public void requestBackup() {
-        BackupManager bmr = new BackupManager(context);
+        BackupManager bmr = new BackupManager(mContext);
         bmr.dataChanged();
     }
 
@@ -91,13 +92,13 @@ public class SettingsHelper extends AbstractSettings implements SharedPreference
      * Call from update manager
      */
     public void requestFirstBackup() {
-        String str = prefs.getString(context.getString(R.string.pref_key_version_name), null);
+        String str = prefs.getString(mContext.getString(R.string.pref_key_version_name), null);
 
 
         if (str == null || !str.equals(getVersionName())) {
 
             SharedPreferences.Editor editor = prefs.edit();
-            editor.putString(context.getString(R.string.pref_key_version_name), getVersionName());
+            editor.putString(mContext.getString(R.string.pref_key_version_name), getVersionName());
             editor.commit();
             Log.d(DEBUG_TAG, "SettingsHelper: requestBackup");
             requestBackup();
@@ -109,7 +110,7 @@ public class SettingsHelper extends AbstractSettings implements SharedPreference
     public String getVersionName() {
         String res = "";
         try {
-            PackageInfo pInfo = context.getPackageManager().getPackageInfo(context.getPackageName(), 0);
+            PackageInfo pInfo = mContext.getPackageManager().getPackageInfo(mContext.getPackageName(), 0);
             res = pInfo.versionName;
 
         } catch (PackageManager.NameNotFoundException e) {
@@ -131,20 +132,20 @@ public class SettingsHelper extends AbstractSettings implements SharedPreference
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
         requestBackup();
         Log.d(DEBUG_TAG, "Preference change, key is " + key);
-        if (key.equals(context.getString(R.string.pref_key_flag_background_update))
-                || key.equals(context.getString(R.string.pref_key_update_Period))) {
+        if (key.equals(mContext.getString(R.string.pref_key_flag_background_update))
+                || key.equals(mContext.getString(R.string.pref_key_update_Period))) {
             updateService = true;
 
         }
-        if (key.equals(context.getString(R.string.pref_key_mirror))) {
-            String mirror = sharedPreferences.getString(context.getString(R.string.pref_key_mirror), null);
+        if (key.equals(mContext.getString(R.string.pref_key_mirror))) {
+            String mirror = sharedPreferences.getString(mContext.getString(R.string.pref_key_mirror), null);
             Log.i(DEBUG_TAG, "Set the first mirror to: " + mirror);
             SamLibConfig sc = SamLibConfig.getInstance(this);
             sc.refreshData();
         }
-        if (key.equals(context.getString(R.string.pref_key_debug_options))){
-            LOGGER=new Logger(this);
-            monakhv.samlib.log.Log.forceInit(LOGGER, this);
+        if (key.equals(mContext.getString(R.string.pref_key_debug_options))){
+            SamlibApplication.initLogger();
+
         }
     }
 
@@ -179,9 +180,9 @@ public class SettingsHelper extends AbstractSettings implements SharedPreference
          * We are using receiver here to avoid possible interference with the Pending intend in ProgressNotification
          */
 
-        Intent intent = new Intent(context, UpdateReceiver.class);
-        PendingIntent recurringUpdate = PendingIntent.getBroadcast(context, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT);
-        AlarmManager alarms = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+        Intent intent = new Intent(mContext, UpdateReceiver.class);
+        PendingIntent recurringUpdate = PendingIntent.getBroadcast(mContext, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT);
+        AlarmManager alarms = (AlarmManager) mContext.getSystemService(Context.ALARM_SERVICE);
         alarms.cancel(recurringUpdate);
     }
 
@@ -201,16 +202,16 @@ public class SettingsHelper extends AbstractSettings implements SharedPreference
         /**
          * We are using receiver here to avoid possible interference with the Pending intend in ProgressNotification
          */
-        Intent intent = new Intent(context, UpdateReceiver.class);
-        PendingIntent recurringUpdate = PendingIntent.getBroadcast(context, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT);
-        AlarmManager alarms = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+        Intent intent = new Intent(mContext, UpdateReceiver.class);
+        PendingIntent recurringUpdate = PendingIntent.getBroadcast(mContext, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT);
+        AlarmManager alarms = (AlarmManager) mContext.getSystemService(Context.ALARM_SERVICE);
         alarms.setInexactRepeating(AlarmManager.RTC_WAKEUP, startTime, updatePeriod, recurringUpdate);
     }
 
     private boolean getBackgroundUpdateFlag() {
 
         return prefs.getBoolean(
-                context.getString(R.string.pref_key_flag_background_update),
+                mContext.getString(R.string.pref_key_flag_background_update),
                 false);
     }
 
@@ -222,17 +223,17 @@ public class SettingsHelper extends AbstractSettings implements SharedPreference
     public boolean getDebugFlag() {
 
         return prefs.getBoolean(
-                context.getString(R.string.pref_key_debug_options),
+                mContext.getString(R.string.pref_key_debug_options),
                 false);
     }
 
     public String getGoogleAccount() {
-        return prefs.getString(context.getString(R.string.pref_key_google_account), null);
+        return prefs.getString(mContext.getString(R.string.pref_key_google_account), null);
     }
 
     public void setGoogleAccount(String account) {
         SharedPreferences.Editor edit = prefs.edit();
-        edit.putString(context.getString(R.string.pref_key_google_account), account);
+        edit.putString(mContext.getString(R.string.pref_key_google_account), account);
         edit.commit();
     }
 
@@ -244,7 +245,7 @@ public class SettingsHelper extends AbstractSettings implements SharedPreference
      */
     public Uri getNotificationRingToneURI() {
 
-        String sUri = prefs.getString(context.getString(R.string.pref_key_notification_ringtone), context.getString(R.string.pref_default_notification_ringtone));
+        String sUri = prefs.getString(mContext.getString(R.string.pref_key_notification_ringtone), mContext.getString(R.string.pref_default_notification_ringtone));
 
         return Uri.parse(sUri);
     }
@@ -257,7 +258,7 @@ public class SettingsHelper extends AbstractSettings implements SharedPreference
     public boolean getAutoMarkFlag() {
 
         return prefs.getBoolean(
-                context.getString(R.string.pref_key_flag_automark),
+                mContext.getString(R.string.pref_key_flag_automark),
                 true);
     }
 
@@ -269,7 +270,7 @@ public class SettingsHelper extends AbstractSettings implements SharedPreference
     public boolean getIgnoreErrorFlag() {
 
         return prefs.getBoolean(
-                context.getString(R.string.pref_key_ignore_connect_error),
+                mContext.getString(R.string.pref_key_ignore_connect_error),
                 true);
     }
 
@@ -281,7 +282,7 @@ public class SettingsHelper extends AbstractSettings implements SharedPreference
     public boolean getWifiOnlyFlag() {
 
         return prefs.getBoolean(
-                context.getString(R.string.pref_key_flag_wihi_only),
+                mContext.getString(R.string.pref_key_flag_wihi_only),
                 false);
     }
 
@@ -289,7 +290,7 @@ public class SettingsHelper extends AbstractSettings implements SharedPreference
     public boolean getAutoLoadFlag() {
 
         return prefs.getBoolean(
-                context.getString(R.string.pref_key_flag_background_update_autoload),
+                mContext.getString(R.string.pref_key_flag_background_update_autoload),
                 false) ;
     }
 
@@ -297,35 +298,35 @@ public class SettingsHelper extends AbstractSettings implements SharedPreference
     public boolean getLimitBookLifeTimeFlag() {
 
         return prefs.getBoolean(
-                context.getString(R.string.pref_key_flag_limit_booke_lifetime),
+                mContext.getString(R.string.pref_key_flag_limit_booke_lifetime),
                 true) && getBackgroundUpdateFlag();
     }
 
     public String getUpdatePeriodString() {
 
-        return prefs.getString(context.getString(R.string.pref_key_update_Period), context.getString(R.string.pref_default_update_Period));
+        return prefs.getString(mContext.getString(R.string.pref_key_update_Period), mContext.getString(R.string.pref_default_update_Period));
     }
 
 
     public String getAuthorSortOrderString() {
         String str = prefs.getString(
-                context.getString(R.string.pref_key_author_order),
-                context.getString(R.string.pref_default_author_order));
+                mContext.getString(R.string.pref_key_author_order),
+                mContext.getString(R.string.pref_default_author_order));
         return str;
     }
 
 
     public String getBookSortOrderString() {
         String str = prefs.getString(
-                context.getString(R.string.pref_key_book_order),
-                context.getString(R.string.pref_default_book_order));
+                mContext.getString(R.string.pref_key_book_order),
+                mContext.getString(R.string.pref_default_book_order));
         return str;
     }
 
     public FileType getFileType() {
         String str = prefs.getString(
-                context.getString(R.string.pref_key_file_format),
-                context.getString(R.string.pref_default_file_format)
+                mContext.getString(R.string.pref_key_file_format),
+                mContext.getString(R.string.pref_default_file_format)
         );
         return FileType.valueOf(str);
     }
@@ -367,18 +368,18 @@ public class SettingsHelper extends AbstractSettings implements SharedPreference
 
     public ProxyData getProxy(){
 
-        boolean useProxy = prefs.getBoolean(context.getString(R.string.pref_key_use_proxy_flag), false);
+        boolean useProxy = prefs.getBoolean(mContext.getString(R.string.pref_key_use_proxy_flag), false);
         if (! useProxy){
             return null;
         }
-        boolean wifiProxyFlag = prefs.getBoolean(context.getString(R.string.pref_key_use_proxy_wifi_flag), false);
-        if (wifiProxyFlag && !isWiFi(context)){
+        boolean wifiProxyFlag = prefs.getBoolean(mContext.getString(R.string.pref_key_use_proxy_wifi_flag), false);
+        if (wifiProxyFlag && !isWiFi()){
             return null;//we have active flag but have not wifi, so do not use proxy
         }
-        String user = prefs.getString(context.getString(R.string.pref_key_proxy_user), "");
-        String password = prefs.getString(context.getString(R.string.pref_key_proxy_password), "");
-        String host = prefs.getString(context.getString(R.string.pref_key_proxy_host), "localhost");
-        String proxyPort = prefs.getString(context.getString(R.string.pref_key_proxy_port), "3128");
+        String user = prefs.getString(mContext.getString(R.string.pref_key_proxy_user), "");
+        String password = prefs.getString(mContext.getString(R.string.pref_key_proxy_password), "");
+        String host = prefs.getString(mContext.getString(R.string.pref_key_proxy_host), "localhost");
+        String proxyPort = prefs.getString(mContext.getString(R.string.pref_key_proxy_port), "3128");
 
         int pp;
         try {
@@ -396,21 +397,21 @@ public class SettingsHelper extends AbstractSettings implements SharedPreference
     /**
      * Checks if we have a valid Internet Connection on the device.
      *
-     * @param ctx Context
+     *
      * @return True if device has internet
      * <p/>
      * Code from: http://www.androidsnippets.org/snippets/131/
      */
-    public static boolean haveInternetWIFI(Context ctx) {
+    public boolean haveInternetWIFI() {
 
-        NetworkInfo info = ((ConnectivityManager) ctx
+        NetworkInfo info = ((ConnectivityManager) mContext
                 .getSystemService(Context.CONNECTIVITY_SERVICE)).getActiveNetworkInfo();
 
         if (info == null || !info.isConnected()) {
             return false;
         }
-        SettingsHelper helper = new SettingsHelper(ctx);
-        boolean workRoaming = helper.prefs.getBoolean(ctx.getString(R.string.pref_key_flag_roaming_work), false);
+        boolean workRoaming = prefs.getBoolean(mContext.getString(R.string.pref_key_flag_roaming_work), false);
+
         if (info.isRoaming() && !workRoaming) {
             // here is the roaming option you can change it if you want to
             // disable internet while roaming if user check do not work in Roaming
@@ -418,19 +419,19 @@ public class SettingsHelper extends AbstractSettings implements SharedPreference
         }
 
 
-        if (helper.getWifiOnlyFlag()) {
-            return isWiFi(ctx);
+        if (getWifiOnlyFlag()) {
+            return isWiFi();
         }
         return true;
     }
 
     /**
      * Check if we have WIFI active or not
-     * @param ctx
+     *
      * @return
      */
-    private static boolean isWiFi(Context ctx){
-        ConnectivityManager conMan = (ConnectivityManager) ctx.getSystemService(Context.CONNECTIVITY_SERVICE);
+    private  boolean isWiFi(){
+        ConnectivityManager conMan = (ConnectivityManager) mContext.getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo inf = conMan.getNetworkInfo(1);
         State wifi;
         if (inf != null) {
@@ -466,7 +467,7 @@ public class SettingsHelper extends AbstractSettings implements SharedPreference
     public boolean testAutoLoadLimit(Book book) {
 
 
-        String str = prefs.getString(context.getString(R.string.pref_key_update_autoload_limit), context.getString(R.string.pref_default_update_atutoload_limit));
+        String str = prefs.getString(mContext.getString(R.string.pref_key_update_autoload_limit), mContext.getString(R.string.pref_default_update_atutoload_limit));
 
         int limit;
         try {
@@ -484,8 +485,8 @@ public class SettingsHelper extends AbstractSettings implements SharedPreference
     }
 
     public int getTheme() {
-        String str = prefs.getString(context.getString(R.string.pref_key_theme),
-                context.getString(R.string.pref_default_theme));
+        String str = prefs.getString(mContext.getString(R.string.pref_key_theme),
+                mContext.getString(R.string.pref_default_theme));
 
         if (str.equals(LIGHT)) {
             return R.style.MyThemeLight;
@@ -496,19 +497,19 @@ public class SettingsHelper extends AbstractSettings implements SharedPreference
 
     public int getSelectedIcon() {
 
-        TypedArray a = context.getTheme().obtainStyledAttributes(getTheme(), new int[]{R.attr.iconSelected});
+        TypedArray a = mContext.getTheme().obtainStyledAttributes(getTheme(), new int[]{R.attr.iconSelected});
         return a.getResourceId(0, 0);
 
     }
 
     public int getLockIcon(){
-        TypedArray a = context.getTheme().obtainStyledAttributes(getTheme(), new int[]{R.attr.iconLock});
+        TypedArray a = mContext.getTheme().obtainStyledAttributes(getTheme(), new int[]{R.attr.iconLock});
         return a.getResourceId(0, 0);
     }
 
     public int getSortIcon() {
-        String str = prefs.getString(context.getString(R.string.pref_key_theme),
-                context.getString(R.string.pref_default_theme));
+        String str = prefs.getString(mContext.getString(R.string.pref_key_theme),
+                mContext.getString(R.string.pref_default_theme));
         if (str.equals(LIGHT)) {
             return R.drawable.collections_sort_by_size_l;
         }
@@ -517,12 +518,12 @@ public class SettingsHelper extends AbstractSettings implements SharedPreference
 
     @Override
     public String getFirstMirror() {
-        return prefs.getString(context.getString(R.string.pref_key_mirror), context.getString(R.string.pref_default_mirror));
+        return prefs.getString(mContext.getString(R.string.pref_key_mirror), mContext.getString(R.string.pref_default_mirror));
     }
 
     @Override
     public String getBookLifeTime(){
-        return prefs.getString(context.getString(R.string.pref_key_book_lifetime), context.getString(R.string.pref_default_book_lifetime));
+        return prefs.getString(mContext.getString(R.string.pref_key_book_lifetime), mContext.getString(R.string.pref_default_book_lifetime));
     }
 
 
@@ -614,13 +615,13 @@ public class SettingsHelper extends AbstractSettings implements SharedPreference
 
 
     public File getDataDirectory() {
-        String SdPath = prefs.getString(context.getString(R.string.pref_key_directory), null);
+        String SdPath = prefs.getString(mContext.getString(R.string.pref_key_directory), null);
         if (TextUtils.isEmpty(SdPath)) {
             SdPath = Environment.getExternalStorageDirectory().getAbsolutePath();
             Log.d(DEBUG_TAG, "Data dir default set to: " + SdPath);
 
             SharedPreferences.Editor edit = prefs.edit();
-            edit.putString(context.getString(R.string.pref_key_directory), SdPath);
+            edit.putString(mContext.getString(R.string.pref_key_directory), SdPath);
             edit.commit();
 
         }
@@ -638,33 +639,33 @@ public class SettingsHelper extends AbstractSettings implements SharedPreference
     }
 
     public String getUpdateTag() {
-        return prefs.getString(context.getString(R.string.pref_key_update_tag),
+        return prefs.getString(mContext.getString(R.string.pref_key_update_tag),
                 Integer.toString(SamLibConfig.TAG_AUTHOR_ALL));
     }
 
     public boolean isAnimation() {
-        return prefs.getBoolean(context.getString(R.string.pref_key_flag_anim), false);
+        return prefs.getBoolean(mContext.getString(R.string.pref_key_flag_anim), false);
     }
 
     public boolean isNotifyTickerEnable() {
-        return prefs.getBoolean(context.getString(R.string.pref_key_flag_update_ticker), true);
+        return prefs.getBoolean(mContext.getString(R.string.pref_key_flag_update_ticker), true);
     }
 
     public void setGoogleAuto(boolean googleAuto) {
-        prefs.edit().putBoolean(context.getString(R.string.pref_key_google_auto), googleAuto).commit();
+        prefs.edit().putBoolean(mContext.getString(R.string.pref_key_google_auto), googleAuto).commit();
 
     }
 
     public boolean isGoogleAuto() {
-        return prefs.getBoolean(context.getString(R.string.pref_key_google_auto), false);
+        return prefs.getBoolean(mContext.getString(R.string.pref_key_google_auto), false);
     }
 
     public boolean isGoogleAutoEnable() {
-        return prefs.getBoolean(context.getString(R.string.pref_key_google_auto_enable), false);
+        return prefs.getBoolean(mContext.getString(R.string.pref_key_google_auto_enable), false);
     }
 
     public void setGoogleAutoEnable(boolean enable) {
-        prefs.edit().putBoolean(context.getString(R.string.pref_key_google_auto_enable), enable).commit();
+        prefs.edit().putBoolean(mContext.getString(R.string.pref_key_google_auto_enable), enable).commit();
         if (!enable) {
             setGoogleAuto(false);
         }
@@ -672,6 +673,6 @@ public class SettingsHelper extends AbstractSettings implements SharedPreference
 
     @Override
     public boolean isUpdateDelay(){
-        return prefs.getBoolean(context.getString(R.string.pref_key_update_delay), false);
+        return prefs.getBoolean(mContext.getString(R.string.pref_key_update_delay), false);
     }
 }

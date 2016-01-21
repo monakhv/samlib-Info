@@ -9,7 +9,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
 import android.support.v7.widget.DefaultItemAnimator;
@@ -32,7 +31,6 @@ import monakhv.android.samlib.adapter.AuthorAdapter;
 
 import monakhv.android.samlib.adapter.AuthorLoader;
 import monakhv.android.samlib.adapter.RecyclerAdapter;
-import monakhv.android.samlib.data.SettingsHelper;
 import monakhv.android.samlib.dialogs.ContextMenuDialog;
 import monakhv.android.samlib.dialogs.EnterStringDialog;
 
@@ -41,11 +39,9 @@ import monakhv.android.samlib.dialogs.MyMenuData;
 import monakhv.android.samlib.recyclerview.DividerItemDecoration;
 import monakhv.android.samlib.service.AuthorEditorServiceIntent;
 import monakhv.android.samlib.service.UpdateLocalService;
-import monakhv.android.samlib.service.UpdateServiceIntent;
 import monakhv.android.samlib.sortorder.AuthorSortOrder;
 
-import monakhv.android.samlib.sql.DatabaseHelper;
-import monakhv.samlib.db.AuthorController;
+
 import monakhv.samlib.db.entity.Author;
 import monakhv.samlib.db.entity.SamLibConfig;
 
@@ -71,11 +67,21 @@ import static monakhv.android.samlib.ActivityUtils.getClipboardText;
  *
  * 12/5/14.
  */
-public class AuthorFragment extends Fragment implements
+public class AuthorFragment extends MyBaseAbstractFragment implements
         PtrHandler,
         ListSwipeListener.SwipeCallBack,
         RecyclerAdapter.CallBack,
         LoaderManager.LoaderCallbacks<List<Author>> {
+    public interface Callbacks {
+
+        void onAuthorSelected(long id);
+
+        void cleanBookSelection();
+
+        void drawerToggle();
+
+
+    }
     private static final String DEBUG_TAG = "AuthorFragment";
     private static final int AUTHOR_LOADER_ID = 201;
 
@@ -94,7 +100,7 @@ public class AuthorFragment extends Fragment implements
 
     private View empty;
     private boolean canUpdate;
-    private SettingsHelper settingsHelper;
+    //private SettingsHelper settingsHelper;
     private int selectedTag = SamLibConfig.TAG_AUTHOR_ALL;
     private int aId = -1;//preserve selection
 
@@ -133,17 +139,7 @@ public class AuthorFragment extends Fragment implements
     }
 
 
-    public interface Callbacks {
-        DatabaseHelper getDatabaseHelper();
 
-        void onAuthorSelected(long id);
-
-        void cleanBookSelection();
-
-        void drawerToggle();
-
-
-    }
 
     private Callbacks mCallbacks;
 
@@ -151,8 +147,8 @@ public class AuthorFragment extends Fragment implements
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        settingsHelper = new SettingsHelper(getActivity().getApplicationContext());
-        order = AuthorSortOrder.valueOf(settingsHelper.getAuthorSortOrderString());
+
+        order = AuthorSortOrder.valueOf(getSettingsHelper().getAuthorSortOrderString());
         detector = new GestureDetector(getActivity(), new ListSwipeListener(this));
         Intent service = new Intent(getActivity(), UpdateLocalService.class);
         getActivity().bindService(service, mConnection, Context.BIND_AUTO_CREATE);
@@ -223,7 +219,7 @@ public class AuthorFragment extends Fragment implements
     public void makePulToRefresh() {
         mPtrFrame = (PtrClassicFrameLayout) view.findViewById(R.id.ptr_frame);
         mPtrFrame.setPtrHandler(this);
-        mPtrFrame.setLastUpdateTimeKey(UpdateServiceIntent.PREF_NAME, UpdateServiceIntent.PREF_KEY_LAST_UPDATE);
+        mPtrFrame.setLastUpdateTimeKey(UpdateLocalService.PREF_NAME, UpdateLocalService.PREF_KEY_LAST_UPDATE);
 
     }
 
@@ -235,7 +231,7 @@ public class AuthorFragment extends Fragment implements
 
     @Override
     public Loader<List<Author>> onCreateLoader(int id, Bundle args) {
-        return new AuthorLoader(getActivity(), mCallbacks.getDatabaseHelper(), selectedTag, order.getOrder());
+        return new AuthorLoader(getActivity(), getAuthorController(), selectedTag, order.getOrder());
     }
 
     @Override
@@ -475,8 +471,8 @@ public class AuthorFragment extends Fragment implements
     }
 
     private void updateAuthor(Author author) {
-        AuthorController sql = new AuthorController(mCallbacks.getDatabaseHelper());
-        sql.update(author);
+
+        getAuthorController().update(author);
         updateAdapter();
     }
 
@@ -494,7 +490,7 @@ public class AuthorFragment extends Fragment implements
      * @param a Author object
      */
     public void launchBrowser(Author a) {
-        Uri uri = Uri.parse(a.getUrlForBrowser(settingsHelper));
+        Uri uri = Uri.parse(a.getUrlForBrowser(getSettingsHelper()));
         Intent launchBrowser = new Intent(Intent.ACTION_VIEW, uri);
         getActivity().startActivity(launchBrowser);
 

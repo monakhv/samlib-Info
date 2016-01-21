@@ -20,10 +20,9 @@ import android.content.Context;
 import android.content.Intent;
 
 
-import monakhv.android.samlib.data.SettingsHelper;
+import monakhv.android.samlib.SamlibApplication;
 import monakhv.samlib.log.Log;
 import monakhv.samlib.service.SamlibService;
-import monakhv.samlib.service.GuiUpdate;
 
 /**
  * Service to download book file
@@ -35,26 +34,25 @@ public class DownloadBookServiceIntent extends MyServiceIntent {
     private static final String DEBUG_TAG = "DownloadBookServiceIntent";
     public static final  String BOOK_ID = "BOOK_ID";
 
-    private int  currentCaller;
-    private long book_id;
-    private SettingsHelper helper;
-
+    SamlibApplication mSamlibApplication;
     public DownloadBookServiceIntent() {
         super("DownloadBookServiceIntent");
     }
 
     @Override
     protected void onHandleIntent(Intent intent) {
-        helper = new SettingsHelper(this);
-        Log.d(DEBUG_TAG, "Got intent");
-        book_id = intent.getLongExtra(BOOK_ID, 0);
-        currentCaller = intent.getIntExtra(AndroidGuiUpdater.CALLER_TYPE,AndroidGuiUpdater.CALLER_IS_RECEIVER);//do not send update by default
 
-        GuiUpdate guiUpdate = new AndroidGuiUpdater(this,currentCaller);
-        SamlibService service = new SamlibService(getHelper(),guiUpdate,helper );
+        Log.d(DEBUG_TAG, "Got intent");
+        long book_id = intent.getLongExtra(BOOK_ID, 0);
+        mSamlibApplication= (SamlibApplication) getApplication();
+        //currentCaller
+        UpdateObject updateObject=      intent.getParcelableExtra(AndroidGuiUpdater.CALLER_TYPE_EXTRA);
+
+        SamlibService service =mSamlibApplication.getServiceComponent(updateObject,getHelper()).getSamlibService();
+                //new SamlibService(new AuthorController(getHelper()),guiUpdate,mSettingsHelper,new HttpClientController(mSettingsHelper));
 
         service.downloadBook(book_id);
-
+        mSamlibApplication.releaseServiceComponent();
 
     }
 
@@ -65,12 +63,12 @@ public class DownloadBookServiceIntent extends MyServiceIntent {
      *
      * @param ctx context
      * @param book_id book id
-     * @param callerType  Caller type Activity or Not
+     * @param updateObject  Caller type Activity or Not
      */
-    public static void start(Context ctx, long book_id,int  callerType) {
+    public static void start(Context ctx, long book_id,UpdateObject updateObject ){
         Intent service = new Intent(ctx, DownloadBookServiceIntent.class);
         service.putExtra(DownloadBookServiceIntent.BOOK_ID, book_id);
-        service.putExtra(AndroidGuiUpdater.CALLER_TYPE, callerType);
+        service.putExtra(AndroidGuiUpdater.CALLER_TYPE_EXTRA, updateObject);
         ctx.startService(service);
     }
 }

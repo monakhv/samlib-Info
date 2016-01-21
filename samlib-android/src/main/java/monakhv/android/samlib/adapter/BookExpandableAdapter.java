@@ -55,20 +55,20 @@ public class BookExpandableAdapter extends ExpandableRecyclerAdapter<GroupViewHo
 
 
     private final LayoutInflater mInflater;
-    private final SettingsHelper settingsHelper;
+    private final SettingsHelper mSettingsHelper;
     private long author_id;
     private final HashMap<Integer, FlipIcon> flips;
     private Context mContext;
     protected CallBack mCallBack;
 
-    public BookExpandableAdapter(@NonNull List<? extends ParentListItem> parentItemList, Context context, CallBack callBack) {
+    public BookExpandableAdapter(@NonNull List<? extends ParentListItem> parentItemList, Context context, CallBack callBack, SettingsHelper settingsHelper) {
         super(parentItemList);
 
         mInflater = LayoutInflater.from(context);
-        settingsHelper = new SettingsHelper(context);
         flips = new HashMap<>();
         mCallBack = callBack;
         mContext=context;
+        mSettingsHelper=settingsHelper;
     }
 
     public void setAuthor_id(long author_id) {
@@ -209,7 +209,7 @@ public class BookExpandableAdapter extends ExpandableRecyclerAdapter<GroupViewHo
 
 
         if (book.isSelected()) {
-            holder.starIcon.setImageResource(settingsHelper.getSelectedIcon());
+            holder.starIcon.setImageResource(mSettingsHelper.getSelectedIcon());
             holder.starIcon.setVisibility(View.VISIBLE);
         } else {
             holder.starIcon.setImageResource(R.drawable.rating_not_important);
@@ -217,7 +217,7 @@ public class BookExpandableAdapter extends ExpandableRecyclerAdapter<GroupViewHo
         }
 
         if (book.isPreserve()) {
-            holder.lockIcon.setImageResource(settingsHelper.getLockIcon());
+            holder.lockIcon.setImageResource(mSettingsHelper.getLockIcon());
             holder.lockIcon.setVisibility(View.VISIBLE);
         } else {
             holder.lockIcon.setImageResource(R.drawable.rating_not_important);

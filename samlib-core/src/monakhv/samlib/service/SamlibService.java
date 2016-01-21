@@ -18,16 +18,14 @@ package monakhv.samlib.service;
 
 import monakhv.samlib.data.AbstractSettings;
 import monakhv.samlib.db.AuthorController;
-import monakhv.samlib.db.DaoBuilder;
-import monakhv.samlib.db.entity.Author;
-import monakhv.samlib.db.entity.AuthorCard;
-import monakhv.samlib.db.entity.Book;
-import monakhv.samlib.db.entity.SamLibConfig;
+import monakhv.samlib.db.SQLController;
+import monakhv.samlib.db.entity.*;
 import monakhv.samlib.exception.SamlibInterruptException;
 import monakhv.samlib.exception.SamlibParseException;
 import monakhv.samlib.http.HttpClientController;
 import monakhv.samlib.log.Log;
 
+import javax.inject.Inject;
 import java.io.IOException;
 import java.text.Collator;
 import java.text.ParseException;
@@ -45,7 +43,9 @@ import java.util.concurrent.TimeUnit;
 public class SamlibService {
     public enum UpdateObjectSelector {
         Tag,
-        Author
+        Author,
+        Book,
+        UNDEF
     }
 
     private static final String DEBUG_TAG = "SamlibService";
@@ -67,22 +67,38 @@ public class SamlibService {
     private final AbstractSettings settingsHelper;
     private final HttpClientController http;
 
-    public SamlibService(DaoBuilder sql, GuiUpdate guiUpdate, AbstractSettings settingsHelper) {
+
+    @Inject
+    public SamlibService(AuthorController sql,  GuiUpdate guiUpdate, AbstractSettings settingsHelper, HttpClientController httpClientController) {
         this.guiUpdate = guiUpdate;
         this.settingsHelper = settingsHelper;
-        authorController = new AuthorController(sql);
-        updatedAuthors = new ArrayList<>();
-        http = HttpClientController.getInstance(settingsHelper);
-
-    }
-
-    public SamlibService(DaoBuilder sql, GuiUpdate guiUpdate, AbstractSettings settingsHelper, HttpClientController httpClientController) {
-        this.guiUpdate = guiUpdate;
-        this.settingsHelper = settingsHelper;
-        authorController = new AuthorController(sql);
+        authorController = sql;
         updatedAuthors = new ArrayList<>();
         http = httpClientController;
 
+    }
+    public boolean runUpdate(SamlibService.UpdateObjectSelector selector, int id){
+        List<Author> authors;
+        if (selector == SamlibService.UpdateObjectSelector.Author) {//Check update for the only Author
+
+            //int id = intent.getIntExtra(SELECT_ID, 0);//author_id
+            Author author = authorController.getById(id);
+            if (author != null) {
+                authors = new ArrayList<>();
+                authors.add(author);
+
+                Log.i(DEBUG_TAG, "runUpdateAuthors: Check single Author: " + author.getName());
+            } else {
+                Log.e(DEBUG_TAG, "runUpdateAuthors: Can not find Author: " + id);
+                return false;
+            }
+        } else {//Check update for authors by TAG
+            authors = authorController.getAll(id, SQLController.COL_mtime + " DESC");
+
+
+            Log.i(DEBUG_TAG, "runUpdateAuthors: selection index: " + id);
+        }
+        return runUpdateAuthors(authors);
     }
 
     /**
@@ -91,7 +107,7 @@ public class SamlibService {
      * @param authors List of the Authors to check update
      * @return true if update successful false if error or interrupted
      */
-    public boolean runUpdate(List<Author> authors) {
+    private boolean runUpdateAuthors(List<Author> authors) {
         updatedAuthors.clear();
         int skippedAuthors = 0;
         Random rnd = new Random(Calendar.getInstance().getTimeInMillis());
@@ -107,17 +123,17 @@ public class SamlibService {
             try {
                 newA = http.getAuthorByURL(url, newA);
             } catch (IOException ex) {//here we abort cycle author and total update
-                Log.i(DEBUG_TAG, "runUpdate: Connection Error: " + url, ex);
+                Log.i(DEBUG_TAG, "runUpdateAuthors: Connection Error: " + url, ex);
                 guiUpdate.finishUpdate(false, updatedAuthors);
                 return false;
 
             } catch (SamlibParseException ex) {//skip update for given author
-                Log.e(DEBUG_TAG, "runUpdate:Error parsing url: " + url + " skip update author ", ex);
+                Log.e(DEBUG_TAG, "runUpdateAuthors:Error parsing url: " + url + " skip update author ", ex);
 
                 ++skippedAuthors;
                 newA = a;
             } catch (SamlibInterruptException e) {
-                Log.i(DEBUG_TAG, "runUpdate: catch Interrupted", e);
+                Log.i(DEBUG_TAG, "runUpdateAuthors: catch Interrupted", e);
 
                 guiUpdate.finishUpdate(false, updatedAuthors);
                 return false;
@@ -127,7 +143,7 @@ public class SamlibService {
                     updatedAuthors.add(a);//sometimes we need update if the author has no new books
                     guiUpdate.makeUpdate(a);
                 }
-                Log.i(DEBUG_TAG, "runUpdate: We need update author: " + a.getName());
+                Log.i(DEBUG_TAG, "runUpdateAuthors: We need update author: " + a.getName());
 
                 authorController.update(a);
 
@@ -146,11 +162,11 @@ public class SamlibService {
             }
 
             try {
-                Log.d(DEBUG_TAG, "runUpdate: sleep " + sleep + " seconds");
+                Log.d(DEBUG_TAG, "runUpdateAuthors: sleep " + sleep + " seconds");
 
                 TimeUnit.SECONDS.sleep(sleep);
             } catch (InterruptedException e) {
-                Log.i(DEBUG_TAG, "runUpdate: Sleep interrupted exiting", e);
+                Log.i(DEBUG_TAG, "runUpdateAuthors: Sleep interrupted exiting", e);
 
                 guiUpdate.finishUpdate(false, updatedAuthors);
                 return false;
@@ -290,22 +306,21 @@ public class SamlibService {
      * Make author search according to the first part aof theAuthor name
      *
      * @param pattern  part of the author name
-     * @param settings Settings
      * @return List of found authors
      * @throws IOException
      * @throws SamlibParseException
      */
-    public static List<AuthorCard> makeSearch(String pattern, AbstractSettings settings) throws IOException, SamlibParseException, SamlibInterruptException {
+    public List<AuthorCard> makeSearch(String pattern) throws IOException, SamlibParseException, SamlibInterruptException {
         Log.i(DEBUG_TAG, "makeSearch: Search author with pattern: " + pattern);
         List<AuthorCard> result = new ArrayList<>();
 
         int page = 1;
-        HttpClientController http = HttpClientController.getInstance(settings);
+
         HashMap<String, ArrayList<AuthorCard>> colAuthors = http.searchAuthors(pattern, page);
         RuleBasedCollator russianCollator = (RuleBasedCollator) Collator.getInstance(new Locale("ru", "RU"));
 
         try {
-            russianCollator = new RuleBasedCollator(settings.getCollationRule());
+            russianCollator = new RuleBasedCollator(settingsHelper.getCollationRule());
         } catch (ParseException ex) {
             Log.e(DEBUG_TAG, "makeSearch: Collator error", ex);
 

@@ -28,9 +28,9 @@ public class DataExportImport extends AbstractDataExportImport {
 
 
     private Context context;
-    public  DataExportImport(Context context){
-        super(new SettingsHelper(context));
-        this.context=context;
+    public  DataExportImport(SettingsHelper settingsHelper){
+        super(settingsHelper);
+        this.context=settingsHelper.getContext();
     }
     
 

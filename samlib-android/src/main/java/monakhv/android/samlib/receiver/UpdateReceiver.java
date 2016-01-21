@@ -20,9 +20,8 @@ import android.content.Context;
 import android.content.Intent;
 
 
-import monakhv.android.samlib.data.SettingsHelper;
+
 import monakhv.android.samlib.service.UpdateLocalService;
-import monakhv.android.samlib.service.UpdateServiceIntent;
 import monakhv.samlib.log.Log;
 
 /**
@@ -37,7 +36,7 @@ public class UpdateReceiver extends BroadcastReceiver {
     public void onReceive(Context context, Intent intent) {
 
 
-        SettingsHelper settings = new SettingsHelper(context);
+
         Log.d(DEBUG_TAG, "Recurring alarm; requesting update service.");
 
 //        Intent updater = new Intent(context, UpdaterService.class);

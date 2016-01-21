@@ -242,6 +242,8 @@ public class Author  implements Serializable{
                 books.add(b);
                 gbCache.get(b.mGroupBook.getName()).addNew();
                 setIsNew(true);
+                res=true;
+                setIsNew(true);
                 res=true;//we need update
             }
             else {//old book
@@ -258,7 +260,8 @@ public class Author  implements Serializable{
                     ob.modifyTime=b.modifyTime;
                     setIsNew(true);
                     Log.i("AUTHOR","UPDATE:   "+ob.uri+"  "+ob.id);
-                    res=true;
+                    res = true;
+                    //addNEw for Group in end
                 }
 
                 if (! ob.mGroupBook.equals(b.mGroupBook)){//group change!
@@ -290,7 +293,7 @@ public class Author  implements Serializable{
 
     /**
      * Update Author information by data of new Author object If need
-     * Call from SamLibService.runUpdate only !!!
+     * Call from SamLibService.runUpdateAuthors only !!!
      *
      * @param newA new just downloaded author
      * @return true if data is updated false in other case

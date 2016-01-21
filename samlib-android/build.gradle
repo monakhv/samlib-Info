@@ -1,4 +1,5 @@
 apply plugin: 'com.android.application'
+apply plugin: 'com.neenbedankt.android-apt'
 
 
 if(project.hasProperty("Monakhv.signing")
@@ -47,4 +48,7 @@ dependencies {
     compile 'com.google.android.gms:play-services-drive:8.4.0'
     compile 'com.bignerdranch.android:expandablerecyclerview:2.1.0'
 
+    compile 'com.google.dagger:dagger:2.0.2'
+    provided 'com.google.dagger:dagger-compiler:2.0.2'
+    provided 'org.glassfish:javax.annotation:10.0-b28'
 }

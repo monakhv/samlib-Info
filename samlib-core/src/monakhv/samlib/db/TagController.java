@@ -34,7 +34,7 @@ public class TagController implements AbstractController<Tag> {
     private final Dao<Tag, Integer> tagDao;
     private final Tag2AuthorController t2aCtl;
 
-    public TagController(DaoBuilder sql){
+    TagController(DaoBuilder sql){
         t2aCtl=new Tag2AuthorController(sql);
         tagDao = sql.getTagDao();
     }
