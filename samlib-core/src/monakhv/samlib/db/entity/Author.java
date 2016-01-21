@@ -237,12 +237,9 @@ public class Author  implements Serializable{
             int idx = books.indexOf(b);
             if (idx == -1) {//new book
                 b.setIsNew(true);
-                res = true;
                 b.setAuthor(this);
                 books.add(b);
                 gbCache.get(b.mGroupBook.getName()).addNew();
-                setIsNew(true);
-                res=true;
                 setIsNew(true);
                 res=true;//we need update
             }
