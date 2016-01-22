@@ -22,7 +22,7 @@ import android.os.Build;
 import android.view.View;
 import android.view.animation.RotateAnimation;
 import android.widget.ImageView;
-import android.widget.RelativeLayout;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import com.bignerdranch.expandablerecyclerview.ViewHolder.ParentViewHolder;
 import monakhv.android.samlib.R;
@@ -38,14 +38,14 @@ public class GroupViewHolder extends ParentViewHolder {
 
     public TextView groupTitle, bookNumber;
     public ImageView icon, newIcon;
-    public RelativeLayout rowLayout;
+    public LinearLayout rowLayout;
 
     public GroupViewHolder(View itemView) {
         super(itemView);
         groupTitle = (TextView) itemView.findViewById(R.id.group_title);
         icon = (ImageView) itemView.findViewById(R.id.group_icon);
         bookNumber = (TextView) itemView.findViewById(R.id.group_number);
-        rowLayout = (RelativeLayout) itemView.findViewById(R.id.group_row);
+        rowLayout = (LinearLayout) itemView.findViewById(R.id.group_row);
         newIcon = (ImageView) itemView.findViewById(R.id.group_new_icon);
     }
 

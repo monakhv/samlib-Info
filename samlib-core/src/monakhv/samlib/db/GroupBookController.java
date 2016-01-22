@@ -31,20 +31,21 @@ import java.util.List;
 
 /**
  * Class to deal with GroupBook entity class
- *
+ * <p/>
  * Created by Dmitry Monakhov on 24.12.15.
  */
 public class GroupBookController {
-    private static final String DEBUG_TAG="GroupBookController";
-    private Dao<GroupBook,Integer> dao;
-    GroupBookController(DaoBuilder sql){
-       dao =sql.getGroupBookDao();
+    private static final String DEBUG_TAG = "GroupBookController";
+    private Dao<GroupBook, Integer> dao;
+
+    GroupBookController(DaoBuilder sql) {
+        dao = sql.getGroupBookDao();
     }
 
     public void operate(Author author) {
 
-        for (GroupBook groupBook : author.getGroupBooks()){
-            Log.i(DEBUG_TAG,"Group: >"+groupBook.getName()+"< Operation: "+groupBook.getSqlOperation().name());
+        for (GroupBook groupBook : author.getGroupBooks()) {
+            Log.i(DEBUG_TAG, "Group: >" + groupBook.getName() + "< Operation: " + groupBook.getSqlOperation().name());
             switch (groupBook.getSqlOperation()) {
                 case DELETE:
                     delete(groupBook);
@@ -69,7 +70,7 @@ public class GroupBookController {
         try {
             res = dao.create(groupBook);
         } catch (SQLException e) {
-            Log.e(DEBUG_TAG,"insert: error insert ",e);
+            Log.e(DEBUG_TAG, "insert: error insert ", e);
         }
         return res;
     }
@@ -78,77 +79,77 @@ public class GroupBookController {
         try {
             return dao.delete(groupBook);
         } catch (SQLException e) {
-            Log.e(DEBUG_TAG,"delete: delete error",e);
+            Log.e(DEBUG_TAG, "delete: delete error", e);
             return -1;
         }
 
     }
 
-    private int update(GroupBook groupBook){
+    private int update(GroupBook groupBook) {
         try {
             return dao.update(groupBook);
         } catch (SQLException e) {
-            Log.e(DEBUG_TAG,"update: update error",e);
+            Log.e(DEBUG_TAG, "update: update error", e);
 
             return -1;
         }
     }
 
-    public int updateNewFlag(Book book, boolean flag){
+    public int updateNewFlag(Book book, boolean flag) {
         try {
             GroupBook groupBook = dao.queryForId(book.getGroupBook().getId());
-            if (groupBook == null){
-                Log.w(DEBUG_TAG,"updateNewFlag: can not find the group for book: "+book.getUri());
-                return  -1;
+            if (groupBook == null) {
+                Log.w(DEBUG_TAG, "updateNewFlag: can not find the group for book: " + book.getUri());
+                return -1;
             }
             if (flag) {
                 groupBook.addNew();
-            }
-            else {
+            } else {
                 groupBook.delNew();
             }
             return update(groupBook);
         } catch (SQLException e) {
-            Log.e(DEBUG_TAG,"updateNewFlag: update error ",e);
+            Log.e(DEBUG_TAG, "updateNewFlag: update error ", e);
             return -1;
         }
 
     }
 
     /**
-     *  get List of Group for given Author
+     * get List of Group for given Author
+     *
      * @param author Author object
      * @return List of Group
      */
-    public List<GroupBook> getByAuthor(Author author){
-        QueryBuilder<GroupBook,Integer> qb=dao.queryBuilder();
-        qb.orderBy(SQLController.COL_GROUP_IS_HIDDEN,true);
-        qb.orderBy(SQLController.COL_GROUP_NEW_NUMBER,false);
+    public List<GroupBook> getByAuthor(Author author) {
+        QueryBuilder<GroupBook, Integer> qb = dao.queryBuilder();
+        qb.orderBy(SQLController.COL_GROUP_NEW_NUMBER, false);
+        qb.orderBy(SQLController.COL_GROUP_IS_HIDDEN, true);
         try {
-            qb.where().eq(SQLController.COL_BOOK_AUTHOR_ID,author);
+            qb.where().eq(SQLController.COL_BOOK_AUTHOR_ID, author);
             return dao.query(qb.prepare());
         } catch (SQLException e) {
-            Log.e(DEBUG_TAG,"getByAuthor error ",e);
+            Log.e(DEBUG_TAG, "getByAuthor error ", e);
             return null;
         }
 
     }
 
-    public  GroupBook getByAuthorAndName(Author author, String name){
+    public GroupBook getByAuthorAndName(Author author, String name) {
 
-        QueryBuilder<GroupBook,Integer> qb=dao.queryBuilder();
+        QueryBuilder<GroupBook, Integer> qb = dao.queryBuilder();
         List<GroupBook> res;
         try {
-            qb.where().eq(SQLController.COL_BOOK_AUTHOR_ID,author)
-            .and().eq(SQLController.COL_NAME,name);
+            qb.where().eq(SQLController.COL_BOOK_AUTHOR_ID, author)
+                    .and().eq(SQLController.COL_NAME, name);
             res = dao.query(qb.prepare());
         } catch (SQLException e) {
-            Log.e(DEBUG_TAG,"getByAuthorAndName: query error",e);
+            Log.e(DEBUG_TAG, "getByAuthorAndName: query error", e);
             return null;
         }
 
-        if (res.size() != 1){
-            Log.e(DEBUG_TAG,"getByAuthorAndName: result number error "+res.size()+"  name >"+name+"<");
+        if (res.size() != 1) {
+            Log.e(DEBUG_TAG, "getByAuthorAndName: result number error " + res.size() + "  name >" + name + "<");
             return null;
         }
         return res.get(0);

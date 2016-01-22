@@ -17,36 +17,26 @@
   ~
   -->
 
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                android:id="@+id/group_row"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:padding="12dp">
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:id="@+id/group_row"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:animateLayoutChanges="true"
+              android:orientation="horizontal"
+              android:padding="12dp">
     <LinearLayout
             android:orientation="vertical"
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
+            android:layout_weight="20"
             android:layout_height="wrap_content">
-        <LinearLayout
+
+        <TextView
+                android:id="@+id/group_title"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_width="match_parent"
-                android:orientation="horizontal">
+                android:textColor="?attr/colorText"
+                android:textSize="@dimen/text_size_head"/>
 
-            <TextView
-                    android:id="@+id/group_title"
-                    android:layout_width="0dp"
-                    android:layout_weight="10"
-                    android:layout_height="wrap_content"
-                    android:textColor="?attr/colorText"
-                    android:textSize="@dimen/text_size_head"/>
-            <ImageView
-                    android:id="@+id/group_new_icon"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:src="@drawable/label_blue_new"/>
-
-        </LinearLayout>
-        >
         <TextView
                 android:id="@+id/group_number"
                 android:layout_width="wrap_content"
@@ -54,12 +44,20 @@
                 android:layout_alignParentBottom="true"
                 android:textSize="@dimen/text_size_small"/>
     </LinearLayout>
+    <ImageView
+            android:id="@+id/group_new_icon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:src="@drawable/label_blue_new"/>
 
     <ImageView
             android:id="@+id/group_icon"
+            android:layout_marginLeft="0dp"
+            android:layout_marginRight="0dp"
+            android:layout_weight="1"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignParentRight="true"
             android:src="@android:drawable/arrow_down_float"/>
 
-</RelativeLayout>
+</LinearLayout>

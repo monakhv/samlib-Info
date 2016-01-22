@@ -84,7 +84,7 @@ public class BookExpandableAdapter extends ExpandableRecyclerAdapter<GroupViewHo
     }
 
     @Override
-    public void onBindParentViewHolder(GroupViewHolder groupViewHolder, int i, ParentListItem parentListItem) {
+    public void onBindParentViewHolder(GroupViewHolder groupViewHolder, final int position, ParentListItem parentListItem) {
         GroupListItem gi = (GroupListItem) parentListItem;
         groupViewHolder.groupTitle.setText(gi.getName());
 
