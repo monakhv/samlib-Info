@@ -23,6 +23,8 @@ import android.content.IntentFilter;
 import android.os.Bundle;
 
 
+import android.support.annotation.NonNull;
+import android.support.v7.app.ActionBar;
 import android.support.v7.widget.Toolbar;
 import monakhv.android.samlib.service.AndroidGuiUpdater;
 import monakhv.samlib.db.AuthorController;
@@ -46,9 +48,9 @@ public class BooksActivity extends MyAbstractAnimActivity implements BookFragmen
         super.onCreate(savedInstanceState);
         Log.i(DEBUG_TAG, "onCreate");
         if (savedInstanceState == null) {
-            Log.i(DEBUG_TAG, "have NO save data");
+            Log.i(DEBUG_TAG, "onCreate: have NO save data");
         } else {
-            Log.i(DEBUG_TAG, "We have saved data!!!");
+            Log.i(DEBUG_TAG, "onCreate: We have saved data!!!");
         }
 
 
@@ -56,7 +58,12 @@ public class BooksActivity extends MyAbstractAnimActivity implements BookFragmen
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        ActionBar actionBar = getSupportActionBar();
+
+        if(actionBar !=null){
+            actionBar.setDisplayHomeAsUpEnabled(true);
+        }
+        //getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         Bundle extra = getIntent().getExtras();
         if (extra != null) {
@@ -85,9 +92,19 @@ public class BooksActivity extends MyAbstractAnimActivity implements BookFragmen
     public void onSaveInstanceState(Bundle bundle) {
         Log.d(DEBUG_TAG, "onSaveInstanceState call");
         bundle.putLong(BookFragment.AUTHOR_ID, author_id);
+        bundle.putBundle(BookFragment.ADAPTER_STATE_EXTRA,listFragment.getAdapterState());
         super.onSaveInstanceState(bundle);
     }
 
+    @Override
+    protected void onRestoreInstanceState(@NonNull Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+        Log.d(DEBUG_TAG, "onRestoreInstanceState call");
+        Bundle state = savedInstanceState.getBundle(BookFragment.ADAPTER_STATE_EXTRA);
+        if (state != null){
+            listFragment.setAdapterState(state);
+        }
+    }
 
     @Override
     public void showTags(long author_id) {
@@ -148,6 +165,7 @@ public class BooksActivity extends MyAbstractAnimActivity implements BookFragmen
                 if (action.equalsIgnoreCase(AndroidGuiUpdater.ACTION_REFRESH)) {
                     int iObject = intent.getIntExtra(AndroidGuiUpdater.ACTION_REFRESH_OBJECT, AndroidGuiUpdater.ACTION_REFRESH_AUTHORS);
                     if (iObject == AndroidGuiUpdater.ACTION_REFRESH_BOTH) {
+                        Log.i(DEBUG_TAG,"UpdateActivityReceiver.onReceive call");
                         //listFragment.refresh();
                     }
                 }

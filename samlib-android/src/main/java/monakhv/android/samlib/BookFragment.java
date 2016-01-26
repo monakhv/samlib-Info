@@ -79,6 +79,7 @@ public class BookFragment extends MyBaseAbstractFragment implements
 
     private static final String DEBUG_TAG = "BookFragment";
     public static final String AUTHOR_ID = "AUTHOR_ID";
+    public static final String ADAPTER_STATE_EXTRA = "BookFragment.ADAPTER_STATE_EXTRA";
     private static final int BOOK_LOADER_ID = 190;
     private RecyclerView bookRV;
     private long author_id;
@@ -187,7 +188,7 @@ public class BookFragment extends MyBaseAbstractFragment implements
         mProgressBar.setVisibility(View.GONE);
         makeEmpty();
         if (adapterState != null && ! adapterState.isEmpty()){
-            Log.d(DEBUG_TAG,"onResume: load adapter data");
+            Log.d(DEBUG_TAG,"onLoadFinished: load adapter data");
             adapter.onRestoreInstanceState(adapterState);
             adapterState.clear();
         }
@@ -561,5 +562,13 @@ public class BookFragment extends MyBaseAbstractFragment implements
         }
 
         adapter.onSaveInstanceState(adapterState);
+    }
+
+    public Bundle getAdapterState() {
+        return adapterState;
+    }
+
+    public void setAdapterState(Bundle adapterState) {
+        this.adapterState = adapterState;
     }
 }
