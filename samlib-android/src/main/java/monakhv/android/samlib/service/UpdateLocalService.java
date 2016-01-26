@@ -150,13 +150,13 @@ public class UpdateLocalService extends MyService {
         mCALLER_type=updateObject.getCALLER_type();
 
         if (isRun && updateObject.callerIsActivity()) {
-            Log.i(DEBUG_TAG, "Update already running exiting");
+            Log.i(DEBUG_TAG, "makeRealUpdate: Update already running exiting");
             return;
         }
         context = this.getApplicationContext();
         updatedAuthors.clear();
 
-        Log.d(DEBUG_TAG, "makeUpdate");
+        Log.d(DEBUG_TAG, "makeRealUpdate: makeUpdate");
 
 
         mSharedPreferences = PrefsUtil.getSharedPreferences(context, PREF_NAME);
@@ -167,7 +167,7 @@ public class UpdateLocalService extends MyService {
 
 
         if ((updateObject.callerIsReceiver()) && !getSettingsHelper().haveInternetWIFI()) {
-            monakhv.samlib.log.Log.d(DEBUG_TAG, "Ignore update task - we have no internet connection");
+            monakhv.samlib.log.Log.d(DEBUG_TAG, "makeRealUpdate: Ignore update task - we have no internet connection");
 
             return;
         }
@@ -177,12 +177,18 @@ public class UpdateLocalService extends MyService {
 
         AndroidGuiUpdater guiUpdate =serviceComponent.getAndroidGuiUpdater();
         if (!SettingsHelper.haveInternet(context)) {
-            Log.e(DEBUG_TAG, "Ignore update - we have no internet connection");
+            Log.e(DEBUG_TAG, "makeRealUpdate: Ignore update - we have no internet connection");
 
             guiUpdate.finishUpdate(false, updatedAuthors);
             return;
         }
 
+        if (updateObject.callerIsReceiver()){
+            String sTag = getSettingsHelper().getUpdateTag();
+            int idx = Integer.parseInt(sTag);
+            updateObject.setObjectId(idx);
+            Log.i(DEBUG_TAG, "makeRealUpdate: Recurring  call select by tag: "+sTag);
+        }
 
         //http = HttpClientController.getInstance(mSettingsHelper);
         SpecialSamlibService service =serviceComponent.getSpecialSamlibService();

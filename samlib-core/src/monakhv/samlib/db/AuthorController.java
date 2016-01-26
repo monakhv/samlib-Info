@@ -294,7 +294,7 @@ public class AuthorController implements AbstractController<Author> {
         PreparedQuery<Author> prep = getPrepared(iSelectTag, rowSort);
 
         if (prep == null) {
-            Log.e(DEBUG_TAG, "getAll: prepare error");
+            Log.e(DEBUG_TAG, "getAll: prepare error for tag Id: "+iSelectTag);
             return null;
         }
 
@@ -316,7 +316,7 @@ public class AuthorController implements AbstractController<Author> {
         }
         Tag tag = tagCtl.getById(iSel);
         if (tag == null) {
-            Log.e(DEBUG_TAG, "getPrepared: wrong tag: " + iSel + "<");
+            Log.e(DEBUG_TAG, "getPrepared: wrong tag:  >" + iSel + "<");
             return null;
         }
         QueryBuilder<Tag2Author, Integer> t2aqb = t2aDao.queryBuilder();

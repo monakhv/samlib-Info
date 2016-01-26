@@ -101,6 +101,10 @@ public class UpdateObject implements Parcelable {
         return mObjectId;
     }
 
+    public void setObjectId(int objectId) {
+        mObjectId = objectId;
+    }
+
     public boolean callerIsReceiver(){
         return mCALLER_type==AndroidGuiUpdater.CALLER_TYPE.CALLER_IS_RECEIVER;
     }
