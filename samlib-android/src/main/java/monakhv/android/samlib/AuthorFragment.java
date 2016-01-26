@@ -14,7 +14,7 @@ import android.support.v4.content.Loader;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
+
 import android.view.*;
 import android.widget.AdapterView;
 import android.widget.EditText;
@@ -44,6 +44,7 @@ import monakhv.android.samlib.sortorder.AuthorSortOrder;
 
 import monakhv.samlib.db.entity.Author;
 import monakhv.samlib.db.entity.SamLibConfig;
+import monakhv.samlib.log.Log;
 
 
 import java.util.List;
@@ -632,6 +633,7 @@ public class AuthorFragment extends MyBaseAbstractFragment implements
 
     @Override
     public void onDestroy() {
+        Log.d(DEBUG_TAG,"onDestroy call");
         if (mBound) {
             getActivity().unbindService(mConnection);
             mBound = false;
@@ -644,6 +646,7 @@ public class AuthorFragment extends MyBaseAbstractFragment implements
     @Override
     public void onResume() {
         super.onResume();
+        Log.d(DEBUG_TAG,"onResume call");
         canUpdate = true;
         if (mBound) {
             isProgressShow(mUpdateService.isRunning());

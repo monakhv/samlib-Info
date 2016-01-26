@@ -11,7 +11,6 @@ import android.support.v4.content.Loader;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.*;
 import android.widget.AdapterView;
 import android.widget.ProgressBar;
@@ -34,6 +33,7 @@ import monakhv.android.samlib.sortorder.BookSortOrder;
 import monakhv.samlib.db.AuthorController;
 import monakhv.samlib.db.entity.Book;
 import monakhv.samlib.db.entity.SamLibConfig;
+import monakhv.samlib.log.Log;
 
 
 import java.util.List;
@@ -83,6 +83,7 @@ public class BookFragment extends MyBaseAbstractFragment implements
     private RecyclerView bookRV;
     private long author_id;
     private BookExpandableAdapter adapter;
+    private Bundle adapterState;
     private Book book = null;//for context menu
     private BookSortOrder order;
     private GestureDetector detector;
@@ -101,7 +102,7 @@ public class BookFragment extends MyBaseAbstractFragment implements
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Log.i(DEBUG_TAG, "onCreate");
+        Log.d(DEBUG_TAG, "onCreate call");
         adapterState=null;
 
         if (getActivity().getIntent().getExtras() == null) {
@@ -122,6 +123,7 @@ public class BookFragment extends MyBaseAbstractFragment implements
     @Override
     public void onAttach(Context activity) {
         super.onAttach(activity);
+        Log.i(DEBUG_TAG, "onAttach call");
         if (!(activity instanceof BookFragment.Callbacks)) {
             throw new IllegalStateException(
                     "Activity must implement fragment's callbacks.");
@@ -133,7 +135,7 @@ public class BookFragment extends MyBaseAbstractFragment implements
 
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        Log.i(DEBUG_TAG, "onCreateView");
+        Log.i(DEBUG_TAG, "onCreateView call");
 
         View view = inflater.inflate(R.layout.book_fragment,
                 container, false);
@@ -169,6 +171,7 @@ public class BookFragment extends MyBaseAbstractFragment implements
 
     @Override
     public Loader<List<GroupListItem>> onCreateLoader(int id, Bundle args) {
+        Log.d(DEBUG_TAG, "onCreateLoader call");
         return new BookLoader(getActivity(), getAuthorController(), author_id, order.getOrder());
     }
 
@@ -183,6 +186,11 @@ public class BookFragment extends MyBaseAbstractFragment implements
         Log.d(DEBUG_TAG, "onLoadFinished: adapter size = " + adapter.getItemCount());
         mProgressBar.setVisibility(View.GONE);
         makeEmpty();
+        if (adapterState != null && ! adapterState.isEmpty()){
+            Log.d(DEBUG_TAG,"onResume: load adapter data");
+            adapter.onRestoreInstanceState(adapterState);
+            adapterState.clear();
+        }
     }
 
     @Override
@@ -215,6 +223,7 @@ public class BookFragment extends MyBaseAbstractFragment implements
     }
 
     void updateAdapter() {
+        Log.d(DEBUG_TAG,"updateAdapter call");
         //very ugly hack
         if (order == null) {
             Context ctx = getActivity().getApplicationContext();
@@ -507,6 +516,7 @@ public class BookFragment extends MyBaseAbstractFragment implements
     @Override
     public void onDestroy() {
         super.onDestroy();
+        Log.d(DEBUG_TAG, "onDestroy call");
         getLoaderManager().destroyLoader(BOOK_LOADER_ID);
     }
 
@@ -534,16 +544,12 @@ public class BookFragment extends MyBaseAbstractFragment implements
     }
 
 
-    private Bundle adapterState;
+
     @Override
     public void onResume() {
         super.onResume();
         Log.d(DEBUG_TAG,"onResume call");
-        if (adapterState != null){
-            Log.d(DEBUG_TAG,"onResume: load adapter data");
-            adapter.onRestoreInstanceState(adapterState);
-            adapterState.clear();
-        }
+
     }
 
     @Override

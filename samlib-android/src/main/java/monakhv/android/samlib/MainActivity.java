@@ -17,7 +17,7 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
-import android.util.Log;
+
 
 import android.view.Gravity;
 import android.view.MenuItem;
@@ -37,6 +37,7 @@ import monakhv.android.samlib.sortorder.AuthorSortOrder;
 import monakhv.samlib.db.TagController;
 import monakhv.samlib.db.entity.SamLibConfig;
 import monakhv.samlib.db.entity.Tag;
+import monakhv.samlib.log.Log;
 import monakhv.samlib.service.SamlibService;
 
 
