@@ -103,7 +103,7 @@ public class SettingsHelper extends AbstractSettings implements SharedPreference
             Log.d(DEBUG_TAG, "SettingsHelper: requestBackup");
             requestBackup();
         } else {
-            Log.d(DEBUG_TAG, "SettingsHelper: IGNORE requestBackup");
+            Log.d(DEBUG_TAG, "SettingsHelper: IGNORE first time requestBackup");
         }
     }
 
