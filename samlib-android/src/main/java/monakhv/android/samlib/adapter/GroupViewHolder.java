@@ -22,6 +22,8 @@ import android.content.Context;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
+import android.text.Layout;
+import android.util.TypedValue;
 import android.view.View;
 import android.view.animation.RotateAnimation;
 import android.widget.ImageView;
@@ -31,6 +33,7 @@ import com.bignerdranch.expandablerecyclerview.ViewHolder.ParentViewHolder;
 import monakhv.android.samlib.R;
 import monakhv.android.samlib.animation.FlipIcon;
 import monakhv.android.samlib.awesome.FontManager;
+import monakhv.android.samlib.awesome.TextDrawable;
 import monakhv.android.samlib.awesome.TextLabel;
 
 /**
@@ -72,6 +75,13 @@ public class GroupViewHolder extends ParentViewHolder {
                 .textColor(context.getResources().getColor(R.color.green_dark))
                 .endConfig()
                 .buildRound(context.getString(R.string.fa_folder), Color.GRAY);
+
+        final TextDrawable td = new TextDrawable(context);
+        td.setTypeface(FontManager.getFontAwesome(context));
+        td.setTextAlign(Layout.Alignment.ALIGN_CENTER);
+        td.setTextSize(TypedValue.COMPLEX_UNIT_SP,20);
+        td.setText(context.getString(R.string.fa_caret_down));
+        icon.setImageDrawable(td);
 
     }
 
