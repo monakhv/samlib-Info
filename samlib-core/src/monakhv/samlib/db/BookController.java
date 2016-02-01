@@ -313,14 +313,32 @@ public class BookController {
         book.setIsNew(false);
         update(book);
 
-        grpCtl.updateNewFlag(book,false);
+        updateNewNumber(book);
     }
 
     public void markUnRead(Book book) {
         book.setIsNew(true);
         update(book);
 
-        grpCtl.updateNewFlag(book,true);
+        updateNewNumber(book);
+    }
+
+    private void updateNewNumber(Book book){
+
+        GroupBook groupBook=grpCtl.getByBook(book);
+
+        if (groupBook != null){
+            List<Book> books = getBookForGroup(groupBook,null);
+            int newNumber=0;
+            for (Book b:books){
+                if (b.isIsNew()){
+                    ++newNumber;
+                }
+            }
+            groupBook.setNewNumber(newNumber);
+            grpCtl.update(groupBook);
+        }
+
     }
 
     /**

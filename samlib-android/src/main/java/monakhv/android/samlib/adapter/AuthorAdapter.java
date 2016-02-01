@@ -18,9 +18,9 @@ import monakhv.android.samlib.awesome.TextLabel;
 import monakhv.samlib.db.entity.Author;
 
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Locale;
 
 /*
  * Copyright 2015  Dmitry Monakhov
@@ -41,10 +41,10 @@ import java.util.HashMap;
  */
 public class AuthorAdapter extends RecyclerAdapter<Author, AuthorAdapter.ViewHolder> {
     private static final String DEBUG_TAG = "AuthorAdapter";
-    private static long YEAR = 31556952000L;
+    //private static long YEAR = 31556952000L;
     public static final String DATE_FORMAT = "dd.MM.yyyy HH:mm:ss";
     private SimpleDateFormat df;
-    private Calendar now;
+   // private Calendar now;
 
 
     //private final AuthorController authorController;
@@ -55,8 +55,8 @@ public class AuthorAdapter extends RecyclerAdapter<Author, AuthorAdapter.ViewHol
         super(callBack);
 
         flips = new HashMap<>();
-        df = new SimpleDateFormat(DATE_FORMAT);
-        now = Calendar.getInstance();
+        df = new SimpleDateFormat(DATE_FORMAT, Locale.FRANCE);
+     //   now = Calendar.getInstance();
     }
 
 
@@ -90,10 +90,16 @@ public class AuthorAdapter extends RecyclerAdapter<Author, AuthorAdapter.ViewHol
                 }
 
                 @Override
+                public boolean canStart() {
+                    return true;
+                }
+
+                @Override
                 public void onEnd() {
                     Log.i(DEBUG_TAG, "Making Author read!");
                     mCallBack.makeNewFlip(author.getId());
                 }
+
             };
             holder.flipIcon.setData(holder.newAuthorImage, holder.oldAuthorImage, listener, false);
         } else {
@@ -102,6 +108,10 @@ public class AuthorAdapter extends RecyclerAdapter<Author, AuthorAdapter.ViewHol
                 @Override
                 public void onStart() {
 
+                }
+                @Override
+                public boolean canStart() {
+                    return true;
                 }
 
                 @Override
@@ -172,6 +182,7 @@ public class AuthorAdapter extends RecyclerAdapter<Author, AuthorAdapter.ViewHol
         public Drawable oldAuthorImage, newAuthorImage;
 
 
+        @SuppressWarnings("deprecation")
         public ViewHolder(View itemView) {
             super(itemView);
 

@@ -8,8 +8,6 @@ import java.util.ArrayList;
 
 
 import monakhv.android.samlib.SamlibApplication;
-import monakhv.samlib.db.AuthorController;
-import monakhv.samlib.http.HttpClientController;
 import monakhv.samlib.log.Log;
 import monakhv.samlib.service.SamlibService;
 
@@ -36,7 +34,6 @@ public class AuthorEditorServiceIntent extends MyServiceIntent {
     private static final String DEBUG_TAG="AuthorEditorServiceIntent";
     private static final String EXTRA_ADD_AUTHOR_DATA="AddAuthorServiceIntent_EXTRA_ADD_AUTHOR_DATA";
     private static final String EXTRA_OBJECT_ID ="AddAuthorServiceIntent_EXTRA_OBJECT_ID";
-    public static final String EXTRA_ACTION_TYPE="AddAuthorServiceIntent_EXTRA_ACTION_TYPE";
 
     public static final String ACTION_AUTHOR_READ="AddAuthorServiceIntent_ACTION_AUTHOR_READ";
     public static final String ACTION_BOOK_READ_FLIP="AddAuthorServiceIntent_ACTION_BOOK_READ_FLIP";
@@ -51,7 +48,7 @@ public class AuthorEditorServiceIntent extends MyServiceIntent {
     @Override
     protected void onHandleIntent(Intent intent) {
 
-        String action = intent.getStringExtra(EXTRA_ACTION_TYPE);
+        String action = intent.getAction();
 
         mSamlibApplication= (SamlibApplication) getApplication();
 
@@ -143,7 +140,7 @@ public class AuthorEditorServiceIntent extends MyServiceIntent {
     public static void addAuthor(Context ctx, ArrayList<String> urls) {
         Log.v(DEBUG_TAG,"Starting add service");
         Intent service = new Intent(ctx,AuthorEditorServiceIntent.class );
-        service.putExtra(EXTRA_ACTION_TYPE, SamlibService.ACTION_ADD);
+        service.setAction(SamlibService.ACTION_ADD);
         service.putStringArrayListExtra(EXTRA_ADD_AUTHOR_DATA, urls);
         ctx.startService(service);
 
@@ -151,7 +148,7 @@ public class AuthorEditorServiceIntent extends MyServiceIntent {
     public static void delAuthor(Context ctx,int id){
         Log.v(DEBUG_TAG,"Starting del service");
         Intent service = new Intent(ctx,AuthorEditorServiceIntent.class );
-        service.putExtra(EXTRA_ACTION_TYPE, SamlibService.ACTION_DELETE);
+        service.setAction(SamlibService.ACTION_DELETE);
         service.putExtra(EXTRA_OBJECT_ID, id);
         ctx.startService(service);
 
@@ -159,21 +156,21 @@ public class AuthorEditorServiceIntent extends MyServiceIntent {
     public static void markAuthorRead(Context ctx,int id){
         Log.v(DEBUG_TAG,"Starting author read service");
         Intent service = new Intent(ctx,AuthorEditorServiceIntent.class );
-        service.putExtra(EXTRA_ACTION_TYPE,ACTION_AUTHOR_READ);
+        service.setAction(ACTION_AUTHOR_READ);
         service.putExtra(EXTRA_OBJECT_ID, id);
         ctx.startService(service);
     }
     public static void markBookReadFlip(Context ctx,int id){
         Log.v(DEBUG_TAG,"Starting book read service");
         Intent service = new Intent(ctx,AuthorEditorServiceIntent.class );
-        service.putExtra(EXTRA_ACTION_TYPE,ACTION_BOOK_READ_FLIP);
+        service.setAction(ACTION_BOOK_READ_FLIP);
         service.putExtra(EXTRA_OBJECT_ID, id);
         ctx.startService(service);
     }
     public static void updateAllAuthorsTags(Context ctx) {
         Log.v(DEBUG_TAG, "Starting update all tags service");
         Intent service = new Intent(ctx,AuthorEditorServiceIntent.class );
-        service.putExtra(EXTRA_ACTION_TYPE,ACTION_ALL_TAGS_UPDATE);
+        service.setAction(ACTION_ALL_TAGS_UPDATE);
         service.putExtra(EXTRA_OBJECT_ID, 0);
 
         ctx.startService(service);

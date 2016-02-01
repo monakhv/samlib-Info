@@ -85,7 +85,7 @@ public class GroupBookController {
 
     }
 
-    private int update(GroupBook groupBook) {
+    int update(GroupBook groupBook) {
         try {
             return dao.update(groupBook);
         } catch (SQLException e) {
@@ -95,25 +95,18 @@ public class GroupBookController {
         }
     }
 
-    public int updateNewFlag(Book book, boolean flag) {
+    public GroupBook getByBook(Book book){
+        GroupBook groupBook;
         try {
-            GroupBook groupBook = dao.queryForId(book.getGroupBook().getId());
-            if (groupBook == null) {
-                Log.w(DEBUG_TAG, "updateNewFlag: can not find the group for book: " + book.getUri());
-                return -1;
-            }
-            if (flag) {
-                groupBook.addNew();
-            } else {
-                groupBook.delNew();
-            }
-            return update(groupBook);
+            groupBook = dao.queryForId(book.getGroupBook().getId());
         } catch (SQLException e) {
-            Log.e(DEBUG_TAG, "updateNewFlag: update error ", e);
-            return -1;
+            Log.e(DEBUG_TAG,"getByBook: not found uri: "+book.getUri(),e);
+            return null;
         }
-
+        return groupBook;
     }
+
+
 
     /**
      * get List of Group for given Author

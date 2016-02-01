@@ -16,7 +16,6 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.Toolbar;
-import android.text.Layout;
 import android.text.TextUtils;
 
 
@@ -27,8 +26,7 @@ import android.view.Window;
 import android.widget.*;
 
 
-import monakhv.android.samlib.awesome.FontManager;
-import monakhv.android.samlib.awesome.TextDrawable;
+
 import monakhv.android.samlib.search.SearchAuthorActivity;
 import monakhv.android.samlib.search.SearchAuthorsListFragment;
 import monakhv.android.samlib.service.AndroidGuiUpdater;

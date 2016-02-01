@@ -27,7 +27,7 @@ import monakhv.samlib.log.Log;
 public class Flip3D {
     public interface animationFlip3DListener {
         void onStart();
-
+        boolean canStart();
         void onEnd();
     }
 
@@ -35,13 +35,13 @@ public class Flip3D {
     private static final String DEBUG_TAG = "Flip3D";
     private final ImageView image1;
     private final ImageView image2;
-    private animationFlip3DListener end;
+    private animationFlip3DListener mListener;
 
     private boolean isFirstImage = true;
 
     protected void afterAnimationEnd() {
-        if (end != null) {
-            end.onEnd();
+        if (mListener != null) {
+            mListener.onEnd();
         }
 
     }
@@ -52,7 +52,7 @@ public class Flip3D {
         image1.setVisibility(View.VISIBLE);
         image2.setVisibility(View.GONE);
 
-        end = e;
+        mListener = e;
 
     }
 
@@ -67,8 +67,13 @@ public class Flip3D {
 
 
     public void makeFlip() {
-        if (end != null) {
-            end.onStart();
+        if (mListener != null && !mListener.canStart()){
+            Log.w(DEBUG_TAG, "makeFlip: can not start exiting");
+            return;
+        }
+
+        if (mListener != null) {
+            mListener.onStart();
         }
 
         if (isFirstImage) {
@@ -117,11 +122,11 @@ public class Flip3D {
         }
 
         public void onAnimationStart(Animation animation) {
-            Log.d(DEBUG_TAG, "Animation start");
+            Log.d(DEBUG_TAG, "onAnimationStart: Animation start");
         }
 
         public void onAnimationEnd(Animation animation) {
-            Log.d(DEBUG_TAG, "Animation end - swap image");
+            Log.d(DEBUG_TAG, "onAnimationEnd: Animation mListener - swap image");
             image1.post(new SwapViews(mCurrentView, image1, image2));
         }
 
@@ -172,7 +177,7 @@ public class Flip3D {
 
                     @Override
                     public void onAnimationEnd(Animation animation) {
-                        Log.d(DEBUG_TAG, "Real animation end");
+                        Log.d(DEBUG_TAG, "Real animation mListener");
                         afterAnimationEnd();
                     }
 

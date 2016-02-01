@@ -20,6 +20,7 @@ package monakhv.android.samlib.adapter;
 
 import android.app.Activity;
 import android.content.Context;
+import android.graphics.Typeface;
 import android.support.annotation.NonNull;
 import android.text.Html;
 import android.view.LayoutInflater;
@@ -58,10 +59,10 @@ public class BookExpandableAdapter extends ExpandableRecyclerAdapter<GroupViewHo
     private final LayoutInflater mInflater;
     private final SettingsHelper mSettingsHelper;
     private long author_id;
-    private final HashMap<Integer, FlipIcon> flipBooks,flipGroups;
+    private final HashMap<Integer, FlipIcon> flipBooks, flipGroups;
     private Context mContext;
     protected CallBack mCallBack;
-    private boolean mAnimationRunning=false;
+    private boolean mAnimationRunning = false;
 
     public BookExpandableAdapter(@NonNull List<? extends ParentListItem> parentItemList, Activity context, CallBack callBack, SettingsHelper settingsHelper) {
         super(parentItemList);
@@ -91,16 +92,21 @@ public class BookExpandableAdapter extends ExpandableRecyclerAdapter<GroupViewHo
         groupViewHolder.groupTitle.setText(gi.getName());
 
         Flip3D.animationFlip3DListener listener;
-        listener= new Flip3D.animationFlip3DListener() {
+        listener = new Flip3D.animationFlip3DListener() {
             @Override
             public void onStart() {
-                mAnimationRunning=true;
+                mAnimationRunning = true;
+            }
+
+            @Override
+            public boolean canStart() {
+                return !mAnimationRunning;
             }
 
             @Override
             public void onEnd() {
+                mAnimationRunning = false;
                 notifyParentItemChanged(position);
-                mAnimationRunning=false;
             }
         };
 
@@ -115,10 +121,11 @@ public class BookExpandableAdapter extends ExpandableRecyclerAdapter<GroupViewHo
         } else {
             groupViewHolder.groupTitle.setText(gi.getName());
             if (gi.newNumber == 0) {
-
+                groupViewHolder.groupTitle.setTypeface(Typeface.DEFAULT);
                 groupViewHolder.bookNumber.setText(mContext.getString(R.string.group_book_number) + " " + gi.getChildItemList().size());
                 groupViewHolder.newIcon.setData(groupViewHolder.oldGroupImage, groupViewHolder.newGroupImage, listener, false);
             } else {
+                groupViewHolder.groupTitle.setTypeface(Typeface.DEFAULT_BOLD);
                 groupViewHolder.newIcon.setData(groupViewHolder.newGroupImage, groupViewHolder.oldGroupImage, listener, false);
                 groupViewHolder.bookNumber.setText(mContext.getString(R.string.group_book_number) + " " + gi.getChildItemList().size()
                         + " "
@@ -134,7 +141,7 @@ public class BookExpandableAdapter extends ExpandableRecyclerAdapter<GroupViewHo
                 groupViewHolder.groupTitle.setAlpha(1.f);
             }
         }
-        flipGroups.put(position,groupViewHolder.newIcon);
+        flipGroups.put(position, groupViewHolder.newIcon);
 
     }
 
@@ -186,40 +193,52 @@ public class BookExpandableAdapter extends ExpandableRecyclerAdapter<GroupViewHo
         holder.bookForm.setText(book.getForm());
 
 
-
         Flip3D.animationFlip3DListener listener;
 
 
         if (book.isIsNew()) {
+            holder.bookTitle.setTypeface(Typeface.DEFAULT_BOLD);
             listener = new Flip3D.animationFlip3DListener() {
                 @Override
                 public void onStart() {
                     Log.i(DEBUG_TAG, "Making book read: " + book.getUri());
-                    mAnimationRunning=true;
+                    mAnimationRunning = true;
                     mCallBack.makeNewFlip(book.getId());
                 }
 
                 @Override
+                public boolean canStart() {
+                    return !mAnimationRunning;
+                }
+
+                @Override
                 public void onEnd() {
+                    mAnimationRunning = false;
                     makeCleanNew(book);
-                    mAnimationRunning=false;
                 }
             };
             holder.flipIcon.setData(holder.openBook, holder.closeBook, listener, true);
 
         } else {
+            holder.bookTitle.setTypeface(Typeface.DEFAULT);
             listener = new Flip3D.animationFlip3DListener() {
                 @Override
                 public void onStart() {
                     Log.i(DEBUG_TAG, "Making book new: " + book.getUri());
                     mCallBack.makeNewFlip(book.getId());
-                    mAnimationRunning=true;
+                    mAnimationRunning = true;
+                }
+
+                @Override
+                public boolean canStart() {
+                    return !mAnimationRunning;
                 }
 
                 @Override
                 public void onEnd() {
+                    mAnimationRunning = false;
                     makeSetNew(book);
-                    mAnimationRunning=false;
+
                 }
             };
 
@@ -250,6 +269,12 @@ public class BookExpandableAdapter extends ExpandableRecyclerAdapter<GroupViewHo
 
     }
 
+    /**
+     * make update book List view
+     *
+     * @param book  book was changed
+     * @param isNew true - set "new" mark or false to clean "new" mark
+     */
     private void updateBook(Book book, boolean isNew) {
 
         int parentListItemCount = getParentItemList().size();
@@ -274,8 +299,23 @@ public class BookExpandableAdapter extends ExpandableRecyclerAdapter<GroupViewHo
                 Log.i(DEBUG_TAG, "updateBook: update parent: " + i + "  update child: " + idx);
                 gi.getChildItemList().set(idx, book);
                 notifyChildItemChanged(i, idx);
-                flipGroups.get(i).makeFlip();
-                //notifyParentItemChanged(i);
+                FlipIcon flip = flipGroups.get(i);
+                if (isNew && gi.newNumber == 1 && flip != null) {
+                    flip.makeFlip();
+                    Log.d(DEBUG_TAG,"updateBook: parent animation: "+isNew+"  "+i+"  "+gi.newNumber);
+                    return;
+                }
+                if (!isNew && gi.newNumber == 0 && flip != null) {
+                    flip.makeFlip();
+                    Log.d(DEBUG_TAG,"updateBook: parent animation: "+isNew+"  "+i+"  "+gi.newNumber);
+                    return;
+                }
+                Log.d(DEBUG_TAG,"updateBook: parent NO animation: "+isNew+"  "+i+"  "+gi.newNumber);
+
+                notifyParentItemChanged(i);
+
+
+                //
                 return;
 
             }
@@ -390,36 +430,12 @@ public class BookExpandableAdapter extends ExpandableRecyclerAdapter<GroupViewHo
 
     public void makeRead(int position) {
 
-        if (mAnimationRunning){
+        if (mAnimationRunning) {
             return;//not start new animation when the previous not finished yet.
         }
         if (getBook(position) != null) {
             flipBooks.get(position).makeFlip();
         }
     }
-//    /**
-//     * Mark selected book as read
-//     *
-//     * @param animation if true make icon animation
-//     */
-//    public void makeSelectedRead(boolean animation) {
-//        Book book = getSelected();
-//        if (book == null) {
-//            Log.e(DEBUG_TAG, "makeSelectedRead: Book is null");
-//            return;
-//        }
-//        if (book.isIsNew()) {
-//            Log.d(DEBUG_TAG,"makeSelectedRead: selected position = "+getSelectedPosition());
-//
-//            if (animation) {
-//                flipBooks.get(getSelectedPosition()).makeFlip();
-//                Log.i(DEBUG_TAG, "makeSelectedRead: Making book flip animation at position: " + getSelectedPosition());
-//
-//            } else {
-//                mCallBack.makeNewFlip(book.getId());
-//                notifyItemChanged(getSelectedPosition());
-//            }
-//        }
-//
-//    }
+
 }
