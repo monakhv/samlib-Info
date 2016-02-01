@@ -28,4 +28,5 @@
     <color name="WHITE">#FFFFFFFF</color>
     <color name="action_bar_light">#ffbdbdbd</color>
 
+    <color name="green_dark">#126E19</color>
 </resources>

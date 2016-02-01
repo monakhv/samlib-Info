@@ -1,6 +1,9 @@
 package monakhv.android.samlib.adapter;
 
+import android.content.Context;
+import android.graphics.Color;
 import android.graphics.Typeface;
+import android.graphics.drawable.Drawable;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -10,6 +13,8 @@ import android.widget.TextView;
 import monakhv.android.samlib.R;
 import monakhv.android.samlib.animation.Flip3D;
 import monakhv.android.samlib.animation.FlipIcon;
+import monakhv.android.samlib.awesome.FontManager;
+import monakhv.android.samlib.awesome.TextLabel;
 import monakhv.samlib.db.entity.Author;
 
 import java.text.SimpleDateFormat;
@@ -69,12 +74,12 @@ public class AuthorAdapter extends RecyclerAdapter<Author, AuthorAdapter.ViewHol
         holder.updatedData.setText(df.format(update));
 
 
-        int oldBookResource;
-        if ((now.getTimeInMillis() - dd) < YEAR) {
-            oldBookResource = (R.drawable.author_old);
-        } else {
-            oldBookResource = (R.drawable.author_very_old);
-        }
+
+//        if ((now.getTimeInMillis() - dd) < YEAR) {
+//            oldBookResource = (R.drawable.author_old);
+//        } else {
+//            oldBookResource = (R.drawable.author_very_old);
+//        }
         Flip3D.animationFlip3DListener listener;
         if (isNew) {
             holder.authorName.setTypeface(Typeface.DEFAULT_BOLD);
@@ -90,7 +95,7 @@ public class AuthorAdapter extends RecyclerAdapter<Author, AuthorAdapter.ViewHol
                     mCallBack.makeNewFlip(author.getId());
                 }
             };
-            holder.flipIcon.setData(R.drawable.author_new, oldBookResource, listener, false);
+            holder.flipIcon.setData(holder.newAuthorImage, holder.oldAuthorImage, listener, false);
         } else {
             holder.authorName.setTypeface(Typeface.DEFAULT);
             listener = new Flip3D.animationFlip3DListener() {
@@ -107,7 +112,7 @@ public class AuthorAdapter extends RecyclerAdapter<Author, AuthorAdapter.ViewHol
 //                    sql.testMarkRead(a);
                 }
             };
-            holder.flipIcon.setData(oldBookResource, R.drawable.author_new, listener, false);
+            holder.flipIcon.setData(holder.oldAuthorImage, holder.newAuthorImage, listener, false);
         }
         flips.put(position, holder.flipIcon);
         holder.tgnames.setText(author.getAll_tags_name());
@@ -164,6 +169,7 @@ public class AuthorAdapter extends RecyclerAdapter<Author, AuthorAdapter.ViewHol
         //{R.id.authorName, R.id.updated, R.id.icon, R.id.tgnames, R.id.authorURL};
         public TextView authorName, updatedData, tgnames, authorURL;
         public FlipIcon flipIcon;
+        public Drawable oldAuthorImage, newAuthorImage;
 
 
         public ViewHolder(View itemView) {
@@ -175,6 +181,21 @@ public class AuthorAdapter extends RecyclerAdapter<Author, AuthorAdapter.ViewHol
             authorURL = (TextView) itemView.findViewById(R.id.authorURL);
 
             flipIcon = (FlipIcon) itemView.findViewById(R.id.FlipIcon);
+            final Context context=itemView.getContext();
+            newAuthorImage = TextLabel.builder()
+                    .beginConfig()
+                    .useFont(FontManager.getFontAwesome(itemView.getContext()))
+                    .textColor(Color.BLACK)
+                    .endConfig()
+                    .buildRound(context.getString(R.string.fa_pencil), Color.LTGRAY);
+
+            oldAuthorImage = TextLabel.builder()
+                    .beginConfig()
+                    .useFont(FontManager.getFontAwesome(itemView.getContext()))
+                    .textColor(context.getResources().getColor(R.color.green_dark))
+                    .endConfig()
+                    .buildRound(context.getString(R.string.fa_user), Color.GRAY);
+
 
         }
 

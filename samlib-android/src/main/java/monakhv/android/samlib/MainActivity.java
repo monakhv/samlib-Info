@@ -16,6 +16,7 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.Toolbar;
+import android.text.Layout;
 import android.text.TextUtils;
 
 
@@ -26,7 +27,8 @@ import android.view.Window;
 import android.widget.*;
 
 
-
+import monakhv.android.samlib.awesome.FontManager;
+import monakhv.android.samlib.awesome.TextDrawable;
 import monakhv.android.samlib.search.SearchAuthorActivity;
 import monakhv.android.samlib.search.SearchAuthorsListFragment;
 import monakhv.android.samlib.service.AndroidGuiUpdater;
@@ -210,6 +212,18 @@ public class MainActivity extends MyBaseAbstractActivity implements
 
         navigationView.setCheckedItem(authorFragment.getSortOrder().getMenuId());
         navigationView.setNavigationItemSelectedListener(this);
+
+//        TextDrawable td = new TextDrawable(this);
+//        td.setTypeface(FontManager.getFontAwesome(this));
+//        td.setTextAlign(Layout.Alignment.ALIGN_CENTER);
+//        td.setTextSize(20);
+//
+//        td.setText(getString(R.string.icon_search));
+//        navigationView.getMenu().findItem(R.id.dr_search).setIcon(td);
+//
+//        td.setText(getString(R.string.icon_star));
+//        navigationView.getMenu().findItem(R.id.dr_selected).setIcon(td);
+
 
         tagFilter = (Spinner) findViewById(R.id.tagList);
 

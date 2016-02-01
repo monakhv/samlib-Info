@@ -311,4 +311,17 @@ limitations under the License.
     <string name="cb_auto_backup">автобэкап</string>
 
 
+    <string name="fa_book">&#xf02d;</string>
+    <string name="fa_file_text">&#xf15c;</string>
+
+    <string name="fa_pencil_square">&#xf14b;</string>
+    <string name="fa_pencil_square_o">&#xf044;</string>
+    <string name="fa_folder">&#xf07b;</string>
+
+    <string name="fa_pencil">&#xf040;</string>
+    <string name="fa_user">&#xf007;</string>
+
+    <string name="icon_heart">&#xf004;</string>
+    <string name="icon_search">&#xf002;</string>
+    <string name="icon_star">&#xf005;</string>
 </resources>

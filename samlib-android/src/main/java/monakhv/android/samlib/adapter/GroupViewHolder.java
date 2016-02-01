@@ -18,6 +18,9 @@
 
 package monakhv.android.samlib.adapter;
 
+import android.content.Context;
+import android.graphics.Color;
+import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.view.View;
 import android.view.animation.RotateAnimation;
@@ -26,6 +29,9 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import com.bignerdranch.expandablerecyclerview.ViewHolder.ParentViewHolder;
 import monakhv.android.samlib.R;
+import monakhv.android.samlib.animation.FlipIcon;
+import monakhv.android.samlib.awesome.FontManager;
+import monakhv.android.samlib.awesome.TextLabel;
 
 /**
  * Base on this
@@ -37,16 +43,36 @@ public class GroupViewHolder extends ParentViewHolder {
     private static final float ROTATED_POSITION = 180f;
 
     public TextView groupTitle, bookNumber;
-    public ImageView icon, newIcon;
+    public ImageView icon;
     public LinearLayout rowLayout;
+    public Drawable newGroupImage,oldGroupImage;
+    public FlipIcon newIcon;
 
+    @SuppressWarnings("deprecation")
     public GroupViewHolder(View itemView) {
         super(itemView);
         groupTitle = (TextView) itemView.findViewById(R.id.group_title);
         icon = (ImageView) itemView.findViewById(R.id.group_icon);
         bookNumber = (TextView) itemView.findViewById(R.id.group_number);
         rowLayout = (LinearLayout) itemView.findViewById(R.id.group_row);
-        newIcon = (ImageView) itemView.findViewById(R.id.group_new_icon);
+        newIcon = (FlipIcon) itemView.findViewById(R.id.FlipIconGroup);
+
+        final Context context=itemView.getContext();
+
+        newGroupImage = TextLabel.builder()
+                .beginConfig()
+                .useFont(FontManager.getFontAwesome(itemView.getContext()))
+                .textColor(Color.BLACK)
+                .endConfig()
+                .buildRound(context.getString(R.string.fa_pencil_square_o), Color.LTGRAY);
+
+        oldGroupImage = TextLabel.builder()
+                .beginConfig()
+                .useFont(FontManager.getFontAwesome(itemView.getContext()))
+                .textColor(context.getResources().getColor(R.color.green_dark))
+                .endConfig()
+                .buildRound(context.getString(R.string.fa_folder), Color.GRAY);
+
     }
 
     @Override

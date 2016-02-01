@@ -44,12 +44,12 @@
                 android:layout_alignParentBottom="true"
                 android:textSize="@dimen/text_size_small"/>
     </LinearLayout>
-    <ImageView
-            android:id="@+id/group_new_icon"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+    <monakhv.android.samlib.animation.FlipIcon
             android:layout_weight="1"
-            android:src="@drawable/label_blue_new"/>
+            android:id="@+id/FlipIconGroup"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent">
+    </monakhv.android.samlib.animation.FlipIcon>
 
     <ImageView
             android:id="@+id/group_icon"

@@ -18,12 +18,17 @@
 
 package monakhv.android.samlib.adapter;
 
+import android.content.Context;
+import android.graphics.Color;
+import android.graphics.drawable.Drawable;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 import com.bignerdranch.expandablerecyclerview.ViewHolder.ChildViewHolder;
 import monakhv.android.samlib.R;
 import monakhv.android.samlib.animation.FlipIcon;
+import monakhv.android.samlib.awesome.FontManager;
+import monakhv.android.samlib.awesome.TextLabel;
 
 /**
  * Base on this
@@ -35,6 +40,8 @@ public class BookViewHolder extends ChildViewHolder {
     public TextView bookTitle, bookSize, bookDesc, bookAuthorName, bookForm;
     public ImageView starIcon, lockIcon;
     public FlipIcon flipIcon;
+    public Drawable openBook,closeBook;
+    @SuppressWarnings("deprecation")
     public BookViewHolder(View itemView) {
         super(itemView);
         bookTitle = (TextView) itemView.findViewById(R.id.bookTitle);
@@ -46,6 +53,19 @@ public class BookViewHolder extends ChildViewHolder {
         flipIcon= (FlipIcon) itemView.findViewById(R.id.FlipIcon);
         starIcon = (ImageView) itemView.findViewById(R.id.Staricon);
         lockIcon = (ImageView) itemView.findViewById(R.id.Lockicon);
+
+        final Context context = itemView.getContext();
+       openBook = TextLabel.builder()
+                .beginConfig()
+                .useFont(FontManager.getFontAwesome(context))
+                .endConfig()
+                .buildRound(context.getString(R.string.fa_file_text), Color.GRAY);
+        closeBook = TextLabel.builder()
+                .beginConfig()
+                .useFont(FontManager.getFontAwesome(context))
+                .textColor(context.getResources().getColor(R.color.green_dark))
+                .endConfig()
+                .buildRound(context.getString(R.string.fa_book), Color.GRAY);
 
     }
 }
