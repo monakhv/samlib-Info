@@ -22,26 +22,29 @@ import android.app.Activity;
 import android.content.Context;
 import android.graphics.Typeface;
 import android.support.annotation.NonNull;
+import android.support.v7.widget.RecyclerView;
 import android.text.Html;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import com.bignerdranch.expandablerecyclerview.Adapter.ExpandableRecyclerAdapter;
 import com.bignerdranch.expandablerecyclerview.Model.ParentListItem;
+import com.bignerdranch.expandablerecyclerview.Model.ParentWrapper;
 import monakhv.android.samlib.R;
 import monakhv.android.samlib.animation.Flip3D;
-import monakhv.android.samlib.animation.FlipIcon;
 import monakhv.android.samlib.data.SettingsHelper;
 import monakhv.samlib.db.entity.Book;
 import monakhv.samlib.db.entity.SamLibConfig;
 import monakhv.samlib.log.Log;
 
-import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
  * Base on this
+ * https://github.com/bignerdranch/expandable-recycler-view
  * https://www.bignerdranch.com/blog/expand-a-recyclerview-in-four-steps/
+ * <p/>
  * Created by monakhv on 28.12.15.
  */
 public class BookExpandableAdapter extends ExpandableRecyclerAdapter<GroupViewHolder, BookViewHolder> {
@@ -59,20 +62,19 @@ public class BookExpandableAdapter extends ExpandableRecyclerAdapter<GroupViewHo
     private final LayoutInflater mInflater;
     private final SettingsHelper mSettingsHelper;
     private long author_id;
-    private final HashMap<Integer, FlipIcon> flipBooks, flipGroups;
     private Context mContext;
     protected CallBack mCallBack;
     private boolean mAnimationRunning = false;
+    private List<RecyclerView> mRecyclerViews;
 
     public BookExpandableAdapter(@NonNull List<? extends ParentListItem> parentItemList, Activity context, CallBack callBack, SettingsHelper settingsHelper) {
         super(parentItemList);
 
         mInflater = LayoutInflater.from(context);
-        flipBooks = new HashMap<>();
-        flipGroups = new HashMap<>();
         mCallBack = callBack;
         mContext = context;
         mSettingsHelper = settingsHelper;
+        mRecyclerViews = new ArrayList<>();
     }
 
     public void setAuthor_id(long author_id) {
@@ -83,32 +85,15 @@ public class BookExpandableAdapter extends ExpandableRecyclerAdapter<GroupViewHo
     @Override
     public GroupViewHolder onCreateParentViewHolder(ViewGroup viewGroup) {
         View v = mInflater.inflate(R.layout.group_row, viewGroup, false);
-        return new GroupViewHolder(v);
+        return new GroupViewHolder(v, this);
     }
 
     @Override
     public void onBindParentViewHolder(GroupViewHolder groupViewHolder, final int position, ParentListItem parentListItem) {
         GroupListItem gi = (GroupListItem) parentListItem;
         groupViewHolder.groupTitle.setText(gi.getName());
+        groupViewHolder.position = position;
 
-        Flip3D.animationFlip3DListener listener;
-        listener = new Flip3D.animationFlip3DListener() {
-            @Override
-            public void onStart() {
-                mAnimationRunning = true;
-            }
-
-            @Override
-            public boolean canStart() {
-                return !mAnimationRunning;
-            }
-
-            @Override
-            public void onEnd() {
-                mAnimationRunning = false;
-                notifyParentItemChanged(position);
-            }
-        };
 
         if (gi.getName() == null || gi.getChildItemList().isEmpty()) {
             Log.i(DEBUG_TAG, "onBindParentViewHolder: empty for group " + gi.getName() + " size " + gi.getChildItemList().size());
@@ -123,10 +108,10 @@ public class BookExpandableAdapter extends ExpandableRecyclerAdapter<GroupViewHo
             if (gi.newNumber == 0) {
                 groupViewHolder.groupTitle.setTypeface(Typeface.DEFAULT);
                 groupViewHolder.bookNumber.setText(mContext.getString(R.string.group_book_number) + " " + gi.getChildItemList().size());
-                groupViewHolder.newIcon.setData(groupViewHolder.oldGroupImage, groupViewHolder.newGroupImage, listener, false);
+                groupViewHolder.newIcon.setData(groupViewHolder.oldGroupImage, groupViewHolder.newGroupImage, groupViewHolder.listener, false);
             } else {
                 groupViewHolder.groupTitle.setTypeface(Typeface.DEFAULT_BOLD);
-                groupViewHolder.newIcon.setData(groupViewHolder.newGroupImage, groupViewHolder.oldGroupImage, listener, false);
+                groupViewHolder.newIcon.setData(groupViewHolder.newGroupImage, groupViewHolder.oldGroupImage, groupViewHolder.listener, false);
                 groupViewHolder.bookNumber.setText(mContext.getString(R.string.group_book_number) + " " + gi.getChildItemList().size()
                         + " "
                         + mContext.getString(R.string.group_book_number_new)
@@ -141,7 +126,7 @@ public class BookExpandableAdapter extends ExpandableRecyclerAdapter<GroupViewHo
                 groupViewHolder.groupTitle.setAlpha(1.f);
             }
         }
-        flipGroups.put(position, groupViewHolder.newIcon);
+
 
     }
 
@@ -265,8 +250,6 @@ public class BookExpandableAdapter extends ExpandableRecyclerAdapter<GroupViewHo
         }
 
 
-        flipBooks.put(position, holder.flipIcon);
-
     }
 
     /**
@@ -292,25 +275,33 @@ public class BookExpandableAdapter extends ExpandableRecyclerAdapter<GroupViewHo
                     if (gi.newNumber > 0) {
                         --gi.newNumber;
                     }
-
                 }
 
 
-                Log.i(DEBUG_TAG, "updateBook: update parent: " + i + "  update child: " + idx);
+                Log.d(DEBUG_TAG, "updateBook: update parent: " + i + "  update child: " + idx + " -- " + getParentWrapperIndex(i));
                 gi.getChildItemList().set(idx, book);
-                notifyChildItemChanged(i, idx);
-                FlipIcon flip = flipGroups.get(i);
-                if (isNew && gi.newNumber == 1 && flip != null) {
-                    flip.makeFlip();
-                    Log.d(DEBUG_TAG,"updateBook: parent animation: "+isNew+"  "+i+"  "+gi.newNumber);
+                //notifyChildItemChanged(i, idx);
+
+                RecyclerView.ViewHolder viewHolder = mRecyclerViews.get(0).findViewHolderForAdapterPosition(getParentWrapperIndex(i));
+                final GroupViewHolder groupViewHolder;
+                if (viewHolder instanceof GroupViewHolder) {
+                    groupViewHolder = (GroupViewHolder) viewHolder;
+                    groupViewHolder.position = i;
+                } else {
+                    groupViewHolder = null;
+                    Log.e(DEBUG_TAG, "updateBook: group holder is wrong");
+                }
+
+                if ((groupViewHolder != null) && (
+                        (isNew && gi.newNumber == 1) || (!isNew && gi.newNumber == 0)
+                )
+                        ) {
+                    groupViewHolder.newIcon.makeFlip();
+                    Log.d(DEBUG_TAG, "updateBook: parent animation: " + isNew + "  " + i + "  " + gi.newNumber);
                     return;
                 }
-                if (!isNew && gi.newNumber == 0 && flip != null) {
-                    flip.makeFlip();
-                    Log.d(DEBUG_TAG,"updateBook: parent animation: "+isNew+"  "+i+"  "+gi.newNumber);
-                    return;
-                }
-                Log.d(DEBUG_TAG,"updateBook: parent NO animation: "+isNew+"  "+i+"  "+gi.newNumber);
+
+                Log.d(DEBUG_TAG, "updateBook: parent NO animation: " + isNew + "  " + i + "  " + gi.newNumber);
 
                 notifyParentItemChanged(i);
 
@@ -434,8 +425,39 @@ public class BookExpandableAdapter extends ExpandableRecyclerAdapter<GroupViewHo
             return;//not start new animation when the previous not finished yet.
         }
         if (getBook(position) != null) {
-            flipBooks.get(position).makeFlip();
+            RecyclerView.ViewHolder viewHolder=mRecyclerViews.get(0).findViewHolderForAdapterPosition(position);
+            if (viewHolder instanceof BookViewHolder){
+                BookViewHolder bookViewHolder= (BookViewHolder) viewHolder;
+                bookViewHolder.flipIcon.makeFlip();
+            }
         }
     }
 
+    @Override
+    public void onAttachedToRecyclerView(RecyclerView recyclerView) {
+        super.onAttachedToRecyclerView(recyclerView);
+        mRecyclerViews.add(recyclerView);
+    }
+
+    @Override
+    public void onDetachedFromRecyclerView(RecyclerView recyclerView) {
+        super.onDetachedFromRecyclerView(recyclerView);
+        mRecyclerViews.remove(recyclerView);
+    }
+
+    private int getParentWrapperIndex(int parentIndex) {
+        int parentCount = 0;
+        int listItemCount = mItemList.size();
+        for (int i = 0; i < listItemCount; i++) {
+            if (mItemList.get(i) instanceof ParentWrapper) {
+                parentCount++;
+
+                if (parentCount > parentIndex) {
+                    return i;
+                }
+            }
+        }
+
+        return -1;
+    }
 }

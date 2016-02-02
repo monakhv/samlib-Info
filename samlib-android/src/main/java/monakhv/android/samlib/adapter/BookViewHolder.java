@@ -37,10 +37,12 @@ import monakhv.android.samlib.awesome.TextLabel;
  */
 public class BookViewHolder extends ChildViewHolder {
     // {R.id.bookTitle, R.id.bookUpdate, R.id.bookDesc, R.id.Bookicon,R.id.Staricon,R.id.bookAuthorName,R.id.bookForm};
+
     public TextView bookTitle, bookSize, bookDesc, bookAuthorName, bookForm;
     public ImageView starIcon, lockIcon;
     public FlipIcon flipIcon;
-    public Drawable openBook,closeBook;
+    public Drawable openBook, closeBook;
+
     @SuppressWarnings("deprecation")
     public BookViewHolder(View itemView) {
         super(itemView);
@@ -50,12 +52,12 @@ public class BookViewHolder extends ChildViewHolder {
         bookAuthorName = (TextView) itemView.findViewById(R.id.bookAuthorName);
         bookForm = (TextView) itemView.findViewById(R.id.bookForm);
 
-        flipIcon= (FlipIcon) itemView.findViewById(R.id.FlipIcon);
+        flipIcon = (FlipIcon) itemView.findViewById(R.id.FlipIcon);
         starIcon = (ImageView) itemView.findViewById(R.id.Staricon);
         lockIcon = (ImageView) itemView.findViewById(R.id.Lockicon);
 
         final Context context = itemView.getContext();
-       openBook = TextLabel.builder()
+        openBook = TextLabel.builder()
                 .beginConfig()
                 .useFont(FontManager.getFontAwesome(context))
                 .endConfig()
@@ -66,6 +68,8 @@ public class BookViewHolder extends ChildViewHolder {
                 .textColor(context.getResources().getColor(R.color.green_dark))
                 .endConfig()
                 .buildRound(context.getString(R.string.fa_book), Color.GRAY);
+
+
 
     }
 }

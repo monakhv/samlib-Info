@@ -31,10 +31,12 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import com.bignerdranch.expandablerecyclerview.ViewHolder.ParentViewHolder;
 import monakhv.android.samlib.R;
+import monakhv.android.samlib.animation.Flip3D;
 import monakhv.android.samlib.animation.FlipIcon;
 import monakhv.android.samlib.awesome.FontManager;
 import monakhv.android.samlib.awesome.TextDrawable;
 import monakhv.android.samlib.awesome.TextLabel;
+import monakhv.samlib.log.Log;
 
 /**
  * Base on this
@@ -42,6 +44,7 @@ import monakhv.android.samlib.awesome.TextLabel;
  * Created by monakhv on 28.12.15.
  */
 public class GroupViewHolder extends ParentViewHolder {
+    private final static String DEBUG_TAG = "GroupViewHolder";
     private static final float INITIAL_POSITION = 0.0f;
     private static final float ROTATED_POSITION = 180f;
 
@@ -50,9 +53,12 @@ public class GroupViewHolder extends ParentViewHolder {
     public LinearLayout rowLayout;
     public Drawable newGroupImage,oldGroupImage;
     public FlipIcon newIcon;
+    Flip3D.animationFlip3DListener listener;
+    int position;
+
 
     @SuppressWarnings("deprecation")
-    public GroupViewHolder(View itemView) {
+    public GroupViewHolder(View itemView,final BookExpandableAdapter adapter) {
         super(itemView);
         groupTitle = (TextView) itemView.findViewById(R.id.group_title);
         icon = (ImageView) itemView.findViewById(R.id.group_icon);
@@ -82,6 +88,29 @@ public class GroupViewHolder extends ParentViewHolder {
         td.setTextSize(TypedValue.COMPLEX_UNIT_SP,20);
         td.setText(context.getString(R.string.fa_caret_down));
         icon.setImageDrawable(td);
+
+
+        listener = new Flip3D.animationFlip3DListener() {
+            @Override
+            public void onStart() {
+                //mAnimationRunning = true;
+            }
+
+            @Override
+            public boolean canStart() {
+                return true;
+                //return !mAnimationRunning;
+            }
+
+            @Override
+            public void onEnd() {
+                //mAnimationRunning = false;
+                Log.i(DEBUG_TAG, "position: " + position+" "+getAdapterPosition()+" "+getLayoutPosition());
+                adapter.notifyParentItemChanged(position);
+            }
+        };
+
+        //newIcon.setData(oldGroupImage, newGroupImage, listener, false);
 
     }
 
