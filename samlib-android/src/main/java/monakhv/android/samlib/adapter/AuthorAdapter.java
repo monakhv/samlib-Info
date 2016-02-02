@@ -18,8 +18,9 @@ import monakhv.android.samlib.awesome.TextLabel;
 import monakhv.samlib.db.entity.Author;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 
 /*
@@ -39,7 +40,7 @@ import java.util.Locale;
  *
  * 23.07.15.
  */
-public class AuthorAdapter extends RecyclerAdapter<Author, AuthorAdapter.ViewHolder> {
+public class AuthorAdapter extends RecyclerAdapter<Author, AuthorAdapter.AuthorViewHolder> {
     private static final String DEBUG_TAG = "AuthorAdapter";
     //private static long YEAR = 31556952000L;
     public static final String DATE_FORMAT = "dd.MM.yyyy HH:mm:ss";
@@ -47,21 +48,20 @@ public class AuthorAdapter extends RecyclerAdapter<Author, AuthorAdapter.ViewHol
    // private Calendar now;
 
 
-    //private final AuthorController authorController;
+    private final List<RecyclerView> mRecyclerViews;
 
-    private final HashMap<Integer, FlipIcon> flips;
 
     public AuthorAdapter(RecyclerAdapter.CallBack callBack) {
         super(callBack);
 
-        flips = new HashMap<>();
+        mRecyclerViews=new ArrayList<>();
         df = new SimpleDateFormat(DATE_FORMAT, Locale.FRANCE);
      //   now = Calendar.getInstance();
     }
 
 
     @Override
-    public void onBindViewHolder(ViewHolder holder, int position) {
+    public void onBindViewHolder(AuthorViewHolder holder, int position) {
 
         final Author author = mData.get(position);
 
@@ -124,7 +124,7 @@ public class AuthorAdapter extends RecyclerAdapter<Author, AuthorAdapter.ViewHol
             };
             holder.flipIcon.setData(holder.oldAuthorImage, holder.newAuthorImage, listener, false);
         }
-        flips.put(position, holder.flipIcon);
+
         holder.tgnames.setText(author.getAll_tags_name());
 
 
@@ -134,9 +134,9 @@ public class AuthorAdapter extends RecyclerAdapter<Author, AuthorAdapter.ViewHol
     }
 
     @Override
-    public ViewHolder onCreateViewHolder(ViewGroup viewGroup, int i) {
+    public AuthorViewHolder onCreateViewHolder(ViewGroup viewGroup, int i) {
         View v = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.author_row_anim, viewGroup, false);
-        return new ViewHolder(v);
+        return new AuthorViewHolder(v);
     }
 
 
@@ -146,9 +146,16 @@ public class AuthorAdapter extends RecyclerAdapter<Author, AuthorAdapter.ViewHol
             return;
         }
         if (author.isIsNew()) {
-            FlipIcon ff = flips.get(getSelectedPosition());
-            if (ff != null) {
-                ff.makeFlip();
+            RecyclerView.ViewHolder viewHolder=mRecyclerViews.get(0).findViewHolderForAdapterPosition(getSelectedPosition());
+            final AuthorViewHolder authorViewHolder;
+            if (viewHolder instanceof AuthorViewHolder){
+                authorViewHolder = (AuthorViewHolder) viewHolder;
+            }
+            else {
+                authorViewHolder=null;
+            }
+            if (authorViewHolder != null) {
+                authorViewHolder.flipIcon.makeFlip();
             } else {
                 mCallBack.makeNewFlip(author.getId());
             }
@@ -175,7 +182,19 @@ public class AuthorAdapter extends RecyclerAdapter<Author, AuthorAdapter.ViewHol
         return NOT_SELECTED;
     }
 
-    public static class ViewHolder extends RecyclerView.ViewHolder {
+    @Override
+    public void onAttachedToRecyclerView(RecyclerView recyclerView) {
+        super.onAttachedToRecyclerView(recyclerView);
+        mRecyclerViews.add(recyclerView);
+    }
+
+    @Override
+    public void onDetachedFromRecyclerView(RecyclerView recyclerView) {
+        super.onDetachedFromRecyclerView(recyclerView);
+        mRecyclerViews.remove(recyclerView);
+    }
+
+    public static class AuthorViewHolder extends RecyclerView.ViewHolder {
         //{R.id.authorName, R.id.updated, R.id.icon, R.id.tgnames, R.id.authorURL};
         public TextView authorName, updatedData, tgnames, authorURL;
         public FlipIcon flipIcon;
@@ -183,7 +202,7 @@ public class AuthorAdapter extends RecyclerAdapter<Author, AuthorAdapter.ViewHol
 
 
         @SuppressWarnings("deprecation")
-        public ViewHolder(View itemView) {
+        public AuthorViewHolder(View itemView) {
             super(itemView);
 
             authorName = (TextView) itemView.findViewById(R.id.authorName);
