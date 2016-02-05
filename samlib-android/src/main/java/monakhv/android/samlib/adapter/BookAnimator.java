@@ -59,18 +59,18 @@ public class BookAnimator extends DefaultItemAnimator {
     public boolean animateChange(@NonNull final RecyclerView.ViewHolder oldHolder, @NonNull final RecyclerView.ViewHolder newHolder, @NonNull final ItemHolderInfo preInfo, @NonNull final ItemHolderInfo postInfo) {
         if (oldHolder instanceof GroupViewHolder && newHolder instanceof GroupViewHolder) {
             final GroupViewHolder groupPostHolder = (GroupViewHolder) newHolder;
-            groupAnimator(newHolder,groupPostHolder.bookNumber, groupPostHolder.newIcon,preInfo, postInfo);
+            groupAnimator(newHolder, groupPostHolder.bookNumber, groupPostHolder.newIcon, preInfo, postInfo);
         }
 
-        if (oldHolder instanceof  BookViewHolder && newHolder instanceof BookViewHolder){
+        if (oldHolder instanceof BookViewHolder && newHolder instanceof BookViewHolder) {
             final BookViewHolder bookPostHolder = (BookViewHolder) newHolder;
-            groupAnimator( newHolder, bookPostHolder.bookSize, bookPostHolder.flipIcon,preInfo, postInfo);
+            groupAnimator(newHolder, bookPostHolder.bookSize, bookPostHolder.flipIcon, preInfo, postInfo);
         }
 
         return super.animateChange(oldHolder, newHolder, preInfo, postInfo);
     }
 
-    private void groupAnimator(@NonNull final RecyclerView.ViewHolder newHolder, final TextView textToRotate, final ImageView imageToRotate,@NonNull final ItemHolderInfo preInfo, @NonNull final ItemHolderInfo postInfo) {
+    private void groupAnimator(@NonNull final RecyclerView.ViewHolder newHolder, final TextView textToRotate, final ImageView imageToRotate, @NonNull final ItemHolderInfo preInfo, @NonNull final ItemHolderInfo postInfo) {
 
         final BookItemHolderInfo preGroupInfo = (BookItemHolderInfo) preInfo;
         final BookItemHolderInfo postGroupInfo = (BookItemHolderInfo) postInfo;
@@ -83,27 +83,43 @@ public class BookAnimator extends DefaultItemAnimator {
         Log.d(DEBUG_TAG, "animateChange: GroupChange to: " + postGroupInfo.bookNumberString);
 
 
-        ObjectAnimator oldTextRotate = ObjectAnimator.ofFloat(textToRotate, View.ROTATION_X, 0, 90);
-        ObjectAnimator newTextRotate = ObjectAnimator.ofFloat(textToRotate, View.ROTATION_X, -90, 0);
+        ObjectAnimator oldTextRotate = null;
+        ObjectAnimator newTextRotate = null;
         ObjectAnimator oldRotateImage = null;
         ObjectAnimator newRotateImage = null;
-        AnimatorSet textAnim = new AnimatorSet();
-        textAnim.playSequentially(oldTextRotate, newTextRotate);
+        AnimatorSet textAnim = null;
+        AnimatorSet imageRotation = null;
+
+        if (!oldBookNumber.equals(newBookNumber)) {
+            oldTextRotate = ObjectAnimator.ofFloat(textToRotate, View.ROTATION_X, 0, 90);
+
+            newTextRotate = ObjectAnimator.ofFloat(textToRotate, View.ROTATION_X, -90, 0);
+            oldTextRotate.addListener(new AnimatorListenerAdapter() {
+                @Override
+                public void onAnimationStart(Animator animation) {
+                    textToRotate.setText(oldBookNumber);
+                }
+
+                @Override
+                public void onAnimationEnd(Animator animation) {
+                    textToRotate.setText(newBookNumber);
+                }
+            });
+
+            textAnim = new AnimatorSet();
+            textAnim.playSequentially(oldTextRotate, newTextRotate);
+        }
 
 
-        AnimatorSet changeAnim;
-        if (preGroupInfo.newTag.equals(postGroupInfo.newTag)) {
-            changeAnim = textAnim;
-        } else {
+        if (!preGroupInfo.newTag.equals(postGroupInfo.newTag)) {
             Log.d(DEBUG_TAG, "animateChange: GroupChange Make Flip icon ");
-            changeAnim = new AnimatorSet();
 
+            imageRotation = new AnimatorSet();
             oldRotateImage = ObjectAnimator.ofFloat(imageToRotate, View.ROTATION_Y, 0, 90);
             newRotateImage = ObjectAnimator.ofFloat(imageToRotate, View.ROTATION_Y, -90, 0);
-            AnimatorSet imageRotation = new AnimatorSet();
+
             imageRotation.playSequentially(oldRotateImage, newRotateImage);
 
-            changeAnim.playTogether(textAnim, imageRotation);
 
             oldRotateImage.addListener(new AnimatorListenerAdapter() {
                 @Override
@@ -121,18 +137,19 @@ public class BookAnimator extends DefaultItemAnimator {
 
         }
 
+        if (textAnim == null && imageRotation == null) {
+            return;
+        }
 
-        oldTextRotate.addListener(new AnimatorListenerAdapter() {
-            @Override
-            public void onAnimationStart(Animator animation) {
-                textToRotate.setText(oldBookNumber);
-            }
 
-            @Override
-            public void onAnimationEnd(Animator animation) {
-                textToRotate.setText(newBookNumber);
-            }
-        });
+        AnimatorSet changeAnim = new AnimatorSet();
+
+        if (textAnim != null) {
+            changeAnim.playTogether(textAnim);
+        }
+        if (imageRotation != null) {
+            changeAnim.playTogether(imageRotation);
+        }
 
 
         changeAnim.addListener(new AnimatorListenerAdapter() {
@@ -150,13 +167,19 @@ public class BookAnimator extends DefaultItemAnimator {
             runningInfo.overallAnim.cancel();
 
             if (firstHalf) {
-                oldTextRotate.setCurrentPlayTime(currentPlayTime);
+                if (oldTextRotate != null) {
+                    oldTextRotate.setCurrentPlayTime(currentPlayTime);
+                }
+
                 if (oldRotateImage != null) {
                     oldRotateImage.setCurrentPlayTime(currentPlayTime);
                 }
             } else {
-                oldTextRotate.setCurrentPlayTime(oldTextRotate.getDuration());
-                newTextRotate.setCurrentPlayTime(currentPlayTime);
+                if (oldTextRotate != null) {
+                    oldTextRotate.setCurrentPlayTime(oldTextRotate.getDuration());
+                    newTextRotate.setCurrentPlayTime(currentPlayTime);
+                }
+
                 if (oldRotateImage != null) {
                     oldRotateImage.setCurrentPlayTime(oldRotateImage.getDuration());
                     newRotateImage.setCurrentPlayTime(currentPlayTime);
@@ -189,12 +212,12 @@ public class BookAnimator extends DefaultItemAnimator {
                 return this;
             }
 
-            if (viewHolder instanceof  BookViewHolder){
+            if (viewHolder instanceof BookViewHolder) {
                 super.setFrom(viewHolder, flags);
                 BookViewHolder holder = (BookViewHolder) viewHolder;
-                bookNumberString= (String) holder.bookSize.getText();
-                newTag=holder.flipIcon.getTag();
-                rotateImage=holder.flipIcon.getDrawable();
+                bookNumberString = (String) holder.bookSize.getText();
+                newTag = holder.flipIcon.getTag();
+                rotateImage = holder.flipIcon.getDrawable();
                 return this;
             }
             return super.setFrom(viewHolder, flags);
