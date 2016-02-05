@@ -35,6 +35,7 @@ import java.util.HashMap;
 
 
 /**
+ * Based on https://github.com/kibao/recycler-view-animations-android-dev-summit-2015
  * Created by monakhv on 04.02.16.
  */
 public class BookAnimator extends DefaultItemAnimator {
@@ -66,10 +67,6 @@ public class BookAnimator extends DefaultItemAnimator {
 
             Log.d(DEBUG_TAG, "animateChange: GroupChange from: " + preGroupInfo.bookNumberString);
             Log.d(DEBUG_TAG, "animateChange: GroupChange to: " + postGroupInfo.bookNumberString);
-
-            if (!preGroupInfo.newTag.equals(postGroupInfo.newTag)) {
-                Log.d(DEBUG_TAG, "animateChange: GroupChange Make Flip icon ");
-            }
 
 
             ObjectAnimator oldTextRotate = ObjectAnimator.ofFloat(groupPostHolder.bookNumber, View.ROTATION_X, 0, 90);

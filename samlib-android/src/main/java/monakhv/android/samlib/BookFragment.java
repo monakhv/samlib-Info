@@ -61,13 +61,6 @@ public class BookFragment extends MyBaseAbstractFragment implements
 
         void showTags(long author_id);
     }
-
-
-    @Override
-    public Book reloadBook(int id) {
-        return sql.getBookController().getById(id);
-    }
-
     @Override
     public void makeNewFlip(int id) {
         AuthorEditorServiceIntent.markBookReadFlip(getActivity(), id);
@@ -235,6 +228,11 @@ public class BookFragment extends MyBaseAbstractFragment implements
         }
         getLoaderManager().restartLoader(BOOK_LOADER_ID, null, this);
     }
+
+    public void updateAdapter(int bookId, int groupId){
+        adapter.updateData(sql.getBookController().getById(bookId), sql.getGroupBookController().getById(groupId) );
+    }
+
 
     /**
      * Set new author_id and update selection,adapter and empty view

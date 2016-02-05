@@ -8,9 +8,7 @@ import monakhv.android.samlib.data.SettingsHelper;
 import monakhv.samlib.data.AbstractSettings;
 import monakhv.samlib.db.AuthorController;
 import monakhv.samlib.db.TagController;
-import monakhv.samlib.db.entity.Author;
-import monakhv.samlib.db.entity.SamLibConfig;
-import monakhv.samlib.db.entity.Tag;
+import monakhv.samlib.db.entity.*;
 import monakhv.samlib.log.Log;
 import monakhv.samlib.service.GuiUpdate;
 import monakhv.samlib.service.SamlibService;
@@ -47,6 +45,14 @@ public class AndroidGuiUpdater implements GuiUpdate {
     public static final String ACTION = "ACTION";
     public static final String ACTION_TOAST = "TOAST";
  //   public static final String ACTION_PROGRESS = "PROGRESS";
+
+    public static final String ACTION_AUTHOR_UPDATE="monakhv.android.samlib.action.AUTHOR_UPDATE";
+    public static final String ACTION_BOOK_UPDATE="monakhv.android.samlib.action.BOOK_UPDATE";
+
+    public static final String EXTRA_AUTHOR_ID="monakhv.android.samlib.action.AUTHOR_ID";
+    public static final String EXTRA_BOOK_ID="monakhv.android.samlib.action.BOOK_ID";
+    public static final String EXTRA_GROUP_ID="monakhv.android.samlib.action.GROUP_ID";
+
     public static final String ACTION_REFRESH = "ACTION_REFRESH";
     public static final String ACTION_REFRESH_OBJECT = "ACTION_REFRESH_OBJECT";
 
@@ -61,7 +67,7 @@ public class AndroidGuiUpdater implements GuiUpdate {
 
 
 
-    private final Context context;
+    private final Context mContext;
     private final CALLER_TYPE mCallerType;
     private final SettingsHelper mSettingsHelper;
     private ProgressNotification mProgressNotification;
@@ -69,7 +75,7 @@ public class AndroidGuiUpdater implements GuiUpdate {
     @Inject
     public AndroidGuiUpdater(SettingsHelper settingsHelper,UpdateObject updateObject, AuthorController ctl) {
         this.mSettingsHelper=settingsHelper;
-        this.context = settingsHelper.getContext();
+        this.mContext = settingsHelper.getContext();
         this.mCallerType = updateObject.getCALLER_type();
 
         if (ctl != null){
@@ -87,7 +93,7 @@ public class AndroidGuiUpdater implements GuiUpdate {
             Author author = ctl.getById(updateObject.getObjectId());
             if (author != null) {
 
-                notificationTitle = context.getString(R.string.notification_title_author) + " " + author.getName();
+                notificationTitle = mContext.getString(R.string.notification_title_author) + " " + author.getName();
                 android.util.Log.i(DEBUG_TAG, "Check single Author: " + author.getName());
             } else {
                 android.util.Log.e(DEBUG_TAG, "Can not find Author: " + updateObject.getObjectId());
@@ -95,11 +101,11 @@ public class AndroidGuiUpdater implements GuiUpdate {
             }
         } else {//Check update for authors by TAG
 
-            notificationTitle = context.getString(R.string.notification_title_TAG);
+            notificationTitle = mContext.getString(R.string.notification_title_TAG);
             if (updateObject.getObjectId() == SamLibConfig.TAG_AUTHOR_ALL) {
-                notificationTitle += " " + context.getString(R.string.filter_all);
+                notificationTitle += " " + mContext.getString(R.string.filter_all);
             } else if (updateObject.getObjectId() == SamLibConfig.TAG_AUTHOR_NEW) {
-                notificationTitle += " " + context.getString(R.string.filter_new);
+                notificationTitle += " " + mContext.getString(R.string.filter_new);
             } else {
                 TagController tagCtl =ctl.getTagController();
                 Tag tag = tagCtl.getById(updateObject.getObjectId());
@@ -130,7 +136,7 @@ public class AndroidGuiUpdater implements GuiUpdate {
             broadcastIntent.putExtra(ACTION_REFRESH_OBJECT,ACTION_REFRESH_AUTHORS);
         }
 
-        context.sendBroadcast(broadcastIntent);
+        mContext.sendBroadcast(broadcastIntent);
     }
 
     @Override
@@ -138,9 +144,25 @@ public class AndroidGuiUpdater implements GuiUpdate {
         if (mProgressNotification != null){
             mProgressNotification.update(a);
         }
-        makeUpdate(true);
+        Intent broadcastIntent = new Intent();
+        broadcastIntent.addCategory(Intent.CATEGORY_DEFAULT);
+        broadcastIntent.setAction(ACTION_RESP);
+
+        broadcastIntent.putExtra(ACTION,ACTION_AUTHOR_UPDATE);
+        broadcastIntent.putExtra(EXTRA_AUTHOR_ID,a.getId());
+        mContext.sendBroadcast(broadcastIntent);
     }
 
+    public void makeUpdate(Book book, GroupBook groupBook){
+        Intent broadcastIntent = new Intent();
+        broadcastIntent.addCategory(Intent.CATEGORY_DEFAULT);
+        broadcastIntent.setAction(ACTION_RESP);
+
+        broadcastIntent.putExtra(ACTION,ACTION_BOOK_UPDATE);
+        broadcastIntent.putExtra(EXTRA_BOOK_ID,book.getId());
+        broadcastIntent.putExtra(EXTRA_GROUP_ID,groupBook.getId());
+        mContext.sendBroadcast(broadcastIntent);
+    }
 
     @Override
     public void makeUpdateTagList() {
@@ -150,7 +172,7 @@ public class AndroidGuiUpdater implements GuiUpdate {
         broadcastIntent.putExtra(ACTION, ACTION_REFRESH);
         broadcastIntent.putExtra(ACTION_REFRESH_OBJECT,ACTION_REFRESH_TAGS);
 
-        context.sendBroadcast(broadcastIntent);
+        mContext.sendBroadcast(broadcastIntent);
 
     }
 
@@ -163,9 +185,9 @@ public class AndroidGuiUpdater implements GuiUpdate {
         }
         CharSequence msg;
         if (b) {
-            msg = context.getText(R.string.download_book_success);
+            msg = mContext.getText(R.string.download_book_success);
         } else {
-            msg = context.getText(R.string.download_book_error);
+            msg = mContext.getText(R.string.download_book_error);
         }
         Intent broadcastIntent = new Intent();
         broadcastIntent.addCategory(Intent.CATEGORY_DEFAULT);
@@ -175,7 +197,7 @@ public class AndroidGuiUpdater implements GuiUpdate {
         broadcastIntent.putExtra(DownloadReceiver.FILE_TYPE, ft.toString());
         broadcastIntent.putExtra(DownloadReceiver.BOOK_ID, book_id);
 
-        context.sendBroadcast(broadcastIntent);
+        mContext.sendBroadcast(broadcastIntent);
 
     }
 
@@ -195,7 +217,7 @@ public class AndroidGuiUpdater implements GuiUpdate {
 
 
         if (mSettingsHelper.isGoogleAuto() && result && !updatedAuthors.isEmpty()) {
-            GoogleAutoService.startService(context);
+            GoogleAutoService.startService(mContext);
         }
 
         if (mCallerType == CALLER_TYPE.CALLER_IS_ACTIVITY) {//Call from activity
@@ -205,20 +227,20 @@ public class AndroidGuiUpdater implements GuiUpdate {
 
             if (result) {//Good Call
                 if (updatedAuthors.isEmpty()) {
-                    text = context.getText(R.string.toast_update_good_empty);
+                    text = mContext.getText(R.string.toast_update_good_empty);
                 } else {
-                    text = context.getText(R.string.toast_update_good_good);
+                    text = mContext.getText(R.string.toast_update_good_good);
                 }
 
             } else {//Error call
-                text = context.getText(R.string.toast_update_error);
+                text = mContext.getText(R.string.toast_update_error);
             }
             Intent broadcastIntent = new Intent();
             broadcastIntent.addCategory(Intent.CATEGORY_DEFAULT);
             broadcastIntent.setAction(ACTION_RESP);
             broadcastIntent.putExtra(ACTION, ACTION_TOAST);
             broadcastIntent.putExtra(TOAST_STRING, text);
-            context.sendBroadcast(broadcastIntent);
+            mContext.sendBroadcast(broadcastIntent);
         }
 
         if (mCallerType == CALLER_TYPE.CALLER_IS_RECEIVER) {//Call as a regular service
@@ -232,7 +254,7 @@ public class AndroidGuiUpdater implements GuiUpdate {
                 return;//error and we ignore them
             }
 
-            NotificationData notifyData = NotificationData.getInstance(context);
+            NotificationData notifyData = NotificationData.getInstance(mContext);
             if (result) {//we have updates
 
                 if (updatedAuthors.isEmpty()) {//DEBUG CASE
@@ -267,20 +289,20 @@ public class AndroidGuiUpdater implements GuiUpdate {
 
             if (totalToAdd == 1){//add single author
                 if (numberOfAdded ==1 ) {
-                    msg = context.getText(R.string.add_success);
+                    msg = mContext.getText(R.string.add_success);
                 }
                 else if (doubleAdd ==1) {
-                    msg = context.getText(R.string.add_error_double);
+                    msg = mContext.getText(R.string.add_error_double);
                 }
                 else {
-                    msg = context.getText(R.string.add_error);
+                    msg = mContext.getText(R.string.add_error);
                 }
             }
             else {//import list of authors
-                msg = context.getText(R.string.add_success_multi)+" "+numberOfAdded;
+                msg = mContext.getText(R.string.add_success_multi)+" "+numberOfAdded;
 
                 if (doubleAdd != 0) {//double is here
-                    msg = msg +"<br>"+context.getText(R.string.add_success_double)+" "+doubleAdd;
+                    msg = msg +"<br>"+ mContext.getText(R.string.add_success_double)+" "+doubleAdd;
                 }
             }
         }//end ADD Action
@@ -288,15 +310,15 @@ public class AndroidGuiUpdater implements GuiUpdate {
 
         if (action.equals(SamlibService.ACTION_DELETE)){
             if (numberOfDeleted == 1){
-                msg=context.getText(R.string.del_success);
+                msg= mContext.getText(R.string.del_success);
             }
             else {
-                msg=context.getText(R.string.del_error);
+                msg= mContext.getText(R.string.del_error);
             }
         }
         broadcastIntent.putExtra(TOAST_STRING,msg);
 
-        context.sendBroadcast(broadcastIntent);
+        mContext.sendBroadcast(broadcastIntent);
 
         if (numberOfAdded!=0 || numberOfDeleted != 0){
 

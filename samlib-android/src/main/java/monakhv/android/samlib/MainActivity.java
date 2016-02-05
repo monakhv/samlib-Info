@@ -563,6 +563,14 @@ public class MainActivity extends MyBaseAbstractActivity implements
 
             String action = intent.getStringExtra(AndroidGuiUpdater.ACTION);
             if (action != null) {
+                if (action.equalsIgnoreCase(AndroidGuiUpdater.ACTION_BOOK_UPDATE)){
+                    int bookId  = intent.getExtras().getInt(AndroidGuiUpdater.EXTRA_BOOK_ID);
+                    int groupId = intent.getExtras().getInt(AndroidGuiUpdater.EXTRA_GROUP_ID);
+                    bookFragment.updateAdapter(bookId,groupId);
+                }
+
+
+
                 if (action.equalsIgnoreCase(AndroidGuiUpdater.ACTION_TOAST)) {
                     int duration = Toast.LENGTH_SHORT;
                     Toast toast = Toast.makeText(context, intent.getCharSequenceExtra(AndroidGuiUpdater.TOAST_STRING), duration);

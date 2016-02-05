@@ -23,12 +23,13 @@ import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import com.bignerdranch.expandablerecyclerview.ViewHolder.ChildViewHolder;
 import monakhv.android.samlib.R;
-import monakhv.android.samlib.animation.FlipIcon;
 import monakhv.android.samlib.awesome.FontManager;
 import monakhv.android.samlib.awesome.TextLabel;
+import monakhv.samlib.log.Log;
 
 /**
  * Base on this
@@ -38,21 +39,23 @@ import monakhv.android.samlib.awesome.TextLabel;
 public class BookViewHolder extends ChildViewHolder {
     // {R.id.bookTitle, R.id.bookUpdate, R.id.bookDesc, R.id.Bookicon,R.id.Staricon,R.id.bookAuthorName,R.id.bookForm};
 
-    public TextView bookTitle, bookSize, bookDesc, bookAuthorName, bookForm;
-    public ImageView starIcon, lockIcon;
-    public FlipIcon flipIcon;
-    public Drawable openBook, closeBook;
+    TextView bookTitle, bookSize, bookDesc, bookAuthorName, bookForm;
+    ImageView starIcon, lockIcon;
+    ImageView flipIcon;
+    Drawable openBook, closeBook;
+    RelativeLayout flipContainer;
 
     @SuppressWarnings("deprecation")
-    public BookViewHolder(View itemView) {
+    public BookViewHolder(View itemView, final BookExpandableAdapter adapter) {
         super(itemView);
         bookTitle = (TextView) itemView.findViewById(R.id.bookTitle);
         bookSize = (TextView) itemView.findViewById(R.id.bookUpdate);
         bookDesc = (TextView) itemView.findViewById(R.id.bookDesc);
         bookAuthorName = (TextView) itemView.findViewById(R.id.bookAuthorName);
         bookForm = (TextView) itemView.findViewById(R.id.bookForm);
+        flipContainer = (RelativeLayout) itemView.findViewById(R.id.FlipContainer);
 
-        flipIcon = (FlipIcon) itemView.findViewById(R.id.FlipIcon);
+        flipIcon = (ImageView) itemView.findViewById(R.id.FlipIcon);
         starIcon = (ImageView) itemView.findViewById(R.id.Staricon);
         lockIcon = (ImageView) itemView.findViewById(R.id.Lockicon);
 
@@ -69,6 +72,13 @@ public class BookViewHolder extends ChildViewHolder {
                 .endConfig()
                 .buildRound(context.getString(R.string.fa_book), Color.GRAY);
 
+        flipContainer.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Log.d("BookViewHolder","Position: "+adapter.getBook(getAdapterPosition()).getTitle());
+                adapter.makeRead(getAdapterPosition());
+            }
+        });
 
 
     }

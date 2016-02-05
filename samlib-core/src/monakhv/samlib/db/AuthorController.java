@@ -365,14 +365,23 @@ public class AuthorController implements AbstractController<Author> {
      * Set author new status according to the its book status
      *
      * @param a Author object
-     * @return true if the author has unread books
+     * @return true if the author was updated
      */
     public boolean testMarkRead(Author a) {
         boolean rr = getReadStatus(a);
+        if (a.isIsNew() && rr){
+            return false;
+        }
+
+        if (!a.isIsNew() && !rr){
+            return false;
+        }
+
+
         a.setIsNew(rr);
         a.setBookLoaded(false);
         update(a);
-        return false;
+        return true;
     }
 
     /**

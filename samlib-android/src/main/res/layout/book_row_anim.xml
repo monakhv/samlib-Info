@@ -47,12 +47,21 @@ limitations under the License.
             </ImageView>
         </LinearLayout>
 
-        <monakhv.android.samlib.animation.FlipIcon
+        <RelativeLayout
                 android:layout_weight="10"
-                android:id="@+id/FlipIcon"
+                android:id="@+id/FlipContainer"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent">
-        </monakhv.android.samlib.animation.FlipIcon>
+            <ImageView
+                    android:id="@+id/FlipIcon"
+                    android:layout_width="40sp"
+                    android:layout_height="40sp"
+                    android:layout_marginLeft="4sp"
+                    android:layout_marginRight="10sp"
+                    android:layout_marginTop="4sp"
+            >
+            </ImageView>
+        </RelativeLayout>
 
 
     </LinearLayout>

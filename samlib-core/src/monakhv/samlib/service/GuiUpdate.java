@@ -20,6 +20,8 @@ package monakhv.samlib.service;
 
 import monakhv.samlib.data.AbstractSettings;
 import monakhv.samlib.db.entity.Author;
+import monakhv.samlib.db.entity.Book;
+import monakhv.samlib.db.entity.GroupBook;
 
 import java.util.List;
 
@@ -29,6 +31,7 @@ import java.util.List;
 public interface GuiUpdate {
     void makeUpdate(boolean isBoth);
     void makeUpdate(Author a);
+    void makeUpdate(Book b, GroupBook g);
 
     /**
      * Send update status

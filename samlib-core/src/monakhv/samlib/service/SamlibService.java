@@ -234,13 +234,19 @@ public class SamlibService {
         if (book.isIsNew()) {
             authorController.getBookController().markRead(book);
             a = authorController.getById(book.getAuthor().getId());
-            authorController.testMarkRead(a);
+
+            if (authorController.testMarkRead(a)){
+                guiUpdate.makeUpdate(a);
+            }
+
         } else {
             authorController.getBookController().markUnRead(book);
             a = authorController.getById(book.getAuthor().getId());
-            authorController.testMarkRead(a);
+            if(authorController.testMarkRead(a)){
+                guiUpdate.makeUpdate(a);
+            }
         }
-        guiUpdate.makeUpdate(false);//book reread is into Adapter methods
+        guiUpdate.makeUpdate(book,authorController.getGroupBookController().getByBook(book));
 
     }
 
