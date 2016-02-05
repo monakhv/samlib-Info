@@ -29,7 +29,7 @@ import com.bignerdranch.expandablerecyclerview.ViewHolder.ChildViewHolder;
 import monakhv.android.samlib.R;
 import monakhv.android.samlib.awesome.FontManager;
 import monakhv.android.samlib.awesome.TextLabel;
-import monakhv.samlib.log.Log;
+
 
 /**
  * Base on this
@@ -75,7 +75,7 @@ public class BookViewHolder extends ChildViewHolder {
         flipContainer.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Log.d("BookViewHolder","Position: "+adapter.getBook(getAdapterPosition()).getTitle());
+//                Log.d("BookViewHolder","Position: "+adapter.getBook(getAdapterPosition()).getTitle());
                 adapter.makeRead(getAdapterPosition());
             }
         });
