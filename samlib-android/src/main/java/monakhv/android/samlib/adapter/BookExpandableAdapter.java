@@ -89,10 +89,10 @@ public class BookExpandableAdapter extends ExpandableRecyclerAdapter<GroupViewHo
     }
 
     @Override
-    public void onBindParentViewHolder(GroupViewHolder groupViewHolder, final int position, ParentListItem parentListItem) {
+    public void onBindParentViewHolder(GroupViewHolder groupViewHolder, int position, ParentListItem parentListItem) {
         GroupListItem gi = (GroupListItem) parentListItem;
         groupViewHolder.groupTitle.setText(gi.getName());
-        groupViewHolder.position = position;
+
 
 
         if (gi.getName() == null || gi.getChildItemList().isEmpty()) {
@@ -108,10 +108,14 @@ public class BookExpandableAdapter extends ExpandableRecyclerAdapter<GroupViewHo
             if (gi.newNumber == 0) {
                 groupViewHolder.groupTitle.setTypeface(Typeface.DEFAULT);
                 groupViewHolder.bookNumber.setText(mContext.getString(R.string.group_book_number) + " " + gi.getChildItemList().size());
-                groupViewHolder.newIcon.setData(groupViewHolder.oldGroupImage, groupViewHolder.newGroupImage, groupViewHolder.listener, false);
+                groupViewHolder.newIcon.setImageDrawable(groupViewHolder.oldGroupImage);
+                groupViewHolder.newIcon.setTag(0);
+                        //.setData(groupViewHolder.oldGroupImage, groupViewHolder.newGroupImage, groupViewHolder.listener, false);
             } else {
                 groupViewHolder.groupTitle.setTypeface(Typeface.DEFAULT_BOLD);
-                groupViewHolder.newIcon.setData(groupViewHolder.newGroupImage, groupViewHolder.oldGroupImage, groupViewHolder.listener, false);
+                groupViewHolder.newIcon.setImageDrawable(groupViewHolder.newGroupImage);
+                groupViewHolder.newIcon.setTag(1);
+                        //.setData(groupViewHolder.newGroupImage, groupViewHolder.oldGroupImage, groupViewHolder.listener, false);
                 groupViewHolder.bookNumber.setText(mContext.getString(R.string.group_book_number) + " " + gi.getChildItemList().size()
                         + " "
                         + mContext.getString(R.string.group_book_number_new)
@@ -281,25 +285,25 @@ public class BookExpandableAdapter extends ExpandableRecyclerAdapter<GroupViewHo
                 Log.d(DEBUG_TAG, "updateBook: update parent: " + i + "  update child: " + idx + " -- " + getParentWrapperIndex(i));
                 gi.getChildItemList().set(idx, book);
                 //notifyChildItemChanged(i, idx);
+//
+//                RecyclerView.ViewHolder viewHolder = mRecyclerViews.get(0).findViewHolderForAdapterPosition(getParentWrapperIndex(i));
+//                final GroupViewHolder groupViewHolder;
+//                if (viewHolder instanceof GroupViewHolder) {
+//                    groupViewHolder = (GroupViewHolder) viewHolder;
+//                    groupViewHolder.position = i;
+//                } else {
+//                    groupViewHolder = null;
+//                    Log.e(DEBUG_TAG, "updateBook: group holder is wrong");
+//                }
 
-                RecyclerView.ViewHolder viewHolder = mRecyclerViews.get(0).findViewHolderForAdapterPosition(getParentWrapperIndex(i));
-                final GroupViewHolder groupViewHolder;
-                if (viewHolder instanceof GroupViewHolder) {
-                    groupViewHolder = (GroupViewHolder) viewHolder;
-                    groupViewHolder.position = i;
-                } else {
-                    groupViewHolder = null;
-                    Log.e(DEBUG_TAG, "updateBook: group holder is wrong");
-                }
-
-                if ((groupViewHolder != null) && (
-                        (isNew && gi.newNumber == 1) || (!isNew && gi.newNumber == 0)
-                )
-                        ) {
-                    groupViewHolder.newIcon.makeFlip();
-                    Log.d(DEBUG_TAG, "updateBook: parent animation: " + isNew + "  " + i + "  " + gi.newNumber);
-                    return;
-                }
+//                if ((groupViewHolder != null) && (
+//                        (isNew && gi.newNumber == 1) || (!isNew && gi.newNumber == 0)
+//                )
+//                        ) {
+//                    groupViewHolder.newIcon.makeFlip();
+//                    Log.d(DEBUG_TAG, "updateBook: parent animation: " + isNew + "  " + i + "  " + gi.newNumber);
+//                    return;
+//                }
 
                 Log.d(DEBUG_TAG, "updateBook: parent NO animation: " + isNew + "  " + i + "  " + gi.newNumber);
 
