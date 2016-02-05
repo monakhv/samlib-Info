@@ -565,8 +565,8 @@ public class MainActivity extends MyBaseAbstractActivity implements
             if (action != null) {
                 if (action.equalsIgnoreCase(AndroidGuiUpdater.ACTION_BOOK_UPDATE)){
                     int bookId  = intent.getExtras().getInt(AndroidGuiUpdater.EXTRA_BOOK_ID);
-                    int groupId = intent.getExtras().getInt(AndroidGuiUpdater.EXTRA_GROUP_ID);
-                    bookFragment.updateAdapter(bookId,groupId);
+
+                    bookFragment.updateAdapter(bookId);
                 }
 
 

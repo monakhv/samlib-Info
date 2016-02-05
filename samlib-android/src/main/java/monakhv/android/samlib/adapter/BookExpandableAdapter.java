@@ -178,10 +178,12 @@ public class BookExpandableAdapter extends ExpandableRecyclerAdapter<GroupViewHo
         if (book.isIsNew()) {
             holder.bookTitle.setTypeface(Typeface.DEFAULT_BOLD);
             holder.flipIcon.setImageDrawable(holder.openBook);
+            holder.flipIcon.setTag(1);
 
         } else {
             holder.bookTitle.setTypeface(Typeface.DEFAULT);
             holder.flipIcon.setImageDrawable(holder.closeBook);
+            holder.flipIcon.setTag(0);
         }
         holder.itemView.setActivated(position == getSelectedPosition());
 
@@ -208,11 +210,32 @@ public class BookExpandableAdapter extends ExpandableRecyclerAdapter<GroupViewHo
         int parentListItemCount = getParentItemList().size();
         Log.i(DEBUG_TAG, "updateData: parent list size:  " + parentListItemCount);
         ParentListItem parentListItem;
+
+        int iParent;
+        if (group == null){
+            iParent=-1;
+        }
+        else {
+            iParent=group.getId();
+        }
+
+
         for (int i = 0; i < parentListItemCount; i++) {
             parentListItem = getParentItemList().get(i);
             GroupListItem gi = (GroupListItem) parentListItem;
-            if (gi.getId() == group.getId()){
-                gi.load(group);
+            if (gi.getId() == iParent){
+                if (group == null){
+                    if (book.isIsNew()){
+                        ++gi.newNumber;
+                    }
+                    else {
+                        --gi.newNumber;
+                    }
+                }
+                else {
+                    gi.load(group);
+                }
+
                 int idx = gi.getChildItemList().indexOf(book);
                 if (idx != -1) {
                     gi.getChildItemList().set(idx, book);

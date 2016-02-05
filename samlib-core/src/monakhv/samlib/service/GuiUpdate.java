@@ -31,7 +31,7 @@ import java.util.List;
 public interface GuiUpdate {
     void makeUpdate(boolean isBoth);
     void makeUpdate(Author a);
-    void makeUpdate(Book b, GroupBook g);
+    void makeUpdate(Book b);
 
     /**
      * Send update status

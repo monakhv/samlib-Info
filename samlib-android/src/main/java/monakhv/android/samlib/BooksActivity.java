@@ -164,8 +164,8 @@ public class BooksActivity extends MyAbstractAnimActivity implements BookFragmen
             if (action != null) {
                 if (action.equalsIgnoreCase(AndroidGuiUpdater.ACTION_BOOK_UPDATE)){
                     int bookId  = intent.getExtras().getInt(AndroidGuiUpdater.EXTRA_BOOK_ID);
-                    int groupId = intent.getExtras().getInt(AndroidGuiUpdater.EXTRA_GROUP_ID);
-                    mBookFragment.updateAdapter(bookId,groupId);
+
+                    mBookFragment.updateAdapter(bookId);
                 }
 
 

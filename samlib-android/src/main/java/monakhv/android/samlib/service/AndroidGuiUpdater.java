@@ -51,7 +51,7 @@ public class AndroidGuiUpdater implements GuiUpdate {
 
     public static final String EXTRA_AUTHOR_ID="monakhv.android.samlib.action.AUTHOR_ID";
     public static final String EXTRA_BOOK_ID="monakhv.android.samlib.action.BOOK_ID";
-    public static final String EXTRA_GROUP_ID="monakhv.android.samlib.action.GROUP_ID";
+
 
     public static final String ACTION_REFRESH = "ACTION_REFRESH";
     public static final String ACTION_REFRESH_OBJECT = "ACTION_REFRESH_OBJECT";
@@ -153,14 +153,14 @@ public class AndroidGuiUpdater implements GuiUpdate {
         mContext.sendBroadcast(broadcastIntent);
     }
 
-    public void makeUpdate(Book book, GroupBook groupBook){
+    public void makeUpdate(Book book){
         Intent broadcastIntent = new Intent();
         broadcastIntent.addCategory(Intent.CATEGORY_DEFAULT);
         broadcastIntent.setAction(ACTION_RESP);
 
         broadcastIntent.putExtra(ACTION,ACTION_BOOK_UPDATE);
         broadcastIntent.putExtra(EXTRA_BOOK_ID,book.getId());
-        broadcastIntent.putExtra(EXTRA_GROUP_ID,groupBook.getId());
+
         mContext.sendBroadcast(broadcastIntent);
     }
 

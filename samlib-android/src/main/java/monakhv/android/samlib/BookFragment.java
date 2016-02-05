@@ -31,6 +31,7 @@ import monakhv.android.samlib.sortorder.BookSortOrder;
 
 import monakhv.samlib.db.AuthorController;
 import monakhv.samlib.db.entity.Book;
+import monakhv.samlib.db.entity.GroupBook;
 import monakhv.samlib.db.entity.SamLibConfig;
 import monakhv.samlib.log.Log;
 
@@ -229,8 +230,11 @@ public class BookFragment extends MyBaseAbstractFragment implements
         getLoaderManager().restartLoader(BOOK_LOADER_ID, null, this);
     }
 
-    public void updateAdapter(int bookId, int groupId){
-        adapter.updateData(sql.getBookController().getById(bookId), sql.getGroupBookController().getById(groupId) );
+    public void updateAdapter(int bookId){
+        Book b=sql.getBookController().getById(bookId);
+        GroupBook groupBook=sql.getGroupBookController().getByBook(b);
+
+        adapter.updateData(b,groupBook );
     }
 
 

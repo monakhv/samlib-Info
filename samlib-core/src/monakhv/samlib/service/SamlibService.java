@@ -246,7 +246,7 @@ public class SamlibService {
                 guiUpdate.makeUpdate(a);
             }
         }
-        guiUpdate.makeUpdate(book,authorController.getGroupBookController().getByBook(book));
+        guiUpdate.makeUpdate(book);
 
     }
 
