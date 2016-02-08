@@ -32,6 +32,7 @@ import monakhv.android.samlib.search.SearchAuthorsListFragment;
 import monakhv.android.samlib.service.AndroidGuiUpdater;
 import monakhv.android.samlib.service.AuthorEditorServiceIntent;
 import monakhv.android.samlib.service.CleanNotificationData;
+import monakhv.android.samlib.service.GuiUpdateObject;
 import monakhv.android.samlib.sortorder.AuthorSortOrder;
 
 import monakhv.samlib.db.TagController;
@@ -562,15 +563,20 @@ public class MainActivity extends MyBaseAbstractActivity implements
         public void onReceive(Context context, Intent intent) {
 
             String action = intent.getStringExtra(AndroidGuiUpdater.ACTION);
-            if (action != null) {
-                if (action.equalsIgnoreCase(AndroidGuiUpdater.ACTION_BOOK_UPDATE)){
-                    int bookId  = intent.getExtras().getInt(AndroidGuiUpdater.EXTRA_BOOK_ID);
-
-                    bookFragment.updateAdapter(bookId);
+            GuiUpdateObject guiUpdateObject=intent.getExtras().getParcelable(AndroidGuiUpdater.EXTRA_PARCEL);
+            if (guiUpdateObject != null){
+                if (guiUpdateObject.isBook()){
+                    bookFragment.updateAdapter(guiUpdateObject.getObjectId());
                 }
 
 
+                if (guiUpdateObject.isAuthor()){
+                    authorFragment.refresh();
+                }
 
+            }
+
+            if (action != null) {
                 if (action.equalsIgnoreCase(AndroidGuiUpdater.ACTION_TOAST)) {
                     int duration = Toast.LENGTH_SHORT;
                     Toast toast = Toast.makeText(context, intent.getCharSequenceExtra(AndroidGuiUpdater.TOAST_STRING), duration);

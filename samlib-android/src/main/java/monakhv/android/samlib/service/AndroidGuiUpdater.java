@@ -44,13 +44,8 @@ public class AndroidGuiUpdater implements GuiUpdate {
     public static final String TOAST_STRING = "TOAST_STRING";
     public static final String ACTION = "ACTION";
     public static final String ACTION_TOAST = "TOAST";
- //   public static final String ACTION_PROGRESS = "PROGRESS";
 
-    public static final String ACTION_AUTHOR_UPDATE="monakhv.android.samlib.action.AUTHOR_UPDATE";
-    public static final String ACTION_BOOK_UPDATE="monakhv.android.samlib.action.BOOK_UPDATE";
-
-    public static final String EXTRA_AUTHOR_ID="monakhv.android.samlib.action.AUTHOR_ID";
-    public static final String EXTRA_BOOK_ID="monakhv.android.samlib.action.BOOK_ID";
+    public static final String EXTRA_PARCEL="monakhv.android.samlib.action.EXTRA_PARCEL";
 
 
     public static final String ACTION_REFRESH = "ACTION_REFRESH";
@@ -148,8 +143,7 @@ public class AndroidGuiUpdater implements GuiUpdate {
         broadcastIntent.addCategory(Intent.CATEGORY_DEFAULT);
         broadcastIntent.setAction(ACTION_RESP);
 
-        broadcastIntent.putExtra(ACTION,ACTION_AUTHOR_UPDATE);
-        broadcastIntent.putExtra(EXTRA_AUTHOR_ID,a.getId());
+        broadcastIntent.putExtra(EXTRA_PARCEL,new GuiUpdateObject(a));
         mContext.sendBroadcast(broadcastIntent);
     }
 
@@ -158,9 +152,7 @@ public class AndroidGuiUpdater implements GuiUpdate {
         broadcastIntent.addCategory(Intent.CATEGORY_DEFAULT);
         broadcastIntent.setAction(ACTION_RESP);
 
-        broadcastIntent.putExtra(ACTION,ACTION_BOOK_UPDATE);
-        broadcastIntent.putExtra(EXTRA_BOOK_ID,book.getId());
-
+        broadcastIntent.putExtra(EXTRA_PARCEL,new GuiUpdateObject(book));
         mContext.sendBroadcast(broadcastIntent);
     }
 

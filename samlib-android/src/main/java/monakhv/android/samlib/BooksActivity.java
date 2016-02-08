@@ -27,6 +27,7 @@ import android.support.annotation.NonNull;
 import android.support.v7.app.ActionBar;
 import android.support.v7.widget.Toolbar;
 import monakhv.android.samlib.service.AndroidGuiUpdater;
+import monakhv.android.samlib.service.GuiUpdateObject;
 import monakhv.samlib.db.AuthorController;
 import monakhv.samlib.db.entity.Author;
 import monakhv.samlib.db.entity.SamLibConfig;
@@ -160,22 +161,14 @@ public class BooksActivity extends MyAbstractAnimActivity implements BookFragmen
 
         @Override
         public void onReceive(Context context, Intent intent) {
-            String action = intent.getStringExtra(AndroidGuiUpdater.ACTION);
-            if (action != null) {
-                if (action.equalsIgnoreCase(AndroidGuiUpdater.ACTION_BOOK_UPDATE)){
-                    int bookId  = intent.getExtras().getInt(AndroidGuiUpdater.EXTRA_BOOK_ID);
 
-                    mBookFragment.updateAdapter(bookId);
-                }
-
-                if (action.equalsIgnoreCase(AndroidGuiUpdater.ACTION_REFRESH)) {
-                    int iObject = intent.getIntExtra(AndroidGuiUpdater.ACTION_REFRESH_OBJECT, AndroidGuiUpdater.ACTION_REFRESH_AUTHORS);
-                    if (iObject == AndroidGuiUpdater.ACTION_REFRESH_BOTH) {
-                        Log.i(DEBUG_TAG,"UpdateActivityReceiver.onReceive call");
-                        //mBookFragment.refresh();
-                    }
+            GuiUpdateObject guiUpdateObject=intent.getExtras().getParcelable(AndroidGuiUpdater.EXTRA_PARCEL);
+            if (guiUpdateObject != null){
+                if (guiUpdateObject.isBook()){
+                    mBookFragment.updateAdapter(guiUpdateObject.getObjectId());
                 }
             }
+
         }
     }
 
