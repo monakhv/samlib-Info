@@ -55,6 +55,8 @@ public class BookExpandableAdapter extends ExpandableRecyclerAdapter<GroupViewHo
     private static final String DEBUG_TAG = "BookExpandableAdapter";
     public static final int NOT_SELECTED = -1;
     private int selected = NOT_SELECTED;
+    private static final int TYPE_PARENT = 0;
+    private static final int TYPE_CHILD = 1;
 
 
     private final LayoutInflater mInflater;
@@ -89,7 +91,6 @@ public class BookExpandableAdapter extends ExpandableRecyclerAdapter<GroupViewHo
         groupViewHolder.groupTitle.setText(gi.getName());
 
 
-
         if (gi.getName() == null || gi.getChildItemList().isEmpty()) {
             Log.i(DEBUG_TAG, "onBindParentViewHolder: empty for group " + gi.getName() + " size " + gi.getChildItemList().size());
             groupViewHolder.groupTitle.setVisibility(View.GONE);
@@ -105,12 +106,12 @@ public class BookExpandableAdapter extends ExpandableRecyclerAdapter<GroupViewHo
                 groupViewHolder.bookNumber.setText(mContext.getString(R.string.group_book_number) + " " + gi.getChildItemList().size());
                 groupViewHolder.newIcon.setImageDrawable(groupViewHolder.oldGroupImage);
                 groupViewHolder.newIcon.setTag(0);
-                        //.setData(groupViewHolder.oldGroupImage, groupViewHolder.newGroupImage, groupViewHolder.listener, false);
+                //.setData(groupViewHolder.oldGroupImage, groupViewHolder.newGroupImage, groupViewHolder.listener, false);
             } else {
                 groupViewHolder.groupTitle.setTypeface(Typeface.DEFAULT_BOLD);
                 groupViewHolder.newIcon.setImageDrawable(groupViewHolder.newGroupImage);
                 groupViewHolder.newIcon.setTag(1);
-                        //.setData(groupViewHolder.newGroupImage, groupViewHolder.oldGroupImage, groupViewHolder.listener, false);
+                //.setData(groupViewHolder.newGroupImage, groupViewHolder.oldGroupImage, groupViewHolder.listener, false);
                 groupViewHolder.bookNumber.setText(mContext.getString(R.string.group_book_number) + " " + gi.getChildItemList().size()
                         + " "
                         + mContext.getString(R.string.group_book_number_new)
@@ -133,7 +134,7 @@ public class BookExpandableAdapter extends ExpandableRecyclerAdapter<GroupViewHo
     @Override
     public BookViewHolder onCreateChildViewHolder(ViewGroup viewGroup) {
         View v = mInflater.inflate(R.layout.book_row_anim, viewGroup, false);
-        return new BookViewHolder(v,this);
+        return new BookViewHolder(v, this);
 
     }
 
@@ -206,40 +207,61 @@ public class BookExpandableAdapter extends ExpandableRecyclerAdapter<GroupViewHo
 
     }
 
-    public void updateData(Book book, GroupBook group) {
+    @Override
+    public long getItemId(int position) {
+        int iType = getItemViewType(position);
+        Object o = mItemList.get(position);
+        if (iType == TYPE_PARENT) {
+            ParentWrapper pw = (ParentWrapper) o;
+            ParentListItem parentListItem = pw.getParentListItem();
+            GroupListItem gi = (GroupListItem) parentListItem;
+            return gi.getId();
+        }
+        if (iType == TYPE_CHILD) {
+            Book book = (Book) o;
+            return book.getId();
+        }
+        throw new IllegalStateException("getItemId: Incorrect ViewType found");
+    }
+
+    public void updateData(Book book, GroupBook group, int sort) {
         int parentListItemCount = getParentItemList().size();
         Log.i(DEBUG_TAG, "updateData: parent list size:  " + parentListItemCount);
         ParentListItem parentListItem;
 
         int iParent;
-        if (group == null){
-            iParent=-1;
-        }
-        else {
-            iParent=group.getId();
+        if (group == null) {
+            iParent = -1;
+        } else {
+            iParent = group.getId();
         }
 
 
         for (int i = 0; i < parentListItemCount; i++) {
             parentListItem = getParentItemList().get(i);
             GroupListItem gi = (GroupListItem) parentListItem;
-            if (gi.getId() == iParent){
-                if (group == null){
-                    if (book.isIsNew()){
+            if (gi.getId() == iParent) {
+                if (group == null) {
+                    if (book.isIsNew()) {
                         ++gi.newNumber;
-                    }
-                    else {
+                    } else {
                         --gi.newNumber;
                     }
-                }
-                else {
+                } else {
                     gi.load(group);
                 }
 
                 int idx = gi.getChildItemList().indexOf(book);
                 if (idx != -1) {
-                    gi.getChildItemList().set(idx, book);
-                    notifyParentItemChanged(i);
+                    if (sort == -1) {
+                        gi.getChildItemList().set(idx, book);
+                        notifyParentItemChanged(i);
+                    } else {
+                        gi.getChildItemList().remove(idx);
+                        gi.getChildItemList().add(sort, book);
+                        notifyParentItemChanged(i);
+                        //notifyChildItemMoved(i, idx, sort);
+                    }
                     Log.d(DEBUG_TAG, "updateData: update parent: " + i + "  update child: " + idx + " -- " + getParentWrapperIndex(i));
                     return;
                 }
@@ -249,8 +271,6 @@ public class BookExpandableAdapter extends ExpandableRecyclerAdapter<GroupViewHo
         Log.w(DEBUG_TAG, "updateData: No book found to update!");
 
     }
-
-
 
 
     /**
@@ -337,7 +357,6 @@ public class BookExpandableAdapter extends ExpandableRecyclerAdapter<GroupViewHo
             mCallBack.makeNewFlip(book.getId());
         }
     }
-
 
 
     private int getParentWrapperIndex(int parentIndex) {

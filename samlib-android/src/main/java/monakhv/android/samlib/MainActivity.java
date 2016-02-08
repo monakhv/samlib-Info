@@ -566,7 +566,7 @@ public class MainActivity extends MyBaseAbstractActivity implements
             GuiUpdateObject guiUpdateObject=intent.getExtras().getParcelable(AndroidGuiUpdater.EXTRA_PARCEL);
             if (guiUpdateObject != null){
                 if (guiUpdateObject.isBook()){
-                    bookFragment.updateAdapter(guiUpdateObject.getObjectId());
+                    bookFragment.updateAdapter(guiUpdateObject);
                 }
 
 

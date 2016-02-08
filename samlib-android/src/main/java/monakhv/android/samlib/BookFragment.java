@@ -231,11 +231,18 @@ public class BookFragment extends MyBaseAbstractFragment implements
         getLoaderManager().restartLoader(BOOK_LOADER_ID, null, this);
     }
 
-    public void updateAdapter(int bookId){
-        Book b=sql.getBookController().getById(bookId);
+    public void updateAdapter(Book book){
+
+        GroupBook groupBook=sql.getGroupBookController().getByBook(book);
+
+        adapter.updateData(book,groupBook,-1 );
+    }
+
+    public void updateAdapter(GuiUpdateObject guiUpdateObject){
+        Book b=sql.getBookController().getById(guiUpdateObject.getObjectId());
         GroupBook groupBook=sql.getGroupBookController().getByBook(b);
 
-        adapter.updateData(b,groupBook );
+        adapter.updateData(b,groupBook,guiUpdateObject.getSortOrder());
     }
 
 
@@ -362,11 +369,11 @@ public class BookFragment extends MyBaseAbstractFragment implements
         }
         if (item == menu_selected) {
             sql.getBookController().setSelected(book);
-            updateAdapter(book.getId());
+            updateAdapter(book);
         }
         if (item == menu_deselected) {
             sql.getBookController().setDeselected(book);
-            updateAdapter(book.getId());
+            updateAdapter(book);
         }
         if (item == menu_reload) {
 
@@ -388,7 +395,7 @@ public class BookFragment extends MyBaseAbstractFragment implements
                 book.setPreserve(true);
             }
             sql.getBookController().update(book);
-            updateAdapter(book.getId());
+            updateAdapter(book);
 
         }
         if (item == menu_choose_version) {

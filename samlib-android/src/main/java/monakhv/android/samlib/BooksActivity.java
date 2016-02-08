@@ -165,7 +165,7 @@ public class BooksActivity extends MyAbstractAnimActivity implements BookFragmen
             GuiUpdateObject guiUpdateObject=intent.getExtras().getParcelable(AndroidGuiUpdater.EXTRA_PARCEL);
             if (guiUpdateObject != null){
                 if (guiUpdateObject.isBook()){
-                    mBookFragment.updateAdapter(guiUpdateObject.getObjectId());
+                    mBookFragment.updateAdapter(guiUpdateObject);
                 }
             }
 
