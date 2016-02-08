@@ -22,17 +22,26 @@ package monakhv.android.samlib.adapter.animator;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.ObjectAnimator;
+import android.annotation.TargetApi;
+import android.os.Build;
 import android.view.View;
 import android.widget.TextView;
 
 /**
+ * Text view Rotation animation or cross fading for API <14
  * Created by monakhv on 08.02.16.
  */
 public class TextRotationAnimator extends ChangeAnimator {
 
     public TextRotationAnimator(final TextView textView, final String oldText, final String newText) {
-        mFirstAnimator = ObjectAnimator.ofFloat(textView, View.ROTATION_X, 0, 90);
-        mSecondAnimator = ObjectAnimator.ofFloat(textView, View.ROTATION_X, -90, 0);
+
+        if (android.os.Build.VERSION.SDK_INT>=14){
+            initAnimatorICS(textView);
+        }
+        else {
+            initAnimator(textView);
+        }
+
         mFirstAnimator.addListener(new AnimatorListenerAdapter() {
             @Override
             public void onAnimationStart(Animator animation) {
@@ -45,5 +54,13 @@ public class TextRotationAnimator extends ChangeAnimator {
             }
         });
     }
+
+    @TargetApi(Build.VERSION_CODES.ICE_CREAM_SANDWICH)
+    private void initAnimatorICS(final  TextView textView){
+        mFirstAnimator = ObjectAnimator.ofFloat(textView, View.ROTATION_X, 0, 90);
+        mSecondAnimator = ObjectAnimator.ofFloat(textView, View.ROTATION_X, -90, 0);
+    }
+
+
 
 }

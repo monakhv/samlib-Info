@@ -22,17 +22,25 @@ package monakhv.android.samlib.adapter.animator;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.ObjectAnimator;
+import android.annotation.TargetApi;
 import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.view.View;
 import android.widget.ImageView;
 
 /**
+ * Image rotation animation
  * Created by monakhv on 08.02.16.
  */
 public class ImageRotationAnimator extends ChangeAnimator {
     public ImageRotationAnimator(final ImageView imageToRotate, final Drawable oldImage, final Drawable newImage){
-        mFirstAnimator = ObjectAnimator.ofFloat(imageToRotate, View.ROTATION_Y, 0, 90);
-        mSecondAnimator = ObjectAnimator.ofFloat(imageToRotate, View.ROTATION_Y, -90, 0);
+
+        if (android.os.Build.VERSION.SDK_INT>=14){
+            initAnimatorICS(imageToRotate);
+        }
+        else {
+            initAnimator(imageToRotate);
+        }
 
         mFirstAnimator.addListener(new AnimatorListenerAdapter() {
             @Override
@@ -45,5 +53,12 @@ public class ImageRotationAnimator extends ChangeAnimator {
                 imageToRotate.setImageDrawable(newImage);
             }
         });
+    }
+
+
+    @TargetApi(Build.VERSION_CODES.ICE_CREAM_SANDWICH)
+    private void initAnimatorICS(final ImageView imageToRotate){
+        mFirstAnimator = ObjectAnimator.ofFloat(imageToRotate, View.ROTATION_Y, 0, 90);
+        mSecondAnimator = ObjectAnimator.ofFloat(imageToRotate, View.ROTATION_Y, -90, 0);
     }
 }

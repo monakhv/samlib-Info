@@ -21,6 +21,7 @@ package monakhv.android.samlib.adapter.animator;
 
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
+import android.view.View;
 
 /**
  * Created by monakhv on 08.02.16.
@@ -58,6 +59,12 @@ public abstract class ChangeAnimator {
     public AnimatorSet getAnimatorSet(){
         mAnimatorSet.playSequentially(mFirstAnimator,mSecondAnimator);
         return mAnimatorSet;
+    }
+
+
+    protected void initAnimator(View view){
+        mFirstAnimator = ObjectAnimator.ofFloat(view, "alpha", 1f, 0f);
+        mSecondAnimator = ObjectAnimator.ofFloat(view, "alpha", 0f, 1f);
     }
 
 }
