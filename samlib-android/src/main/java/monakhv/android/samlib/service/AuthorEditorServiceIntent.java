@@ -8,6 +8,7 @@ import java.util.ArrayList;
 
 
 import monakhv.android.samlib.SamlibApplication;
+import monakhv.samlib.db.entity.SamLibConfig;
 import monakhv.samlib.log.Log;
 import monakhv.samlib.service.SamlibService;
 
@@ -34,6 +35,8 @@ public class AuthorEditorServiceIntent extends MyServiceIntent {
     private static final String DEBUG_TAG="AuthorEditorServiceIntent";
     private static final String EXTRA_ADD_AUTHOR_DATA="AddAuthorServiceIntent_EXTRA_ADD_AUTHOR_DATA";
     private static final String EXTRA_OBJECT_ID ="AddAuthorServiceIntent_EXTRA_OBJECT_ID";
+    private static final String EXTRA_SORT_ORDER ="AddAuthorServiceIntent_EXTRA_SORT_ORDER";
+    private static final String EXTRA_SELECT_TAG ="AddAuthorServiceIntent_EXTRA_SELECT_TAG";
 
     public static final String ACTION_AUTHOR_READ="AddAuthorServiceIntent_ACTION_AUTHOR_READ";
     public static final String ACTION_BOOK_READ_FLIP="AddAuthorServiceIntent_ACTION_BOOK_READ_FLIP";
@@ -90,24 +93,27 @@ public class AuthorEditorServiceIntent extends MyServiceIntent {
         }
         if (action.equals(ACTION_AUTHOR_READ)){
             int id =intent.getIntExtra(EXTRA_OBJECT_ID,-1);
+            String order=intent.getStringExtra(EXTRA_SORT_ORDER);
+            int iSel = intent.getIntExtra(EXTRA_SELECT_TAG, SamLibConfig.TAG_AUTHOR_ALL);
             if (id <0){
                 Log.e(DEBUG_TAG,"Null author data, can not make it read");
                 mSamlibApplication.releaseServiceComponent();
                 return;
             }
-            service.makeAuthorRead(id);
+            service.makeAuthorRead(id,iSel,order);
 
             mSamlibApplication.releaseServiceComponent();
             return;
         }
         if (action.equals(ACTION_BOOK_READ_FLIP)){
             int id =intent.getIntExtra(EXTRA_OBJECT_ID,-1);
+            String order=intent.getStringExtra(EXTRA_SORT_ORDER);
             if (id <0){
                 Log.e(DEBUG_TAG,"Null book data, can not make it read/unread");
                 mSamlibApplication.releaseServiceComponent();
                 return;
             }
-            service.makeBookReadFlip(id);
+            service.makeBookReadFlip(id,order);
             mSamlibApplication.releaseServiceComponent();
 
             return;
@@ -153,18 +159,21 @@ public class AuthorEditorServiceIntent extends MyServiceIntent {
         ctx.startService(service);
 
     }
-    public static void markAuthorRead(Context ctx,int id){
+    public static void markAuthorRead(Context ctx,int id,int iTag,String order){
         Log.v(DEBUG_TAG,"Starting author read service");
         Intent service = new Intent(ctx,AuthorEditorServiceIntent.class );
         service.setAction(ACTION_AUTHOR_READ);
         service.putExtra(EXTRA_OBJECT_ID, id);
+        service.putExtra(EXTRA_SELECT_TAG,iTag);
+        service.putExtra(EXTRA_SORT_ORDER,order);
         ctx.startService(service);
     }
-    public static void markBookReadFlip(Context ctx,int id){
+    public static void markBookReadFlip(Context ctx,int id,String order){
         Log.v(DEBUG_TAG,"Starting book read service");
         Intent service = new Intent(ctx,AuthorEditorServiceIntent.class );
         service.setAction(ACTION_BOOK_READ_FLIP);
         service.putExtra(EXTRA_OBJECT_ID, id);
+        service.putExtra(EXTRA_SORT_ORDER,order);
         ctx.startService(service);
     }
     public static void updateAllAuthorsTags(Context ctx) {

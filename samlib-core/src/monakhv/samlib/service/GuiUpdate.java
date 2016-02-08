@@ -30,8 +30,8 @@ import java.util.List;
  */
 public interface GuiUpdate {
     void makeUpdate(boolean isBoth);
-    void makeUpdate(Author a);
-    void makeUpdate(Book b);
+    void makeUpdate(Author a,int sort);
+    void makeUpdate(Book b,int sort);
 
     /**
      * Send update status

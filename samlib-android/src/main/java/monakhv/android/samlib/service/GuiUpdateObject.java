@@ -45,17 +45,20 @@ public class GuiUpdateObject implements Parcelable {
 
     private ObjectType mObjectType;
     private UpdateType mUpdateType;
-    private  int objectId;
+    private  int mObjectId;
+    private int mSortOrder=-1;
 
-    public GuiUpdateObject(Book book){
+    public GuiUpdateObject(Book book,int sort){
         mObjectType=ObjectType.BOOK;
         mUpdateType=UpdateType.UPDATE;
-        objectId=book.getId();
+        mObjectId =book.getId();
+        mSortOrder=sort;
     }
-    public GuiUpdateObject(Author author){
+    public GuiUpdateObject(Author author,int sort){
         mObjectType=ObjectType.AUTHOR;
         mUpdateType=UpdateType.UPDATE;
-        objectId=author.getId();
+        mObjectId =author.getId();
+        mSortOrder=sort;
     }
 
 
@@ -69,13 +72,14 @@ public class GuiUpdateObject implements Parcelable {
 
 
     public int getObjectId() {
-        return objectId;
+        return mObjectId;
     }
 
     protected GuiUpdateObject(Parcel in) {
-        objectId = in.readInt();
+        mObjectId = in.readInt();
         mObjectType=ObjectType.valueOf(in.readString());
         mUpdateType=UpdateType.valueOf(in.readString());
+        mSortOrder=in.readInt();
     }
 
     public static final Creator<GuiUpdateObject> CREATOR = new Creator<GuiUpdateObject>() {
@@ -97,9 +101,10 @@ public class GuiUpdateObject implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-        dest.writeInt(objectId);
+        dest.writeInt(mObjectId);
         dest.writeString(mObjectType.name());
         dest.writeString(mUpdateType.name());
+        dest.writeInt(mSortOrder);
     }
 
 

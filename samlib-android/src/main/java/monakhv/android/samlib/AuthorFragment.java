@@ -227,7 +227,7 @@ public class AuthorFragment extends MyBaseAbstractFragment implements
 
     @Override
     public void makeNewFlip(int id) {
-        AuthorEditorServiceIntent.markAuthorRead(getActivity(), id);
+        AuthorEditorServiceIntent.markAuthorRead(getActivity(), id,selectedTag,order.getOrder());
     }
 
     @Override

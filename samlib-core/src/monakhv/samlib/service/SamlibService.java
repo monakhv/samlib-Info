@@ -141,7 +141,7 @@ public class SamlibService {
             if (a.update(newA)) {//we have update for the author
                 if (a.isIsNew()){
                     updatedAuthors.add(a);//sometimes we need update if the author has no new books
-                    guiUpdate.makeUpdate(a);
+                    guiUpdate.makeUpdate(a,-1);
                 }
                 Log.i(DEBUG_TAG, "runUpdateAuthors: We need update author: " + a.getName());
 
@@ -192,7 +192,7 @@ public class SamlibService {
      * @param id author id
      * @return true if success
      */
-    public boolean makeAuthorRead(int id) {
+    public boolean makeAuthorRead(int id,int iTag,String order) {
 
         Author a = authorController.getById(id);
 
@@ -210,7 +210,8 @@ public class SamlibService {
         int i = authorController.markRead(a);
 
         Log.d(DEBUG_TAG, "Update author status: " + i);
-        guiUpdate.makeUpdate(a);
+        List<Author> authors=authorController.getAll(iTag,order);
+        guiUpdate.makeUpdate(a,authors.indexOf(a));
         return true;
 
     }
@@ -221,7 +222,7 @@ public class SamlibService {
      *
      * @param id book id
      */
-    public void makeBookReadFlip(int id) {
+    public void makeBookReadFlip(int id,String order) {
 
         Book book = authorController.getBookController().getById(id);
         if (book == null) {
@@ -236,17 +237,19 @@ public class SamlibService {
             a = authorController.getById(book.getAuthor().getId());
 
             if (authorController.testMarkRead(a)){
-                guiUpdate.makeUpdate(a);
+                guiUpdate.makeUpdate(a,-1);
             }
 
         } else {
             authorController.getBookController().markUnRead(book);
             a = authorController.getById(book.getAuthor().getId());
             if(authorController.testMarkRead(a)){
-                guiUpdate.makeUpdate(a);
+                guiUpdate.makeUpdate(a,-1);
             }
         }
-        guiUpdate.makeUpdate(book);
+        GroupBook groupBook=authorController.getGroupBookController().getByBook(book);
+        List<Book> books = authorController.getBookController().getBookForGroup(groupBook,order);
+        guiUpdate.makeUpdate(book,books.indexOf(book));
 
     }
 

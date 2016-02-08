@@ -64,7 +64,7 @@ public class BookFragment extends MyBaseAbstractFragment implements
     }
     @Override
     public void makeNewFlip(int id) {
-        AuthorEditorServiceIntent.markBookReadFlip(getActivity(), id);
+        AuthorEditorServiceIntent.markBookReadFlip(getActivity(), id,order.getOrder());
     }
 
 

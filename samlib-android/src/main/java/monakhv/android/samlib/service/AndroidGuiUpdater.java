@@ -135,7 +135,7 @@ public class AndroidGuiUpdater implements GuiUpdate {
     }
 
     @Override
-    public void makeUpdate(Author a) {
+    public void makeUpdate(Author a,int sort) {
         if (mProgressNotification != null){
             mProgressNotification.update(a);
         }
@@ -143,16 +143,16 @@ public class AndroidGuiUpdater implements GuiUpdate {
         broadcastIntent.addCategory(Intent.CATEGORY_DEFAULT);
         broadcastIntent.setAction(ACTION_RESP);
 
-        broadcastIntent.putExtra(EXTRA_PARCEL,new GuiUpdateObject(a));
+        broadcastIntent.putExtra(EXTRA_PARCEL,new GuiUpdateObject(a,sort));
         mContext.sendBroadcast(broadcastIntent);
     }
 
-    public void makeUpdate(Book book){
+    public void makeUpdate(Book book,int sort){
         Intent broadcastIntent = new Intent();
         broadcastIntent.addCategory(Intent.CATEGORY_DEFAULT);
         broadcastIntent.setAction(ACTION_RESP);
 
-        broadcastIntent.putExtra(EXTRA_PARCEL,new GuiUpdateObject(book));
+        broadcastIntent.putExtra(EXTRA_PARCEL,new GuiUpdateObject(book,sort));
         mContext.sendBroadcast(broadcastIntent);
     }
 
