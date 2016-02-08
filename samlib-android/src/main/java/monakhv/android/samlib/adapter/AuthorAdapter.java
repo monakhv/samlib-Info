@@ -109,15 +109,21 @@ public class AuthorAdapter extends RecyclerAdapter<Author, AuthorAdapter.AuthorV
 
     }
 
-    public void notifyChange(Author author,int sort){
+    @Override
+    public long getItemId(int position) {
+        return mData.get(position).getId();
+    }
+
+    public void notifyChange(Author author, int sort){
 
         int idx = mData.indexOf(author);
 
         if (idx != -1 && sort != -1 && idx !=sort){
             mData.remove(idx);
             mData.add(sort,author);
-            notifyItemRemoved(idx);
-            notifyItemInserted(sort);
+//            notifyItemRemoved(idx);
+//            notifyItemInserted(sort);
+            notifyItemMoved(idx,sort);
             Log.d(DEBUG_TAG,"notifyChange: make move: "+idx+" to: "+sort );
             return;
         }
@@ -129,7 +135,7 @@ public class AuthorAdapter extends RecyclerAdapter<Author, AuthorAdapter.AuthorV
             return;
         }
 
-
+        Log.e(DEBUG_TAG,"notifyChange: wrong index: "+idx );
 
     }
 
