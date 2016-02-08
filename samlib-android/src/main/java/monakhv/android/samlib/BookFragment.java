@@ -361,9 +361,11 @@ public class BookFragment extends MyBaseAbstractFragment implements
         }
         if (item == menu_selected) {
             sql.getBookController().setSelected(book);
+            updateAdapter(book.getId());
         }
         if (item == menu_deselected) {
             sql.getBookController().setDeselected(book);
+            updateAdapter(book.getId());
         }
         if (item == menu_reload) {
 
@@ -384,7 +386,8 @@ public class BookFragment extends MyBaseAbstractFragment implements
                 getSettingsHelper().makePreserved(book);
                 book.setPreserve(true);
             }
-            updateBook(book);
+            sql.getBookController().update(book);
+            updateAdapter(book.getId());
 
         }
         if (item == menu_choose_version) {
@@ -538,11 +541,6 @@ public class BookFragment extends MyBaseAbstractFragment implements
             selectSortOrder();
         }
         return super.onOptionsItemSelected(item);
-    }
-
-    private void updateBook(Book book) {
-        sql.getBookController().update(book);
-        updateAdapter();
     }
 
 

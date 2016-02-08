@@ -23,24 +23,26 @@ limitations under the License.
               android:background="@drawable/author_item_bg"
 >
     <LinearLayout
+            android:id="@+id/FlipContainer"
             android:orientation="vertical"
             android:layout_width="wrap_content"
-            android:layout_height="match_parent">
+            android:layout_height="wrap_content">
 
         <LinearLayout
-                android:layout_weight="1"
                 android:orientation="horizontal"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content">
 
             <ImageView
                     android:id="@+id/Staricon"
+                    android:layout_marginTop="4sp"
                     android:layout_width="16sp"
                     android:layout_height="16sp"
                     android:src="?attr/iconSelected">
             </ImageView>
             <ImageView
                     android:id="@+id/Lockicon"
+                    android:layout_marginTop="4sp"
                     android:layout_width="16sp"
                     android:layout_height="16sp"
                     android:src="?attr/iconLock">
@@ -48,10 +50,9 @@ limitations under the License.
         </LinearLayout>
 
         <RelativeLayout
-                android:layout_weight="10"
-                android:id="@+id/FlipContainer"
+
                 android:layout_width="wrap_content"
-                android:layout_height="match_parent">
+                android:layout_height="wrap_content">
             <ImageView
                     android:id="@+id/FlipIcon"
                     android:layout_width="40sp"
@@ -59,9 +60,11 @@ limitations under the License.
                     android:layout_marginLeft="4sp"
                     android:layout_marginRight="10sp"
                     android:layout_marginTop="4sp"
+                    android:src="?attr/iconLock"
             >
             </ImageView>
         </RelativeLayout>
+
 
 
     </LinearLayout>

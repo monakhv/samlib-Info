@@ -23,7 +23,7 @@ import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.view.View;
 import android.widget.ImageView;
-import android.widget.RelativeLayout;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import com.bignerdranch.expandablerecyclerview.ViewHolder.ChildViewHolder;
 import monakhv.android.samlib.R;
@@ -43,7 +43,7 @@ public class BookViewHolder extends ChildViewHolder {
     ImageView starIcon, lockIcon;
     ImageView flipIcon;
     Drawable openBook, closeBook;
-    RelativeLayout flipContainer;
+    LinearLayout flipContainer;
 
     @SuppressWarnings("deprecation")
     public BookViewHolder(View itemView, final BookExpandableAdapter adapter) {
@@ -53,7 +53,7 @@ public class BookViewHolder extends ChildViewHolder {
         bookDesc = (TextView) itemView.findViewById(R.id.bookDesc);
         bookAuthorName = (TextView) itemView.findViewById(R.id.bookAuthorName);
         bookForm = (TextView) itemView.findViewById(R.id.bookForm);
-        flipContainer = (RelativeLayout) itemView.findViewById(R.id.FlipContainer);
+        flipContainer = (LinearLayout) itemView.findViewById(R.id.FlipContainer);
 
         flipIcon = (ImageView) itemView.findViewById(R.id.FlipIcon);
         starIcon = (ImageView) itemView.findViewById(R.id.Staricon);
