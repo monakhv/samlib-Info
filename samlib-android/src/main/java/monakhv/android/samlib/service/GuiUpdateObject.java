@@ -75,6 +75,10 @@ public class GuiUpdateObject implements Parcelable {
         return mObjectId;
     }
 
+    public int getSortOrder() {
+        return mSortOrder;
+    }
+
     protected GuiUpdateObject(Parcel in) {
         mObjectId = in.readInt();
         mObjectType=ObjectType.valueOf(in.readString());

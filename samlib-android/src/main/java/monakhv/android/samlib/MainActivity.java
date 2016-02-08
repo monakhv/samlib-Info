@@ -571,7 +571,7 @@ public class MainActivity extends MyBaseAbstractActivity implements
 
 
                 if (guiUpdateObject.isAuthor()){
-                    authorFragment.refresh();
+                    authorFragment.updateAdapter(guiUpdateObject);
                 }
 
             }

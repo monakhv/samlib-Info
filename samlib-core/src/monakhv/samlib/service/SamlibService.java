@@ -209,9 +209,11 @@ public class SamlibService {
 
         int i = authorController.markRead(a);
 
-        Log.d(DEBUG_TAG, "Update author status: " + i);
+
         List<Author> authors=authorController.getAll(iTag,order);
-        guiUpdate.makeUpdate(a,authors.indexOf(a));
+        int sort = authors.indexOf(a);
+        guiUpdate.makeUpdate(a,sort);
+        Log.d(DEBUG_TAG, "Update author status: " + i+"   sort "+sort);
         return true;
 
     }
@@ -248,7 +250,14 @@ public class SamlibService {
             }
         }
         GroupBook groupBook=authorController.getGroupBookController().getByBook(book);
-        List<Book> books = authorController.getBookController().getBookForGroup(groupBook,order);
+        List<Book> books;
+        if (groupBook == null){
+            books=authorController.getBookController().getAll(a,order);
+        }
+        else {
+            books = authorController.getBookController().getBookForGroup(groupBook,order);
+        }
+
         guiUpdate.makeUpdate(book,books.indexOf(book));
 
     }

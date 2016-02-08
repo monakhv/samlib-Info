@@ -11,7 +11,6 @@ import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
-import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 
@@ -29,6 +28,7 @@ import in.srain.cube.views.ptr.PtrHandler;
 import monakhv.android.samlib.adapter.AuthorAdapter;
 
 
+import monakhv.android.samlib.adapter.AuthorAnimator;
 import monakhv.android.samlib.adapter.AuthorLoader;
 import monakhv.android.samlib.adapter.RecyclerAdapter;
 import monakhv.android.samlib.dialogs.ContextMenuDialog;
@@ -38,6 +38,7 @@ import monakhv.android.samlib.dialogs.MyMenuData;
 
 import monakhv.android.samlib.recyclerview.DividerItemDecoration;
 import monakhv.android.samlib.service.AuthorEditorServiceIntent;
+import monakhv.android.samlib.service.GuiUpdateObject;
 import monakhv.android.samlib.service.UpdateLocalService;
 import monakhv.android.samlib.sortorder.AuthorSortOrder;
 
@@ -209,7 +210,7 @@ public class AuthorFragment extends MyBaseAbstractFragment implements
         emptyTagAuthor.setVisibility(View.GONE);
         getLoaderManager().initLoader(AUTHOR_LOADER_ID, null, this);
 
-        authorRV.setItemAnimator(new DefaultItemAnimator());
+        authorRV.setItemAnimator(new AuthorAnimator());
         return view;
 
     }
@@ -602,6 +603,18 @@ public class AuthorFragment extends MyBaseAbstractFragment implements
 
 
         updateAdapter();
+    }
+
+    public void updateAdapter(GuiUpdateObject guiUpdateObject){
+        Author author=getAuthorController().getById(guiUpdateObject.getObjectId());
+        int sort= guiUpdateObject.getSortOrder();
+        if (sort == -1){
+            List<Author> aa = getAuthorController().getAll(selectedTag,order.getOrder());
+            sort=aa.indexOf(author);
+        }
+        adapter.notifyChange(author,sort);
+        adapter.toggleSelection(sort);
+        authorRV.smoothScrollToPosition(sort);
     }
 
     @Override

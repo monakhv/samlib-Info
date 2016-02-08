@@ -60,7 +60,7 @@ limitations under the License.
                     android:layout_marginLeft="4sp"
                     android:layout_marginRight="10sp"
                     android:layout_marginTop="4sp"
-                    android:src="?attr/iconLock"
+
             >
             </ImageView>
         </RelativeLayout>
