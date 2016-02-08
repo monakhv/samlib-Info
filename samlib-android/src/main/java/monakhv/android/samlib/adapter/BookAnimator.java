@@ -45,10 +45,10 @@ public class BookAnimator extends DefaultItemAnimator {
     private HashMap<RecyclerView.ViewHolder, AnimatorInfo> mAnimatorMap = new HashMap<>();
 
 
-//    @Override
-//    public boolean canReuseUpdatedViewHolder(RecyclerView.ViewHolder viewHolder) {
-//        return false;
-//    }
+    @Override
+    public boolean canReuseUpdatedViewHolder(RecyclerView.ViewHolder viewHolder) {
+        return false;
+    }
 
     @Override
     public ItemHolderInfo obtainHolderInfo() {
@@ -60,12 +60,22 @@ public class BookAnimator extends DefaultItemAnimator {
         if (oldHolder instanceof GroupViewHolder && newHolder instanceof GroupViewHolder) {
             final GroupViewHolder groupPostHolder = (GroupViewHolder) newHolder;
             groupAnimator(newHolder, groupPostHolder.bookNumber, groupPostHolder.newIcon, preInfo, postInfo);
+          //  newHolder.setIsRecyclable(false);
+          //  return false;
         }
 
         if (oldHolder instanceof BookViewHolder && newHolder instanceof BookViewHolder) {
             final BookViewHolder bookPostHolder = (BookViewHolder) newHolder;
             groupAnimator(newHolder, bookPostHolder.bookSize, bookPostHolder.flipIcon, preInfo, postInfo);
+            //newHolder.setIsRecyclable(false);
+            //return false;
         }
+        BookItemHolderInfo preBiInfo = (BookItemHolderInfo) preInfo;
+        BookItemHolderInfo postBiInfo = (BookItemHolderInfo) postInfo;
+        Log.w(DEBUG_TAG, "animateChange: Text change from: " +preBiInfo.bookNumberString);
+        Log.w(DEBUG_TAG, "animateChange: Text change from: " +postBiInfo.bookNumberString);
+//        dispatchAnimationFinished(oldHolder);
+//        dispatchAnimationFinished(newHolder);
 
         return super.animateChange(oldHolder, newHolder, preInfo, postInfo);
     }
@@ -79,8 +89,8 @@ public class BookAnimator extends DefaultItemAnimator {
         final String newBookNumber = postGroupInfo.bookNumberString;
 
 
-        Log.d(DEBUG_TAG, "animateChange: GroupChange from: " + preGroupInfo.bookNumberString);
-        Log.d(DEBUG_TAG, "animateChange: GroupChange to: " + postGroupInfo.bookNumberString);
+        Log.d(DEBUG_TAG, "groupAnimator: Text change from: " + preGroupInfo.bookNumberString);
+        Log.d(DEBUG_TAG, "groupAnimator: Text change to: " + postGroupInfo.bookNumberString);
 
 
         ObjectAnimator oldTextRotate = null;
@@ -112,7 +122,7 @@ public class BookAnimator extends DefaultItemAnimator {
 
 
         if (!preGroupInfo.newTag.equals(postGroupInfo.newTag)) {
-            Log.d(DEBUG_TAG, "animateChange: GroupChange Make Flip icon ");
+            Log.d(DEBUG_TAG, "groupAnimator: GroupChange Make Flip icon ");
 
             imageRotation = new AnimatorSet();
             oldRotateImage = ObjectAnimator.ofFloat(imageToRotate, View.ROTATION_Y, 0, 90);
@@ -157,13 +167,24 @@ public class BookAnimator extends DefaultItemAnimator {
             public void onAnimationEnd(Animator animation) {
                 dispatchAnimationFinished(newHolder);
                 mAnimatorMap.remove(newHolder);
+  //              newHolder.setIsRecyclable(true);
             }
         });
 
         AnimatorInfo runningInfo = mAnimatorMap.get(newHolder);
         if (runningInfo != null) {
-            boolean firstHalf = runningInfo.oldTextRotate != null && runningInfo.oldTextRotate.isRunning();
-            long currentPlayTime = firstHalf ? runningInfo.oldTextRotate.getCurrentPlayTime() : runningInfo.newTextRotate.getCurrentPlayTime();
+            boolean firstHalf;
+            long currentPlayTime;
+            if (runningInfo.oldTextRotate != null){
+                firstHalf =  runningInfo.oldTextRotate.isRunning();
+                currentPlayTime = firstHalf ? runningInfo.oldTextRotate.getCurrentPlayTime() : runningInfo.newTextRotate.getCurrentPlayTime();
+            }
+            else {
+                firstHalf =  runningInfo.oldRotateImage.isRunning();
+                currentPlayTime = firstHalf ? runningInfo.oldRotateImage.getCurrentPlayTime() : runningInfo.newRotateImage.getCurrentPlayTime();
+            }
+
+
             runningInfo.overallAnim.cancel();
 
             if (firstHalf) {
