@@ -61,17 +61,19 @@ public class BookExpandableAdapter extends ExpandableRecyclerAdapter<GroupViewHo
 
     private final LayoutInflater mInflater;
     private final SettingsHelper mSettingsHelper;
+    private final int maxGroupId;
     private long author_id;
     private Context mContext;
     protected CallBack mCallBack;
 
-    public BookExpandableAdapter(@NonNull List<? extends ParentListItem> parentItemList, Activity context, CallBack callBack, SettingsHelper settingsHelper) {
+    public BookExpandableAdapter(@NonNull List<? extends ParentListItem> parentItemList, int maxGroupId, Activity context, CallBack callBack, SettingsHelper settingsHelper) {
         super(parentItemList);
-
+        this.maxGroupId=maxGroupId;
         mInflater = LayoutInflater.from(context);
         mCallBack = callBack;
         mContext = context;
         mSettingsHelper = settingsHelper;
+        setHasStableIds(true);
     }
 
     public void setAuthor_id(long author_id) {
@@ -219,7 +221,7 @@ public class BookExpandableAdapter extends ExpandableRecyclerAdapter<GroupViewHo
         }
         if (iType == TYPE_CHILD) {
             Book book = (Book) o;
-            return book.getId();
+            return maxGroupId+ book.getId();
         }
         throw new IllegalStateException("getItemId: Incorrect ViewType found");
     }
@@ -259,8 +261,9 @@ public class BookExpandableAdapter extends ExpandableRecyclerAdapter<GroupViewHo
                     } else {
                         gi.getChildItemList().remove(idx);
                         gi.getChildItemList().add(sort, book);
+
+                        notifyChildItemMoved(i, idx, sort);
                         notifyParentItemChanged(i);
-                        //notifyChildItemMoved(i, idx, sort);
                     }
                     Log.d(DEBUG_TAG, "updateData: update parent: " + i + "  update child: " + idx + " -- " + getParentWrapperIndex(i));
                     return;

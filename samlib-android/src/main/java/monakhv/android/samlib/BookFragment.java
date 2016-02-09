@@ -140,7 +140,7 @@ public class BookFragment extends MyBaseAbstractFragment implements
         mProgressBar = (ProgressBar) view.findViewById(R.id.bookProgress);
 
 
-        adapter = new BookExpandableAdapter(GroupListItem.EMPTY, getActivity(),this,getSettingsHelper());
+        adapter = new BookExpandableAdapter(GroupListItem.EMPTY, -1,getActivity(),this,getSettingsHelper());
         adapter.setAuthor_id(author_id);
         bookRV.setHasFixedSize(true);
         bookRV.setLayoutManager(new LinearLayoutManager(getActivity()));
@@ -175,7 +175,8 @@ public class BookFragment extends MyBaseAbstractFragment implements
 
         //adapter.setData(data);
 
-        adapter = new BookExpandableAdapter(data, getActivity(),this,getSettingsHelper());
+        BookLoader bookLoader= (BookLoader) loader;
+        adapter = new BookExpandableAdapter(data, bookLoader.getMaxGroupId() , getActivity(),this,getSettingsHelper());
         adapter.setAuthor_id(author_id);
         bookRV.setAdapter(adapter);
         Log.d(DEBUG_TAG, "onLoadFinished: adapter size = " + adapter.getItemCount());
@@ -192,7 +193,7 @@ public class BookFragment extends MyBaseAbstractFragment implements
     public void onLoaderReset(Loader<List<GroupListItem>> loader) {
 
         //adapter.setData(null);
-        adapter = new BookExpandableAdapter(GroupListItem.EMPTY, getActivity(),this,getSettingsHelper());
+        adapter = new BookExpandableAdapter(GroupListItem.EMPTY,-1, getActivity(),this,getSettingsHelper());
         bookRV.setAdapter(adapter);
 
     }

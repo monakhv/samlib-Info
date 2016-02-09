@@ -49,7 +49,7 @@ public class AuthorAdapter extends RecyclerAdapter<Author, AuthorAdapter.AuthorV
     public AuthorAdapter(RecyclerAdapter.CallBack callBack) {
         super(callBack);
 
-
+        setHasStableIds(true);
         df = new SimpleDateFormat(DATE_FORMAT, Locale.FRANCE);
      //   now = Calendar.getInstance();
     }
