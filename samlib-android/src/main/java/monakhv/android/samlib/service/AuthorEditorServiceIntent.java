@@ -35,11 +35,13 @@ public class AuthorEditorServiceIntent extends MyServiceIntent {
     private static final String DEBUG_TAG="AuthorEditorServiceIntent";
     private static final String EXTRA_ADD_AUTHOR_DATA="AddAuthorServiceIntent_EXTRA_ADD_AUTHOR_DATA";
     private static final String EXTRA_OBJECT_ID ="AddAuthorServiceIntent_EXTRA_OBJECT_ID";
+    private static final String EXTRA_SUB_OBJECT_ID="AddAuthorServiceIntent_EXTRA_SUB_OBJECT_ID";
     private static final String EXTRA_SORT_ORDER ="AddAuthorServiceIntent_EXTRA_SORT_ORDER";
     private static final String EXTRA_SELECT_TAG ="AddAuthorServiceIntent_EXTRA_SELECT_TAG";
 
     public static final String ACTION_AUTHOR_READ="AddAuthorServiceIntent_ACTION_AUTHOR_READ";
     public static final String ACTION_BOOK_READ_FLIP="AddAuthorServiceIntent_ACTION_BOOK_READ_FLIP";
+    public static final String ACTION_GROUP_READ_FLIP="AddAuthorServiceIntent_ACTION_GROUP_READ_FLIP";
     public static final String ACTION_ALL_TAGS_UPDATE="AddAuthorServiceIntent_ACTION_ALL_TAGS_UPDATE";
 
 
@@ -103,6 +105,21 @@ public class AuthorEditorServiceIntent extends MyServiceIntent {
             service.makeAuthorRead(id,iSel,order);
 
             mSamlibApplication.releaseServiceComponent();
+            return;
+        }
+
+        if (action.equals(ACTION_GROUP_READ_FLIP)){
+            int id =intent.getIntExtra(EXTRA_OBJECT_ID,-1);
+            long author_id=intent.getLongExtra(EXTRA_SUB_OBJECT_ID,-1);
+            String order=intent.getStringExtra(EXTRA_SORT_ORDER);
+            if (id <0|| author_id<0){
+                Log.e(DEBUG_TAG,"Null group data, can not make it read/unread");
+                mSamlibApplication.releaseServiceComponent();
+                return;
+            }
+            service.makeGroupReadFlip(id,order,author_id);
+            mSamlibApplication.releaseServiceComponent();
+
             return;
         }
         if (action.equals(ACTION_BOOK_READ_FLIP)){
@@ -176,6 +193,17 @@ public class AuthorEditorServiceIntent extends MyServiceIntent {
         service.putExtra(EXTRA_SORT_ORDER,order);
         ctx.startService(service);
     }
+
+    public static void markGroupReadFlip(Context ctx,int id,String order,long author_id){
+        Log.v(DEBUG_TAG,"Starting Group read service");
+        Intent service = new Intent(ctx,AuthorEditorServiceIntent.class );
+        service.setAction(ACTION_GROUP_READ_FLIP);
+        service.putExtra(EXTRA_OBJECT_ID, id);
+        service.putExtra(EXTRA_SUB_OBJECT_ID, author_id);
+        service.putExtra(EXTRA_SORT_ORDER,order);
+        ctx.startService(service);
+    }
+
     public static void updateAllAuthorsTags(Context ctx) {
         Log.v(DEBUG_TAG, "Starting update all tags service");
         Intent service = new Intent(ctx,AuthorEditorServiceIntent.class );

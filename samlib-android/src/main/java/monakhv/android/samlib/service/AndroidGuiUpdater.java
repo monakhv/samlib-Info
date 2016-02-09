@@ -139,20 +139,25 @@ public class AndroidGuiUpdater implements GuiUpdate {
         if (mProgressNotification != null){
             mProgressNotification.update(a);
         }
-        Intent broadcastIntent = new Intent();
-        broadcastIntent.addCategory(Intent.CATEGORY_DEFAULT);
-        broadcastIntent.setAction(ACTION_RESP);
-
-        broadcastIntent.putExtra(EXTRA_PARCEL,new GuiUpdateObject(a,sort));
-        mContext.sendBroadcast(broadcastIntent);
+        sendBroadcast(new GuiUpdateObject(a,sort));
     }
 
     public void makeUpdate(Book book,int sort){
+        sendBroadcast(new GuiUpdateObject(book,sort));
+    }
+
+
+
+    public void makeUpdate(GroupBook groupBook,int sort){
+        sendBroadcast(new GuiUpdateObject(groupBook,sort));
+    }
+
+    private void sendBroadcast(GuiUpdateObject guiUpdateObject){
         Intent broadcastIntent = new Intent();
         broadcastIntent.addCategory(Intent.CATEGORY_DEFAULT);
         broadcastIntent.setAction(ACTION_RESP);
 
-        broadcastIntent.putExtra(EXTRA_PARCEL,new GuiUpdateObject(book,sort));
+        broadcastIntent.putExtra(EXTRA_PARCEL,guiUpdateObject);
         mContext.sendBroadcast(broadcastIntent);
     }
 

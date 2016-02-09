@@ -89,6 +89,11 @@ public class GroupViewHolder extends ParentViewHolder {
     }
 
     @Override
+    public boolean shouldItemViewClickToggleExpansion() {
+        return false;
+    }
+
+    @Override
     public void setExpanded(boolean expanded) {
         super.setExpanded(expanded);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {

@@ -49,13 +49,14 @@ import java.util.List;
 public class BookExpandableAdapter extends ExpandableRecyclerAdapter<GroupViewHolder, BookViewHolder> {
 
     public interface CallBack {
-        void makeNewFlip(int id);
+        void makeBookNewFlip(int id);
+        void makeGroupNewFlip(int id);
     }
 
     private static final String DEBUG_TAG = "BookExpandableAdapter";
     public static final int NOT_SELECTED = -1;
     private int selected = NOT_SELECTED;
-    private static final int TYPE_PARENT = 0;
+    public static final int TYPE_PARENT = 0;
     private static final int TYPE_CHILD = 1;
 
 
@@ -140,6 +141,16 @@ public class BookExpandableAdapter extends ExpandableRecyclerAdapter<GroupViewHo
 
     }
 
+    public void flipCollapse(int position){
+        ParentWrapper parentWrapper= (ParentWrapper) mItemList.get(position);
+
+        if (parentWrapper.isExpanded()){
+            collapseParent(parentWrapper.getParentListItem());
+        }
+        else {
+            expandParent(parentWrapper.getParentListItem());
+        }
+    }
 
     @SuppressWarnings("deprecation")
     @Override
@@ -226,6 +237,33 @@ public class BookExpandableAdapter extends ExpandableRecyclerAdapter<GroupViewHo
         throw new IllegalStateException("getItemId: Incorrect ViewType found");
     }
 
+    public void updateData(GroupListItem groupListItem,int sort){
+        //TODO: group Move is not implemented yet
+        if (groupListItem.getId()==-1){
+            ParentListItem parentListItem = getParentItemList().get(0);
+            GroupListItem gi = (GroupListItem) parentListItem;
+            gi.newNumber=0;
+            gi.setChildItemList(groupListItem.getChildItemList());
+            notifyParentItemChanged(0);
+        }
+        else {
+            int parentListItemCount = getParentItemList().size();
+            for (int i = 0; i < parentListItemCount; i++) {
+                ParentListItem parentListItem = getParentItemList().get(i);
+                GroupListItem gi = (GroupListItem) parentListItem;
+
+                if (gi.getId() == groupListItem.getId()){
+                    gi.setChildItemList(groupListItem.getChildItemList());
+                    gi.newNumber=groupListItem.newNumber;
+                    notifyParentItemChanged(i);
+                    return;
+                }
+            }
+
+        }
+
+
+    }
     public void updateData(Book book, GroupBook group, int sort) {
         int parentListItemCount = getParentItemList().size();
         Log.i(DEBUG_TAG, "updateData: parent list size:  " + parentListItemCount);
@@ -341,6 +379,12 @@ public class BookExpandableAdapter extends ExpandableRecyclerAdapter<GroupViewHo
 
     }
 
+    /**
+     * Return the book for current position
+     *
+     * @param position the position for Book
+     * @return book or NULL if the position is not for Book object
+     */
     public Book getBook(int position) {
         if (position < 0) {
             return null;
@@ -354,14 +398,41 @@ public class BookExpandableAdapter extends ExpandableRecyclerAdapter<GroupViewHo
         return (Book) o;
     }
 
+    /**
+     * Make flip read of the Book  or nothing if the position is not For Book
+     * @param position the position for Book
+     */
     public void makeRead(int position) {
         Book book = getBook(position);
         if (book != null) {
-            mCallBack.makeNewFlip(book.getId());
+            mCallBack.makeBookNewFlip(book.getId());
         }
     }
 
 
+    public void makeAllRead(int position){
+        Object o = mItemList.get(position);
+
+        if (o instanceof Book){
+            Book book = (Book) o;
+            if (! book.isIsNew()){
+                return;
+            }
+            mCallBack.makeBookNewFlip(book.getId());
+        }
+        if (o instanceof ParentWrapper){
+            Log.d(DEBUG_TAG,"makeAllRead: parent wrapper");
+            final ParentWrapper parentWrapper = (ParentWrapper) o;
+            final ParentListItem parentListItem=parentWrapper.getParentListItem();
+            final GroupListItem groupListItem = (GroupListItem) parentListItem;
+            if (groupListItem.newNumber==0){
+                Log.d(DEBUG_TAG,"makeAllRead: nothing to clean exiting");
+                return;
+            }
+            Log.d(DEBUG_TAG,"makeAllRead: call clean group: "+groupListItem.getName());
+            mCallBack.makeGroupNewFlip(groupListItem.getId());
+        }
+    }
     private int getParentWrapperIndex(int parentIndex) {
         int parentCount = 0;
         int listItemCount = mItemList.size();

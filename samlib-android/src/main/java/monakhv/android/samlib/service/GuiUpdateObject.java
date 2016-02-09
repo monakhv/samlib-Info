@@ -23,6 +23,7 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import monakhv.samlib.db.entity.Author;
 import monakhv.samlib.db.entity.Book;
+import monakhv.samlib.db.entity.GroupBook;
 
 /**
  * Class is used to inform GUI that data set is changed
@@ -36,7 +37,7 @@ public class GuiUpdateObject implements Parcelable {
         GROUP
     }
     public enum UpdateType {
-        UPDATE,
+        UPDATE_READ,
         ADD,
         DELETE
     }
@@ -50,17 +51,23 @@ public class GuiUpdateObject implements Parcelable {
 
     public GuiUpdateObject(Book book,int sort){
         mObjectType=ObjectType.BOOK;
-        mUpdateType=UpdateType.UPDATE;
+        mUpdateType=UpdateType.UPDATE_READ;
         mObjectId =book.getId();
         mSortOrder=sort;
     }
     public GuiUpdateObject(Author author,int sort){
         mObjectType=ObjectType.AUTHOR;
-        mUpdateType=UpdateType.UPDATE;
+        mUpdateType=UpdateType.UPDATE_READ;
         mObjectId =author.getId();
         mSortOrder=sort;
     }
 
+    public GuiUpdateObject(GroupBook groupBook, int sort){
+        mObjectType=ObjectType.GROUP;
+        mUpdateType=UpdateType.UPDATE_READ;
+        mObjectId =groupBook.getId();
+        mSortOrder=sort;
+    }
 
     public boolean isBook(){
         return mObjectType==ObjectType.BOOK;
@@ -70,6 +77,9 @@ public class GuiUpdateObject implements Parcelable {
         return mObjectType==ObjectType.AUTHOR;
     }
 
+    public boolean isGroup(){
+        return mObjectType==ObjectType.GROUP;
+    }
 
     public int getObjectId() {
         return mObjectId;

@@ -64,11 +64,15 @@ public class BookFragment extends MyBaseAbstractFragment implements
         void showTags(long author_id);
     }
     @Override
-    public void makeNewFlip(int id) {
+    public void makeBookNewFlip(int id) {
         AuthorEditorServiceIntent.markBookReadFlip(getActivity(), id,order.getOrder());
     }
 
 
+    @Override
+    public void makeGroupNewFlip(int id) {
+        AuthorEditorServiceIntent.markGroupReadFlip(getActivity(), id,order.getOrder(),author_id);
+    }
 
 
     private static final String DEBUG_TAG = "BookFragment";
@@ -240,10 +244,30 @@ public class BookFragment extends MyBaseAbstractFragment implements
     }
 
     public void updateAdapter(GuiUpdateObject guiUpdateObject){
-        Book b=sql.getBookController().getById(guiUpdateObject.getObjectId());
-        GroupBook groupBook=sql.getGroupBookController().getByBook(b);
+        //TODO: should move out of main thread
+        if (guiUpdateObject.isBook()){
+            Book b=sql.getBookController().getById(guiUpdateObject.getObjectId());
+            GroupBook groupBook=sql.getGroupBookController().getByBook(b);
 
-        adapter.updateData(b,groupBook,guiUpdateObject.getSortOrder());
+            adapter.updateData(b,groupBook,guiUpdateObject.getSortOrder());
+        }
+        if (guiUpdateObject.isGroup()){
+
+            GroupListItem groupListItem;
+            if (guiUpdateObject.getObjectId() == -1){
+                groupListItem=new GroupListItem();
+                List<Book> childList=sql.getBookController().getAll(sql.getById(author_id),order.getOrder());
+                groupListItem.setChildItemList(childList);
+            }
+            else {
+                GroupBook groupBook=sql.getGroupBookController().getById(guiUpdateObject.getObjectId());
+                List<Book> childList=sql.getBookController().getBookForGroup(groupBook,order.getOrder());
+                groupListItem=new GroupListItem(groupBook,childList);
+            }
+
+            adapter.updateData(groupListItem,guiUpdateObject.getSortOrder());
+        }
+
     }
 
 
@@ -269,6 +293,10 @@ public class BookFragment extends MyBaseAbstractFragment implements
     public boolean singleClick(MotionEvent e) {
         int position = bookRV.getChildAdapterPosition(bookRV.findChildViewUnder(e.getX(), e.getY()));
 
+        if (adapter.getItemViewType(position)== BookExpandableAdapter.TYPE_PARENT){
+            adapter.flipCollapse(position);
+            return true ;
+        }
 
         book = adapter.getBook(position);
 
@@ -288,7 +316,7 @@ public class BookFragment extends MyBaseAbstractFragment implements
         Log.v(DEBUG_TAG, "making swipeRight");
         int position = bookRV.getChildAdapterPosition(bookRV.findChildViewUnder(e.getX(), e.getY()));
 
-        adapter.makeRead(position);
+        adapter.makeAllRead(position);
         return true;
     }
 

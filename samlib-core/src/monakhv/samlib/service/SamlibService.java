@@ -218,6 +218,42 @@ public class SamlibService {
 
     }
 
+    public void  makeGroupReadFlip(int id,String order,long author_id) {
+        List<Book> books;
+        GroupBook groupBook=null;
+        if (id == -1){//Author has no group
+            Author author=authorController.getById(author_id);
+            books=authorController.getBookController().getAll(author,order);
+        }
+        else {//Author has groups
+            groupBook = authorController.getGroupBookController().getById(id);
+            books=authorController.getBookController().getBookForGroup(groupBook,order);
+        }
+
+
+        for (Book book: books){
+            if (book.isIsNew()){
+                authorController.getBookController().markRead(book);
+            }
+        }
+
+
+
+        Author author=authorController.getById(author_id);
+        if (authorController.testMarkRead(author)){
+            guiUpdate.makeUpdate(author,-1);
+        }
+
+        if (id==-1){
+            guiUpdate.makeUpdate(groupBook,-1);
+        }
+        else {
+            List<GroupBook> rr = authorController.getGroupBookController().getByAuthor(author);
+            guiUpdate.makeUpdate(groupBook,rr.indexOf(groupBook));
+
+        }
+
+    }
     /**
      * Invert read book flag
      * Adjust author flag either

@@ -32,6 +32,7 @@ public interface GuiUpdate {
     void makeUpdate(boolean isBoth);
     void makeUpdate(Author a,int sort);
     void makeUpdate(Book b,int sort);
+    void makeUpdate(GroupBook g,int sort);
 
     /**
      * Send update status
