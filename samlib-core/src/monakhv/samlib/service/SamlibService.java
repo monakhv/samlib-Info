@@ -214,6 +214,11 @@ public class SamlibService {
         int sort = authors.indexOf(a);
         guiUpdate.makeUpdate(a,sort);
         Log.d(DEBUG_TAG, "Update author status: " + i+"   sort "+sort);
+
+        List<GroupBook> groupBooks=authorController.getGroupBookController().getByAuthor(a);
+        for (GroupBook groupBook :groupBooks){
+            guiUpdate.makeUpdate(groupBook,groupBooks.indexOf(groupBook));
+        }
         return true;
 
     }

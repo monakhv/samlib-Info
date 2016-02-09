@@ -63,15 +63,16 @@ public class BookFragment extends MyBaseAbstractFragment implements
 
         void showTags(long author_id);
     }
+
     @Override
     public void makeBookNewFlip(int id) {
-        AuthorEditorServiceIntent.markBookReadFlip(getActivity(), id,order.getOrder());
+        AuthorEditorServiceIntent.markBookReadFlip(getActivity(), id, order.getOrder());
     }
 
 
     @Override
     public void makeGroupNewFlip(int id) {
-        AuthorEditorServiceIntent.markGroupReadFlip(getActivity(), id,order.getOrder(),author_id);
+        AuthorEditorServiceIntent.markGroupReadFlip(getActivity(), id, order.getOrder(), author_id);
     }
 
 
@@ -102,7 +103,7 @@ public class BookFragment extends MyBaseAbstractFragment implements
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Log.d(DEBUG_TAG, "onCreate call");
-        adapterState=null;
+        adapterState = null;
 
         if (getActivity().getIntent().getExtras() == null) {
             author_id = 0;
@@ -144,7 +145,7 @@ public class BookFragment extends MyBaseAbstractFragment implements
         mProgressBar = (ProgressBar) view.findViewById(R.id.bookProgress);
 
 
-        adapter = new BookExpandableAdapter(GroupListItem.EMPTY, -1,getActivity(),this,getSettingsHelper());
+        adapter = new BookExpandableAdapter(GroupListItem.EMPTY, -1, getActivity(), this, getSettingsHelper());
         adapter.setAuthor_id(author_id);
         bookRV.setHasFixedSize(true);
         bookRV.setLayoutManager(new LinearLayoutManager(getActivity()));
@@ -179,15 +180,15 @@ public class BookFragment extends MyBaseAbstractFragment implements
 
         //adapter.setData(data);
 
-        BookLoader bookLoader= (BookLoader) loader;
-        adapter = new BookExpandableAdapter(data, bookLoader.getMaxGroupId() , getActivity(),this,getSettingsHelper());
+        BookLoader bookLoader = (BookLoader) loader;
+        adapter = new BookExpandableAdapter(data, bookLoader.getMaxGroupId(), getActivity(), this, getSettingsHelper());
         adapter.setAuthor_id(author_id);
         bookRV.setAdapter(adapter);
         Log.d(DEBUG_TAG, "onLoadFinished: adapter size = " + adapter.getItemCount());
         mProgressBar.setVisibility(View.GONE);
         makeEmpty();
-        if (adapterState != null && ! adapterState.isEmpty()){
-            Log.d(DEBUG_TAG,"onLoadFinished: load adapter data");
+        if (adapterState != null && !adapterState.isEmpty()) {
+            Log.d(DEBUG_TAG, "onLoadFinished: load adapter data");
             adapter.onRestoreInstanceState(adapterState);
             adapterState.clear();
         }
@@ -197,7 +198,7 @@ public class BookFragment extends MyBaseAbstractFragment implements
     public void onLoaderReset(Loader<List<GroupListItem>> loader) {
 
         //adapter.setData(null);
-        adapter = new BookExpandableAdapter(GroupListItem.EMPTY,-1, getActivity(),this,getSettingsHelper());
+        adapter = new BookExpandableAdapter(GroupListItem.EMPTY, -1, getActivity(), this, getSettingsHelper());
         bookRV.setAdapter(adapter);
 
     }
@@ -223,7 +224,7 @@ public class BookFragment extends MyBaseAbstractFragment implements
     }
 
     void updateAdapter() {
-        Log.d(DEBUG_TAG,"updateAdapter call");
+        Log.d(DEBUG_TAG, "updateAdapter call");
         //very ugly hack
         if (order == null) {
             Context ctx = getActivity().getApplicationContext();
@@ -236,36 +237,35 @@ public class BookFragment extends MyBaseAbstractFragment implements
         getLoaderManager().restartLoader(BOOK_LOADER_ID, null, this);
     }
 
-    public void updateAdapter(Book book){
+    public void updateAdapter(Book book) {
 
-        GroupBook groupBook=sql.getGroupBookController().getByBook(book);
+        GroupBook groupBook = sql.getGroupBookController().getByBook(book);
 
-        adapter.updateData(book,groupBook,-1 );
+        adapter.updateData(book, groupBook, -1);
     }
 
-    public void updateAdapter(GuiUpdateObject guiUpdateObject){
+    public void updateAdapter(GuiUpdateObject guiUpdateObject) {
         //TODO: should move out of main thread
-        if (guiUpdateObject.isBook()){
-            Book b=sql.getBookController().getById(guiUpdateObject.getObjectId());
-            GroupBook groupBook=sql.getGroupBookController().getByBook(b);
+        if (guiUpdateObject.isBook()) {
+            Book b = sql.getBookController().getById(guiUpdateObject.getObjectId());
+            GroupBook groupBook = sql.getGroupBookController().getByBook(b);
 
-            adapter.updateData(b,groupBook,guiUpdateObject.getSortOrder());
+            adapter.updateData(b, groupBook, guiUpdateObject.getSortOrder());
         }
-        if (guiUpdateObject.isGroup()){
+        if (guiUpdateObject.isGroup()) {
 
             GroupListItem groupListItem;
-            if (guiUpdateObject.getObjectId() == -1){
-                groupListItem=new GroupListItem();
-                List<Book> childList=sql.getBookController().getAll(sql.getById(author_id),order.getOrder());
+            if (guiUpdateObject.getObjectId() == -1) {
+                groupListItem = new GroupListItem();
+                List<Book> childList = sql.getBookController().getAll(sql.getById(author_id), order.getOrder());
                 groupListItem.setChildItemList(childList);
-            }
-            else {
-                GroupBook groupBook=sql.getGroupBookController().getById(guiUpdateObject.getObjectId());
-                List<Book> childList=sql.getBookController().getBookForGroup(groupBook,order.getOrder());
-                groupListItem=new GroupListItem(groupBook,childList);
+            } else {
+                GroupBook groupBook = sql.getGroupBookController().getById(guiUpdateObject.getObjectId());
+                List<Book> childList = sql.getBookController().getBookForGroup(groupBook, order.getOrder());
+                groupListItem = new GroupListItem(groupBook, childList);
             }
 
-            adapter.updateData(groupListItem,guiUpdateObject.getSortOrder());
+            adapter.updateData(groupListItem, guiUpdateObject.getSortOrder());
         }
 
     }
@@ -293,9 +293,13 @@ public class BookFragment extends MyBaseAbstractFragment implements
     public boolean singleClick(MotionEvent e) {
         int position = bookRV.getChildAdapterPosition(bookRV.findChildViewUnder(e.getX(), e.getY()));
 
-        if (adapter.getItemViewType(position)== BookExpandableAdapter.TYPE_PARENT){
-            adapter.flipCollapse(position);
-            return true ;
+        try {
+            if (adapter.getItemViewType(position) == BookExpandableAdapter.TYPE_PARENT) {
+                adapter.flipCollapse(position);
+                return true;
+            }
+        } catch (IllegalStateException ex) {
+            Log.w(DEBUG_TAG, "singleClick: wrong state", ex);
         }
 
         book = adapter.getBook(position);
@@ -343,6 +347,7 @@ public class BookFragment extends MyBaseAbstractFragment implements
     private final int menu_choose_version = 7;
 
     private int selected_position;
+
     @Override
     public void longPress(MotionEvent e) {
         int position = bookRV.getChildAdapterPosition(bookRV.findChildViewUnder(e.getX(), e.getY()));
@@ -550,7 +555,7 @@ public class BookFragment extends MyBaseAbstractFragment implements
 
 
         if (getSettingsHelper().getAutoMarkFlag()) {
-           adapter.makeRead(selected_position);
+            adapter.makeRead(selected_position);
         }
         startActivity(launchBrowser);
     }
@@ -581,19 +586,18 @@ public class BookFragment extends MyBaseAbstractFragment implements
     }
 
 
-
     @Override
     public void onResume() {
         super.onResume();
-        Log.d(DEBUG_TAG,"onResume call");
+        Log.d(DEBUG_TAG, "onResume call");
 
     }
 
     @Override
     public void onPause() {
         super.onPause();
-        Log.d(DEBUG_TAG,"onPause call");
-        if (adapterState == null){
+        Log.d(DEBUG_TAG, "onPause call");
+        if (adapterState == null) {
             adapterState = new Bundle();
         }
 
