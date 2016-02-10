@@ -249,7 +249,7 @@ public class AuthorController implements AbstractController<Author> {
      *
      * @param authors list of the authors
      */
-    public void updateAuthorTags(List<Author> authors) {
+    private void updateAuthorTags(List<Author> authors) {
         for (Author author : authors) {
             updateTags(author);
         }
@@ -261,9 +261,15 @@ public class AuthorController implements AbstractController<Author> {
 
     public void updateTags(Author author) {
 
+        String allTagString=getAllTagString(author);
+        author.setAll_tags_name(allTagString);
+        update(author);
+    }
+
+    public String getAllTagString(Author author){
         if (author.getTag2Authors() == null) {
-            Log.e(DEBUG_TAG, "updateTags: T2A Collection is NULL for Author " + author.getName());
-            return;
+            Log.e(DEBUG_TAG, "getAllTagString: T2A Collection is NULL for Author " + author.getName());
+            return null;
         }
         int num = author.getTag2Authors().size();
         int i = 1;
@@ -276,8 +282,7 @@ public class AuthorController implements AbstractController<Author> {
             }
             ++i;
         }
-        author.setAll_tags_name(sb.toString());
-        update(author);
+        return sb.toString();
     }
 
     /**

@@ -594,15 +594,8 @@ public class MainActivity extends MyBaseAbstractActivity implements
 
                 if (action.equalsIgnoreCase(AndroidGuiUpdater.ACTION_REFRESH)) {
 
-                    int iObject = intent.getIntExtra(AndroidGuiUpdater.ACTION_REFRESH_OBJECT, AndroidGuiUpdater.ACTION_REFRESH_AUTHORS);
-                    if ((iObject == AndroidGuiUpdater.ACTION_REFRESH_AUTHORS) ||
-                            (iObject == AndroidGuiUpdater.ACTION_REFRESH_BOTH)) {
-                        authorFragment.refresh();
-                    }
+                    int iObject = intent.getIntExtra(AndroidGuiUpdater.ACTION_REFRESH_OBJECT, -1);
 
-                    if (twoPain && !isTagShow && (iObject == AndroidGuiUpdater.ACTION_REFRESH_BOTH)) {
-                        bookFragment.updateAdapter();
-                    }
                     if (twoPain && (iObject == AndroidGuiUpdater.ACTION_REFRESH_TAGS)) {
                         refreshTags();
                     }
@@ -622,13 +615,7 @@ public class MainActivity extends MyBaseAbstractActivity implements
                     onAuthorSelected(id);
 
                 }
-                if (action.equals(SamlibService.ACTION_DELETE)) {
-                    int duration = Toast.LENGTH_SHORT;
-                    CharSequence msg = intent.getCharSequenceExtra(AndroidGuiUpdater.TOAST_STRING);
-                    Toast toast = Toast.makeText(context, msg, duration);
-                    Log.d(DEBUG_TAG, "onReceive: author del");
-                    toast.show();
-                }
+
             }
         }
     }

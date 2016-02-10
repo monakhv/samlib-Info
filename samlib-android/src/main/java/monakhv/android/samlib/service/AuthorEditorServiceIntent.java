@@ -33,16 +33,16 @@ public class AuthorEditorServiceIntent extends MyServiceIntent {
     public static final String RECEIVER_FILTER="AuthorEditorServiceIntent_RECEIVER_FILTER";
 
     private static final String DEBUG_TAG="AuthorEditorServiceIntent";
-    private static final String EXTRA_ADD_AUTHOR_DATA="AddAuthorServiceIntent_EXTRA_ADD_AUTHOR_DATA";
-    private static final String EXTRA_OBJECT_ID ="AddAuthorServiceIntent_EXTRA_OBJECT_ID";
-    private static final String EXTRA_SUB_OBJECT_ID="AddAuthorServiceIntent_EXTRA_SUB_OBJECT_ID";
-    private static final String EXTRA_SORT_ORDER ="AddAuthorServiceIntent_EXTRA_SORT_ORDER";
-    private static final String EXTRA_SELECT_TAG ="AddAuthorServiceIntent_EXTRA_SELECT_TAG";
+    private static final String EXTRA_ADD_AUTHOR_DATA="AuthorEditorServiceIntent_EXTRA_ADD_AUTHOR_DATA";
+    private static final String EXTRA_OBJECT_ID ="AuthorEditorServiceIntent_EXTRA_OBJECT_ID";
+    private static final String EXTRA_SUB_OBJECT_ID="AuthorEditorServiceIntent_EXTRA_SUB_OBJECT_ID";
+    private static final String EXTRA_SORT_ORDER ="AuthorEditorServiceIntent_EXTRA_SORT_ORDER";
+    private static final String EXTRA_SELECT_TAG ="AuthorEditorServiceIntent_EXTRA_SELECT_TAG";
 
-    public static final String ACTION_AUTHOR_READ="AddAuthorServiceIntent_ACTION_AUTHOR_READ";
-    public static final String ACTION_BOOK_READ_FLIP="AddAuthorServiceIntent_ACTION_BOOK_READ_FLIP";
-    public static final String ACTION_GROUP_READ_FLIP="AddAuthorServiceIntent_ACTION_GROUP_READ_FLIP";
-    public static final String ACTION_ALL_TAGS_UPDATE="AddAuthorServiceIntent_ACTION_ALL_TAGS_UPDATE";
+    public static final String ACTION_AUTHOR_READ="AuthorEditorServiceIntent_ACTION_AUTHOR_READ";
+    public static final String ACTION_BOOK_READ_FLIP="AuthorEditorServiceIntent_ACTION_BOOK_READ_FLIP";
+    public static final String ACTION_GROUP_READ_FLIP="AuthorEditorServiceIntent_ACTION_GROUP_READ_FLIP";
+    public static final String ACTION_ALL_TAGS_UPDATE="AuthorEditorServiceIntent_ACTION_ALL_TAGS_UPDATE";
 
 
     SamlibApplication mSamlibApplication;
@@ -116,7 +116,7 @@ public class AuthorEditorServiceIntent extends MyServiceIntent {
             int id =intent.getIntExtra(EXTRA_OBJECT_ID,-1);
             long author_id=intent.getLongExtra(EXTRA_SUB_OBJECT_ID,-1);
             String order=intent.getStringExtra(EXTRA_SORT_ORDER);
-            if (id <0|| author_id<0){
+            if ( author_id<0){
                 Log.e(DEBUG_TAG,"Null group data, can not make it read/unread");
                 mSamlibApplication.releaseServiceComponent();
                 return;

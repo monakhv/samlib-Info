@@ -69,7 +69,7 @@ public class SamlibService {
 
 
     @Inject
-    public SamlibService(AuthorController sql,  GuiUpdate guiUpdate, AbstractSettings settingsHelper, HttpClientController httpClientController) {
+    public SamlibService(AuthorController sql, GuiUpdate guiUpdate, AbstractSettings settingsHelper, HttpClientController httpClientController) {
         this.guiUpdate = guiUpdate;
         this.settingsHelper = settingsHelper;
         authorController = sql;
@@ -77,7 +77,8 @@ public class SamlibService {
         http = httpClientController;
 
     }
-    public boolean runUpdate(SamlibService.UpdateObjectSelector selector, int id,int selectionTag, String order){
+
+    public boolean runUpdate(SamlibService.UpdateObjectSelector selector, int id, int selectionTag, String order) {
         List<Author> authors;
         if (selector == SamlibService.UpdateObjectSelector.Author) {//Check update for the only Author
 
@@ -98,7 +99,7 @@ public class SamlibService {
 
             Log.i(DEBUG_TAG, "runUpdateAuthors: selection index: " + id);
         }
-        return runUpdateAuthors(authors,selectionTag,order);
+        return runUpdateAuthors(authors, selectionTag, order);
     }
 
     /**
@@ -107,7 +108,7 @@ public class SamlibService {
      * @param authors List of the Authors to check update
      * @return true if update successful false if error or interrupted
      */
-    private boolean runUpdateAuthors(List<Author> authors,int selectionTag, String order) {
+    private boolean runUpdateAuthors(List<Author> authors, int selectionTag, String order) {
         updatedAuthors.clear();
         int skippedAuthors = 0;
         Random rnd = new Random(Calendar.getInstance().getTimeInMillis());
@@ -142,10 +143,10 @@ public class SamlibService {
                 Log.i(DEBUG_TAG, "runUpdateAuthors: We need update author: " + a.getName());
                 authorController.update(a);
 
-                if (a.isIsNew()){
+                if (a.isIsNew()) {
                     updatedAuthors.add(a);//sometimes we need update if the author has no new books
-                    int idx = getIndex(a.getId(),selectionTag,order);
-                    guiUpdate.makeUpdateUpdate(a,idx);
+                    int idx = getIndex(a.getId(), selectionTag, order);
+                    guiUpdate.makeUpdateUpdate(a, idx);
                 }
                 if (settingsHelper.getAutoLoadFlag()) {
                     loadBook(a);
@@ -192,7 +193,7 @@ public class SamlibService {
      * @param id author id
      * @return true if success
      */
-    public boolean makeAuthorRead(int id,int iTag,String order) {
+    public boolean makeAuthorRead(int id, int iTag, String order) {
 
         Author a = authorController.getById(id);
 
@@ -210,62 +211,60 @@ public class SamlibService {
         int i = authorController.markRead(a);
 
 
-        List<Author> authors=authorController.getAll(iTag,order);
+        List<Author> authors = authorController.getAll(iTag, order);
         int sort = authors.indexOf(a);
-        guiUpdate.makeUpdate(a,sort);
-        Log.d(DEBUG_TAG, "Update author status: " + i+"   sort "+sort);
+        guiUpdate.makeUpdate(a, sort);
+        Log.d(DEBUG_TAG, "Update author status: " + i + "   sort " + sort);
 
-        List<GroupBook> groupBooks=authorController.getGroupBookController().getByAuthor(a);
-        for (GroupBook groupBook :groupBooks){
-            guiUpdate.makeUpdate(groupBook,groupBooks.indexOf(groupBook));
+        List<GroupBook> groupBooks = authorController.getGroupBookController().getByAuthor(a);
+        for (GroupBook groupBook : groupBooks) {
+            guiUpdate.makeUpdate(groupBook, groupBooks.indexOf(groupBook));
         }
         return true;
 
     }
 
-    public void  makeGroupReadFlip(int id,String order,long author_id) {
+    public void makeGroupReadFlip(int id, String order, long author_id) {
         List<Book> books;
-        GroupBook groupBook=null;
-        if (id == -1){//Author has no group
-            Author author=authorController.getById(author_id);
-            books=authorController.getBookController().getAll(author,order);
-        }
-        else {//Author has groups
+        GroupBook groupBook = null;
+        if (id == -1) {//Author has no group
+            Author author = authorController.getById(author_id);
+            books = authorController.getBookController().getAll(author, order);
+        } else {//Author has groups
             groupBook = authorController.getGroupBookController().getById(id);
-            books=authorController.getBookController().getBookForGroup(groupBook,order);
+            books = authorController.getBookController().getBookForGroup(groupBook, order);
         }
 
 
-        for (Book book: books){
-            if (book.isIsNew()){
+        for (Book book : books) {
+            if (book.isIsNew()) {
                 authorController.getBookController().markRead(book);
             }
         }
 
 
-
-        Author author=authorController.getById(author_id);
-        if (authorController.testMarkRead(author)){
-            guiUpdate.makeUpdate(author,-1);
+        Author author = authorController.getById(author_id);
+        if (authorController.testMarkRead(author)) {
+            guiUpdate.makeUpdate(author, -1);
         }
 
-        if (id==-1){
-            guiUpdate.makeUpdate(groupBook,-1);
-        }
-        else {
+        if (id == -1) {
+            guiUpdate.makeUpdate(groupBook, -1);
+        } else {
             List<GroupBook> rr = authorController.getGroupBookController().getByAuthor(author);
-            guiUpdate.makeUpdate(groupBook,rr.indexOf(groupBook));
+            guiUpdate.makeUpdate(groupBook, rr.indexOf(groupBook));
 
         }
 
     }
+
     /**
      * Invert read book flag
      * Adjust author flag either
      *
      * @param id book id
      */
-    public void makeBookReadFlip(int id,String order) {
+    public void makeBookReadFlip(int id, String order) {
 
         Book book = authorController.getBookController().getById(id);
         if (book == null) {
@@ -279,27 +278,26 @@ public class SamlibService {
             authorController.getBookController().markRead(book);
             a = authorController.getById(book.getAuthor().getId());
 
-            if (authorController.testMarkRead(a)){
-                guiUpdate.makeUpdate(a,-1);
+            if (authorController.testMarkRead(a)) {
+                guiUpdate.makeUpdate(a, -1);
             }
 
         } else {
             authorController.getBookController().markUnRead(book);
             a = authorController.getById(book.getAuthor().getId());
-            if(authorController.testMarkRead(a)){
-                guiUpdate.makeUpdate(a,-1);
+            if (authorController.testMarkRead(a)) {
+                guiUpdate.makeUpdate(a, -1);
             }
         }
-        GroupBook groupBook=authorController.getGroupBookController().getByBook(book);
+        GroupBook groupBook = authorController.getGroupBookController().getByBook(book);
         List<Book> books;
-        if (groupBook == null){
-            books=authorController.getBookController().getAll(a,order);
-        }
-        else {
-            books = authorController.getBookController().getBookForGroup(groupBook,order);
+        if (groupBook == null) {
+            books = authorController.getBookController().getAll(a, order);
+        } else {
+            books = authorController.getBookController().getBookForGroup(groupBook, order);
         }
 
-        guiUpdate.makeUpdate(book,books.indexOf(book));
+        guiUpdate.makeUpdate(book, books.indexOf(book));
 
     }
 
@@ -308,16 +306,16 @@ public class SamlibService {
      *
      * @param id author id
      */
-    public void makeAuthorDel(int id,int iSel, String order) {
+    public void makeAuthorDel(int id, int iSel, String order) {
 
-        Author author=authorController.getById(id);
+        Author author = authorController.getById(id);
 
-        int idx = getIndex(id,iSel,order);
+        int idx = getIndex(id, iSel, order);
         int res = authorController.delete(author);
 
         Log.d(DEBUG_TAG, "makeAuthorDel: Author id " + id + " deleted, status " + res);
         if (res == 1) {
-            guiUpdate.makeUpdateAuthorDelete(id,idx);
+            guiUpdate.makeUpdateAuthorDelete(id, idx);
 
         }
 
@@ -328,7 +326,7 @@ public class SamlibService {
      *
      * @param urls list of author urls
      */
-    public void makeAuthorAdd(ArrayList<String> urls,int iSel, String order) {
+    public void makeAuthorAdd(ArrayList<String> urls, int iSel, String order) {
         Random rnd = new Random(Calendar.getInstance().getTimeInMillis());
 
         for (String url : urls) {
@@ -336,8 +334,8 @@ public class SamlibService {
             if (a != null) {
                 author_id = authorController.insert(a);
                 ++numberOfAdded;
-                int idx = getIndex((int)author_id,iSel,order);
-                guiUpdate.makeUpdateAuthorAdd((int)author_id,idx);
+                int idx = getIndex((int) author_id, iSel, order);
+                guiUpdate.makeUpdateAuthorAdd((int) author_id, idx);
             }
             long sleep;
 
@@ -355,22 +353,23 @@ public class SamlibService {
                 Log.i(DEBUG_TAG, "makeAuthorAdd: Sleep interrupted exiting", e);
 
                 guiUpdate.finishUpdate(false, updatedAuthors);
-                return ;
+                return;
             }
         }
 
         guiUpdate.sendResult(ACTION_ADD, numberOfAdded, numberOfDeleted, doubleAdd, urls.size(), author_id);
     }
 
-    private int getIndex(int author_id,int selectedTag, String order){
+    private int getIndex(int author_id, int selectedTag, String order) {
         final Author author = authorController.getById(author_id);
-        final List<Author> authors=authorController.getAll(selectedTag,order);
+        final List<Author> authors = authorController.getAll(selectedTag, order);
         return authors.indexOf(author);
     }
+
     /**
      * Make author search according to the first part aof theAuthor name
      *
-     * @param pattern  part of the author name
+     * @param pattern part of the author name
      * @return List of found authors
      * @throws IOException
      * @throws SamlibParseException
@@ -507,9 +506,14 @@ public class SamlibService {
      * Recalculate allTagsString for all Authors
      */
     public void makeUpdateTags() {
+        for (Author author : authorController.getAll()) {
+            String allTagString = authorController.getAllTagString(author);
 
-        authorController.updateAuthorTags();
-        guiUpdate.makeUpdate(false);
+            if (!author.getAll_tags_name().equals(allTagString)) {
+                author.setAll_tags_name(allTagString);
+                guiUpdate.makeUpdate(author,-1);
+            }
+        }
         guiUpdate.makeUpdateTagList();
     }
 

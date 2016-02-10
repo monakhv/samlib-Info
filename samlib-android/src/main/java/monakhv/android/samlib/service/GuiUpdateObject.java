@@ -27,7 +27,7 @@ import monakhv.samlib.db.entity.GroupBook;
 
 /**
  * Class is used to inform GUI that data set is changed
- *
+ * <p/>
  * Created by monakhv on 08.02.16.
  */
 public class GuiUpdateObject implements Parcelable {
@@ -36,6 +36,7 @@ public class GuiUpdateObject implements Parcelable {
         BOOK,
         GROUP
     }
+
     public enum UpdateType {
         UPDATE_READ,
         ADD,
@@ -44,11 +45,10 @@ public class GuiUpdateObject implements Parcelable {
     }
 
 
-
     private ObjectType mObjectType;
     private UpdateType mUpdateType;
-    private  int mObjectId;
-    private int mSortOrder=-1;
+    private int mObjectId;
+    private int mSortOrder = -1;
 
     /**
      * Update Book Gui after book new mark changes
@@ -56,35 +56,42 @@ public class GuiUpdateObject implements Parcelable {
      * @param book Book was changed
      * @param sort changed Book new position inside its group
      */
-    public GuiUpdateObject(Book book,int sort){
-        mObjectType=ObjectType.BOOK;
-        mUpdateType=UpdateType.UPDATE_READ;
-        mObjectId =book.getId();
-        mSortOrder=sort;
+    public GuiUpdateObject(Book book, int sort) {
+        mObjectType = ObjectType.BOOK;
+        mUpdateType = UpdateType.UPDATE_READ;
+        mObjectId = book.getId();
+        mSortOrder = sort;
     }
+
     /**
      * Update Author  Gui after author new mark changes
      *
      * @param author Author was changed
-     * @param sort changed Author new position
+     * @param sort   changed Author new position
      */
-    public GuiUpdateObject(Author author,int sort){
-        mObjectType=ObjectType.AUTHOR;
-        mUpdateType=UpdateType.UPDATE_READ;
-        mObjectId =author.getId();
-        mSortOrder=sort;
+    public GuiUpdateObject(Author author, int sort) {
+        mObjectType = ObjectType.AUTHOR;
+        mUpdateType = UpdateType.UPDATE_READ;
+        mObjectId = author.getId();
+        mSortOrder = sort;
     }
+
     /**
      * Update Book Gui after groupBook new mark changes
      *
      * @param groupBook GroupBook was changed
-     * @param sort changed GroupBook new position
+     * @param sort      changed GroupBook new position
      */
-    public GuiUpdateObject(GroupBook groupBook, int sort){
-        mObjectType=ObjectType.GROUP;
-        mUpdateType=UpdateType.UPDATE_READ;
-        mObjectId =groupBook.getId();
-        mSortOrder=sort;
+    public GuiUpdateObject(GroupBook groupBook, int sort) {
+        mObjectType = ObjectType.GROUP;
+        mUpdateType = UpdateType.UPDATE_READ;
+        if (groupBook == null) {
+            mObjectId = -1;
+        } else {
+            mObjectId = groupBook.getId();
+        }
+
+        mSortOrder = sort;
     }
 
     /**
@@ -92,28 +99,29 @@ public class GuiUpdateObject implements Parcelable {
      * @param sort last position of deleted Author
      */
     /**
-     *  Update Author GUI after delete/Add  Author
-     * @param id Author Id
-     * @param sort old position for deleted or new position for added authors
-     * @param updateType  Modification type
+     * Update Author GUI after delete/Add  Author
+     *
+     * @param id         Author Id
+     * @param sort       old position for deleted or new position for added authors
+     * @param updateType Modification type
      */
-    public GuiUpdateObject(int id, int sort, UpdateType updateType){
-        mObjectType=ObjectType.AUTHOR;
-        mObjectId =id;
-        mSortOrder=sort;
-        mUpdateType=updateType;
+    public GuiUpdateObject(int id, int sort, UpdateType updateType) {
+        mObjectType = ObjectType.AUTHOR;
+        mObjectId = id;
+        mSortOrder = sort;
+        mUpdateType = updateType;
     }
 
-    public boolean isBook(){
-        return mObjectType==ObjectType.BOOK;
+    public boolean isBook() {
+        return mObjectType == ObjectType.BOOK;
     }
 
-    public boolean isAuthor(){
-        return mObjectType==ObjectType.AUTHOR;
+    public boolean isAuthor() {
+        return mObjectType == ObjectType.AUTHOR;
     }
 
-    public boolean isGroup(){
-        return mObjectType==ObjectType.GROUP;
+    public boolean isGroup() {
+        return mObjectType == ObjectType.GROUP;
     }
 
     public int getObjectId() {
@@ -130,9 +138,9 @@ public class GuiUpdateObject implements Parcelable {
 
     protected GuiUpdateObject(Parcel in) {
         mObjectId = in.readInt();
-        mObjectType=ObjectType.valueOf(in.readString());
-        mUpdateType=UpdateType.valueOf(in.readString());
-        mSortOrder=in.readInt();
+        mObjectType = ObjectType.valueOf(in.readString());
+        mUpdateType = UpdateType.valueOf(in.readString());
+        mSortOrder = in.readInt();
     }
 
     public static final Creator<GuiUpdateObject> CREATOR = new Creator<GuiUpdateObject>() {
@@ -159,8 +167,6 @@ public class GuiUpdateObject implements Parcelable {
         dest.writeString(mUpdateType.name());
         dest.writeInt(mSortOrder);
     }
-
-
 
 
 }

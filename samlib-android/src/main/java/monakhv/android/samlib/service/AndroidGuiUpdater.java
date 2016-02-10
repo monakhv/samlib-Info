@@ -51,9 +51,9 @@ public class AndroidGuiUpdater implements GuiUpdate {
     public static final String ACTION_REFRESH = "ACTION_REFRESH";
     public static final String ACTION_REFRESH_OBJECT = "ACTION_REFRESH_OBJECT";
 
-    public static final int     ACTION_REFRESH_AUTHORS = 10;
-    public static final int     ACTION_REFRESH_BOTH     = 20;//authors & books
-    public static final int     ACTION_REFRESH_TAGS        = 30;
+   // public static final int     ACTION_REFRESH_AUTHORS = 10;
+   // public static final int     ACTION_REFRESH_BOTH     = 20;//authors & books
+  public static final int     ACTION_REFRESH_TAGS        = 30;
 
 
 
@@ -115,25 +115,6 @@ public class AndroidGuiUpdater implements GuiUpdate {
             mProgressNotification = new ProgressNotification(mSettingsHelper, notificationTitle);
         }
     }
-
-
-
-    @Override
-    public void makeUpdate(boolean isBoth){
-        Intent broadcastIntent = new Intent();
-        broadcastIntent.addCategory(Intent.CATEGORY_DEFAULT);
-        broadcastIntent.setAction(ACTION_RESP);
-        broadcastIntent.putExtra(ACTION, ACTION_REFRESH);
-        if (isBoth){
-            broadcastIntent.putExtra(ACTION_REFRESH_OBJECT,ACTION_REFRESH_BOTH);
-        }
-        else {
-            broadcastIntent.putExtra(ACTION_REFRESH_OBJECT,ACTION_REFRESH_AUTHORS);
-        }
-
-        mContext.sendBroadcast(broadcastIntent);
-    }
-
     public void makeUpdateUpdate(Author a,int sort){
         if (mProgressNotification != null){
             mProgressNotification.update(a);

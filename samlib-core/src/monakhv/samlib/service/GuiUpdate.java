@@ -29,7 +29,7 @@ import java.util.List;
  * Special Interface to send update information to the GUI
  */
 public interface GuiUpdate {
-    void makeUpdate(boolean isBoth);
+
     void makeUpdateUpdate(Author a,int sort);
     void makeUpdate(Author a,int sort);
     void makeUpdate(Book b,int sort);
