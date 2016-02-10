@@ -42,6 +42,8 @@ import android.widget.AdapterView.OnItemClickListener;
 
 import monakhv.android.samlib.service.AndroidGuiUpdater;
 import monakhv.android.samlib.service.AuthorEditorServiceIntent;
+import monakhv.android.samlib.sortorder.AuthorSortOrder;
+import monakhv.samlib.db.entity.SamLibConfig;
 import monakhv.samlib.service.SamlibService;
 
 import java.util.ArrayList;
@@ -214,7 +216,7 @@ public class ArchiveActivity extends MyBaseAbstractActivity {
         
         ArrayList<String> urls =  getDataExportImport().importAuthorList(file);
         if (!urls.isEmpty()){
-            AuthorEditorServiceIntent.addAuthor(this,urls);
+            AuthorEditorServiceIntent.addAuthor(this,urls, SamLibConfig.TAG_AUTHOR_ALL, AuthorSortOrder.valueOf(getSettingsHelper().getAuthorSortOrderString()).getOrder());
             progress = new ProgressDialog(this);
             progress.setMessage(getText(R.string.arc_import_text_title));
             progress.setCancelable(false);

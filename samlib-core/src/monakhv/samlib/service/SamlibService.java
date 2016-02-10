@@ -311,8 +311,8 @@ public class SamlibService {
     public void makeAuthorDel(int id,int iSel, String order) {
 
         Author author=authorController.getById(id);
-        List<Author> authors = authorController.getAll(iSel,order);
-        int idx = authors.indexOf(author);
+
+        int idx = getIndex(id,iSel,order);
         int res = authorController.delete(author);
 
         Log.d(DEBUG_TAG, "makeAuthorDel: Author id " + id + " deleted, status " + res);
@@ -328,7 +328,7 @@ public class SamlibService {
      *
      * @param urls list of author urls
      */
-    public void makeAuthorAdd(ArrayList<String> urls) {
+    public void makeAuthorAdd(ArrayList<String> urls,int iSel, String order) {
         Random rnd = new Random(Calendar.getInstance().getTimeInMillis());
 
         for (String url : urls) {
@@ -336,7 +336,8 @@ public class SamlibService {
             if (a != null) {
                 author_id = authorController.insert(a);
                 ++numberOfAdded;
-                guiUpdate.makeUpdate(false);
+                int idx = getIndex((int)author_id,iSel,order);
+                guiUpdate.makeUpdateAuthorAdd((int)author_id,idx);
             }
             long sleep;
 
@@ -361,6 +362,11 @@ public class SamlibService {
         guiUpdate.sendResult(ACTION_ADD, numberOfAdded, numberOfDeleted, doubleAdd, urls.size(), author_id);
     }
 
+    private int getIndex(int author_id,int selectedTag, String order){
+        final Author author = authorController.getById(author_id);
+        final List<Author> authors=authorController.getAll(selectedTag,order);
+        return authors.indexOf(author);
+    }
     /**
      * Make author search according to the first part aof theAuthor name
      *

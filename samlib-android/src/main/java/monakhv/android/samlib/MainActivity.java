@@ -423,7 +423,7 @@ public class MainActivity extends MyBaseAbstractActivity implements
         if (requestCode == SEARCH_ACTIVITY) {
             Log.v(DEBUG_TAG, "Start add Author");
 
-            AuthorEditorServiceIntent.addAuthor(getApplicationContext(), data.getStringExtra(SearchAuthorsListFragment.AUTHOR_URL));
+            AuthorEditorServiceIntent.addAuthor(getApplicationContext(), data.getStringExtra(SearchAuthorsListFragment.AUTHOR_URL),authorFragment.getSelection(),authorFragment.getSortOrder().getOrder());
         }
         if (requestCode == PREFS_ACTIVITY) {
             restartApp();
@@ -491,7 +491,7 @@ public class MainActivity extends MyBaseAbstractActivity implements
 
         String url = SamLibConfig.getParsedUrl(text);
         if (url != null) {//add  Author by URL
-            AuthorEditorServiceIntent.addAuthor(getApplicationContext(), url);
+            AuthorEditorServiceIntent.addAuthor(getApplicationContext(), url,authorFragment.getSelection(),authorFragment.getSortOrder().getOrder());
 
         } else {
             if (TextUtils.isEmpty(text)) {
@@ -566,7 +566,9 @@ public class MainActivity extends MyBaseAbstractActivity implements
             GuiUpdateObject guiUpdateObject=intent.getExtras().getParcelable(AndroidGuiUpdater.EXTRA_PARCEL);
             if (guiUpdateObject != null){
                 if (guiUpdateObject.isBook() || guiUpdateObject.isGroup()){
-                    bookFragment.updateAdapter(guiUpdateObject);
+                    if (twoPain && !isTagShow){
+                        bookFragment.updateAdapter(guiUpdateObject);
+                    }
                 }
 
 

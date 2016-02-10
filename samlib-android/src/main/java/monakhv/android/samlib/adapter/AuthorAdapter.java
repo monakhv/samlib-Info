@@ -114,6 +114,11 @@ public class AuthorAdapter extends RecyclerAdapter<Author, AuthorAdapter.AuthorV
         return mData.get(position).getId();
     }
 
+
+    public void add(Author author,int sort){
+        mData.add(sort,author);
+        notifyItemInserted(sort);
+    }
     public void remove(int idx){
         mData.remove(idx);
         notifyItemRemoved(idx);

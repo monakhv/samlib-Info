@@ -67,6 +67,8 @@ public class AuthorEditorServiceIntent extends MyServiceIntent {
             Log.d(DEBUG_TAG, "Making Add Author");
 
             ArrayList<String> ll =intent.getStringArrayListExtra(EXTRA_ADD_AUTHOR_DATA);
+            String order=intent.getStringExtra(EXTRA_SORT_ORDER);
+            int iSel = intent.getIntExtra(EXTRA_SELECT_TAG, SamLibConfig.TAG_AUTHOR_ALL);
 
             if (ll == null){
                 Log.e(DEBUG_TAG,"Null add data - nothing to add!");
@@ -74,7 +76,7 @@ public class AuthorEditorServiceIntent extends MyServiceIntent {
                 return;
             }
 
-            service.makeAuthorAdd(ll);
+            service.makeAuthorAdd(ll,iSel,order);
 
             mSamlibApplication.releaseServiceComponent();
             return;
@@ -156,17 +158,19 @@ public class AuthorEditorServiceIntent extends MyServiceIntent {
      * @param ctx Context
      * @param url author url
      */
-    public static void addAuthor(Context ctx,String url) {
+    public static void addAuthor(Context ctx,String url,int iTag,String order) {
         ArrayList<String> ll = new ArrayList<>();
         ll.add(url);
-        addAuthor(ctx,ll);
+        addAuthor(ctx,ll,iTag,order);
     }
 
-    public static void addAuthor(Context ctx, ArrayList<String> urls) {
+    public static void addAuthor(Context ctx, ArrayList<String> urls,int iTag,String order) {
         Log.v(DEBUG_TAG,"Starting add service");
         Intent service = new Intent(ctx,AuthorEditorServiceIntent.class );
         service.setAction(SamlibService.ACTION_ADD);
         service.putStringArrayListExtra(EXTRA_ADD_AUTHOR_DATA, urls);
+        service.putExtra(EXTRA_SELECT_TAG,iTag);
+        service.putExtra(EXTRA_SORT_ORDER,order);
         ctx.startService(service);
 
     }

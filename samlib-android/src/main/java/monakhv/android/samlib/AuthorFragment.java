@@ -617,6 +617,9 @@ public class AuthorFragment extends MyBaseAbstractFragment implements
             case DELETE:
                 adapter.remove(sort);
                 break;
+            case ADD:
+                adapter.add(author,sort);
+                break;
             default:
                 adapter.notifyChange(author,sort);
         }
