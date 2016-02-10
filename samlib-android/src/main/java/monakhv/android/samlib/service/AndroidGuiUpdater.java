@@ -134,11 +134,15 @@ public class AndroidGuiUpdater implements GuiUpdate {
         mContext.sendBroadcast(broadcastIntent);
     }
 
-    @Override
-    public void makeUpdate(Author a,int sort) {
+    public void makeUpdateUpdate(Author a,int sort){
         if (mProgressNotification != null){
             mProgressNotification.update(a);
         }
+        GuiUpdateObject guiUpdateObject=new GuiUpdateObject(a.getId(),sort, GuiUpdateObject.UpdateType.UPDATE_UPDATE);
+        sendBroadcast(guiUpdateObject);
+    }
+    @Override
+    public void makeUpdate(Author a,int sort) {
         sendBroadcast(new GuiUpdateObject(a,sort));
     }
 

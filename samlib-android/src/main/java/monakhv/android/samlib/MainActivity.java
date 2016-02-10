@@ -573,6 +573,9 @@ public class MainActivity extends MyBaseAbstractActivity implements
 
 
                 if (guiUpdateObject.isAuthor()){
+                    if (guiUpdateObject.getUpdateType()== GuiUpdateObject.UpdateType.UPDATE_UPDATE && twoPain && !isTagShow){
+                        bookFragment.updateAdapter();
+                    }
                     authorFragment.updateAdapter(guiUpdateObject);
                 }
 

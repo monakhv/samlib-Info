@@ -39,7 +39,8 @@ public class GuiUpdateObject implements Parcelable {
     public enum UpdateType {
         UPDATE_READ,
         ADD,
-        DELETE
+        DELETE,
+        UPDATE_UPDATE
     }
 
 

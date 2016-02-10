@@ -77,7 +77,7 @@ public class SamlibService {
         http = httpClientController;
 
     }
-    public boolean runUpdate(SamlibService.UpdateObjectSelector selector, int id){
+    public boolean runUpdate(SamlibService.UpdateObjectSelector selector, int id,int selectionTag, String order){
         List<Author> authors;
         if (selector == SamlibService.UpdateObjectSelector.Author) {//Check update for the only Author
 
@@ -98,7 +98,7 @@ public class SamlibService {
 
             Log.i(DEBUG_TAG, "runUpdateAuthors: selection index: " + id);
         }
-        return runUpdateAuthors(authors);
+        return runUpdateAuthors(authors,selectionTag,order);
     }
 
     /**
@@ -107,7 +107,7 @@ public class SamlibService {
      * @param authors List of the Authors to check update
      * @return true if update successful false if error or interrupted
      */
-    private boolean runUpdateAuthors(List<Author> authors) {
+    private boolean runUpdateAuthors(List<Author> authors,int selectionTag, String order) {
         updatedAuthors.clear();
         int skippedAuthors = 0;
         Random rnd = new Random(Calendar.getInstance().getTimeInMillis());
@@ -139,14 +139,14 @@ public class SamlibService {
                 return false;
             }
             if (a.update(newA)) {//we have update for the author
-                if (a.isIsNew()){
-                    updatedAuthors.add(a);//sometimes we need update if the author has no new books
-                    guiUpdate.makeUpdate(a,-1);
-                }
                 Log.i(DEBUG_TAG, "runUpdateAuthors: We need update author: " + a.getName());
-
                 authorController.update(a);
 
+                if (a.isIsNew()){
+                    updatedAuthors.add(a);//sometimes we need update if the author has no new books
+                    int idx = getIndex(a.getId(),selectionTag,order);
+                    guiUpdate.makeUpdateUpdate(a,idx);
+                }
                 if (settingsHelper.getAutoLoadFlag()) {
                     loadBook(a);
                 }

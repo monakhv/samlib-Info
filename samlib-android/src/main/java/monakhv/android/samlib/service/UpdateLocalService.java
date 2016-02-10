@@ -31,7 +31,9 @@ import in.srain.cube.views.ptr.util.PrefsUtil;
 import monakhv.android.samlib.SamlibApplication;
 import monakhv.android.samlib.dagger.component.ServiceComponent;
 import monakhv.android.samlib.data.SettingsHelper;
+import monakhv.android.samlib.sortorder.AuthorSortOrder;
 import monakhv.samlib.db.entity.Author;
+import monakhv.samlib.db.entity.SamLibConfig;
 import monakhv.samlib.service.SamlibService;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -51,6 +53,9 @@ public class UpdateLocalService extends MyService {
     public static final String ACTION_STOP = "UpdateLocalService.ACTION_STOP";
     public static final String ACTION_UPDATE = "UpdateLocalService.ACTION_UPDATE";
     public static final String UPDATE_OBJECT = "UpdateLocalService.UPDATE_OBJECT";
+
+    private static final String EXTRA_SELECTED_TAG="UpdateLocalService.EXTRA_SELECTED_TAG";
+    private static final String EXTRA_ORDER="UpdateLocalService.EXTRA_ORDER";
 
 
     private final IBinder mBinder = new LocalBinder();
@@ -90,7 +95,10 @@ public class UpdateLocalService extends MyService {
 
             UpdateObject updateObject = intent.getParcelableExtra(UPDATE_OBJECT);
 
-            makeRealUpdate(updateObject);
+            int iSelected=intent.getIntExtra(EXTRA_SELECTED_TAG, SamLibConfig.TAG_AUTHOR_ALL);
+            String order= intent.getStringExtra(EXTRA_ORDER);
+
+            makeRealUpdate(updateObject,iSelected,order);
         }
 
 
@@ -109,8 +117,8 @@ public class UpdateLocalService extends MyService {
      *
      * @param authorId -Author id
      */
-    public static void updateAuthor(Context ctx, int authorId) {
-        makeUpdate(ctx, SamlibService.UpdateObjectSelector.Author, authorId);
+    public static void updateAuthor(Context ctx, int authorId, int tagId,String order) {
+        makeUpdate(ctx, SamlibService.UpdateObjectSelector.Author, authorId,tagId,order);
     }
 
     /**
@@ -118,8 +126,8 @@ public class UpdateLocalService extends MyService {
      *
      * @param tagId Tag id
      */
-    public static void updateTag(Context ctx, int tagId) {
-        makeUpdate(ctx, SamlibService.UpdateObjectSelector.Tag, tagId);
+    public static void updateTag(Context ctx, int tagId,String order) {
+        makeUpdate(ctx, SamlibService.UpdateObjectSelector.Tag, tagId,tagId,order);
     }
 
     /**
@@ -136,17 +144,19 @@ public class UpdateLocalService extends MyService {
     }
 
 
-    private static void makeUpdate(Context ctx, SamlibService.UpdateObjectSelector selector, int id) {
+    private static void makeUpdate(Context ctx, SamlibService.UpdateObjectSelector selector, int id,int selectedTag, String order) {
         Intent service = new Intent(ctx, UpdateLocalService.class);
         service.setAction(UpdateLocalService.ACTION_UPDATE);
         UpdateObject updateObject=new UpdateObject(selector,id);
 
         service.putExtra(UpdateLocalService.UPDATE_OBJECT, updateObject);
+        service.putExtra(EXTRA_SELECTED_TAG,selectedTag);
+        service.putExtra(EXTRA_ORDER,order);
         ctx.startService(service);
     }
 
 
-    private void makeRealUpdate(UpdateObject updateObject) {
+    private void makeRealUpdate(UpdateObject updateObject, int tagId,String ord) {
         mCALLER_type=updateObject.getCALLER_type();
 
         if (isRun && updateObject.callerIsActivity()) {
@@ -183,11 +193,18 @@ public class UpdateLocalService extends MyService {
             return;
         }
 
+        int iSelected;
+        String order;
         if (updateObject.callerIsReceiver()){
             String sTag = getSettingsHelper().getUpdateTag();
-            int idx = Integer.parseInt(sTag);
-            updateObject.setObjectId(idx);
+            iSelected = Integer.parseInt(sTag);
+            updateObject.setObjectId(iSelected);
+            order = AuthorSortOrder.valueOf(getSettingsHelper().getAuthorSortOrderString()).getOrder();
             Log.i(DEBUG_TAG, "makeRealUpdate: Recurring  call select by tag: "+sTag);
+        }
+        else {
+            iSelected=tagId;
+            order=ord;
         }
 
         //http = HttpClientController.getInstance(mSettingsHelper);
@@ -200,7 +217,7 @@ public class UpdateLocalService extends MyService {
         wl.acquire();
 
 
-        mThread = new UpdateTread(service, updateObject);
+        mThread = new UpdateTread(service, updateObject,iSelected,order);
         mThread.start();
 
     }
@@ -233,17 +250,21 @@ public class UpdateLocalService extends MyService {
     private class UpdateTread extends Thread {
         private SpecialSamlibService service;
         private UpdateObject mUpdateObject;
+        private int mSelected ;
+        private String mOrder;
 
-        public UpdateTread(SpecialSamlibService service, UpdateObject updateObject) {
+        public UpdateTread(SpecialSamlibService service, UpdateObject updateObject, int iSelected, String order) {
             this.service = service;
             this.mUpdateObject = updateObject;
+            this.mSelected=iSelected;
+            this.mOrder=order;
         }
 
         @Override
         public void run() {
             super.run();
             isRun = true;
-            boolean result = service.runUpdate(mUpdateObject.getObjectType(),mUpdateObject.getObjectId());
+            boolean result = service.runUpdate(mUpdateObject.getObjectType(),mUpdateObject.getObjectId(),mSelected,mOrder);
 
             if (result) {
                 if (getSettingsHelper().getLimitBookLifeTimeFlag() && (mUpdateObject.callerIsReceiver())) {

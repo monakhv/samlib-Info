@@ -690,12 +690,12 @@ public class AuthorFragment extends MyBaseAbstractFragment implements
 //    }
 
     private void updateTag(int tag) {
-        UpdateLocalService.updateTag(getActivity(), tag);
+        UpdateLocalService.updateTag(getActivity(), tag,order.getOrder());
     }
 
 
     private void updateAuthor(int id) {
-        UpdateLocalService.updateAuthor(getActivity(), id);
+        UpdateLocalService.updateAuthor(getActivity(), id,selectedTag,order.getOrder());
     }
 
 
