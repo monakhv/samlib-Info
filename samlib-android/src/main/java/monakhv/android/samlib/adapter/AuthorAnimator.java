@@ -33,6 +33,7 @@ import monakhv.android.samlib.adapter.animator.TextRotationAnimator;
 import java.util.HashMap;
 
 /**
+ * Based on https://github.com/kibao/recycler-view-animations-android-dev-summit-2015
  * Created by monakhv on 08.02.16.
  */
 public class AuthorAnimator extends DefaultItemAnimator {
@@ -57,17 +58,23 @@ public class AuthorAnimator extends DefaultItemAnimator {
 
             final String oldText=authorPreInfo.rotateText;
             final String newText = authorPostInfo.rotateText;
+            final String oldText2=authorPreInfo.rotateText2;
+            final String newText2 = authorPostInfo.rotateText2;
             ChangeAnimator imageRotation=null;
             ChangeAnimator textRotation=null;
+            ChangeAnimator textRotation2=null;
 
             if (!oldText.equals(newText)) {
                 textRotation=new TextRotationAnimator(avh.updatedData,oldText,newText);
+            }
+            if (!oldText2.equals(newText2)) {
+                textRotation2=new TextRotationAnimator(avh.tgnames,oldText2,newText2);
             }
             if (!authorPreInfo.newTag.equals(authorPostInfo.newTag)){
                 imageRotation = new ImageRotationAnimator(avh.flipIcon,authorPreInfo.rotateImage,authorPostInfo.rotateImage);
             }
 
-            if (textRotation == null && imageRotation == null) {
+            if (textRotation == null && imageRotation == null && textRotation2==null) {
                 dispatchAnimationFinished(newHolder);
                 return false;
             }
@@ -78,6 +85,9 @@ public class AuthorAnimator extends DefaultItemAnimator {
 
             if (textRotation != null) {
                 animator.add(textRotation);
+            }
+            if (textRotation2 != null) {
+                animator.add(textRotation2);
             }
             if (imageRotation != null) {
                 animator.add(imageRotation);
@@ -107,6 +117,7 @@ public class AuthorAnimator extends DefaultItemAnimator {
     class AuthorHolderInfo extends ItemHolderInfo {
         Object newTag;
         String rotateText;
+        String rotateText2;
         Drawable rotateImage;
         @Override
         public ItemHolderInfo setFrom(RecyclerView.ViewHolder viewHolder, int flags) {
@@ -116,6 +127,7 @@ public class AuthorAnimator extends DefaultItemAnimator {
                 rotateImage=avh.flipIcon.getDrawable();
                 newTag=avh.flipIcon.getTag();
                 rotateText= (String) avh.updatedData.getText();
+                rotateText2= (String) avh.tgnames.getText();
                 return this;
             }
             return  super.setFrom(viewHolder, flags);
