@@ -32,7 +32,6 @@ import monakhv.android.samlib.adapter.animator.AnimatorInfo;
 import monakhv.android.samlib.adapter.animator.ChangeAnimator;
 import monakhv.android.samlib.adapter.animator.ImageRotationAnimator;
 import monakhv.android.samlib.adapter.animator.TextRotationAnimator;
-import monakhv.samlib.log.Log;
 
 import java.util.HashMap;
 
@@ -42,7 +41,7 @@ import java.util.HashMap;
  * Created by monakhv on 04.02.16.
  */
 public class BookAnimator extends DefaultItemAnimator {
-    private static final String DEBUG_TAG = "BookAnimator";
+    //private static final String DEBUG_TAG = "BookAnimator";
     private HashMap<RecyclerView.ViewHolder, AnimatorInfo> mAnimatorMap = new HashMap<>();
 
 
@@ -90,8 +89,8 @@ public class BookAnimator extends DefaultItemAnimator {
         final String newBookNumber = postGroupInfo.bookNumberString;
 
 
-        Log.d(DEBUG_TAG, "groupAnimator: Text change from: " + preGroupInfo.bookNumberString);
-        Log.d(DEBUG_TAG, "groupAnimator: Text change to: " + postGroupInfo.bookNumberString);
+//        Log.d(DEBUG_TAG, "groupAnimator: Text change from: " + preGroupInfo.bookNumberString);
+//        Log.d(DEBUG_TAG, "groupAnimator: Text change to: " + postGroupInfo.bookNumberString);
 
         ChangeAnimator imageRotation=null;
         ChangeAnimator textRotation=null;
