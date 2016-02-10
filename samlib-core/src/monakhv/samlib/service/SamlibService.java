@@ -308,18 +308,18 @@ public class SamlibService {
      *
      * @param id author id
      */
-    public void makeAuthorDel(int id) {
+    public void makeAuthorDel(int id,int iSel, String order) {
 
-        int res = authorController.delete(authorController.getById(id));
+        Author author=authorController.getById(id);
+        List<Author> authors = authorController.getAll(iSel,order);
+        int idx = authors.indexOf(author);
+        int res = authorController.delete(author);
+
         Log.d(DEBUG_TAG, "makeAuthorDel: Author id " + id + " deleted, status " + res);
         if (res == 1) {
-            ++numberOfDeleted;
-            guiUpdate.makeUpdate(true);
+            guiUpdate.makeUpdateAuthorDelete(id,idx);
 
         }
-
-
-        guiUpdate.sendResult(ACTION_DELETE, numberOfAdded, numberOfDeleted, doubleAdd, 0, author_id);
 
     }
 

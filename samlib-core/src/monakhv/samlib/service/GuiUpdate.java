@@ -34,6 +34,9 @@ public interface GuiUpdate {
     void makeUpdate(Book b,int sort);
     void makeUpdate(GroupBook g,int sort);
 
+    void makeUpdateAuthorDelete(int id,int idx);
+    void makeUpdateAuthorAdd(int id,int idx);
+
     /**
      * Send update status
      * @param total Total number if Author we need checkout

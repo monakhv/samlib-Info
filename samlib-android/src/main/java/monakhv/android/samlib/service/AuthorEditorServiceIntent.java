@@ -83,12 +83,14 @@ public class AuthorEditorServiceIntent extends MyServiceIntent {
         if (action.equals(SamlibService.ACTION_DELETE)){
             Log.d(DEBUG_TAG, "Making DEL Author");
             int id =intent.getIntExtra(EXTRA_OBJECT_ID,-1);
+            String order=intent.getStringExtra(EXTRA_SORT_ORDER);
+            int iSel = intent.getIntExtra(EXTRA_SELECT_TAG, SamLibConfig.TAG_AUTHOR_ALL);
             if (id <0){
                 Log.e(DEBUG_TAG,"Null del data - nothing to del!");
                 mSamlibApplication.releaseServiceComponent();
                 return;
             }
-            service.makeAuthorDel(id);
+            service.makeAuthorDel(id,iSel,order);
 
             mSamlibApplication.releaseServiceComponent();
             return;
@@ -168,11 +170,13 @@ public class AuthorEditorServiceIntent extends MyServiceIntent {
         ctx.startService(service);
 
     }
-    public static void delAuthor(Context ctx,int id){
+    public static void delAuthor(Context ctx,int id,int iTag,String order){
         Log.v(DEBUG_TAG,"Starting del service");
         Intent service = new Intent(ctx,AuthorEditorServiceIntent.class );
         service.setAction(SamlibService.ACTION_DELETE);
         service.putExtra(EXTRA_OBJECT_ID, id);
+        service.putExtra(EXTRA_SELECT_TAG,iTag);
+        service.putExtra(EXTRA_SORT_ORDER,order);
         ctx.startService(service);
 
     }

@@ -152,6 +152,14 @@ public class AndroidGuiUpdater implements GuiUpdate {
         sendBroadcast(new GuiUpdateObject(groupBook,sort));
     }
 
+    public void makeUpdateAuthorDelete(int id, int idx){
+        sendBroadcast(new GuiUpdateObject(id,idx, GuiUpdateObject.UpdateType.DELETE));
+    }
+
+    public void makeUpdateAuthorAdd(int id, int idx){
+        sendBroadcast(new GuiUpdateObject(id,idx, GuiUpdateObject.UpdateType.ADD));
+    }
+
     private void sendBroadcast(GuiUpdateObject guiUpdateObject){
         Intent broadcastIntent = new Intent();
         broadcastIntent.addCategory(Intent.CATEGORY_DEFAULT);

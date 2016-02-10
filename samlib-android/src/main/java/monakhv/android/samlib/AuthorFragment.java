@@ -524,7 +524,7 @@ public class AuthorFragment extends MyBaseAbstractFragment implements
             switch (which) {
                 case Dialog.BUTTON_POSITIVE:
                     if (author != null) {
-                        AuthorEditorServiceIntent.delAuthor(getActivity().getApplicationContext(), author.getId());
+                        AuthorEditorServiceIntent.delAuthor(getActivity().getApplicationContext(), author.getId(),selectedTag,order.getOrder());
                         mCallbacks.cleanBookSelection();
                     }
                     break;
@@ -612,7 +612,16 @@ public class AuthorFragment extends MyBaseAbstractFragment implements
             List<Author> aa = getAuthorController().getAll(selectedTag,order.getOrder());
             sort=aa.indexOf(author);
         }
-        adapter.notifyChange(author,sort);
+        GuiUpdateObject.UpdateType updateType=guiUpdateObject.getUpdateType();
+        switch (updateType){
+            case DELETE:
+                adapter.remove(sort);
+                break;
+            default:
+                adapter.notifyChange(author,sort);
+        }
+
+
         adapter.toggleSelection(sort);
         authorRV.scrollToPosition(sort);
         Log.d(DEBUG_TAG, "updateAdapter: scroll to position: "+sort);

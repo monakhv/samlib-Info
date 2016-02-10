@@ -13,7 +13,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  *
- *  08.02.16 14:41
+ *  10.02.16 14:28
  *
  */
 
@@ -49,24 +49,58 @@ public class GuiUpdateObject implements Parcelable {
     private  int mObjectId;
     private int mSortOrder=-1;
 
+    /**
+     * Update Book Gui after book new mark changes
+     *
+     * @param book Book was changed
+     * @param sort changed Book new position inside its group
+     */
     public GuiUpdateObject(Book book,int sort){
         mObjectType=ObjectType.BOOK;
         mUpdateType=UpdateType.UPDATE_READ;
         mObjectId =book.getId();
         mSortOrder=sort;
     }
+    /**
+     * Update Author  Gui after author new mark changes
+     *
+     * @param author Author was changed
+     * @param sort changed Author new position
+     */
     public GuiUpdateObject(Author author,int sort){
         mObjectType=ObjectType.AUTHOR;
         mUpdateType=UpdateType.UPDATE_READ;
         mObjectId =author.getId();
         mSortOrder=sort;
     }
-
+    /**
+     * Update Book Gui after groupBook new mark changes
+     *
+     * @param groupBook GroupBook was changed
+     * @param sort changed GroupBook new position
+     */
     public GuiUpdateObject(GroupBook groupBook, int sort){
         mObjectType=ObjectType.GROUP;
         mUpdateType=UpdateType.UPDATE_READ;
         mObjectId =groupBook.getId();
         mSortOrder=sort;
+    }
+
+    /**
+     *
+     * @param sort last position of deleted Author
+     */
+    /**
+     *  Update Author GUI after delete/Add  Author
+     * @param id Author Id
+     * @param sort old position for deleted or new position for added authors
+     * @param updateType  Modification type
+     */
+    public GuiUpdateObject(int id, int sort, UpdateType updateType){
+        mObjectType=ObjectType.AUTHOR;
+        mObjectId =id;
+        mSortOrder=sort;
+        mUpdateType=updateType;
     }
 
     public boolean isBook(){
@@ -87,6 +121,10 @@ public class GuiUpdateObject implements Parcelable {
 
     public int getSortOrder() {
         return mSortOrder;
+    }
+
+    public UpdateType getUpdateType() {
+        return mUpdateType;
     }
 
     protected GuiUpdateObject(Parcel in) {

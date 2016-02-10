@@ -114,6 +114,16 @@ public class AuthorAdapter extends RecyclerAdapter<Author, AuthorAdapter.AuthorV
         return mData.get(position).getId();
     }
 
+    public void remove(int idx){
+        mData.remove(idx);
+        notifyItemRemoved(idx);
+    }
+
+    /**
+     *  Change reflection of Item by the data of the Author
+     * @param author  Author
+     * @param sort position to change
+     */
     public void notifyChange(Author author, int sort){
 
         int idx = mData.indexOf(author);
