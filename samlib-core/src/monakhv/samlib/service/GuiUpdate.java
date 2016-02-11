@@ -20,8 +20,7 @@ package monakhv.samlib.service;
 
 import monakhv.samlib.data.AbstractSettings;
 import monakhv.samlib.db.entity.Author;
-import monakhv.samlib.db.entity.Book;
-import monakhv.samlib.db.entity.GroupBook;
+
 
 import java.util.List;
 
