@@ -13,14 +13,12 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  *
- *  10.02.16 14:28
+ *  11.02.16 13:23
  *
  */
 
-package monakhv.android.samlib.service;
+package monakhv.samlib.service;
 
-import android.os.Parcel;
-import android.os.Parcelable;
 import monakhv.samlib.db.entity.Author;
 import monakhv.samlib.db.entity.Book;
 import monakhv.samlib.db.entity.GroupBook;
@@ -30,7 +28,7 @@ import monakhv.samlib.db.entity.GroupBook;
  * <p/>
  * Created by monakhv on 08.02.16.
  */
-public class GuiUpdateObject implements Parcelable {
+public class GuiUpdateObject  {
     public enum ObjectType {
         AUTHOR,
         BOOK,
@@ -45,11 +43,14 @@ public class GuiUpdateObject implements Parcelable {
     }
 
 
-    private ObjectType mObjectType;
-    private UpdateType mUpdateType;
-    private int mObjectId;
-    private int mSortOrder = -1;
+    protected ObjectType mObjectType;
+    protected UpdateType mUpdateType;
+    protected int mObjectId;
+    protected int mSortOrder = -1;
 
+    public GuiUpdateObject(){
+
+    }
     /**
      * Update Book Gui after book new mark changes
      *
@@ -136,37 +137,26 @@ public class GuiUpdateObject implements Parcelable {
         return mUpdateType;
     }
 
-    protected GuiUpdateObject(Parcel in) {
-        mObjectId = in.readInt();
-        mObjectType = ObjectType.valueOf(in.readString());
-        mUpdateType = UpdateType.valueOf(in.readString());
-        mSortOrder = in.readInt();
+    public ObjectType getObjectType() {
+        return mObjectType;
     }
 
-    public static final Creator<GuiUpdateObject> CREATOR = new Creator<GuiUpdateObject>() {
-        @Override
-        public GuiUpdateObject createFromParcel(Parcel in) {
-            return new GuiUpdateObject(in);
-        }
-
-        @Override
-        public GuiUpdateObject[] newArray(int size) {
-            return new GuiUpdateObject[size];
-        }
-    };
-
-    @Override
-    public int describeContents() {
-        return 0;
+    public void setObjectType(ObjectType objectType) {
+        mObjectType = objectType;
     }
 
-    @Override
-    public void writeToParcel(Parcel dest, int flags) {
-        dest.writeInt(mObjectId);
-        dest.writeString(mObjectType.name());
-        dest.writeString(mUpdateType.name());
-        dest.writeInt(mSortOrder);
+    public void setUpdateType(UpdateType updateType) {
+        mUpdateType = updateType;
     }
+
+    public void setObjectId(int objectId) {
+        mObjectId = objectId;
+    }
+
+    public void setSortOrder(int sortOrder) {
+        mSortOrder = sortOrder;
+    }
+
 
 
 }

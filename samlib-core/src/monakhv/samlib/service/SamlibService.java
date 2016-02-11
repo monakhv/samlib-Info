@@ -146,7 +146,8 @@ public class SamlibService {
                 if (a.isIsNew()) {
                     updatedAuthors.add(a);//sometimes we need update if the author has no new books
                     int idx = getIndex(a.getId(), selectionTag, order);
-                    guiUpdate.makeUpdateUpdate(a, idx);
+                    GuiUpdateObject guiUpdateObject=new GuiUpdateObject(a.getId(),idx, GuiUpdateObject.UpdateType.UPDATE_UPDATE);
+                    guiUpdate.makeUpdateUpdate(a,guiUpdateObject);
                 }
                 if (settingsHelper.getAutoLoadFlag()) {
                     loadBook(a);
@@ -213,12 +214,12 @@ public class SamlibService {
 
         List<Author> authors = authorController.getAll(iTag, order);
         int sort = authors.indexOf(a);
-        guiUpdate.makeUpdate(a, sort);
+        guiUpdate.makeGuiUpdate(new GuiUpdateObject(a,sort));
         Log.d(DEBUG_TAG, "Update author status: " + i + "   sort " + sort);
 
         List<GroupBook> groupBooks = authorController.getGroupBookController().getByAuthor(a);
         for (GroupBook groupBook : groupBooks) {
-            guiUpdate.makeUpdate(groupBook, groupBooks.indexOf(groupBook));
+            guiUpdate.makeGuiUpdate(new GuiUpdateObject(groupBook, groupBooks.indexOf(groupBook)));
         }
         return true;
 
@@ -245,14 +246,14 @@ public class SamlibService {
 
         Author author = authorController.getById(author_id);
         if (authorController.testMarkRead(author)) {
-            guiUpdate.makeUpdate(author, -1);
+            guiUpdate.makeGuiUpdate(new GuiUpdateObject(author, -1));
         }
 
         if (id == -1) {
-            guiUpdate.makeUpdate(groupBook, -1);
+            guiUpdate.makeGuiUpdate(new GuiUpdateObject(groupBook, -1));
         } else {
             List<GroupBook> rr = authorController.getGroupBookController().getByAuthor(author);
-            guiUpdate.makeUpdate(groupBook, rr.indexOf(groupBook));
+            guiUpdate.makeGuiUpdate(new GuiUpdateObject(groupBook, rr.indexOf(groupBook)));
 
         }
 
@@ -279,14 +280,14 @@ public class SamlibService {
             a = authorController.getById(book.getAuthor().getId());
 
             if (authorController.testMarkRead(a)) {
-                guiUpdate.makeUpdate(a, -1);
+                guiUpdate.makeGuiUpdate(new GuiUpdateObject(a, -1));
             }
 
         } else {
             authorController.getBookController().markUnRead(book);
             a = authorController.getById(book.getAuthor().getId());
             if (authorController.testMarkRead(a)) {
-                guiUpdate.makeUpdate(a, -1);
+                guiUpdate.makeGuiUpdate(new GuiUpdateObject(a, -1));
             }
         }
         GroupBook groupBook = authorController.getGroupBookController().getByBook(book);
@@ -297,7 +298,7 @@ public class SamlibService {
             books = authorController.getBookController().getBookForGroup(groupBook, order);
         }
 
-        guiUpdate.makeUpdate(book, books.indexOf(book));
+        guiUpdate.makeGuiUpdate(new GuiUpdateObject(book, books.indexOf(book)));
 
     }
 
@@ -315,7 +316,7 @@ public class SamlibService {
 
         Log.d(DEBUG_TAG, "makeAuthorDel: Author id " + id + " deleted, status " + res);
         if (res == 1) {
-            guiUpdate.makeUpdateAuthorDelete(id, idx);
+            guiUpdate.makeGuiUpdate(new GuiUpdateObject(id,idx, GuiUpdateObject.UpdateType.DELETE));
 
         }
 
@@ -335,7 +336,7 @@ public class SamlibService {
                 author_id = authorController.insert(a);
                 ++numberOfAdded;
                 int idx = getIndex((int) author_id, iSel, order);
-                guiUpdate.makeUpdateAuthorAdd((int) author_id, idx);
+                guiUpdate.makeGuiUpdate(new GuiUpdateObject((int)author_id,idx, GuiUpdateObject.UpdateType.ADD));
             }
             long sleep;
 
@@ -511,7 +512,7 @@ public class SamlibService {
 
             if (!author.getAll_tags_name().equals(allTagString)) {
                 author.setAll_tags_name(allTagString);
-                guiUpdate.makeUpdate(author,-1);
+                guiUpdate.makeGuiUpdate(new GuiUpdateObject(author,-1));
             }
         }
         guiUpdate.makeUpdateTagList();

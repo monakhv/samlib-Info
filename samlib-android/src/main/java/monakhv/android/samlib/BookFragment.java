@@ -26,7 +26,7 @@ import monakhv.android.samlib.dialogs.SingleChoiceSelectDialog;
 import monakhv.android.samlib.recyclerview.DividerItemDecoration;
 import monakhv.android.samlib.service.AuthorEditorServiceIntent;
 import monakhv.android.samlib.service.DownloadBookServiceIntent;
-import monakhv.android.samlib.service.GuiUpdateObject;
+import monakhv.samlib.service.GuiUpdateObject;
 import monakhv.android.samlib.service.UpdateObject;
 import monakhv.android.samlib.sortorder.BookSortOrder;
 

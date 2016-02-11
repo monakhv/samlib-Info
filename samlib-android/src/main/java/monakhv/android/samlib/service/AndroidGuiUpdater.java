@@ -11,6 +11,7 @@ import monakhv.samlib.db.TagController;
 import monakhv.samlib.db.entity.*;
 import monakhv.samlib.log.Log;
 import monakhv.samlib.service.GuiUpdate;
+import monakhv.samlib.service.GuiUpdateObject;
 import monakhv.samlib.service.SamlibService;
 
 import javax.inject.Inject;
@@ -115,37 +116,19 @@ public class AndroidGuiUpdater implements GuiUpdate {
             mProgressNotification = new ProgressNotification(mSettingsHelper, notificationTitle);
         }
     }
-    public void makeUpdateUpdate(Author a,int sort){
+    public void makeUpdateUpdate(Author a,GuiUpdateObject guiUpdateObject){
         if (mProgressNotification != null){
             mProgressNotification.update(a);
         }
-        GuiUpdateObject guiUpdateObject=new GuiUpdateObject(a.getId(),sort, GuiUpdateObject.UpdateType.UPDATE_UPDATE);
-        sendBroadcast(guiUpdateObject);
+        sendBroadcast(new AndroidGuiUpdateObject(guiUpdateObject));
     }
     @Override
-    public void makeUpdate(Author a,int sort) {
-        sendBroadcast(new GuiUpdateObject(a,sort));
+    public void makeGuiUpdate(GuiUpdateObject guiUpdateObject){
+
+        sendBroadcast(new AndroidGuiUpdateObject(guiUpdateObject));
     }
 
-    public void makeUpdate(Book book,int sort){
-        sendBroadcast(new GuiUpdateObject(book,sort));
-    }
-
-
-
-    public void makeUpdate(GroupBook groupBook,int sort){
-        sendBroadcast(new GuiUpdateObject(groupBook,sort));
-    }
-
-    public void makeUpdateAuthorDelete(int id, int idx){
-        sendBroadcast(new GuiUpdateObject(id,idx, GuiUpdateObject.UpdateType.DELETE));
-    }
-
-    public void makeUpdateAuthorAdd(int id, int idx){
-        sendBroadcast(new GuiUpdateObject(id,idx, GuiUpdateObject.UpdateType.ADD));
-    }
-
-    private void sendBroadcast(GuiUpdateObject guiUpdateObject){
+    private void sendBroadcast(AndroidGuiUpdateObject guiUpdateObject){
         Intent broadcastIntent = new Intent();
         broadcastIntent.addCategory(Intent.CATEGORY_DEFAULT);
         broadcastIntent.setAction(ACTION_RESP);

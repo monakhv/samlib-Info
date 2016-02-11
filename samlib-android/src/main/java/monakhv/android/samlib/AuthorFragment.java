@@ -38,7 +38,7 @@ import monakhv.android.samlib.dialogs.MyMenuData;
 
 import monakhv.android.samlib.recyclerview.DividerItemDecoration;
 import monakhv.android.samlib.service.AuthorEditorServiceIntent;
-import monakhv.android.samlib.service.GuiUpdateObject;
+import monakhv.samlib.service.GuiUpdateObject;
 import monakhv.android.samlib.service.UpdateLocalService;
 import monakhv.android.samlib.sortorder.AuthorSortOrder;
 

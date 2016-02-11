@@ -26,8 +26,9 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.app.ActionBar;
 import android.support.v7.widget.Toolbar;
+import monakhv.android.samlib.service.AndroidGuiUpdateObject;
 import monakhv.android.samlib.service.AndroidGuiUpdater;
-import monakhv.android.samlib.service.GuiUpdateObject;
+import monakhv.samlib.service.GuiUpdateObject;
 import monakhv.samlib.db.AuthorController;
 import monakhv.samlib.db.entity.Author;
 import monakhv.samlib.db.entity.SamLibConfig;
@@ -161,9 +162,10 @@ public class BooksActivity extends MyAbstractAnimActivity implements BookFragmen
 
         @Override
         public void onReceive(Context context, Intent intent) {
-
-            GuiUpdateObject guiUpdateObject=intent.getExtras().getParcelable(AndroidGuiUpdater.EXTRA_PARCEL);
-            if (guiUpdateObject != null){
+            AndroidGuiUpdateObject androidGuiUpdateObject=intent.getExtras().getParcelable(AndroidGuiUpdater.EXTRA_PARCEL);
+            GuiUpdateObject guiUpdateObject;
+            if (androidGuiUpdateObject != null){
+                guiUpdateObject=androidGuiUpdateObject.getGuiUpdateObject();
                 if (guiUpdateObject.isBook()  || guiUpdateObject.isGroup()){
                     mBookFragment.updateAdapter(guiUpdateObject);
                 }

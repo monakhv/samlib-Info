@@ -30,14 +30,9 @@ import java.util.List;
  */
 public interface GuiUpdate {
 
-    void makeUpdateUpdate(Author a,int sort);
-    void makeUpdate(Author a,int sort);
-    void makeUpdate(Book b,int sort);
-    void makeUpdate(GroupBook g,int sort);
 
-    void makeUpdateAuthorDelete(int id,int idx);
-    void makeUpdateAuthorAdd(int id,int idx);
-
+    void makeGuiUpdate(GuiUpdateObject guiUpdateObject);
+    void makeUpdateUpdate(Author author, GuiUpdateObject guiUpdateObject);
     /**
      * Send update status
      * @param total Total number if Author we need checkout

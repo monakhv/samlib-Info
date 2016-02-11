@@ -29,10 +29,11 @@ import android.widget.*;
 
 import monakhv.android.samlib.search.SearchAuthorActivity;
 import monakhv.android.samlib.search.SearchAuthorsListFragment;
+import monakhv.android.samlib.service.AndroidGuiUpdateObject;
 import monakhv.android.samlib.service.AndroidGuiUpdater;
 import monakhv.android.samlib.service.AuthorEditorServiceIntent;
 import monakhv.android.samlib.service.CleanNotificationData;
-import monakhv.android.samlib.service.GuiUpdateObject;
+import monakhv.samlib.service.GuiUpdateObject;
 import monakhv.android.samlib.sortorder.AuthorSortOrder;
 
 import monakhv.samlib.db.TagController;
@@ -563,7 +564,15 @@ public class MainActivity extends MyBaseAbstractActivity implements
         public void onReceive(Context context, Intent intent) {
 
             String action = intent.getStringExtra(AndroidGuiUpdater.ACTION);
-            GuiUpdateObject guiUpdateObject=intent.getExtras().getParcelable(AndroidGuiUpdater.EXTRA_PARCEL);
+            AndroidGuiUpdateObject androidGuiUpdateObject=intent.getExtras().getParcelable(AndroidGuiUpdater.EXTRA_PARCEL);
+            GuiUpdateObject guiUpdateObject;
+            if (androidGuiUpdateObject == null){
+                guiUpdateObject=null;
+            }
+            else {
+                guiUpdateObject=androidGuiUpdateObject.getGuiUpdateObject();
+            }
+
             if (guiUpdateObject != null){
                 if (guiUpdateObject.isBook() || guiUpdateObject.isGroup()){
                     if (twoPain && !isTagShow){
