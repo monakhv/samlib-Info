@@ -566,14 +566,8 @@ public class MainActivity extends MyBaseAbstractActivity implements
             String action = intent.getStringExtra(AndroidGuiUpdater.ACTION);
             AndroidGuiUpdateObject androidGuiUpdateObject=intent.getExtras().getParcelable(AndroidGuiUpdater.EXTRA_PARCEL);
             GuiUpdateObject guiUpdateObject;
-            if (androidGuiUpdateObject == null){
-                guiUpdateObject=null;
-            }
-            else {
+            if (androidGuiUpdateObject != null){
                 guiUpdateObject=androidGuiUpdateObject.getGuiUpdateObject();
-            }
-
-            if (guiUpdateObject != null){
                 if (guiUpdateObject.isBook() || guiUpdateObject.isGroup()){
                     if (twoPain && !isTagShow){
                         bookFragment.updateAdapter(guiUpdateObject);
@@ -587,7 +581,6 @@ public class MainActivity extends MyBaseAbstractActivity implements
                     }
                     authorFragment.updateAdapter(guiUpdateObject);
                 }
-
             }
 
             if (action != null) {
