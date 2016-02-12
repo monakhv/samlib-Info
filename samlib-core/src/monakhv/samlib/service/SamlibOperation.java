@@ -287,6 +287,7 @@ public class SamlibOperation {
         Result result = new Result(true);
         Random rnd = new Random(Calendar.getInstance().getTimeInMillis());
 
+        result.totalToAdd=urls.size();
         for (String url : urls) {
             Author a = loadAuthor(result, url);
             if (a != null) {

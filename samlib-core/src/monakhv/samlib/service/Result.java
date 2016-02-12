@@ -27,13 +27,26 @@ public class Result {
     int numberOfAdded = 0;
     int numberOfDeleted = 0;
     int doubleAdd = 0;
-    String mMessage;
+    int totalToAdd = 0 ;
+
 
     public Result(boolean res){
         mRes=res;
     }
-    public Result(boolean res, String message) {
-        mRes = res;
-        mMessage = message;
+
+    public int getNumberOfAdded() {
+        return numberOfAdded;
+    }
+
+    public int getNumberOfDeleted() {
+        return numberOfDeleted;
+    }
+
+    public int getDoubleAdd() {
+        return doubleAdd;
+    }
+
+    public int getTotalToAdd() {
+        return totalToAdd;
     }
 }

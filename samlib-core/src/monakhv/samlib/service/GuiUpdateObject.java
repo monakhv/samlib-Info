@@ -22,7 +22,7 @@ package monakhv.samlib.service;
 import monakhv.samlib.db.entity.Author;
 import monakhv.samlib.db.entity.Book;
 import monakhv.samlib.db.entity.GroupBook;
-import monakhv.samlib.db.entity.Tag;
+
 
 /**
  * Class is used to inform GUI that data set is changed
@@ -140,6 +140,8 @@ public class GuiUpdateObject  {
     public boolean isGroup() {
         return mObjectType == ObjectType.GROUP;
     }
+
+    public boolean isResult(){return  mObjectType==ObjectType.RESULT;}
 
     public int getObjectId() {
         return mObjectId;

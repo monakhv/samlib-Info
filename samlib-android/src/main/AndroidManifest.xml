@@ -102,9 +102,6 @@ limitations under the License.
         <service
                 android:name=".service.CleanNotificationData">
         </service>
-        <service
-                android:name=".service.AuthorEditorServiceIntent">
-        </service>
         <receiver
                 android:name=".receiver.UpdateReceiver">
         </receiver>
