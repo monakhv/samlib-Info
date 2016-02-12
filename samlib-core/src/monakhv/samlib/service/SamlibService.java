@@ -56,10 +56,7 @@ public class SamlibService {
 
     public static final int SLEEP_DELAY_MIN = 5;
     public static final int SLEEP_DELAY_MAX = 15;
-    private int numberOfAdded = 0;
-    private int numberOfDeleted = 0;
-    private int doubleAdd = 0;
-    private long author_id = 0;
+
 
     private final List<Author> updatedAuthors;
     protected final AuthorController authorController;

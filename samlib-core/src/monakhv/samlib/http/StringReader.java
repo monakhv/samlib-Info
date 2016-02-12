@@ -25,6 +25,13 @@ import java.io.InputStreamReader;
  * 3/31/14.
  */
 public class StringReader implements HttpClientController.PageReader {
+    private long length;
+
+    @Override
+    public void setContentLength(long s) {
+        length=s;
+    }
+
     @Override
     public String doReadPage(InputStream content) throws IOException {
         BufferedReader in = new BufferedReader(new InputStreamReader(content, HttpClientController.ENCODING));

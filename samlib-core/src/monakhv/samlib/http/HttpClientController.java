@@ -56,6 +56,7 @@ public class HttpClientController {
 
     public interface PageReader {
         String doReadPage(InputStream in) throws IOException;
+        void setContentLength(long s);
     }
 
     public static final int RETRY_LIMIT = 5;
@@ -352,6 +353,7 @@ public class HttpClientController {
 
             throw new SamlibParseException("URL:" + url.toString() + "  status code: " + status);
         }
+        reader.setContentLength(response.body().contentLength());
 
 
         return reader.doReadPage(response.body().byteStream());

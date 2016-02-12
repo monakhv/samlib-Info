@@ -31,9 +31,16 @@ import java.io.InputStreamReader;
  */
 public class TextFileReader implements HttpClientController.PageReader {
     private File file;
+    private long length;
     public TextFileReader(File file){
         this.file = file;
     }
+
+    @Override
+    public void setContentLength(long s) {
+        length=s;
+    }
+
     @Override
     public String doReadPage(InputStream content) throws IOException {
         BufferedReader in = new BufferedReader(new InputStreamReader(content, HttpClientController.ENCODING));

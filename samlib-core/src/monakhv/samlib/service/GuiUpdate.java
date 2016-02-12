@@ -30,7 +30,7 @@ import java.util.List;
 public interface GuiUpdate {
 
 
-    void makeGuiUpdate(GuiUpdateObject guiUpdateObject);
+
     void makeUpdateUpdate(Author author, GuiUpdateObject guiUpdateObject);
     /**
      * Send update status
@@ -41,7 +41,6 @@ public interface GuiUpdate {
     void sendAuthorUpdateProgress(int total, int iCurrent, String name);
 
     void finishUpdate(boolean result,List<Author> updatedAuthors);
-    void sendResult (String action,int numberOfAdded,int numberOfDeleted,int doubleAdd,int totalToAdd, long author_id);
 
     void makeUpdateTagList();
     void finishBookLoad(  boolean result, AbstractSettings.FileType ft,long book_id);

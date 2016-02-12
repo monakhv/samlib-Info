@@ -196,7 +196,9 @@ public class SamlibOperation {
 
         Author author = mAuthorController.getById(bState.mAuthorId);
         if (mAuthorController.testMarkRead(author)) {
-            makeGuiUpdate(new GuiUpdateObject(author, getAuthorIndex(author, aState)));
+            if (aState != null){
+                makeGuiUpdate(new GuiUpdateObject(author, getAuthorIndex(author, aState)));
+            }
         }
 
         if (groupBook == null) {

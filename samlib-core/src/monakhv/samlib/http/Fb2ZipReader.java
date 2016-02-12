@@ -31,11 +31,17 @@ import java.util.zip.ZipInputStream;
  */
 public class Fb2ZipReader implements HttpClientController.PageReader {
     private File file;
+    private long length;
+
 
     public Fb2ZipReader(File file) {
         this.file = file;
     }
 
+    @Override
+    public void setContentLength(long s) {
+        length=s;
+    }
 
     @Override
     public String doReadPage(InputStream in) throws IOException {
@@ -56,9 +62,6 @@ public class Fb2ZipReader implements HttpClientController.PageReader {
                 bufferedOutputStream.flush();
                 bufferedOutputStream.close();
 
-//                for (int c = zipInp.read(); c != -1; c = zipInp.read()) {
-//                    fout.write(c);
-//                }
                 zipInp.closeEntry();
                 fout.close();
             }

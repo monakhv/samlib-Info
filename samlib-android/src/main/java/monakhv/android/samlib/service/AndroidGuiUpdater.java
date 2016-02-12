@@ -122,11 +122,6 @@ public class AndroidGuiUpdater implements GuiUpdate {
         }
         sendBroadcast(new AndroidGuiUpdateObject(guiUpdateObject));
     }
-    @Override
-    public void makeGuiUpdate(GuiUpdateObject guiUpdateObject){
-
-        sendBroadcast(new AndroidGuiUpdateObject(guiUpdateObject));
-    }
 
     private void sendBroadcast(AndroidGuiUpdateObject guiUpdateObject){
         Intent broadcastIntent = new Intent();
@@ -246,61 +241,6 @@ public class AndroidGuiUpdater implements GuiUpdate {
 
     }
 
-    @Override
-    public void sendResult(String action,int numberOfAdded,int numberOfDeleted,int doubleAdd,int totalToAdd, long author_id) {
-        Intent broadcastIntent = new Intent();
-        broadcastIntent.addCategory(Intent.CATEGORY_DEFAULT);
-        broadcastIntent.setAction(ACTION_RESP);
-
-        broadcastIntent.putExtra(ACTION, action);
-//        broadcastIntent.putExtra(AuthorEditorServiceIntent.RESULT_ADD_NUMBER,numberOfAdded);
-//        broadcastIntent.putExtra(AuthorEditorServiceIntent.RESULT_DEL_NUMBER,numberOfDeleted);
-//        broadcastIntent.putExtra(AuthorEditorServiceIntent.RESULT_DOUBLE_NUMBER,doubleAdd);
-        broadcastIntent.putExtra(RESULT_AUTHOR_ID, author_id);
-        CharSequence msg="";
-        if (action.equals(SamlibService.ACTION_ADD)){//ADD Action
-
-            if (totalToAdd == 1){//add single author
-                if (numberOfAdded ==1 ) {
-                    msg = mContext.getText(R.string.add_success);
-                }
-                else if (doubleAdd ==1) {
-                    msg = mContext.getText(R.string.add_error_double);
-                }
-                else {
-                    msg = mContext.getText(R.string.add_error);
-                }
-            }
-            else {//import list of authors
-                msg = mContext.getText(R.string.add_success_multi)+" "+numberOfAdded;
-
-                if (doubleAdd != 0) {//double is here
-                    msg = msg +"<br>"+ mContext.getText(R.string.add_success_double)+" "+doubleAdd;
-                }
-            }
-        }//end ADD Action
-
-
-        if (action.equals(SamlibService.ACTION_DELETE)){
-            if (numberOfDeleted == 1){
-                msg= mContext.getText(R.string.del_success);
-            }
-            else {
-                msg= mContext.getText(R.string.del_error);
-            }
-        }
-        broadcastIntent.putExtra(TOAST_STRING,msg);
-
-        mContext.sendBroadcast(broadcastIntent);
-
-        if (numberOfAdded!=0 || numberOfDeleted != 0){
-
-            mSettingsHelper.requestBackup();
-        }
-
-
-
-    }
 
 
 }
