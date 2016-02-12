@@ -29,10 +29,9 @@ import android.widget.*;
 
 import monakhv.android.samlib.search.SearchAuthorActivity;
 import monakhv.android.samlib.search.SearchAuthorsListFragment;
-import monakhv.android.samlib.service.AndroidGuiUpdateObject;
 import monakhv.android.samlib.service.AndroidGuiUpdater;
-import monakhv.android.samlib.service.AuthorEditorServiceIntent;
 import monakhv.android.samlib.service.CleanNotificationData;
+import monakhv.samlib.service.AuthorGuiState;
 import monakhv.samlib.service.GuiUpdateObject;
 import monakhv.android.samlib.sortorder.AuthorSortOrder;
 
@@ -41,11 +40,15 @@ import monakhv.samlib.db.entity.SamLibConfig;
 import monakhv.samlib.db.entity.Tag;
 import monakhv.samlib.log.Log;
 import monakhv.samlib.service.SamlibService;
+import rx.Subscription;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.schedulers.Schedulers;
 
 
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Calendar;
+
 
 
 /*
@@ -98,6 +101,7 @@ public class MainActivity extends MyBaseAbstractActivity implements
     private DrawerLayout mDrawerLayout;
     private ArrayAdapter<UITag> tagAdapter;
     private Spinner tagFilter;
+
 
 
     @Override
@@ -173,6 +177,7 @@ public class MainActivity extends MyBaseAbstractActivity implements
         createDrawer();
 
 
+
     }
 
     @Override
@@ -212,17 +217,6 @@ public class MainActivity extends MyBaseAbstractActivity implements
 
         navigationView.setCheckedItem(authorFragment.getSortOrder().getMenuId());
         navigationView.setNavigationItemSelectedListener(this);
-
-//        TextDrawable td = new TextDrawable(this);
-//        td.setTypeface(FontManager.getFontAwesome(this));
-//        td.setTextAlign(Layout.Alignment.ALIGN_CENTER);
-//        td.setTextSize(20);
-//
-//        td.setText(getString(R.string.icon_search));
-//        navigationView.getMenu().findItem(R.id.dr_search).setIcon(td);
-//
-//        td.setText(getString(R.string.icon_star));
-//        navigationView.getMenu().findItem(R.id.dr_selected).setIcon(td);
 
 
         tagFilter = (Spinner) findViewById(R.id.tagList);
@@ -347,6 +341,7 @@ public class MainActivity extends MyBaseAbstractActivity implements
         }
     }
 
+    private Subscription mAuthorSubscription,mBookSubscription;
     @Override
     protected void onResume() {
         Log.d(DEBUG_TAG, "onResume");
@@ -358,7 +353,11 @@ public class MainActivity extends MyBaseAbstractActivity implements
 
 
         registerReceiver(updateReceiver, updateFilter);
-
+        mAuthorSubscription=getSamlibOperation().getObservable()
+                .filter(GuiUpdateObject::isAuthor)
+                .subscribeOn(Schedulers.newThread())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(authorFragment.mSubscriber);
 
         if (twoPain) {
 
@@ -369,6 +368,11 @@ public class MainActivity extends MyBaseAbstractActivity implements
             IntentFilter filter = new IntentFilter(DownloadReceiver.ACTION_RESP);
             filter.addCategory(Intent.CATEGORY_DEFAULT);
             registerReceiver(downloadReceiver, filter);
+            mBookSubscription=getSamlibOperation().getObservable()
+                  //   .filter(o -> o.isBook()|| o.isGroup())
+                    .subscribeOn(Schedulers.newThread())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(bookFragment.mSubscriber);
 
 
         }
@@ -381,9 +385,19 @@ public class MainActivity extends MyBaseAbstractActivity implements
 
     }
 
+
+    @Override
+    public AuthorGuiState getAuthorGuiState() {
+        return authorFragment.getGuiState();
+    }
+
     @Override
     protected void onPause() {
         super.onPause();
+        mAuthorSubscription.unsubscribe();
+        if (mBookSubscription != null){
+            mBookSubscription.unsubscribe();
+        }
         unregisterReceiver(updateReceiver);
 
         if (twoPain) {
@@ -424,7 +438,11 @@ public class MainActivity extends MyBaseAbstractActivity implements
         if (requestCode == SEARCH_ACTIVITY) {
             Log.v(DEBUG_TAG, "Start add Author");
 
-            AuthorEditorServiceIntent.addAuthor(getApplicationContext(), data.getStringExtra(SearchAuthorsListFragment.AUTHOR_URL),authorFragment.getSelection(),authorFragment.getSortOrder().getOrder());
+            String url = data.getStringExtra(SearchAuthorsListFragment.AUTHOR_URL);
+            ArrayList<String> urls = new ArrayList<>();
+            urls.add(url);
+            getSamlibOperation().makeAuthorAdd(urls,getAuthorGuiState());
+
         }
         if (requestCode == PREFS_ACTIVITY) {
             restartApp();
@@ -492,7 +510,9 @@ public class MainActivity extends MyBaseAbstractActivity implements
 
         String url = SamLibConfig.getParsedUrl(text);
         if (url != null) {//add  Author by URL
-            AuthorEditorServiceIntent.addAuthor(getApplicationContext(), url,authorFragment.getSelection(),authorFragment.getSortOrder().getOrder());
+            ArrayList<String> urls = new ArrayList<>();
+            urls.add(url);
+            getSamlibOperation().makeAuthorAdd(urls,getAuthorGuiState());
 
         } else {
             if (TextUtils.isEmpty(text)) {
@@ -564,24 +584,6 @@ public class MainActivity extends MyBaseAbstractActivity implements
         public void onReceive(Context context, Intent intent) {
 
             String action = intent.getStringExtra(AndroidGuiUpdater.ACTION);
-            AndroidGuiUpdateObject androidGuiUpdateObject=intent.getExtras().getParcelable(AndroidGuiUpdater.EXTRA_PARCEL);
-            GuiUpdateObject guiUpdateObject;
-            if (androidGuiUpdateObject != null){
-                guiUpdateObject=androidGuiUpdateObject.getGuiUpdateObject();
-                if (guiUpdateObject.isBook() || guiUpdateObject.isGroup()){
-                    if (twoPain && !isTagShow){
-                        bookFragment.updateAdapter(guiUpdateObject);
-                    }
-                }
-
-
-                if (guiUpdateObject.isAuthor()){
-                    if (guiUpdateObject.getUpdateType()== GuiUpdateObject.UpdateType.UPDATE_UPDATE && twoPain && !isTagShow){
-                        bookFragment.updateAdapter();
-                    }
-                    authorFragment.updateAdapter(guiUpdateObject);
-                }
-            }
 
             if (action != null) {
                 if (action.equalsIgnoreCase(AndroidGuiUpdater.ACTION_TOAST)) {

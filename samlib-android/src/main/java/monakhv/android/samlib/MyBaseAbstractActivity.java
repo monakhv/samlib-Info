@@ -9,6 +9,7 @@ import monakhv.android.samlib.data.DataExportImport;
 import monakhv.android.samlib.data.SettingsHelper;
 import monakhv.android.samlib.sql.DatabaseHelper;
 import monakhv.samlib.db.AuthorController;
+import monakhv.samlib.service.SamlibOperation;
 
 
 /*
@@ -31,6 +32,7 @@ import monakhv.samlib.db.AuthorController;
 public class MyBaseAbstractActivity extends AppCompatActivity implements MyBaseAbstractFragment.DaggerCaller {
     private volatile DatabaseHelper helper;
     private SamlibApplication mSamlibApplication;
+    private SamlibOperation mSamlibOperation;
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         mSamlibApplication=(SamlibApplication) getApplication();
@@ -52,6 +54,18 @@ public class MyBaseAbstractActivity extends AppCompatActivity implements MyBaseA
     @Override
     public AuthorController getAuthorController() {
         return mSamlibApplication.getDatabaseComponent(getDatabaseHelper()).getAuthorController();
+    }
+
+    @Override
+    public SamlibOperation getSamlibOperation() {
+        if (mSamlibOperation == null){
+            mSamlibOperation=getSamlibOperationInternal();
+        }
+        return mSamlibOperation;
+    }
+
+    private SamlibOperation getSamlibOperationInternal() {
+        return mSamlibApplication.getDatabaseComponent(getDatabaseHelper()).getSamlibOperation();
     }
 
     @Override
@@ -82,6 +96,9 @@ public class MyBaseAbstractActivity extends AppCompatActivity implements MyBaseA
         super.onDestroy();
         if (helper != null) {
             releaseHelper(helper);
+        }
+        if (mSamlibOperation != null){
+            mSamlibOperation=null;
         }
         mSamlibApplication.releaseDatabaseComponent();
     }

@@ -43,14 +43,15 @@ import java.util.List;
  * Base on this
  * https://github.com/bignerdranch/expandable-recycler-view
  * https://www.bignerdranch.com/blog/expand-a-recyclerview-in-four-steps/
- * <p/>
+ * <p>
  * Created by monakhv on 28.12.15.
  */
 public class BookExpandableAdapter extends ExpandableRecyclerAdapter<GroupViewHolder, BookViewHolder> {
 
     public interface CallBack {
-        void makeBookNewFlip(int id);
-        void makeGroupNewFlip(int id);
+        void makeBookNewFlip(Book book);
+
+        void makeGroupNewFlip(GroupBook groupBook);
     }
 
     private static final String DEBUG_TAG = "BookExpandableAdapter";
@@ -69,7 +70,7 @@ public class BookExpandableAdapter extends ExpandableRecyclerAdapter<GroupViewHo
 
     public BookExpandableAdapter(@NonNull List<? extends ParentListItem> parentItemList, int maxGroupId, Activity context, CallBack callBack, SettingsHelper settingsHelper) {
         super(parentItemList);
-        this.maxGroupId=maxGroupId;
+        this.maxGroupId = maxGroupId;
         mInflater = LayoutInflater.from(context);
         mCallBack = callBack;
         mContext = context;
@@ -141,13 +142,12 @@ public class BookExpandableAdapter extends ExpandableRecyclerAdapter<GroupViewHo
 
     }
 
-    public void flipCollapse(int position){
-        ParentWrapper parentWrapper= (ParentWrapper) mItemList.get(position);
+    public void flipCollapse(int position) {
+        ParentWrapper parentWrapper = (ParentWrapper) mItemList.get(position);
 
-        if (parentWrapper.isExpanded()){
+        if (parentWrapper.isExpanded()) {
             collapseParent(parentWrapper.getParentListItem());
-        }
-        else {
+        } else {
             expandParent(parentWrapper.getParentListItem());
         }
     }
@@ -232,29 +232,31 @@ public class BookExpandableAdapter extends ExpandableRecyclerAdapter<GroupViewHo
         }
         if (iType == TYPE_CHILD) {
             Book book = (Book) o;
-            return maxGroupId+ book.getId();
+            return maxGroupId + book.getId();
         }
         throw new IllegalStateException("getItemId: Incorrect ViewType found");
     }
 
-    public void updateData(GroupListItem groupListItem,int sort){
+    public void updateData(GroupListItem groupListItem, int sort) {
+
         //TODO: group Move is not implemented yet
-        if (groupListItem.getId()==-1){
+        if (groupListItem.getId() == -1) {
+            Log.d(DEBUG_TAG, "change parent: 0!");
             ParentListItem parentListItem = getParentItemList().get(0);
             GroupListItem gi = (GroupListItem) parentListItem;
-            gi.newNumber=0;
+            gi.newNumber = 0;
             gi.setChildItemList(groupListItem.getChildItemList());
             notifyParentItemChanged(0);
-        }
-        else {
+        } else {
             int parentListItemCount = getParentItemList().size();
             for (int i = 0; i < parentListItemCount; i++) {
                 ParentListItem parentListItem = getParentItemList().get(i);
                 GroupListItem gi = (GroupListItem) parentListItem;
 
-                if (gi.getId() == groupListItem.getId()){
+                if (gi.getId() == groupListItem.getId()) {
                     gi.setChildItemList(groupListItem.getChildItemList());
-                    gi.newNumber=groupListItem.newNumber;
+                    gi.newNumber = groupListItem.newNumber;
+                    Log.d(DEBUG_TAG, "change parent: " + i);
                     notifyParentItemChanged(i);
                     return;
                 }
@@ -264,6 +266,7 @@ public class BookExpandableAdapter extends ExpandableRecyclerAdapter<GroupViewHo
 
 
     }
+
     public void updateData(Book book, GroupBook group, int sort) {
         int parentListItemCount = getParentItemList().size();
         Log.i(DEBUG_TAG, "updateData: parent list size:  " + parentListItemCount);
@@ -400,39 +403,41 @@ public class BookExpandableAdapter extends ExpandableRecyclerAdapter<GroupViewHo
 
     /**
      * Make flip read of the Book  or nothing if the position is not For Book
+     *
      * @param position the position for Book
      */
     public void makeRead(int position) {
         Book book = getBook(position);
         if (book != null) {
-            mCallBack.makeBookNewFlip(book.getId());
+            mCallBack.makeBookNewFlip(book);
         }
     }
 
 
-    public void makeAllRead(int position){
+    public void makeAllRead(int position) {
         Object o = mItemList.get(position);
 
-        if (o instanceof Book){
+        if (o instanceof Book) {
             Book book = (Book) o;
-            if (! book.isIsNew()){
+            if (!book.isIsNew()) {
                 return;
             }
-            mCallBack.makeBookNewFlip(book.getId());
+            mCallBack.makeBookNewFlip(book);
         }
-        if (o instanceof ParentWrapper){
-            Log.d(DEBUG_TAG,"makeAllRead: parent wrapper");
+        if (o instanceof ParentWrapper) {
+            Log.d(DEBUG_TAG, "makeAllRead: parent wrapper");
             final ParentWrapper parentWrapper = (ParentWrapper) o;
-            final ParentListItem parentListItem=parentWrapper.getParentListItem();
+            final ParentListItem parentListItem = parentWrapper.getParentListItem();
             final GroupListItem groupListItem = (GroupListItem) parentListItem;
-            if (groupListItem.newNumber==0){
-                Log.d(DEBUG_TAG,"makeAllRead: nothing to clean exiting");
+            if (groupListItem.newNumber == 0) {
+                Log.d(DEBUG_TAG, "makeAllRead: nothing to clean exiting");
                 return;
             }
-            Log.d(DEBUG_TAG,"makeAllRead: call clean group: "+groupListItem.getName());
-            mCallBack.makeGroupNewFlip(groupListItem.getId());
+            Log.d(DEBUG_TAG, "makeAllRead: call clean group: " + groupListItem.getName());
+            mCallBack.makeGroupNewFlip(groupListItem.getGroupBook());
         }
     }
+
     private int getParentWrapperIndex(int parentIndex) {
         int parentCount = 0;
         int listItemCount = mItemList.size();

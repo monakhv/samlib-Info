@@ -15,7 +15,6 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 
 import android.view.*;
-import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -37,7 +36,7 @@ import monakhv.android.samlib.dialogs.EnterStringDialog;
 import monakhv.android.samlib.dialogs.MyMenuData;
 
 import monakhv.android.samlib.recyclerview.DividerItemDecoration;
-import monakhv.android.samlib.service.AuthorEditorServiceIntent;
+import monakhv.samlib.service.AuthorGuiState;
 import monakhv.samlib.service.GuiUpdateObject;
 import monakhv.android.samlib.service.UpdateLocalService;
 import monakhv.android.samlib.sortorder.AuthorSortOrder;
@@ -46,6 +45,7 @@ import monakhv.android.samlib.sortorder.AuthorSortOrder;
 import monakhv.samlib.db.entity.Author;
 import monakhv.samlib.db.entity.SamLibConfig;
 import monakhv.samlib.log.Log;
+import rx.Subscriber;
 
 
 import java.util.List;
@@ -74,6 +74,10 @@ public class AuthorFragment extends MyBaseAbstractFragment implements
         ListSwipeListener.SwipeCallBack,
         RecyclerAdapter.CallBack,
         LoaderManager.LoaderCallbacks<List<Author>> {
+    public AuthorGuiState getGuiState() {
+        return new AuthorGuiState(selectedTag,order.getOrder());
+    }
+
     public interface Callbacks {
 
         void onAuthorSelected(long id);
@@ -193,11 +197,9 @@ public class AuthorFragment extends MyBaseAbstractFragment implements
         makePulToRefresh();
 
 
-        authorRV.setOnTouchListener(new View.OnTouchListener() {
-            public boolean onTouch(View v, MotionEvent event) {
-                detector.onTouchEvent(event);
-                return false;
-            }
+        authorRV.setOnTouchListener((v, event) -> {
+            detector.onTouchEvent(event);
+            return false;
         });
         adapter = new AuthorAdapter(this);
 
@@ -227,8 +229,9 @@ public class AuthorFragment extends MyBaseAbstractFragment implements
 
 
     @Override
-    public void makeNewFlip(int id) {
-        AuthorEditorServiceIntent.markAuthorRead(getActivity(), id,selectedTag,order.getOrder());
+    public void makeNewFlip(Author a) {
+        getSamlibOperation().makeAuthorRead(a,getGuiState());
+
     }
 
     @Override
@@ -427,13 +430,10 @@ public class AuthorFragment extends MyBaseAbstractFragment implements
         menu.add(delete_option_item, getString(R.string.menu_delete));
         menu.add(update_option_item, getString(R.string.menu_refresh));
 
-        contextMenu = ContextMenuDialog.getInstance(menu, new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                int item = menu.getIdByPosition(position);
-                contextSelector(item);
-                contextMenu.dismiss();
-            }
+        contextMenu = ContextMenuDialog.getInstance(menu, (parent, view1, position1, id) -> {
+            int item = menu.getIdByPosition(position1);
+            contextSelector(item);
+            contextMenu.dismiss();
         }, author.getName());
 
         contextMenu.show(getActivity().getSupportFragmentManager(), "authorContext");
@@ -460,11 +460,9 @@ public class AuthorFragment extends MyBaseAbstractFragment implements
             startRefresh();
         }
         if (item == edit_author_option_item) {
-            EnterStringDialog dDialog = new EnterStringDialog(getActivity(), new EnterStringDialog.ClickListener() {
-                public void okClick(String txt) {
-                    author.setName(txt);
-                    updateAuthor(author);
-                }
+            EnterStringDialog dDialog = new EnterStringDialog(getActivity(), txt -> {
+                author.setName(txt);
+                updateAuthor(author);
             }, getText(R.string.dialog_title_edit_author).toString(), author.getName());
 
             dDialog.show();
@@ -524,7 +522,7 @@ public class AuthorFragment extends MyBaseAbstractFragment implements
             switch (which) {
                 case Dialog.BUTTON_POSITIVE:
                     if (author != null) {
-                        AuthorEditorServiceIntent.delAuthor(getActivity().getApplicationContext(), author.getId(),selectedTag,order.getOrder());
+                        getSamlibOperation().makeAuthorDel(author,getGuiState());
                         mCallbacks.cleanBookSelection();
                     }
                     break;
@@ -605,31 +603,46 @@ public class AuthorFragment extends MyBaseAbstractFragment implements
         updateAdapter();
     }
 
-    public void updateAdapter(GuiUpdateObject guiUpdateObject){
-        Author author=getAuthorController().getById(guiUpdateObject.getObjectId());
-        int sort= guiUpdateObject.getSortOrder();
-        if (sort == -1){
-            List<Author> aa = getAuthorController().getAll(selectedTag,order.getOrder());
-            sort=aa.indexOf(author);
-        }
-        GuiUpdateObject.UpdateType updateType=guiUpdateObject.getUpdateType();
-        switch (updateType){
-            case DELETE:
-                adapter.remove(sort);
-                break;
-            case ADD:
-                adapter.add(author,sort);
-                break;
-            default:
-                adapter.notifyChange(author,sort);
+
+
+    Subscriber<GuiUpdateObject> mSubscriber = new Subscriber<GuiUpdateObject>() {
+
+        @Override
+        public void onCompleted() {
+            Log.i(DEBUG_TAG, "onCompleted");
         }
 
+        @Override
+        public void onError(Throwable e) {
+            Log.e(DEBUG_TAG, "onError", e);
+        }
 
-        adapter.toggleSelection(sort);
-        authorRV.scrollToPosition(sort);
-        Log.d(DEBUG_TAG, "updateAdapter: scroll to position: "+sort);
-    }
+        @Override
+        public void onNext(GuiUpdateObject guiUpdateObject) {
+            Author author= (Author) guiUpdateObject.getObject();
+            int sort= guiUpdateObject.getSortOrder();
+            if (sort == -1){
+                List<Author> aa = getAuthorController().getAll(selectedTag,order.getOrder());
+                sort=aa.indexOf(author);
+            }
+            GuiUpdateObject.UpdateType updateType=guiUpdateObject.getUpdateType();
+            switch (updateType){
+                case DELETE:
+                    adapter.remove(sort);
+                    break;
+                case ADD:
+                    adapter.add(author,sort);
+                    break;
+                default:
+                    adapter.notifyChange(author,sort);
+            }
 
+
+            adapter.toggleSelection(sort);
+            authorRV.scrollToPosition(sort);
+            Log.d(DEBUG_TAG, "updateAdapter: scroll to position: "+sort);
+        }
+    };
     @Override
     public void refresh() {
         Log.d(DEBUG_TAG, "refresh: call ");

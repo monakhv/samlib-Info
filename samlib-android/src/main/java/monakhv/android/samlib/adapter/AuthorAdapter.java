@@ -102,7 +102,7 @@ public class AuthorAdapter extends RecyclerAdapter<Author, AuthorAdapter.AuthorV
             return;
         }
         if (author.isIsNew()) {
-            mCallBack.makeNewFlip(author.getId());
+            mCallBack.makeNewFlip(author);
             toggleSelection(NOT_SELECTED,false);//clean selection
         }
 

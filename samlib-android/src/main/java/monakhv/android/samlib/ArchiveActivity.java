@@ -42,8 +42,6 @@ import android.widget.AdapterView.OnItemClickListener;
 
 import monakhv.android.samlib.service.AndroidGuiUpdater;
 import monakhv.android.samlib.service.AuthorEditorServiceIntent;
-import monakhv.android.samlib.sortorder.AuthorSortOrder;
-import monakhv.samlib.db.entity.SamLibConfig;
 import monakhv.samlib.service.SamlibService;
 
 import java.util.ArrayList;
@@ -195,15 +193,13 @@ public class ArchiveActivity extends MyBaseAbstractActivity {
     @SuppressWarnings("UnusedParameters")
     public void importTxt(View v) {
         final String[] files = getDataExportImport().getFilesToImportTxt();
-        OnItemClickListener listener = new OnItemClickListener() {
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                selectedFile = files[position];
-                Log.d(DEBUG_TAG, selectedFile);
-                dialog.dismiss();
+        OnItemClickListener listener = (parent, view, position, id) -> {
+            selectedFile = files[position];
+            Log.d(DEBUG_TAG, selectedFile);
+            dialog.dismiss();
 //                Dialog alert= createImportAlert(selectedFile);
 //                alert.show();
-                _importTxt(files[position]);
-            }
+            _importTxt(files[position]);
         };
         dialog =  SingleChoiceSelectDialog.getInstance(files, listener,getText(R.string.dialog_title_file).toString());
 
@@ -216,7 +212,7 @@ public class ArchiveActivity extends MyBaseAbstractActivity {
         
         ArrayList<String> urls =  getDataExportImport().importAuthorList(file);
         if (!urls.isEmpty()){
-            AuthorEditorServiceIntent.addAuthor(this,urls, SamLibConfig.TAG_AUTHOR_ALL, AuthorSortOrder.valueOf(getSettingsHelper().getAuthorSortOrderString()).getOrder());
+            getSamlibOperation().makeAuthorAdd(urls,null);
             progress = new ProgressDialog(this);
             progress.setMessage(getText(R.string.arc_import_text_title));
             progress.setCancelable(false);

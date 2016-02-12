@@ -116,6 +116,10 @@ public class GroupListItem implements ParentListItem,Serializable {
         mChildItemList = childItemList;
     }
 
+    public GroupBook getGroupBook() {
+        return mGroupBook;
+    }
+
     @Override
     public boolean isInitiallyExpanded() {
         return initiallyExpanded;

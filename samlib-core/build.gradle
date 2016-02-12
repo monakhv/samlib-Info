@@ -1,8 +1,9 @@
 apply plugin: 'java'
+apply plugin: 'me.tatarka.retrolambda'
 
 compileJava {
-    sourceCompatibility = 1.7
-    targetCompatibility = 1.7
+    sourceCompatibility = 1.8
+    targetCompatibility = 1.8
 }
 
 
@@ -19,4 +20,6 @@ dependencies {
     compile 'javax.inject:javax.inject:1'
     compile 'com.google.dagger:dagger:2.0.2'
     compile 'com.google.dagger:dagger-compiler:2.0.2'
+
+    compile 'io.reactivex:rxjava:1.1.0'
 }

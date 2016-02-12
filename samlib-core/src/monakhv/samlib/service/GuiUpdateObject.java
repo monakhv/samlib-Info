@@ -22,6 +22,7 @@ package monakhv.samlib.service;
 import monakhv.samlib.db.entity.Author;
 import monakhv.samlib.db.entity.Book;
 import monakhv.samlib.db.entity.GroupBook;
+import monakhv.samlib.db.entity.Tag;
 
 /**
  * Class is used to inform GUI that data set is changed
@@ -32,7 +33,9 @@ public class GuiUpdateObject  {
     public enum ObjectType {
         AUTHOR,
         BOOK,
-        GROUP
+        GROUP,
+        TAG,
+        RESULT
     }
 
     public enum UpdateType {
@@ -42,14 +45,23 @@ public class GuiUpdateObject  {
         UPDATE_UPDATE
     }
 
-
+    private Object mObject;
     protected ObjectType mObjectType;
     protected UpdateType mUpdateType;
-    protected int mObjectId;
+    protected int mObjectId=-1;
     protected int mSortOrder = -1;
 
     public GuiUpdateObject(){
 
+    }
+
+    public GuiUpdateObject(Result result,UpdateType updateType){
+        mObject=result;
+        mUpdateType=updateType;
+        mObjectType=ObjectType.RESULT;
+    }
+    public GuiUpdateObject(ObjectType objectType){
+        mObjectType=objectType;
     }
     /**
      * Update Book Gui after book new mark changes
@@ -58,6 +70,7 @@ public class GuiUpdateObject  {
      * @param sort changed Book new position inside its group
      */
     public GuiUpdateObject(Book book, int sort) {
+        mObject=book;
         mObjectType = ObjectType.BOOK;
         mUpdateType = UpdateType.UPDATE_READ;
         mObjectId = book.getId();
@@ -71,6 +84,7 @@ public class GuiUpdateObject  {
      * @param sort   changed Author new position
      */
     public GuiUpdateObject(Author author, int sort) {
+        mObject=author;
         mObjectType = ObjectType.AUTHOR;
         mUpdateType = UpdateType.UPDATE_READ;
         mObjectId = author.getId();
@@ -84,6 +98,7 @@ public class GuiUpdateObject  {
      * @param sort      changed GroupBook new position
      */
     public GuiUpdateObject(GroupBook groupBook, int sort) {
+        mObject=groupBook;
         mObjectType = ObjectType.GROUP;
         mUpdateType = UpdateType.UPDATE_READ;
         if (groupBook == null) {
@@ -102,13 +117,14 @@ public class GuiUpdateObject  {
     /**
      * Update Author GUI after delete/Add  Author
      *
-     * @param id         Author Id
+     * @param a        Author
      * @param sort       old position for deleted or new position for added authors
      * @param updateType Modification type
      */
-    public GuiUpdateObject(int id, int sort, UpdateType updateType) {
+    public GuiUpdateObject(Author a, int sort, UpdateType updateType) {
+        mObject=a;
         mObjectType = ObjectType.AUTHOR;
-        mObjectId = id;
+        mObjectId = a.getId();
         mSortOrder = sort;
         mUpdateType = updateType;
     }
@@ -139,6 +155,10 @@ public class GuiUpdateObject  {
 
     public ObjectType getObjectType() {
         return mObjectType;
+    }
+
+    public Object getObject() {
+        return mObject;
     }
 
     public void setObjectType(ObjectType objectType) {

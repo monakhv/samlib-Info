@@ -16,8 +16,6 @@
 package monakhv.android.samlib;
 
 
-import android.content.BroadcastReceiver;
-import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
@@ -26,13 +24,15 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.app.ActionBar;
 import android.support.v7.widget.Toolbar;
-import monakhv.android.samlib.service.AndroidGuiUpdateObject;
-import monakhv.android.samlib.service.AndroidGuiUpdater;
-import monakhv.samlib.service.GuiUpdateObject;
+import monakhv.samlib.service.AuthorGuiState;
 import monakhv.samlib.db.AuthorController;
 import monakhv.samlib.db.entity.Author;
 import monakhv.samlib.db.entity.SamLibConfig;
 import monakhv.samlib.log.Log;
+import rx.Subscription;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.schedulers.Schedulers;
+
 
 /**
  * @author monakhv
@@ -43,7 +43,7 @@ public class BooksActivity extends MyAbstractAnimActivity implements BookFragmen
     private long author_id = 0;
     private DownloadReceiver receiver;
     private BookFragment mBookFragment;
-    private UpdateActivityReceiver mUpdateActivityReceiver;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -118,9 +118,18 @@ public class BooksActivity extends MyAbstractAnimActivity implements BookFragmen
     }
 
 
+    private Subscription mBookSubscription;
     @Override
     protected void onResume() {
         super.onResume();
+        mBookSubscription=getSamlibOperation().getObservable()
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeOn(Schedulers.newThread())
+                .subscribe(mBookFragment.mSubscriber);
+
+
+
+
 
 
         if (author_id != SamLibConfig.SELECTED_BOOK_ID) {
@@ -140,10 +149,6 @@ public class BooksActivity extends MyAbstractAnimActivity implements BookFragmen
         filter.addCategory(Intent.CATEGORY_DEFAULT);
         registerReceiver(receiver, filter);
 
-        mUpdateActivityReceiver = new UpdateActivityReceiver();
-        IntentFilter updateFilter = new IntentFilter(AndroidGuiUpdater.ACTION_RESP);
-        updateFilter.addCategory(Intent.CATEGORY_DEFAULT);
-        registerReceiver(mUpdateActivityReceiver,updateFilter);
 
 
     }
@@ -152,27 +157,13 @@ public class BooksActivity extends MyAbstractAnimActivity implements BookFragmen
     protected void onPause() {
         super.onPause();
         unregisterReceiver(receiver);
-        unregisterReceiver(mUpdateActivityReceiver);
-    }
-
-    /**
-     * Receive updates from  Services
-     */
-    public class UpdateActivityReceiver extends BroadcastReceiver {
-
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            AndroidGuiUpdateObject androidGuiUpdateObject=intent.getExtras().getParcelable(AndroidGuiUpdater.EXTRA_PARCEL);
-            GuiUpdateObject guiUpdateObject;
-            if (androidGuiUpdateObject != null){
-                guiUpdateObject=androidGuiUpdateObject.getGuiUpdateObject();
-                if (guiUpdateObject.isBook()  || guiUpdateObject.isGroup()){
-                    mBookFragment.updateAdapter(guiUpdateObject);
-                }
-            }
-
-        }
+        mBookSubscription.unsubscribe();
     }
 
 
+
+    @Override
+    public AuthorGuiState getAuthorGuiState() {
+        return null;
+    }
 }

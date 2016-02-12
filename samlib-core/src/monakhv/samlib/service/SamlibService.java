@@ -146,7 +146,7 @@ public class SamlibService {
                 if (a.isIsNew()) {
                     updatedAuthors.add(a);//sometimes we need update if the author has no new books
                     int idx = getIndex(a.getId(), selectionTag, order);
-                    GuiUpdateObject guiUpdateObject=new GuiUpdateObject(a.getId(),idx, GuiUpdateObject.UpdateType.UPDATE_UPDATE);
+                    GuiUpdateObject guiUpdateObject=new GuiUpdateObject(a,idx, GuiUpdateObject.UpdateType.UPDATE_UPDATE);
                     guiUpdate.makeUpdateUpdate(a,guiUpdateObject);
                 }
                 if (settingsHelper.getAutoLoadFlag()) {
@@ -188,178 +188,9 @@ public class SamlibService {
 
     }
 
-    /**
-     * Special method to make Author read, also make sure that all book re read either
-     *
-     * @param id author id
-     * @return true if success
-     */
-    public boolean makeAuthorRead(int id, int iTag, String order) {
-
-        Author a = authorController.getById(id);
-
-        if (a == null) {
-            Log.e(DEBUG_TAG, "Author not found to update");
-            return false;
-        }
-
-        if (!a.isIsNew()) {
-            Log.d(DEBUG_TAG, "Author is read - no update need");
-            return false;
-        }
 
 
-        int i = authorController.markRead(a);
 
-
-        List<Author> authors = authorController.getAll(iTag, order);
-        int sort = authors.indexOf(a);
-        guiUpdate.makeGuiUpdate(new GuiUpdateObject(a,sort));
-        Log.d(DEBUG_TAG, "Update author status: " + i + "   sort " + sort);
-
-        List<GroupBook> groupBooks = authorController.getGroupBookController().getByAuthor(a);
-        for (GroupBook groupBook : groupBooks) {
-            guiUpdate.makeGuiUpdate(new GuiUpdateObject(groupBook, groupBooks.indexOf(groupBook)));
-        }
-        return true;
-
-    }
-
-    public void makeGroupReadFlip(int id, String order, long author_id) {
-        List<Book> books;
-        GroupBook groupBook = null;
-        if (id == -1) {//Author has no group
-            Author author = authorController.getById(author_id);
-            books = authorController.getBookController().getAll(author, order);
-        } else {//Author has groups
-            groupBook = authorController.getGroupBookController().getById(id);
-            books = authorController.getBookController().getBookForGroup(groupBook, order);
-        }
-
-
-        for (Book book : books) {
-            if (book.isIsNew()) {
-                authorController.getBookController().markRead(book);
-            }
-        }
-
-
-        Author author = authorController.getById(author_id);
-        if (authorController.testMarkRead(author)) {
-            guiUpdate.makeGuiUpdate(new GuiUpdateObject(author, -1));
-        }
-
-        if (id == -1) {
-            guiUpdate.makeGuiUpdate(new GuiUpdateObject(groupBook, -1));
-        } else {
-            List<GroupBook> rr = authorController.getGroupBookController().getByAuthor(author);
-            guiUpdate.makeGuiUpdate(new GuiUpdateObject(groupBook, rr.indexOf(groupBook)));
-
-        }
-
-    }
-
-    /**
-     * Invert read book flag
-     * Adjust author flag either
-     *
-     * @param id book id
-     */
-    public void makeBookReadFlip(int id, String order) {
-
-        Book book = authorController.getBookController().getById(id);
-        if (book == null) {
-            Log.e(DEBUG_TAG, "makeBookReadFlip: book not found id = " + id);
-            return;
-        }
-        Log.d(DEBUG_TAG, "makeBookReadFlip: book_id = " + id + " author_id = " + book.getAuthor().getId());
-
-        Author a;
-        if (book.isIsNew()) {
-            authorController.getBookController().markRead(book);
-            a = authorController.getById(book.getAuthor().getId());
-
-            if (authorController.testMarkRead(a)) {
-                guiUpdate.makeGuiUpdate(new GuiUpdateObject(a, -1));
-            }
-
-        } else {
-            authorController.getBookController().markUnRead(book);
-            a = authorController.getById(book.getAuthor().getId());
-            if (authorController.testMarkRead(a)) {
-                guiUpdate.makeGuiUpdate(new GuiUpdateObject(a, -1));
-            }
-        }
-        GroupBook groupBook = authorController.getGroupBookController().getByBook(book);
-        List<Book> books;
-        if (groupBook == null) {
-            books = authorController.getBookController().getAll(a, order);
-        } else {
-            books = authorController.getBookController().getBookForGroup(groupBook, order);
-        }
-
-        guiUpdate.makeGuiUpdate(new GuiUpdateObject(book, books.indexOf(book)));
-
-    }
-
-    /**
-     * Delete author from DB
-     *
-     * @param id author id
-     */
-    public void makeAuthorDel(int id, int iSel, String order) {
-
-        Author author = authorController.getById(id);
-
-        int idx = getIndex(id, iSel, order);
-        int res = authorController.delete(author);
-
-        Log.d(DEBUG_TAG, "makeAuthorDel: Author id " + id + " deleted, status " + res);
-        if (res == 1) {
-            guiUpdate.makeGuiUpdate(new GuiUpdateObject(id,idx, GuiUpdateObject.UpdateType.DELETE));
-
-        }
-
-    }
-
-    /**
-     * Add authors
-     *
-     * @param urls list of author urls
-     */
-    public void makeAuthorAdd(ArrayList<String> urls, int iSel, String order) {
-        Random rnd = new Random(Calendar.getInstance().getTimeInMillis());
-
-        for (String url : urls) {
-            Author a = loadAuthor(authorController, url);
-            if (a != null) {
-                author_id = authorController.insert(a);
-                ++numberOfAdded;
-                int idx = getIndex((int) author_id, iSel, order);
-                guiUpdate.makeGuiUpdate(new GuiUpdateObject((int)author_id,idx, GuiUpdateObject.UpdateType.ADD));
-            }
-            long sleep;
-
-            if (settingsHelper.isUpdateDelay()) {
-                sleep = rnd.nextInt(SLEEP_DELAY_MAX - SLEEP_DELAY_MIN + 1) + SLEEP_DELAY_MIN;
-            } else {
-                sleep = SLEEP_INTERVAL_SECONDS;
-            }
-
-            try {
-                Log.d(DEBUG_TAG, "makeAuthorAdd: sleep " + sleep + " seconds");
-
-                TimeUnit.SECONDS.sleep(sleep);
-            } catch (InterruptedException e) {
-                Log.i(DEBUG_TAG, "makeAuthorAdd: Sleep interrupted exiting", e);
-
-                guiUpdate.finishUpdate(false, updatedAuthors);
-                return;
-            }
-        }
-
-        guiUpdate.sendResult(ACTION_ADD, numberOfAdded, numberOfDeleted, doubleAdd, urls.size(), author_id);
-    }
 
     private int getIndex(int author_id, int selectedTag, String order) {
         final Author author = authorController.getById(author_id);
@@ -438,60 +269,7 @@ public class SamlibService {
         return result;
     }
 
-    private Author loadAuthor(AuthorController sql, String url) {
-        Author a;
-        String text;
 
-
-        text = testURL(url);
-        if (text == null) {
-            Log.e(DEBUG_TAG, "loadAuthor: URL syntax error: " + url);
-
-            return null;
-        }
-
-        Author ta = sql.getByUrl(text);
-        if (ta != null) {
-            Log.i(DEBUG_TAG, "loadAuthor: Ignore Double entries: " + text);
-
-            ++doubleAdd;
-            return null;
-        }
-        try {
-            a = http.addAuthor(text, new Author());
-        } catch (IOException ex) {
-            Log.e(DEBUG_TAG, "loadAuthor: DownLoad Error for URL: " + text, ex);
-
-            return null;
-
-        } catch (SamlibParseException ex) {
-            Log.e(DEBUG_TAG, "loadAuthor: Author parsing Error: " + text, ex);
-
-            return null;
-        } catch (IllegalArgumentException ex) {
-            Log.e(DEBUG_TAG, "loadAuthor: URL Parsing exception: " + text, ex);
-
-            return null;
-        } catch (SamlibInterruptException e) {
-            Log.e(DEBUG_TAG, "loadAuthor: Interrupted catch: " + text, e);
-            return null;
-        }
-
-        return a;
-    }
-
-    /**
-     * URL syntax checkout
-     *
-     * @param url original URL
-     * @return reduced URL without host prefix or NULL if the syntax is wrong
-     */
-    private String testURL(String url) {
-        Log.d(DEBUG_TAG, "testURL: Got text: " + url);
-
-        return SamLibConfig.reduceUrl(url);
-
-    }
 
 
     /**
@@ -503,20 +281,7 @@ public class SamlibService {
 
     }
 
-    /**
-     * Recalculate allTagsString for all Authors
-     */
-    public void makeUpdateTags() {
-        for (Author author : authorController.getAll()) {
-            String allTagString = authorController.getAllTagString(author);
 
-            if (!author.getAll_tags_name().equals(allTagString)) {
-                author.setAll_tags_name(allTagString);
-                guiUpdate.makeGuiUpdate(new GuiUpdateObject(author,-1));
-            }
-        }
-        guiUpdate.makeUpdateTagList();
-    }
 
     public void downloadBook(long book_id) {
 

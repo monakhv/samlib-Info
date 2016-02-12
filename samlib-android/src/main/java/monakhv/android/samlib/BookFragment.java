@@ -24,8 +24,9 @@ import monakhv.android.samlib.dialogs.ContextMenuDialog;
 import monakhv.android.samlib.dialogs.MyMenuData;
 import monakhv.android.samlib.dialogs.SingleChoiceSelectDialog;
 import monakhv.android.samlib.recyclerview.DividerItemDecoration;
-import monakhv.android.samlib.service.AuthorEditorServiceIntent;
 import monakhv.android.samlib.service.DownloadBookServiceIntent;
+import monakhv.samlib.service.AuthorGuiState;
+import monakhv.samlib.service.BookGuiState;
 import monakhv.samlib.service.GuiUpdateObject;
 import monakhv.android.samlib.service.UpdateObject;
 import monakhv.android.samlib.sortorder.BookSortOrder;
@@ -35,6 +36,7 @@ import monakhv.samlib.db.entity.Book;
 import monakhv.samlib.db.entity.GroupBook;
 import monakhv.samlib.db.entity.SamLibConfig;
 import monakhv.samlib.log.Log;
+import rx.Subscriber;
 
 
 import java.util.List;
@@ -60,19 +62,20 @@ public class BookFragment extends MyBaseAbstractFragment implements
         ListSwipeListener.SwipeCallBack, LoaderManager.LoaderCallbacks<List<GroupListItem>>,
         BookExpandableAdapter.CallBack {
     public interface Callbacks {
+        AuthorGuiState getAuthorGuiState();
 
         void showTags(long author_id);
     }
 
     @Override
-    public void makeBookNewFlip(int id) {
-        AuthorEditorServiceIntent.markBookReadFlip(getActivity(), id, order.getOrder());
+    public void makeBookNewFlip(Book book) {
+        getSamlibOperation().makeBookReadFlip(book, new BookGuiState((int) author_id, order.getOrder()), mCallbacks.getAuthorGuiState());
     }
 
 
     @Override
-    public void makeGroupNewFlip(int id) {
-        AuthorEditorServiceIntent.markGroupReadFlip(getActivity(), id, order.getOrder(), author_id);
+    public void makeGroupNewFlip(GroupBook groupBook) {
+        getSamlibOperation().makeGroupReadFlip(groupBook, new BookGuiState((int) author_id, order.getOrder()), mCallbacks.getAuthorGuiState());
     }
 
 
@@ -154,11 +157,9 @@ public class BookFragment extends MyBaseAbstractFragment implements
 
         bookRV.addItemDecoration(new DividerItemDecoration(getActivity(), DividerItemDecoration.VERTICAL_LIST));
 
-        bookRV.setOnTouchListener(new View.OnTouchListener() {
-            public boolean onTouch(View v, MotionEvent event) {
-                detector.onTouchEvent(event);
-                return false;
-            }
+        bookRV.setOnTouchListener((v, event) -> {
+            detector.onTouchEvent(event);
+            return false;
         });
 
         emptyText.setVisibility(View.GONE);
@@ -244,32 +245,48 @@ public class BookFragment extends MyBaseAbstractFragment implements
         adapter.updateData(book, groupBook, -1);
     }
 
-    public void updateAdapter(GuiUpdateObject guiUpdateObject) {
-        //TODO: should move out of main thread
-        if (guiUpdateObject.isBook()) {
-            Book b = sql.getBookController().getById(guiUpdateObject.getObjectId());
-            GroupBook groupBook = sql.getGroupBookController().getByBook(b);
 
-            adapter.updateData(b, groupBook, guiUpdateObject.getSortOrder());
+    Subscriber<GuiUpdateObject> mSubscriber = new Subscriber<GuiUpdateObject>() {
+        @Override
+        public void onCompleted() {
+            Log.i(DEBUG_TAG, "onCompleted");
         }
-        if (guiUpdateObject.isGroup()) {
 
-            GroupListItem groupListItem;
-            if (guiUpdateObject.getObjectId() == -1) {
-                groupListItem = new GroupListItem();
-                List<Book> childList = sql.getBookController().getAll(sql.getById(author_id), order.getOrder());
-                groupListItem.setChildItemList(childList);
-            } else {
-                GroupBook groupBook = sql.getGroupBookController().getById(guiUpdateObject.getObjectId());
-                List<Book> childList = sql.getBookController().getBookForGroup(groupBook, order.getOrder());
-                groupListItem = new GroupListItem(groupBook, childList);
+        @Override
+        public void onError(Throwable e) {
+            Log.e(DEBUG_TAG, "onError", e);
+        }
+
+        @Override
+        public void onNext(GuiUpdateObject guiUpdateObject) {
+            //TODO: should move out of main thread
+            if (guiUpdateObject.isBook()) {
+                Book b = (Book) guiUpdateObject.getObject();
+                GroupBook groupBook = sql.getGroupBookController().getByBook(b);
+
+                adapter.updateData(b, groupBook, guiUpdateObject.getSortOrder());
             }
+            if (guiUpdateObject.isGroup()) {
+                Log.d(DEBUG_TAG,"onNext: get Group");
+                GroupListItem groupListItem;
+                if (guiUpdateObject.getObjectId() == -1) {
+                    Log.d(DEBUG_TAG,"onNext: id = -1");
+                    groupListItem = new GroupListItem();
+                    List<Book> childList = sql.getBookController().getAll(sql.getById(author_id), order.getOrder());
+                    Log.d(DEBUG_TAG,"onNext: childList: "+childList.size());
+                    groupListItem.setChildItemList(childList);
+                } else {
+                    GroupBook groupBook = (GroupBook) guiUpdateObject.getObject();
+                    List<Book> childList = sql.getBookController().getBookForGroup(groupBook, order.getOrder());
+                    groupListItem = new GroupListItem(groupBook, childList);
+                    Log.d(DEBUG_TAG,"onNext: get Group: "+groupBook.getName()+"  id: "+groupBook.getId());
+                }
 
-            adapter.updateData(groupListItem, guiUpdateObject.getSortOrder());
+
+                adapter.updateData(groupListItem, guiUpdateObject.getSortOrder());
+            }
         }
-
-    }
-
+    };
 
     /**
      * Set new author_id and update selection,adapter and empty view
@@ -293,13 +310,16 @@ public class BookFragment extends MyBaseAbstractFragment implements
     public boolean singleClick(MotionEvent e) {
         int position = bookRV.getChildAdapterPosition(bookRV.findChildViewUnder(e.getX(), e.getY()));
 
+        if (position < 0) {
+            return true;
+        }
         try {
             if (adapter.getItemViewType(position) == BookExpandableAdapter.TYPE_PARENT) {
                 adapter.flipCollapse(position);
                 return true;
             }
         } catch (IllegalStateException ex) {
-            Log.w(DEBUG_TAG, "singleClick: wrong state", ex);
+            Log.w(DEBUG_TAG, "singleClick: wrong state: " + position, ex);
         }
 
         book = adapter.getBook(position);
@@ -379,13 +399,10 @@ public class BookFragment extends MyBaseAbstractFragment implements
         }
 
 
-        contextMenuDialog = ContextMenuDialog.getInstance(menu, new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                int item = menu.getIdByPosition(position);
-                contextSelector(item);
-                contextMenuDialog.dismiss();
-            }
+        contextMenuDialog = ContextMenuDialog.getInstance(menu, (parent, view, position1, id) -> {
+            int item = menu.getIdByPosition(position1);
+            contextSelector(item);
+            contextMenuDialog.dismiss();
         }, null);
 
         contextMenuDialog.show(getActivity().getSupportFragmentManager(), "bookContext");
@@ -439,14 +456,11 @@ public class BookFragment extends MyBaseAbstractFragment implements
                 //TODO: alarm no version is found
                 return;
             }
-            dialog = SingleChoiceSelectDialog.getInstance(files, new AdapterView.OnItemClickListener() {
-                @Override
-                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                    dialog.dismiss();
-                    String file = files[position];
+            dialog = SingleChoiceSelectDialog.getInstance(files, (parent, view, position, id) -> {
+                dialog.dismiss();
+                String file = files[position];
 
-                    launchReader(book, file);
-                }
+                launchReader(book, file);
             }, getString(R.string.menu_version_choose));
             dialog.show(getActivity().getSupportFragmentManager(), "readVersion");
 
@@ -483,14 +497,11 @@ public class BookFragment extends MyBaseAbstractFragment implements
      * Show Dialog to select sort order for Book list
      */
     public void selectSortOrder() {
-        AdapterView.OnItemClickListener listener = new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                BookSortOrder so = BookSortOrder.values()[position];
-                setSortOrder(so);
-                sortDialog.dismiss();
+        AdapterView.OnItemClickListener listener = (parent, view, position, id) -> {
+            BookSortOrder so = BookSortOrder.values()[position];
+            setSortOrder(so);
+            sortDialog.dismiss();
 
-            }
         };
         sortDialog = SingleChoiceSelectDialog.getInstance(BookSortOrder.getTitles(getActivity()), listener, this.getString(R.string.dialog_title_sort_book), getSortOrder().ordinal());
         sortDialog.show(getActivity().getSupportFragmentManager(), "DoBookSortDialog");

@@ -2,6 +2,7 @@ package monakhv.android.samlib.adapter;
 
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import monakhv.samlib.db.entity.Author;
 
 import java.util.List;
 
@@ -26,7 +27,7 @@ public abstract class RecyclerAdapter<T, VH extends android.support.v7.widget.Re
     private static final String DEBUG_TAG = "RecyclerAdapter";
 
     public interface CallBack {
-        void makeNewFlip(int id);
+        void makeNewFlip(Author a);
 
         void refresh();
     }
