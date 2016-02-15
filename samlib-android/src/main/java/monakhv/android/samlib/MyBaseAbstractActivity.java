@@ -10,6 +10,7 @@ import monakhv.android.samlib.data.SettingsHelper;
 import monakhv.android.samlib.sql.DatabaseHelper;
 import monakhv.samlib.db.AuthorController;
 import monakhv.samlib.service.SamlibOperation;
+import monakhv.samlib.service.SamlibUpdateService;
 
 
 /*
@@ -66,6 +67,10 @@ public class MyBaseAbstractActivity extends AppCompatActivity implements MyBaseA
 
     private SamlibOperation getSamlibOperationInternal() {
         return mSamlibApplication.getDatabaseComponent(getDatabaseHelper()).getSamlibOperation();
+    }
+    @Override
+    public SamlibUpdateService getSamlibUpdateService(){
+        return mSamlibApplication.getDatabaseComponent(getDatabaseHelper()).getSamLibUpdateService();
     }
 
     @Override

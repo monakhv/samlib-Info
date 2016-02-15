@@ -35,7 +35,8 @@ public class GuiUpdateObject  {
         BOOK,
         GROUP,
         TAG,
-        RESULT
+        RESULT,
+        PROGRESS_UPDATE
     }
 
     public enum UpdateType {
@@ -53,6 +54,12 @@ public class GuiUpdateObject  {
 
     public GuiUpdateObject(){
 
+    }
+
+    public GuiUpdateObject(SamlibUpdateProgress progress){
+        mObject=progress;
+        mObjectType=ObjectType.PROGRESS_UPDATE;
+        mUpdateType=UpdateType.UPDATE_UPDATE;
     }
 
     public GuiUpdateObject(Result result,UpdateType updateType){
@@ -142,6 +149,8 @@ public class GuiUpdateObject  {
     }
 
     public boolean isResult(){return  mObjectType==ObjectType.RESULT;}
+
+    public boolean isProgress(){return  mObjectType==ObjectType.PROGRESS_UPDATE;}
 
     public int getObjectId() {
         return mObjectId;

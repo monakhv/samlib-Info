@@ -26,6 +26,7 @@ import monakhv.android.samlib.data.SettingsHelper;
 import monakhv.android.samlib.sql.DatabaseHelper;
 import monakhv.samlib.db.AuthorController;
 import monakhv.samlib.service.SamlibOperation;
+import monakhv.samlib.service.SamlibUpdateService;
 
 
 /**
@@ -39,6 +40,7 @@ public class MyBaseAbstractFragment extends Fragment {
         AuthorController getAuthorController();
         DatabaseHelper getDbHelper();
         SamlibOperation getSamlibOperation();
+        SamlibUpdateService getSamlibUpdateService();
     }
     private DaggerCaller mDaggerCaller;
 
@@ -66,4 +68,5 @@ public class MyBaseAbstractFragment extends Fragment {
         return mDaggerCaller.getAuthorController();
     }
     protected SamlibOperation getSamlibOperation(){return  mDaggerCaller.getSamlibOperation();}
+    protected SamlibUpdateService getSamlibUpdateService(){return  mDaggerCaller.getSamlibUpdateService();}
 }

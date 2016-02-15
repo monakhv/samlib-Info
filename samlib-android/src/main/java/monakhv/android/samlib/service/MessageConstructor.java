@@ -20,19 +20,25 @@
 package monakhv.android.samlib.service;
 
 import android.content.Context;
+import android.widget.Toast;
 import monakhv.android.samlib.R;
+import monakhv.android.samlib.data.SettingsHelper;
 import monakhv.samlib.service.GuiUpdateObject;
 import monakhv.samlib.service.Result;
 import monakhv.samlib.service.SamlibService;
+import monakhv.samlib.service.SamlibUpdateProgress;
 
 /**
  * Created by monakhv on 12.02.16.
  */
 public class MessageConstructor {
     private Context mContext;
+    private ProgressNotification mProgressNotification;
+    private SettingsHelper mSettingsHelper;
 
-    public MessageConstructor(Context context) {
+    public MessageConstructor(Context context, SettingsHelper settingsHelper) {
         mContext = context;
+        mSettingsHelper=settingsHelper;
     }
 
     public CharSequence makeMessage(GuiUpdateObject guiUpdateObject){
@@ -71,5 +77,26 @@ public class MessageConstructor {
             }
         }
         return msg;
+    }
+
+    public void showProgress(SamlibUpdateProgress progress){
+        if (mProgressNotification == null){
+            mProgressNotification = new ProgressNotification(mSettingsHelper,"text");
+        }
+        mProgressNotification.updateProgress(progress.getTotal(),progress.getCurrent(),progress.getName());
+    }
+
+    public void cancelProgress(){
+        if (mProgressNotification != null){
+            mProgressNotification.cancel();
+            mProgressNotification = null;
+        }
+    }
+
+    public void showMessage(int res){
+        int duration = Toast.LENGTH_SHORT;
+        CharSequence msg = mContext.getString(res);
+        Toast toast = Toast.makeText(mContext, msg, duration);
+        toast.show();
     }
 }

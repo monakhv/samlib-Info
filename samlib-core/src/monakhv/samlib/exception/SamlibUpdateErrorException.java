@@ -13,45 +13,22 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  *
- *  12.02.16 11:23
+ *  12.02.16 18:27
  *
  */
 
-package monakhv.samlib.service;
+package monakhv.samlib.exception;
 
 /**
  * Created by monakhv on 12.02.16.
  */
-public class Result {
-    boolean mRes;
-    int numberOfAdded = 0;
-    int numberOfDeleted = 0;
-    int doubleAdd = 0;
-    int totalToAdd = 0 ;
-    int numberOfUpdated=0;
+public class SamlibUpdateErrorException  extends SamLibException  {
+    public SamlibUpdateErrorException(){
 
-
-    public Result(boolean res){
-        mRes=res;
     }
 
-    public int getNumberOfAdded() {
-        return numberOfAdded;
+    public SamlibUpdateErrorException(String msg){
+        super(msg);
     }
 
-    public int getNumberOfDeleted() {
-        return numberOfDeleted;
-    }
-
-    public int getDoubleAdd() {
-        return doubleAdd;
-    }
-
-    public int getTotalToAdd() {
-        return totalToAdd;
-    }
-
-    public int getNumberOfUpdated() {
-        return numberOfUpdated;
-    }
 }

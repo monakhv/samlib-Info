@@ -13,7 +13,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  *
- *  12.02.16 11:23
+ *  12.02.16 17:45
  *
  */
 
@@ -22,36 +22,26 @@ package monakhv.samlib.service;
 /**
  * Created by monakhv on 12.02.16.
  */
-public class Result {
-    boolean mRes;
-    int numberOfAdded = 0;
-    int numberOfDeleted = 0;
-    int doubleAdd = 0;
-    int totalToAdd = 0 ;
-    int numberOfUpdated=0;
+public class SamlibUpdateProgress {
+    int total;
+    int current;
+    String name;
 
-
-    public Result(boolean res){
-        mRes=res;
+    public SamlibUpdateProgress(int total, int current, String name) {
+        this.total = total;
+        this.current = current;
+        this.name = name;
     }
 
-    public int getNumberOfAdded() {
-        return numberOfAdded;
+    public int getTotal() {
+        return total;
     }
 
-    public int getNumberOfDeleted() {
-        return numberOfDeleted;
+    public int getCurrent() {
+        return current;
     }
 
-    public int getDoubleAdd() {
-        return doubleAdd;
-    }
-
-    public int getTotalToAdd() {
-        return totalToAdd;
-    }
-
-    public int getNumberOfUpdated() {
-        return numberOfUpdated;
+    public String getName() {
+        return name;
     }
 }

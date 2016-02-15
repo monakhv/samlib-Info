@@ -341,7 +341,7 @@ public class ArchiveActivity extends MyBaseAbstractActivity {
         @Override
         public void onNext(GuiUpdateObject guiUpdateObject) {
             AlertDialog.Builder builder = new AlertDialog.Builder(ArchiveActivity.this);
-            MessageConstructor mc = new MessageConstructor(ArchiveActivity.this);
+            MessageConstructor mc = new MessageConstructor(ArchiveActivity.this,getSettingsHelper());
             TextView tvMsg = new TextView(ArchiveActivity.this);
             tvMsg.setText(Html.fromHtml(mc.makeMessage(guiUpdateObject).toString()));
             builder.setTitle(R.string.import_author_result)

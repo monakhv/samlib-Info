@@ -35,6 +35,8 @@ import monakhv.android.samlib.sortorder.AuthorSortOrder;
 import monakhv.samlib.db.entity.Author;
 import monakhv.samlib.db.entity.SamLibConfig;
 import monakhv.samlib.service.SamlibService;
+import rx.Subscription;
+
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
@@ -117,9 +119,9 @@ public class UpdateLocalService extends MyService {
      *
      * @param authorId -Author id
      */
-    public static void updateAuthor(Context ctx, int authorId, int tagId,String order) {
-        makeUpdate(ctx, SamlibService.UpdateObjectSelector.Author, authorId,tagId,order);
-    }
+//    public static void updateAuthor(Context ctx, int authorId, int tagId,String order) {
+//        makeUpdate(ctx, SamlibService.UpdateObjectSelector.Author, authorId,tagId,order);
+//    }
 
     /**
      * Chane for new updates of all authors with given tag

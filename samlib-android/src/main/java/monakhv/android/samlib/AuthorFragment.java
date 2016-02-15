@@ -36,6 +36,7 @@ import monakhv.android.samlib.dialogs.EnterStringDialog;
 import monakhv.android.samlib.dialogs.MyMenuData;
 
 import monakhv.android.samlib.recyclerview.DividerItemDecoration;
+import monakhv.android.samlib.service.MessageConstructor;
 import monakhv.samlib.service.AuthorGuiState;
 import monakhv.samlib.service.GuiUpdateObject;
 import monakhv.android.samlib.service.UpdateLocalService;
@@ -45,7 +46,12 @@ import monakhv.android.samlib.sortorder.AuthorSortOrder;
 import monakhv.samlib.db.entity.Author;
 import monakhv.samlib.db.entity.SamLibConfig;
 import monakhv.samlib.log.Log;
+import monakhv.samlib.service.Result;
+import monakhv.samlib.service.SamlibUpdateProgress;
+import rx.Observable;
 import rx.Subscriber;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.schedulers.Schedulers;
 
 
 import java.util.List;
@@ -75,7 +81,7 @@ public class AuthorFragment extends MyBaseAbstractFragment implements
         RecyclerAdapter.CallBack,
         LoaderManager.LoaderCallbacks<List<Author>> {
     public AuthorGuiState getGuiState() {
-        return new AuthorGuiState(selectedTag,order.getOrder());
+        return new AuthorGuiState(selectedTag, order.getOrder());
     }
 
     public interface Callbacks {
@@ -88,6 +94,7 @@ public class AuthorFragment extends MyBaseAbstractFragment implements
 
 
     }
+
     private static final String DEBUG_TAG = "AuthorFragment";
     private static final int AUTHOR_LOADER_ID = 201;
 
@@ -114,6 +121,8 @@ public class AuthorFragment extends MyBaseAbstractFragment implements
     private int mAppBarOffset;
     private UpdateLocalService mUpdateService;
     private Menu mMenu;
+    private Result mResult;
+    private MessageConstructor mMessageConstructor;
     private ServiceConnection mConnection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
@@ -145,8 +154,6 @@ public class AuthorFragment extends MyBaseAbstractFragment implements
     }
 
 
-
-
     private Callbacks mCallbacks;
 
 
@@ -158,6 +165,7 @@ public class AuthorFragment extends MyBaseAbstractFragment implements
         detector = new GestureDetector(getActivity(), new ListSwipeListener(this));
         Intent service = new Intent(getActivity(), UpdateLocalService.class);
         getActivity().bindService(service, mConnection, Context.BIND_AUTO_CREATE);
+        mMessageConstructor = new MessageConstructor(getActivity(), getSettingsHelper());
         Log.d(DEBUG_TAG, "onCreate");
     }
 
@@ -230,7 +238,7 @@ public class AuthorFragment extends MyBaseAbstractFragment implements
 
     @Override
     public void makeNewFlip(Author a) {
-        getSamlibOperation().makeAuthorRead(a,getGuiState());
+        getSamlibOperation().makeAuthorRead(a, getGuiState());
 
     }
 
@@ -303,11 +311,11 @@ public class AuthorFragment extends MyBaseAbstractFragment implements
         }
 
         if (updateAuthor) {
-            updateAuthor(author.getId());
+            updateAuthor(author);
             //UpdateServiceIntent.makeUpdateAuthor(getActivity(), author.getId());
 
         } else {
-            updateTag(selectedTag);
+            updateTag();
             //UpdateServiceIntent.makeUpdate(getActivity(), selectedTag);
 
         }
@@ -411,7 +419,7 @@ public class AuthorFragment extends MyBaseAbstractFragment implements
 
     @Override
     public void longPress(MotionEvent e) {
-        int position = authorRV.getChildAdapterPosition(authorRV.findChildViewUnder(e.getX(), e.getY()));
+        final int position = authorRV.getChildAdapterPosition(authorRV.findChildViewUnder(e.getX(), e.getY()));
         adapter.toggleSelection(position);
 
         author = adapter.getSelected();
@@ -432,7 +440,7 @@ public class AuthorFragment extends MyBaseAbstractFragment implements
 
         contextMenu = ContextMenuDialog.getInstance(menu, (parent, view1, position1, id) -> {
             int item = menu.getIdByPosition(position1);
-            contextSelector(item);
+            contextSelector(item, position);
             contextMenu.dismiss();
         }, author.getName());
 
@@ -440,7 +448,7 @@ public class AuthorFragment extends MyBaseAbstractFragment implements
 
     }
 
-    private void contextSelector(int item) {
+    private void contextSelector(int item, int position) {
 
 
         if (item == delete_option_item) {
@@ -462,18 +470,13 @@ public class AuthorFragment extends MyBaseAbstractFragment implements
         if (item == edit_author_option_item) {
             EnterStringDialog dDialog = new EnterStringDialog(getActivity(), txt -> {
                 author.setName(txt);
-                updateAuthor(author);
+                getAuthorController().update(author);
+                adapter.notifyChange(author, position);
             }, getText(R.string.dialog_title_edit_author).toString(), author.getName());
 
             dDialog.show();
         }
 
-    }
-
-    private void updateAuthor(Author author) {
-
-        getAuthorController().update(author);
-        updateAdapter();
     }
 
 
@@ -522,7 +525,7 @@ public class AuthorFragment extends MyBaseAbstractFragment implements
             switch (which) {
                 case Dialog.BUTTON_POSITIVE:
                     if (author != null) {
-                        getSamlibOperation().makeAuthorDel(author,getGuiState());
+                        getSamlibOperation().makeAuthorDel(author, getGuiState());
                         mCallbacks.cleanBookSelection();
                     }
                     break;
@@ -604,7 +607,6 @@ public class AuthorFragment extends MyBaseAbstractFragment implements
     }
 
 
-
     Subscriber<GuiUpdateObject> mSubscriber = new Subscriber<GuiUpdateObject>() {
 
         @Override
@@ -619,30 +621,31 @@ public class AuthorFragment extends MyBaseAbstractFragment implements
 
         @Override
         public void onNext(GuiUpdateObject guiUpdateObject) {
-            Author author= (Author) guiUpdateObject.getObject();
-            int sort= guiUpdateObject.getSortOrder();
-            if (sort == -1){
-                List<Author> aa = getAuthorController().getAll(selectedTag,order.getOrder());
-                sort=aa.indexOf(author);
+            Author author = (Author) guiUpdateObject.getObject();
+            int sort = guiUpdateObject.getSortOrder();
+            if (sort == -1) {
+                List<Author> aa = getAuthorController().getAll(selectedTag, order.getOrder());
+                sort = aa.indexOf(author);
             }
-            GuiUpdateObject.UpdateType updateType=guiUpdateObject.getUpdateType();
-            switch (updateType){
+            GuiUpdateObject.UpdateType updateType = guiUpdateObject.getUpdateType();
+            switch (updateType) {
                 case DELETE:
                     adapter.remove(sort);
                     break;
                 case ADD:
-                    adapter.add(author,sort);
+                    adapter.add(author, sort);
                     break;
                 default:
-                    adapter.notifyChange(author,sort);
+                    adapter.notifyChange(author, sort);
             }
 
 
             adapter.toggleSelection(sort);
             authorRV.scrollToPosition(sort);
-            Log.d(DEBUG_TAG, "updateAdapter: scroll to position: "+sort);
+            Log.d(DEBUG_TAG, "updateAdapter: scroll to position: " + sort);
         }
     };
+
     @Override
     public void refresh() {
         Log.d(DEBUG_TAG, "refresh: call ");
@@ -672,7 +675,7 @@ public class AuthorFragment extends MyBaseAbstractFragment implements
 
     @Override
     public void onDestroy() {
-        Log.d(DEBUG_TAG,"onDestroy call");
+        Log.d(DEBUG_TAG, "onDestroy call");
         if (mBound) {
             getActivity().unbindService(mConnection);
             mBound = false;
@@ -685,11 +688,11 @@ public class AuthorFragment extends MyBaseAbstractFragment implements
     @Override
     public void onResume() {
         super.onResume();
-        Log.d(DEBUG_TAG,"onResume call");
+        Log.d(DEBUG_TAG, "onResume call");
         canUpdate = true;
         if (mBound) {
             isProgressShow(mUpdateService.isRunning());
-            if (! mUpdateService.isRunning()){
+            if (!mUpdateService.isRunning()) {
                 mPtrFrame.refreshComplete();
             }
         }
@@ -702,13 +705,63 @@ public class AuthorFragment extends MyBaseAbstractFragment implements
 //
 //    }
 
-    private void updateTag(int tag) {
-        UpdateLocalService.updateTag(getActivity(), tag,order.getOrder());
+    private void updateTag() {
+        //UpdateLocalService.updateTag(getActivity(), tag,order.getOrder());
+        Observable<GuiUpdateObject> observable = getSamlibUpdateService().getUpdateService(getGuiState()).cache();
+        makeUpdateSubscription(observable);
     }
 
 
-    private void updateAuthor(int id) {
-        UpdateLocalService.updateAuthor(getActivity(), id,selectedTag,order.getOrder());
+    private void updateAuthor(Author author) {
+        //UpdateLocalService.updateAuthor(getActivity(), id,selectedTag,order.getOrder());
+
+        Observable<GuiUpdateObject> observable = getSamlibUpdateService().getUpdateService(author, getGuiState()).cache();
+        makeUpdateSubscription(observable);
+    }
+
+
+    private void makeUpdateSubscription(Observable<GuiUpdateObject> observable) {
+        observable
+                .subscribeOn(Schedulers.newThread())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Subscriber<GuiUpdateObject>() {
+                    @Override
+                    public void onCompleted() {
+                        Log.d(DEBUG_TAG, "onComplete");
+                        mMessageConstructor.cancelProgress();
+
+                        if (mResult.getNumberOfUpdated() == 0) {
+                            mMessageConstructor.showMessage(R.string.toast_update_good_empty);
+                        } else {
+                            mMessageConstructor.showMessage(R.string.toast_update_good_good);
+                        }
+                        onRefreshComplete();
+
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        Log.e(DEBUG_TAG, "onError");
+                        mMessageConstructor.cancelProgress();
+                        mMessageConstructor.showMessage(R.string.toast_update_error);
+                        onRefreshComplete();
+                    }
+
+                    @Override
+                    public void onNext(GuiUpdateObject guiUpdateObject) {
+                        if (guiUpdateObject.isAuthor()) {
+                            adapter.notifyChange((Author) guiUpdateObject.getObject(), guiUpdateObject.getSortOrder());
+                        }
+                        if (guiUpdateObject.isProgress()) {
+                            mMessageConstructor.showProgress((SamlibUpdateProgress) guiUpdateObject.getObject());
+                        }
+                        if (guiUpdateObject.isResult()) {
+                            mResult = (Result) guiUpdateObject.getObject();
+                        }
+                    }
+                });
+
+
     }
 
 

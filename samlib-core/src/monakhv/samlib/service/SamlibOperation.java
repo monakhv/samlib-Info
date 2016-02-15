@@ -49,7 +49,6 @@ import java.util.concurrent.TimeUnit;
 public class SamlibOperation {
     private static final String DEBUG_TAG = "SamlibOperation";
     public static final long SLEEP_INTERVAL_SECONDS = 1L;
-
     public static final int SLEEP_DELAY_MIN = 5;
     public static final int SLEEP_DELAY_MAX = 15;
 
