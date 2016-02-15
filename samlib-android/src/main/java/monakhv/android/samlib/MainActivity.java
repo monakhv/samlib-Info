@@ -352,7 +352,7 @@ public class MainActivity extends MyBaseAbstractActivity implements
 
 
         registerReceiver(updateReceiver, updateFilter);
-        mAuthorSubscription=getBus().getObservable()
+        mAuthorSubscription=getBus().getObservable().cache()
                 .filter(o->o.isResult() || o.isAuthor())
                 .subscribeOn(Schedulers.newThread())
                 .observeOn(AndroidSchedulers.mainThread())
@@ -367,7 +367,7 @@ public class MainActivity extends MyBaseAbstractActivity implements
             IntentFilter filter = new IntentFilter(DownloadReceiver.ACTION_RESP);
             filter.addCategory(Intent.CATEGORY_DEFAULT);
             registerReceiver(downloadReceiver, filter);
-            mBookSubscription=getBus().getObservable()
+            mBookSubscription=getBus().getObservable().cache()
                      .filter(o -> o.isBook()|| o.isGroup())
                     .subscribeOn(Schedulers.newThread())
                     .observeOn(AndroidSchedulers.mainThread())
@@ -393,10 +393,7 @@ public class MainActivity extends MyBaseAbstractActivity implements
     @Override
     protected void onPause() {
         super.onPause();
-        mAuthorSubscription.unsubscribe();
-        if (mBookSubscription != null){
-            mBookSubscription.unsubscribe();
-        }
+
         unregisterReceiver(updateReceiver);
 
         if (twoPain) {

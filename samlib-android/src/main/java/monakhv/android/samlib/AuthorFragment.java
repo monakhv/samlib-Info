@@ -711,7 +711,7 @@ public class AuthorFragment extends MyBaseAbstractFragment implements
 
     private void updateTag() {
         //UpdateLocalService.updateTag(getActivity(), tag,order.getOrder());
-//        Observable<GuiUpdateObject> observable = getSamlibUpdateService().getUpdateService(getGuiState()).cache();
+//        Observable<GuiUpdateObject> observable = getSamlibUpdateService().runUpdateService(getGuiState()).cache();
 //        makeUpdateSubscription(observable);
 
         mUpdateService.runService(null,getGuiState());
@@ -721,7 +721,7 @@ public class AuthorFragment extends MyBaseAbstractFragment implements
     private void updateAuthor(Author author) {
         //UpdateLocalService.updateAuthor(getActivity(), id,selectedTag,order.getOrder());
 
-//        Observable<GuiUpdateObject> observable = getSamlibUpdateService().getUpdateService(author, getGuiState()).cache();
+//        Observable<GuiUpdateObject> observable = getSamlibUpdateService().runUpdateService(author, getGuiState()).cache();
 //        makeUpdateSubscription(observable);
 
         mUpdateService.runService(author,getGuiState());

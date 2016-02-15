@@ -24,6 +24,7 @@ import com.j256.ormlite.android.apptools.OpenHelperManager;
 import monakhv.android.samlib.SamlibApplication;
 import monakhv.android.samlib.data.SettingsHelper;
 import monakhv.android.samlib.sql.DatabaseHelper;
+import monakhv.samlib.db.AuthorController;
 import monakhv.samlib.http.HttpClientController;
 import monakhv.samlib.service.GuiEventBus;
 import monakhv.samlib.service.SamlibUpdateService;
@@ -67,6 +68,10 @@ public abstract class MyService extends Service {
 
     public SamlibUpdateService getUpdateService(){
         return mSamlibApplication.getDatabaseComponent(getHelper()).getSamLibUpdateService();
+    }
+
+    public AuthorController getAuthorController(){
+        return mSamlibApplication.getDatabaseComponent(getHelper()).getAuthorController();
     }
     @Override
     public void onDestroy() {

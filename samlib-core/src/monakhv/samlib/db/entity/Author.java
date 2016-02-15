@@ -125,6 +125,9 @@ public class Author  implements Serializable{
     }
 
     public String getAll_tags_name() {
+        if (all_tags_name == null){
+            return "";
+        }
         return all_tags_name;
     }
 

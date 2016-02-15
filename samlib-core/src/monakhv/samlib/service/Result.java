@@ -19,6 +19,10 @@
 
 package monakhv.samlib.service;
 
+import monakhv.samlib.db.entity.Author;
+
+import java.util.List;
+
 /**
  * Created by monakhv on 12.02.16.
  */
@@ -29,10 +33,15 @@ public class Result {
     int doubleAdd = 0;
     int totalToAdd = 0 ;
     int numberOfUpdated=0;
+    List<Author> mUpdatedAuthors;
 
 
     public Result(boolean res){
         mRes=res;
+    }
+    public Result(boolean res,List<Author> authors){
+        mRes=res;
+        mUpdatedAuthors=authors;
     }
 
     public int getNumberOfAdded() {
@@ -53,6 +62,10 @@ public class Result {
 
     public int getNumberOfUpdated() {
         return numberOfUpdated;
+    }
+
+    public List<Author> getUpdatedAuthors() {
+        return mUpdatedAuthors;
     }
 
     public boolean isRes() {

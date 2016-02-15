@@ -64,17 +64,17 @@ public class SamlibUpdateService {
     }
 
 
-    public boolean getUpdateService(Author author, AuthorGuiState authorGuiState) {
+    public boolean runUpdateService(Author author, AuthorGuiState authorGuiState) {
 
         List<Author> authors = new ArrayList<>();
         authors.add(author);
-        return runUpdateAuthors(authors,authorGuiState);
+        return runUpdateService(authors,authorGuiState);
     }
 
-    public boolean getUpdateService(AuthorGuiState authorGuiState) {
+    public boolean runUpdateService(AuthorGuiState authorGuiState) {
 
         List<Author> authors = mAuthorController.getAll(authorGuiState.mSelectedTagId, SQLController.COL_mtime + " DESC");
-        return runUpdateAuthors(authors,authorGuiState);
+        return runUpdateService(authors,authorGuiState);
     }
 
     /**
@@ -83,7 +83,7 @@ public class SamlibUpdateService {
      * @param authors List of the Authors to check update
      * @return true if update successful false if error or interrupted
      */
-    private boolean runUpdateAuthors(List<Author> authors, AuthorGuiState state) {
+    public boolean runUpdateService(List<Author> authors, AuthorGuiState state) {
         updatedAuthors.clear();
         int skippedAuthors = 0;
         Random rnd = new Random(Calendar.getInstance().getTimeInMillis());
@@ -166,13 +166,13 @@ public class SamlibUpdateService {
     }
 
     private void finishUpdate(boolean b, List<Author> updatedAuthors) {
-        Result result = new Result(b);
+        Result result = new Result(b,updatedAuthors);
         result.numberOfUpdated = updatedAuthors.size();
         mGuiEventBus.post(new GuiUpdateObject(result, GuiUpdateObject.UpdateType.UPDATE_UPDATE));
     }
 
 
-    public Observable<GuiUpdateObject> getUpdateService(List<Author> authors, AuthorGuiState authorGuiState) {
+    public Observable<GuiUpdateObject> runUpdateServiceOld(List<Author> authors, AuthorGuiState authorGuiState) {
 
         return Observable.create(subscriber -> {
             updatedAuthors.clear();

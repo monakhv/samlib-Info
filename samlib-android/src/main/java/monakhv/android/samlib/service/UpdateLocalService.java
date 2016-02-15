@@ -29,20 +29,12 @@ import in.srain.cube.views.ptr.util.PrefsUtil;
 
 
 import monakhv.android.samlib.SamlibApplication;
-import monakhv.android.samlib.dagger.component.ServiceComponent;
 import monakhv.android.samlib.data.SettingsHelper;
 import monakhv.android.samlib.sortorder.AuthorSortOrder;
 import monakhv.samlib.db.entity.Author;
-import monakhv.samlib.db.entity.SamLibConfig;
 import monakhv.samlib.service.*;
-import rx.Subscriber;
-import rx.Subscription;
-import rx.android.schedulers.AndroidSchedulers;
-import rx.functions.Action1;
-import rx.observables.ConnectableObservable;
-import rx.schedulers.Schedulers;
 
-import java.util.ArrayList;
+
 import java.util.Calendar;
 import java.util.List;
 
@@ -61,29 +53,28 @@ public class UpdateLocalService extends MyService {
     public static final String ACTION_UPDATE = "UpdateLocalService.ACTION_UPDATE";
     public static final String UPDATE_OBJECT = "UpdateLocalService.UPDATE_OBJECT";
 
-    private static final String EXTRA_SELECTED_TAG = "UpdateLocalService.EXTRA_SELECTED_TAG";
-    private static final String EXTRA_ORDER = "UpdateLocalService.EXTRA_ORDER";
+
 
 
     private final IBinder mBinder = new LocalBinder();
 
     //private DataExportImport dataExportImport;
-    private final List<Author> updatedAuthors;
+
     private SharedPreferences mSharedPreferences;
+    private MessageConstructor mMessageConstructor;
 
 
     private static boolean isRun = false;
+    private boolean isReceiver = false;
     private static PowerManager.WakeLock wl;
     private static Thread mThread;
 
-    private AndroidGuiUpdater.CALLER_TYPE mCALLER_type;
-    private Context context;
     SamlibApplication mSamlibApplication;
 
 
     public UpdateLocalService() {
         super();
-        updatedAuthors = new ArrayList<>();
+
         // Log.d(DEBUG_TAG, "Constructor Call");
     }
 
@@ -99,13 +90,9 @@ public class UpdateLocalService extends MyService {
         }
         if (action.equalsIgnoreCase(ACTION_UPDATE)) {
             Log.i(DEBUG_TAG, "OnStart: making update");
+            isReceiver = true;
+            runService(null,null);
 
-            UpdateObject updateObject = intent.getParcelableExtra(UPDATE_OBJECT);
-
-            int iSelected = intent.getIntExtra(EXTRA_SELECTED_TAG, SamLibConfig.TAG_AUTHOR_ALL);
-            String order = intent.getStringExtra(EXTRA_ORDER);
-
-            makeRealUpdate(updateObject, iSelected, order);
         }
 
 
@@ -132,96 +119,54 @@ public class UpdateLocalService extends MyService {
         ctx.startService(service);
     }
 
-    private MessageConstructor mMessageConstructor;
+
 
     public void runService(Author author, AuthorGuiState state) {
 
+
+        if (isRun && !isReceiver) {
+            Log.i(DEBUG_TAG, "runService: Update already running exiting");
+            return;
+        }
+
+        mSharedPreferences = PrefsUtil.getSharedPreferences(this, PREF_NAME);
+        getSettingsHelper().requestFirstBackup();
+
+        mSharedPreferences.edit().putBoolean(PREF_KEY_CALLER, isReceiver).apply();
+
+        if (isReceiver && !getSettingsHelper().haveInternetWIFI()) {
+            monakhv.samlib.log.Log.d(DEBUG_TAG, "runService: Ignore update task - we have no internet connection");
+            return;
+        }
+        if (!SettingsHelper.haveInternet(this)) {
+            Log.e(DEBUG_TAG, "runService: Ignore update - we have no internet connection");
+
+            return;
+        }
+
         PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
         wl = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, DEBUG_TAG);
         wl.acquire();
 
-        mThread = new SamlibUpdateTread(getUpdateService(),author,state);
+        mThread = new SamlibUpdateTread(getUpdateService(), author, state);
 
         getBus().getObservable()
                 .subscribe(guiUpdateObject -> {
-                    if (guiUpdateObject.isProgress()){
-                        if (mMessageConstructor == null){
-                            mMessageConstructor=new MessageConstructor(this,getSettingsHelper());
+                    if (guiUpdateObject.isProgress()) {
+                        if (mMessageConstructor == null) {
+                            mMessageConstructor = new MessageConstructor(this, getSettingsHelper());
                         }
-                        mMessageConstructor.showProgress((SamlibUpdateProgress) guiUpdateObject.getObject());
+                        mMessageConstructor.updateNotification((SamlibUpdateProgress) guiUpdateObject.getObject());
                     }
-                    if (guiUpdateObject.isResult()){
+                    if (guiUpdateObject.isResult()) {
                         mMessageConstructor.cancelProgress();
                     }
-
+                    if (guiUpdateObject.isAuthor()) {
+                        mMessageConstructor.updateNotification((Author) guiUpdateObject.getObject());
+                    }
                 });
         mThread.start();
 
-
-    }
-
-
-    private void makeRealUpdate(UpdateObject updateObject, int tagId, String ord) {
-        mCALLER_type = updateObject.getCALLER_type();
-
-        if (isRun && updateObject.callerIsActivity()) {
-            Log.i(DEBUG_TAG, "makeRealUpdate: Update already running exiting");
-            return;
-        }
-        context = this.getApplicationContext();
-        updatedAuthors.clear();
-
-        Log.d(DEBUG_TAG, "makeRealUpdate: makeUpdate");
-
-
-        mSharedPreferences = PrefsUtil.getSharedPreferences(context, PREF_NAME);
-        getSettingsHelper().requestFirstBackup();
-
-        mSharedPreferences.edit().putString(PREF_KEY_CALLER, updateObject.getCALLER_type().name()).apply();
-
-
-        if ((updateObject.callerIsReceiver()) && !getSettingsHelper().haveInternetWIFI()) {
-            monakhv.samlib.log.Log.d(DEBUG_TAG, "makeRealUpdate: Ignore update task - we have no internet connection");
-
-            return;
-        }
-        mSamlibApplication = (SamlibApplication) getApplication();
-
-        ServiceComponent serviceComponent = mSamlibApplication.getServiceComponent(updateObject, getHelper());
-
-        AndroidGuiUpdater guiUpdate = serviceComponent.getAndroidGuiUpdater();
-        if (!SettingsHelper.haveInternet(context)) {
-            Log.e(DEBUG_TAG, "makeRealUpdate: Ignore update - we have no internet connection");
-
-            guiUpdate.finishUpdate(false, updatedAuthors);
-            return;
-        }
-
-        int iSelected;
-        String order;
-        if (updateObject.callerIsReceiver()) {
-            String sTag = getSettingsHelper().getUpdateTag();
-            iSelected = Integer.parseInt(sTag);
-            updateObject.setObjectId(iSelected);
-            order = AuthorSortOrder.valueOf(getSettingsHelper().getAuthorSortOrderString()).getOrder();
-            Log.i(DEBUG_TAG, "makeRealUpdate: Recurring  call select by tag: " + sTag);
-        } else {
-            iSelected = tagId;
-            order = ord;
-        }
-
-        //http = HttpClientController.getInstance(mSettingsHelper);
-        SpecialSamlibService service = serviceComponent.getSpecialSamlibService();
-        //= new SpecialSamlibService(ctl, guiUpdate, mSettingsHelper, http,updateObject,dataExportImport);
-
-
-        PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
-        wl = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, DEBUG_TAG);
-        wl.acquire();
-
-
-        mThread = new UpdateTread(service, updateObject, iSelected, order);
-        mThread.start();
 
     }
 
@@ -235,12 +180,12 @@ public class UpdateLocalService extends MyService {
             mMessageConstructor.cancelProgress();
         }
 
-        if (isRun ) {
+        if (isRun) {
             Log.d(DEBUG_TAG, "Making STOP");
             mThread.interrupt();
             getHttpClientController().cancelAll();
 
-//            UpdateLocalService.this.mSamlibApplication.releaseServiceComponent();
+   //         UpdateLocalService.this.mSamlibApplication.releaseServiceComponent();
             releaseLock();
         }
     }
@@ -271,50 +216,40 @@ public class UpdateLocalService extends MyService {
         public void run() {
             super.run();
             isRun = true;
-            if (mAuthor == null) {
-                mSamlibUpdateService.getUpdateService(mAuthorGuiState);
+            boolean result;
+            if (isReceiver) {
+                String sTag = getSettingsHelper().getUpdateTag();
+                int iSelected = Integer.parseInt(sTag);
+                String order = AuthorSortOrder.valueOf(getSettingsHelper().getAuthorSortOrderString()).getOrder();
+                List<Author> authors = getAuthorController().getAll(iSelected, order);
+                result = mSamlibUpdateService.runUpdateService(authors, new AuthorGuiState(iSelected, order));
+
             } else {
+                if (mAuthor == null) {
+                    result = mSamlibUpdateService.runUpdateService(mAuthorGuiState);
+                } else {
 
-                mSamlibUpdateService.getUpdateService(mAuthor, mAuthorGuiState);
+                    result = mSamlibUpdateService.runUpdateService(mAuthor, mAuthorGuiState);
+                }
             }
-            isRun=false;
-            releaseLock();
-        }
-    }
-
-    private class UpdateTread extends Thread {
-        private SpecialSamlibService service;
-        private UpdateObject mUpdateObject;
-        private int mSelected;
-        private String mOrder;
-
-        public UpdateTread(SpecialSamlibService service, UpdateObject updateObject, int iSelected, String order) {
-            this.service = service;
-            this.mUpdateObject = updateObject;
-            this.mSelected = iSelected;
-            this.mOrder = order;
-        }
-
-        @Override
-        public void run() {
-            super.run();
-            isRun = true;
-            boolean result = service.runUpdate(mUpdateObject.getObjectType(), mUpdateObject.getObjectId(), mSelected, mOrder);
-
             if (result) {
-                if (getSettingsHelper().getLimitBookLifeTimeFlag() && (mUpdateObject.callerIsReceiver())) {
-                    CleanBookServiceIntent.start(context);
+                if (getSettingsHelper().getLimitBookLifeTimeFlag() && isReceiver) {
+                    CleanBookServiceIntent.start(UpdateLocalService.this);
                 }
 
                 mSharedPreferences.edit().putLong(PREF_KEY_LAST_UPDATE, Calendar.getInstance().getTime().getTime()).apply();
             }
 
+
             isRun = false;
-            UpdateLocalService.this.mSamlibApplication.releaseServiceComponent();
             releaseLock();
-            UpdateLocalService.this.stopSelf();
+            if (isReceiver) {
+                releaseLock();
+                UpdateLocalService.this.stopSelf();
+            }
         }
     }
+
 
     /**
      * Release power lock
