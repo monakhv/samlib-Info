@@ -139,6 +139,7 @@ public class AuthorAdapter extends RecyclerAdapter<Author, AuthorAdapter.AuthorV
 //            notifyItemRemoved(idx);
 //            notifyItemInserted(sort);
             notifyItemMoved(idx,sort);
+            notifyItemChanged(sort);
             Log.d(DEBUG_TAG,"notifyChange: make move: "+idx+" to: "+sort );
             return;
         }

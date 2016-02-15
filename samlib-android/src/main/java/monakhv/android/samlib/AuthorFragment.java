@@ -638,7 +638,7 @@ public class AuthorFragment extends MyBaseAbstractFragment implements
                 }
 
 
-                adapter.toggleSelection(sort);
+                //adapter.toggleSelection(sort);
                 authorRV.scrollToPosition(sort);
                 Log.d(DEBUG_TAG, "updateAdapter: scroll to position: " + sort);
             }

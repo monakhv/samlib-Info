@@ -1,8 +1,8 @@
 package monakhv.android.samlib.adapter;
 
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import monakhv.samlib.db.entity.Author;
+import monakhv.samlib.log.Log;
 
 import java.util.List;
 
@@ -74,6 +74,7 @@ public abstract class RecyclerAdapter<T, VH extends android.support.v7.widget.Re
      * @param notified whether make change item notification or not
      */
     public void toggleSelection(int position, boolean notified) {
+        Log.d(DEBUG_TAG,"toggleSelection: "+position+"  "+notified);
         if (position == selected) {
             return;//selection is not changed - ignore it
         }
