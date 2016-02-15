@@ -110,7 +110,9 @@ public class MessageConstructor {
         } else {
             showMessage(R.string.toast_update_error);
         }
+    }
 
+    public void showUpdateNotification(Result res){
         if (res.isRes() && res.getUpdatedAuthors().isEmpty() && !mSettingsHelper.getDebugFlag()) {
             return;//no errors and no updates - no notification
         }
@@ -134,7 +136,6 @@ public class MessageConstructor {
             notifyData.notifyUpdateError(mSettingsHelper);
 
         }
-
     }
 
     public void cancelProgress() {

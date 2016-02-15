@@ -28,7 +28,6 @@ import android.util.Log;
 import in.srain.cube.views.ptr.util.PrefsUtil;
 
 
-import monakhv.android.samlib.SamlibApplication;
 import monakhv.android.samlib.data.SettingsHelper;
 import monakhv.android.samlib.sortorder.AuthorSortOrder;
 import monakhv.samlib.db.entity.Author;
@@ -69,7 +68,6 @@ public class UpdateLocalService extends MyService {
     private static PowerManager.WakeLock wl;
     private static Thread mThread;
 
-    SamlibApplication mSamlibApplication;
 
 
     public UpdateLocalService() {
@@ -160,6 +158,7 @@ public class UpdateLocalService extends MyService {
                     }
                     if (guiUpdateObject.isResult()) {
                         mMessageConstructor.cancelProgress();
+                        mMessageConstructor.showUpdateNotification((Result) guiUpdateObject.getObject());
                     }
                     if (guiUpdateObject.isAuthor()) {
                         mMessageConstructor.updateNotification((Author) guiUpdateObject.getObject());
