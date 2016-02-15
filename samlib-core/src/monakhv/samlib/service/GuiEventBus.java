@@ -13,49 +13,31 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  *
- *  12.02.16 11:23
+ *  15.02.16 13:27
  *
  */
 
 package monakhv.samlib.service;
 
+import rx.Observable;
+import rx.subjects.PublishSubject;
+import rx.subjects.SerializedSubject;
+import rx.subjects.Subject;
+
 /**
- * Created by monakhv on 12.02.16.
+ * Created by monakhv on 15.02.16.
  */
-public class Result {
-    boolean mRes;
-    int numberOfAdded = 0;
-    int numberOfDeleted = 0;
-    int doubleAdd = 0;
-    int totalToAdd = 0 ;
-    int numberOfUpdated=0;
+public class GuiEventBus {
+    private final Subject<GuiUpdateObject, GuiUpdateObject> mSubject
+            = new SerializedSubject<>(PublishSubject.<GuiUpdateObject>create());
+    public GuiEventBus(){
 
-
-    public Result(boolean res){
-        mRes=res;
+    }
+    public Observable<GuiUpdateObject> getObservable() {
+        return mSubject;
     }
 
-    public int getNumberOfAdded() {
-        return numberOfAdded;
-    }
-
-    public int getNumberOfDeleted() {
-        return numberOfDeleted;
-    }
-
-    public int getDoubleAdd() {
-        return doubleAdd;
-    }
-
-    public int getTotalToAdd() {
-        return totalToAdd;
-    }
-
-    public int getNumberOfUpdated() {
-        return numberOfUpdated;
-    }
-
-    public boolean isRes() {
-        return mRes;
+    public void post(GuiUpdateObject guiUpdateObject){
+        mSubject.onNext(guiUpdateObject);
     }
 }

@@ -32,7 +32,6 @@ import monakhv.android.samlib.search.SearchAuthorsListFragment;
 import monakhv.android.samlib.service.AndroidGuiUpdater;
 import monakhv.android.samlib.service.CleanNotificationData;
 import monakhv.samlib.service.AuthorGuiState;
-import monakhv.samlib.service.GuiUpdateObject;
 import monakhv.android.samlib.sortorder.AuthorSortOrder;
 
 import monakhv.samlib.db.TagController;
@@ -353,8 +352,8 @@ public class MainActivity extends MyBaseAbstractActivity implements
 
 
         registerReceiver(updateReceiver, updateFilter);
-        mAuthorSubscription=getSamlibOperation().getObservable()
-                .filter(GuiUpdateObject::isAuthor)
+        mAuthorSubscription=getBus().getObservable()
+                .filter(o->o.isResult() || o.isAuthor())
                 .subscribeOn(Schedulers.newThread())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(authorFragment.mSubscriber);
@@ -368,8 +367,8 @@ public class MainActivity extends MyBaseAbstractActivity implements
             IntentFilter filter = new IntentFilter(DownloadReceiver.ACTION_RESP);
             filter.addCategory(Intent.CATEGORY_DEFAULT);
             registerReceiver(downloadReceiver, filter);
-            mBookSubscription=getSamlibOperation().getObservable()
-                  //   .filter(o -> o.isBook()|| o.isGroup())
+            mBookSubscription=getBus().getObservable()
+                     .filter(o -> o.isBook()|| o.isGroup())
                     .subscribeOn(Schedulers.newThread())
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe(bookFragment.mSubscriber);

@@ -29,6 +29,7 @@ import monakhv.android.samlib.dagger.module.ApplicationModule;
 import monakhv.android.samlib.dagger.module.DatabaseModule;
 import monakhv.android.samlib.receiver.AutoStartUp;
 import monakhv.samlib.http.HttpClientController;
+import monakhv.samlib.service.GuiEventBus;
 
 /**
  * Root Component of the graph
@@ -43,6 +44,8 @@ public interface ApplicationComponent {
     void inject(SamlibApplication application);
 
     void inject (AutoStartUp receiver);
+
+    GuiEventBus getGuiEventBus();
 
     HttpClientController getHttpClientController();
 

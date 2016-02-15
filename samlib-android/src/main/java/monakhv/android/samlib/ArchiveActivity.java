@@ -266,10 +266,11 @@ public class ArchiveActivity extends MyBaseAbstractActivity {
         filter.addCategory(Intent.CATEGORY_DEFAULT);
         registerReceiver(receiver, filter);
 
-        mResultSubscription=getSamlibOperation()
+        mResultSubscription=getBus()
                 .getObservable()
                 .filter(GuiUpdateObject::isResult)
                 .subscribe(mSubscriber);
+        addSubscription(mResultSubscription);
 
     }
 

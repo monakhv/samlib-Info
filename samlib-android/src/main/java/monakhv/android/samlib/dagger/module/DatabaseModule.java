@@ -28,6 +28,7 @@ import monakhv.android.samlib.sql.DatabaseHelper;
 import monakhv.android.samlib.tasks.AddAuthorRestore;
 import monakhv.samlib.db.AuthorController;
 import monakhv.samlib.http.HttpClientController;
+import monakhv.samlib.service.GuiEventBus;
 import monakhv.samlib.service.SamlibOperation;
 import monakhv.samlib.service.SamlibUpdateService;
 
@@ -50,14 +51,14 @@ public class DatabaseModule {
 
     @Provides
     @DatabaseScope
-    SamlibOperation providesSamlibOperation(AuthorController authorController,SettingsHelper settingsHelper,HttpClientController httpClientController){
-        return new SamlibOperation( authorController,settingsHelper,httpClientController);
+    SamlibOperation providesSamlibOperation(AuthorController authorController, SettingsHelper settingsHelper, HttpClientController httpClientController, GuiEventBus bus){
+        return new SamlibOperation( authorController,settingsHelper,httpClientController,bus);
     }
 
     @Provides
     @DatabaseScope
-    SamlibUpdateService providesSamlibUpdateService(AuthorController authorController, SettingsHelper settingsHelper, HttpClientController httpClientController){
-        return new SamlibUpdateService( authorController,settingsHelper,httpClientController);
+    SamlibUpdateService providesSamlibUpdateService(AuthorController authorController, SettingsHelper settingsHelper, HttpClientController httpClientController, GuiEventBus bus){
+        return new SamlibUpdateService( authorController,settingsHelper,httpClientController,bus);
     }
 
     @Provides

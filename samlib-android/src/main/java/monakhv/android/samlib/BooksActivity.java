@@ -122,7 +122,7 @@ public class BooksActivity extends MyAbstractAnimActivity implements BookFragmen
     @Override
     protected void onResume() {
         super.onResume();
-        mBookSubscription=getSamlibOperation().getObservable()
+        mBookSubscription=getBus().getObservable()
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.newThread())
                 .subscribe(mBookFragment.mSubscriber);

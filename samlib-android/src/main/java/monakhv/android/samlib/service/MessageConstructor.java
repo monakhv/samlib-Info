@@ -93,10 +93,28 @@ public class MessageConstructor {
         }
     }
 
-    public void showMessage(int res){
+    private void showMessage(int res){
         int duration = Toast.LENGTH_SHORT;
         CharSequence msg = mContext.getString(res);
         Toast toast = Toast.makeText(mContext, msg, duration);
         toast.show();
+    }
+
+    public void showUpdateMessage(Result res){
+        if (res.isRes()){
+            if (res.getNumberOfUpdated()==0){
+                showMessage(R.string.toast_update_good_empty);
+            }else {
+                showMessage(R.string.toast_update_good_good);
+            }
+
+        }
+        else {
+            showMessage(R.string.toast_update_error);
+        }
+
+
+
+
     }
 }

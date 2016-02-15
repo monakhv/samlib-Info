@@ -30,11 +30,6 @@ import monakhv.samlib.exception.SamlibParseException;
 import monakhv.samlib.http.HttpClientController;
 import monakhv.samlib.log.Log;
 
-import rx.Observable;
-import rx.subjects.PublishSubject;
-import rx.subjects.SerializedSubject;
-import rx.subjects.Subject;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -52,24 +47,23 @@ public class SamlibOperation {
     public static final int SLEEP_DELAY_MIN = 5;
     public static final int SLEEP_DELAY_MAX = 15;
 
-    private final Subject<GuiUpdateObject, GuiUpdateObject> mSubject
-            = new SerializedSubject<>(PublishSubject.<GuiUpdateObject>create());
+
     protected final AuthorController mAuthorController;
     private final AbstractSettings mSettingsHelper;
     private final HttpClientController mHttpClientController;
+    private final GuiEventBus mGuiEventBus;
 
     private  Thread mThread;
 
-    public SamlibOperation(AuthorController sql, AbstractSettings settingsHelper, HttpClientController httpClientController) {
+    public SamlibOperation(AuthorController sql, AbstractSettings settingsHelper, HttpClientController httpClientController,GuiEventBus guiEventBus) {
         mAuthorController = sql;
         mSettingsHelper = settingsHelper;
         mHttpClientController = httpClientController;
+        mGuiEventBus=guiEventBus;
 
     }
 
-    public Observable<GuiUpdateObject> getObservable() {
-        return mSubject;
-    }
+
 
 
     public void makeBookReadFlip(final Book book, final BookGuiState bState, final AuthorGuiState aState) {
@@ -341,7 +335,7 @@ public class SamlibOperation {
 
 
     private void makeGuiUpdate(GuiUpdateObject guiUpdateObject) {
-        mSubject.onNext(guiUpdateObject);
+        mGuiEventBus.post(guiUpdateObject);
     }
 
     private int getAuthorIndex(Author author, AuthorGuiState state) {

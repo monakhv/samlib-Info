@@ -9,8 +9,11 @@ import monakhv.android.samlib.data.DataExportImport;
 import monakhv.android.samlib.data.SettingsHelper;
 import monakhv.android.samlib.sql.DatabaseHelper;
 import monakhv.samlib.db.AuthorController;
+import monakhv.samlib.service.GuiEventBus;
 import monakhv.samlib.service.SamlibOperation;
 import monakhv.samlib.service.SamlibUpdateService;
+import rx.Subscription;
+import rx.subscriptions.CompositeSubscription;
 
 
 /*
@@ -34,11 +37,13 @@ public class MyBaseAbstractActivity extends AppCompatActivity implements MyBaseA
     private volatile DatabaseHelper helper;
     private SamlibApplication mSamlibApplication;
     private SamlibOperation mSamlibOperation;
+    private CompositeSubscription mCompositeSubscription;
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         mSamlibApplication=(SamlibApplication) getApplication();
         setTheme(mSamlibApplication.getSettingsHelper().getTheme());
         super.onCreate(savedInstanceState);
+        mCompositeSubscription = new CompositeSubscription();
 
     }
 
@@ -78,6 +83,12 @@ public class MyBaseAbstractActivity extends AppCompatActivity implements MyBaseA
         return getDatabaseHelper();
     }
 
+    public GuiEventBus getBus(){
+        return mSamlibApplication.getApplicationComponent().getGuiEventBus();
+    }
+    public void addSubscription(Subscription subscription){
+        mCompositeSubscription.add(subscription);
+    }
     /**
      * Get a helper for this action.
      */
@@ -104,6 +115,9 @@ public class MyBaseAbstractActivity extends AppCompatActivity implements MyBaseA
         }
         if (mSamlibOperation != null){
             mSamlibOperation=null;
+        }
+        if (mCompositeSubscription != null){
+            mCompositeSubscription.unsubscribe();
         }
         mSamlibApplication.releaseDatabaseComponent();
     }

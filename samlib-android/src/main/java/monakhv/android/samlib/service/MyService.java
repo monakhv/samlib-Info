@@ -25,6 +25,8 @@ import monakhv.android.samlib.SamlibApplication;
 import monakhv.android.samlib.data.SettingsHelper;
 import monakhv.android.samlib.sql.DatabaseHelper;
 import monakhv.samlib.http.HttpClientController;
+import monakhv.samlib.service.GuiEventBus;
+import monakhv.samlib.service.SamlibUpdateService;
 
 
 /**
@@ -55,10 +57,17 @@ public abstract class MyService extends Service {
         return mSamlibApplication.getSettingsHelper();
     }
 
+    protected GuiEventBus getBus(){
+        return mSamlibApplication.getApplicationComponent().getGuiEventBus();
+    }
+
     public HttpClientController getHttpClientController(){
         return mSamlibApplication.getApplicationComponent().getHttpClientController();
     }
 
+    public SamlibUpdateService getUpdateService(){
+        return mSamlibApplication.getDatabaseComponent(getHelper()).getSamLibUpdateService();
+    }
     @Override
     public void onDestroy() {
         super.onDestroy();

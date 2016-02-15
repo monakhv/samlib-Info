@@ -42,44 +42,139 @@ import java.util.concurrent.TimeUnit;
  * Created by monakhv on 12.02.16.
  */
 public class SamlibUpdateService {
-    private static final String DEBUG_TAG="SamlibUpdateService";
-    public static final long  SLEEP_INTERVAL_SECONDS = 1L;
-    public static final int     SLEEP_DELAY_MIN = 5;
-    public static final int     SLEEP_DELAY_MAX = 15;
-
+    private static final String DEBUG_TAG = "SamlibUpdateService";
+    public static final long SLEEP_INTERVAL_SECONDS = 1L;
+    public static final int SLEEP_DELAY_MIN = 5;
+    public static final int SLEEP_DELAY_MAX = 15;
 
 
     private final AuthorController mAuthorController;
     private final HttpClientController mHttpClientController;
     private final AbstractSettings mAbstractSettings;
     private final List<Author> updatedAuthors;
+    private final GuiEventBus mGuiEventBus;
 
 
-
-    public SamlibUpdateService(AuthorController authorController,AbstractSettings settings,HttpClientController httpClientController){
-        mAuthorController=authorController;
-        mHttpClientController=httpClientController;
-        mAbstractSettings=settings;
-        updatedAuthors= new ArrayList<>();
+    public SamlibUpdateService(AuthorController authorController, AbstractSettings settings, HttpClientController httpClientController, GuiEventBus guiEventBus) {
+        mAuthorController = authorController;
+        mHttpClientController = httpClientController;
+        mAbstractSettings = settings;
+        updatedAuthors = new ArrayList<>();
+        mGuiEventBus = guiEventBus;
     }
 
 
-    public Observable<GuiUpdateObject> getUpdateService(Author author,AuthorGuiState authorGuiState){
+    public boolean getUpdateService(Author author, AuthorGuiState authorGuiState) {
 
         List<Author> authors = new ArrayList<>();
         authors.add(author);
-        return getUpdateService(authors,authorGuiState);
+        return runUpdateAuthors(authors,authorGuiState);
     }
 
-    public Observable<GuiUpdateObject> getUpdateService(AuthorGuiState authorGuiState){
+    public boolean getUpdateService(AuthorGuiState authorGuiState) {
 
-        List<Author> authors  = mAuthorController.getAll(authorGuiState.mSelectedTagId, SQLController.COL_mtime + " DESC");
-        return getUpdateService(authors,authorGuiState);
+        List<Author> authors = mAuthorController.getAll(authorGuiState.mSelectedTagId, SQLController.COL_mtime + " DESC");
+        return runUpdateAuthors(authors,authorGuiState);
     }
 
-    public Observable<GuiUpdateObject> getUpdateService(List<Author> authors,AuthorGuiState authorGuiState) {
+    /**
+     * Check update information for the list of authors
+     *
+     * @param authors List of the Authors to check update
+     * @return true if update successful false if error or interrupted
+     */
+    private boolean runUpdateAuthors(List<Author> authors, AuthorGuiState state) {
+        updatedAuthors.clear();
+        int skippedAuthors = 0;
+        Random rnd = new Random(Calendar.getInstance().getTimeInMillis());
 
-        return Observable.create(subscriber ->{
+        int total = authors.size();
+        int iCurrent = 0;//to send update information to pull-to-refresh
+        for (Author a : authors) {//main author cycle
+            mGuiEventBus.post(new GuiUpdateObject(new SamlibUpdateProgress(total, ++iCurrent, a.getName())));
+
+            mAuthorController.loadBooks(a);
+            mAuthorController.loadGroupBooks(a);
+            String url = a.getUrl();
+            Author newA = new Author();
+            try {
+                newA = mHttpClientController.getAuthorByURL(url, newA);
+            } catch (IOException ex) {//here we abort cycle author and total update
+                Log.i(DEBUG_TAG, "runUpdateAuthors: Connection Error: " + url, ex);
+                finishUpdate(false, updatedAuthors);
+                return false;
+
+            } catch (SamlibParseException ex) {//skip update for given author
+                Log.e(DEBUG_TAG, "runUpdateAuthors:Error parsing url: " + url + " skip update author ", ex);
+
+                ++skippedAuthors;
+                newA = a;
+            } catch (SamlibInterruptException e) {
+                Log.i(DEBUG_TAG, "runUpdateAuthors: catch Interrupted", e);
+
+                finishUpdate(false, updatedAuthors);
+                return false;
+            }
+            if (a.update(newA)) {//we have update for the author
+                Log.i(DEBUG_TAG, "runUpdateAuthors: We need update author: " + a.getName());
+                mAuthorController.update(a);
+
+                if (a.isIsNew()) {
+                    updatedAuthors.add(a);//sometimes we need update if the author has no new books
+                    int idx = getAuthorIndex(a, state);
+                    GuiUpdateObject guiUpdateObject = new GuiUpdateObject(a, idx, GuiUpdateObject.UpdateType.UPDATE_UPDATE);
+                    mGuiEventBus.post(guiUpdateObject);
+
+                }
+                if (mAbstractSettings.getAutoLoadFlag()) {
+                    loadBook(a);
+                }
+
+
+            }
+            long sleep;
+
+            if (mAbstractSettings.isUpdateDelay()) {
+                sleep = rnd.nextInt(SLEEP_DELAY_MAX - SLEEP_DELAY_MIN + 1) + SLEEP_DELAY_MIN;
+            } else {
+                sleep = SLEEP_INTERVAL_SECONDS;
+            }
+
+            try {
+                Log.d(DEBUG_TAG, "runUpdateAuthors: sleep " + sleep + " seconds");
+
+                TimeUnit.SECONDS.sleep(sleep);
+            } catch (InterruptedException e) {
+                Log.i(DEBUG_TAG, "runUpdateAuthors: Sleep interrupted exiting", e);
+
+                finishUpdate(false, updatedAuthors);
+                return false;
+            }
+        }//main author cycle END
+
+        mAuthorController.cleanBooks();
+        if (authors.size() == skippedAuthors) {
+            //all authors skipped - this is the error
+            finishUpdate(false, updatedAuthors);
+            return false;
+        } else {
+            finishUpdate(true, updatedAuthors);
+            return true;
+        }
+
+
+    }
+
+    private void finishUpdate(boolean b, List<Author> updatedAuthors) {
+        Result result = new Result(b);
+        result.numberOfUpdated = updatedAuthors.size();
+        mGuiEventBus.post(new GuiUpdateObject(result, GuiUpdateObject.UpdateType.UPDATE_UPDATE));
+    }
+
+
+    public Observable<GuiUpdateObject> getUpdateService(List<Author> authors, AuthorGuiState authorGuiState) {
+
+        return Observable.create(subscriber -> {
             updatedAuthors.clear();
             int skippedAuthors = 0;
             Random rnd = new Random(Calendar.getInstance().getTimeInMillis());
@@ -88,7 +183,7 @@ public class SamlibUpdateService {
             int iCurrent = 0;//to send update information to pull-to-refresh
 
             for (Author a : authors) {//main author cycle
-                subscriber.onNext(new GuiUpdateObject(new SamlibUpdateProgress(total,++iCurrent,a.getName())));
+                subscriber.onNext(new GuiUpdateObject(new SamlibUpdateProgress(total, ++iCurrent, a.getName())));
 
                 mAuthorController.loadBooks(a);
                 mAuthorController.loadGroupBooks(a);
@@ -99,7 +194,7 @@ public class SamlibUpdateService {
                 } catch (IOException ex) {//here we abort cycle author and total update
                     Log.i(DEBUG_TAG, "runUpdateAuthors: Connection Error: " + url, ex);
                     subscriber.onError(ex);
-                    return ;
+                    return;
 
                 } catch (SamlibParseException ex) {//skip update for given author
                     Log.e(DEBUG_TAG, "runUpdateAuthors:Error parsing url: " + url + " skip update author ", ex);
@@ -109,7 +204,7 @@ public class SamlibUpdateService {
                 } catch (SamlibInterruptException ex) {
                     Log.i(DEBUG_TAG, "runUpdateAuthors: catch Interrupted", ex);
                     subscriber.onError(ex);
-                    return ;
+                    return;
                 }
                 if (a.update(newA)) {//we have update for the author
                     Log.i(DEBUG_TAG, "runUpdateAuthors: We need update author: " + a.getName());
@@ -118,7 +213,7 @@ public class SamlibUpdateService {
                     if (a.isIsNew()) {
                         updatedAuthors.add(a);//sometimes we need update if the author has no new books
                         int idx = getAuthorIndex(a, authorGuiState);
-                        GuiUpdateObject guiUpdateObject=new GuiUpdateObject(a,idx, GuiUpdateObject.UpdateType.UPDATE_UPDATE);
+                        GuiUpdateObject guiUpdateObject = new GuiUpdateObject(a, idx, GuiUpdateObject.UpdateType.UPDATE_UPDATE);
                         subscriber.onNext(guiUpdateObject);
                     }
                     if (mAbstractSettings.getAutoLoadFlag()) {
@@ -142,7 +237,7 @@ public class SamlibUpdateService {
                 } catch (InterruptedException e) {
                     Log.i(DEBUG_TAG, "runUpdateAuthors: Sleep interrupted exiting", e);
                     subscriber.onError(e);
-                    return ;
+                    return;
                 }
             }//main author cycle END
 
@@ -154,19 +249,18 @@ public class SamlibUpdateService {
                 //return ;
             } else {
                 Result result = new Result(true);
-                result.numberOfUpdated=updatedAuthors.size();
+                result.numberOfUpdated = updatedAuthors.size();
                 subscriber.onNext(new GuiUpdateObject(result, GuiUpdateObject.UpdateType.UPDATE_UPDATE));
                 subscriber.onCompleted();
                 //return ;
             }
 
 
-
         });
 
 
-
     }
+
     /**
      * If need we can start download book service here
      *
@@ -182,7 +276,6 @@ public class SamlibUpdateService {
         final List<Author> authors = mAuthorController.getAll(state.mSelectedTagId, state.mSorOrder);
         return authors.indexOf(author);
     }
-
 
 
 }

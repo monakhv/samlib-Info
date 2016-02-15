@@ -47,11 +47,8 @@ import monakhv.samlib.db.entity.Author;
 import monakhv.samlib.db.entity.SamLibConfig;
 import monakhv.samlib.log.Log;
 import monakhv.samlib.service.Result;
-import monakhv.samlib.service.SamlibUpdateProgress;
-import rx.Observable;
 import rx.Subscriber;
-import rx.android.schedulers.AndroidSchedulers;
-import rx.schedulers.Schedulers;
+
 
 
 import java.util.List;
@@ -121,7 +118,6 @@ public class AuthorFragment extends MyBaseAbstractFragment implements
     private int mAppBarOffset;
     private UpdateLocalService mUpdateService;
     private Menu mMenu;
-    private Result mResult;
     private MessageConstructor mMessageConstructor;
     private ServiceConnection mConnection = new ServiceConnection() {
         @Override
@@ -612,6 +608,7 @@ public class AuthorFragment extends MyBaseAbstractFragment implements
         @Override
         public void onCompleted() {
             Log.i(DEBUG_TAG, "onCompleted");
+            onRefreshComplete();
         }
 
         @Override
@@ -621,28 +618,35 @@ public class AuthorFragment extends MyBaseAbstractFragment implements
 
         @Override
         public void onNext(GuiUpdateObject guiUpdateObject) {
-            Author author = (Author) guiUpdateObject.getObject();
-            int sort = guiUpdateObject.getSortOrder();
-            if (sort == -1) {
-                List<Author> aa = getAuthorController().getAll(selectedTag, order.getOrder());
-                sort = aa.indexOf(author);
-            }
-            GuiUpdateObject.UpdateType updateType = guiUpdateObject.getUpdateType();
-            switch (updateType) {
-                case DELETE:
-                    adapter.remove(sort);
-                    break;
-                case ADD:
-                    adapter.add(author, sort);
-                    break;
-                default:
-                    adapter.notifyChange(author, sort);
-            }
+            if (guiUpdateObject.isAuthor()) {
+                Author author = (Author) guiUpdateObject.getObject();
+                int sort = guiUpdateObject.getSortOrder();
+                if (sort == -1) {
+                    List<Author> aa = getAuthorController().getAll(selectedTag, order.getOrder());
+                    sort = aa.indexOf(author);
+                }
+                GuiUpdateObject.UpdateType updateType = guiUpdateObject.getUpdateType();
+                switch (updateType) {
+                    case DELETE:
+                        adapter.remove(sort);
+                        break;
+                    case ADD:
+                        adapter.add(author, sort);
+                        break;
+                    default:
+                        adapter.notifyChange(author, sort);
+                }
 
 
-            adapter.toggleSelection(sort);
-            authorRV.scrollToPosition(sort);
-            Log.d(DEBUG_TAG, "updateAdapter: scroll to position: " + sort);
+                adapter.toggleSelection(sort);
+                authorRV.scrollToPosition(sort);
+                Log.d(DEBUG_TAG, "updateAdapter: scroll to position: " + sort);
+            }
+            if (guiUpdateObject.isResult()){
+                Result result = (Result) guiUpdateObject.getObject();
+                mMessageConstructor.showUpdateMessage(result);
+                onRefreshComplete();
+            }
         }
     };
 
@@ -707,62 +711,22 @@ public class AuthorFragment extends MyBaseAbstractFragment implements
 
     private void updateTag() {
         //UpdateLocalService.updateTag(getActivity(), tag,order.getOrder());
-        Observable<GuiUpdateObject> observable = getSamlibUpdateService().getUpdateService(getGuiState()).cache();
-        makeUpdateSubscription(observable);
+//        Observable<GuiUpdateObject> observable = getSamlibUpdateService().getUpdateService(getGuiState()).cache();
+//        makeUpdateSubscription(observable);
+
+        mUpdateService.runService(null,getGuiState());
     }
 
 
     private void updateAuthor(Author author) {
         //UpdateLocalService.updateAuthor(getActivity(), id,selectedTag,order.getOrder());
 
-        Observable<GuiUpdateObject> observable = getSamlibUpdateService().getUpdateService(author, getGuiState()).cache();
-        makeUpdateSubscription(observable);
+//        Observable<GuiUpdateObject> observable = getSamlibUpdateService().getUpdateService(author, getGuiState()).cache();
+//        makeUpdateSubscription(observable);
+
+        mUpdateService.runService(author,getGuiState());
     }
 
-
-    private void makeUpdateSubscription(Observable<GuiUpdateObject> observable) {
-        observable
-                .subscribeOn(Schedulers.newThread())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Subscriber<GuiUpdateObject>() {
-                    @Override
-                    public void onCompleted() {
-                        Log.d(DEBUG_TAG, "onComplete");
-                        mMessageConstructor.cancelProgress();
-
-                        if (mResult.getNumberOfUpdated() == 0) {
-                            mMessageConstructor.showMessage(R.string.toast_update_good_empty);
-                        } else {
-                            mMessageConstructor.showMessage(R.string.toast_update_good_good);
-                        }
-                        onRefreshComplete();
-
-                    }
-
-                    @Override
-                    public void onError(Throwable e) {
-                        Log.e(DEBUG_TAG, "onError");
-                        mMessageConstructor.cancelProgress();
-                        mMessageConstructor.showMessage(R.string.toast_update_error);
-                        onRefreshComplete();
-                    }
-
-                    @Override
-                    public void onNext(GuiUpdateObject guiUpdateObject) {
-                        if (guiUpdateObject.isAuthor()) {
-                            adapter.notifyChange((Author) guiUpdateObject.getObject(), guiUpdateObject.getSortOrder());
-                        }
-                        if (guiUpdateObject.isProgress()) {
-                            mMessageConstructor.showProgress((SamlibUpdateProgress) guiUpdateObject.getObject());
-                        }
-                        if (guiUpdateObject.isResult()) {
-                            mResult = (Result) guiUpdateObject.getObject();
-                        }
-                    }
-                });
-
-
-    }
 
 
     @Override
