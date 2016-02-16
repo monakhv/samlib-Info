@@ -1,6 +1,7 @@
 package monakhv.android.samlib;
 
 
+import android.annotation.SuppressLint;
 import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.content.*;
@@ -204,6 +205,7 @@ public class MainActivity extends MyBaseAbstractActivity implements
 
     }
 
+    @SuppressLint("RtlHardcoded")
     @Override
     public void drawerToggle() {
         mDrawerLayout.openDrawer(Gravity.LEFT);

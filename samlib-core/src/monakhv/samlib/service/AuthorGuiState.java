@@ -31,5 +31,11 @@ public class AuthorGuiState {
         mSorOrder = sorOrder;
     }
 
+    public int getSelectedTagId() {
+        return mSelectedTagId;
+    }
 
+    public String getSorOrder() {
+        return mSorOrder;
+    }
 }

@@ -26,6 +26,7 @@ import monakhv.android.samlib.data.SettingsHelper;
 import monakhv.android.samlib.sql.DatabaseHelper;
 import monakhv.samlib.db.AuthorController;
 import monakhv.samlib.http.HttpClientController;
+import monakhv.samlib.log.Log;
 import monakhv.samlib.service.GuiEventBus;
 import monakhv.samlib.service.SamlibUpdateService;
 
@@ -76,6 +77,7 @@ public abstract class MyService extends Service {
     @Override
     public void onDestroy() {
         super.onDestroy();
+        Log.d("MyService","onDestroy");
         releaseHelper();
         destroyed = true;
         mSamlibApplication.releaseDatabaseComponent();

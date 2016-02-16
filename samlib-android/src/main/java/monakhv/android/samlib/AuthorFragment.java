@@ -49,7 +49,6 @@ import monakhv.samlib.log.Log;
 import rx.Subscriber;
 
 
-
 import java.util.List;
 
 import static monakhv.android.samlib.ActivityUtils.getClipboardText;
@@ -630,7 +629,7 @@ public class AuthorFragment extends MyBaseAbstractFragment implements
                 authorRV.scrollToPosition(sort);
                 Log.d(DEBUG_TAG, "updateAdapter: scroll to position: " + sort);
             }
-            if (guiUpdateObject.isResult()){
+            if (guiUpdateObject.isResult()) {
                 mMessageConstructor.showMessage(guiUpdateObject);
                 onRefreshComplete();
             }
@@ -684,31 +683,17 @@ public class AuthorFragment extends MyBaseAbstractFragment implements
         }
     }
 
-//    @Override
-//    public void onPause() {
-//        onRefreshComplete();
-//        super.onPause();
-//
-//    }
 
     private void updateTag() {
-        //UpdateLocalService.updateTag(getActivity(), tag,order.getOrder());
-//        Observable<GuiUpdateObject> observable = getSamlibUpdateService().runUpdateService(getGuiState()).cache();
-//        makeUpdateSubscription(observable);
 
-        mUpdateService.runService(null,getGuiState());
+        UpdateLocalService.makeUpdate(getActivity(), null, getGuiState());
     }
 
 
     private void updateAuthor(Author author) {
-        //UpdateLocalService.updateAuthor(getActivity(), id,selectedTag,order.getOrder());
 
-//        Observable<GuiUpdateObject> observable = getSamlibUpdateService().runUpdateService(author, getGuiState()).cache();
-//        makeUpdateSubscription(observable);
-
-        mUpdateService.runService(author,getGuiState());
+        UpdateLocalService.makeUpdate(getContext(), author, getGuiState());
     }
-
 
 
     @Override

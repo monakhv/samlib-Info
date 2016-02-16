@@ -20,9 +20,7 @@ package monakhv.android.samlib.service;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.os.Binder;
-import android.os.IBinder;
-import android.os.PowerManager;
+import android.os.*;
 import android.support.annotation.Nullable;
 import android.util.Log;
 import in.srain.cube.views.ptr.util.PrefsUtil;
@@ -50,7 +48,7 @@ public class UpdateLocalService extends MyService {
 
     public static final String ACTION_STOP = "UpdateLocalService.ACTION_STOP";
     public static final String ACTION_UPDATE = "UpdateLocalService.ACTION_UPDATE";
-    public static final String UPDATE_OBJECT = "UpdateLocalService.UPDATE_OBJECT";
+    public static final String EXTRA_ARGUMENT = "UpdateLocalService.EXTRA_ARGUMENT";
 
 
 
@@ -88,8 +86,10 @@ public class UpdateLocalService extends MyService {
         }
         if (action.equalsIgnoreCase(ACTION_UPDATE)) {
             Log.i(DEBUG_TAG, "OnStart: making update");
-            isReceiver = true;
-            runService(null,null);
+
+            ArgumentData arg = intent.getExtras().getParcelable(EXTRA_ARGUMENT);
+            isReceiver = arg.isReceiver==1;
+            runService(arg);
 
         }
 
@@ -112,14 +112,28 @@ public class UpdateLocalService extends MyService {
     public static void makeUpdate(Context ctx) {
         Intent service = new Intent(ctx, UpdateLocalService.class);
         service.setAction(UpdateLocalService.ACTION_UPDATE);
-        UpdateObject updateObject = new UpdateObject();
-        service.putExtra(UpdateLocalService.UPDATE_OBJECT, updateObject);
+        service.putExtra(UpdateLocalService.EXTRA_ARGUMENT, new ArgumentData());
         ctx.startService(service);
     }
 
+    public static void makeUpdate(Context context,Author author, AuthorGuiState state){
+        Intent service = new Intent(context, UpdateLocalService.class);
+        service.setAction(UpdateLocalService.ACTION_UPDATE);
+        ArgumentData argumentData;
+
+        if (author==null){
+            argumentData=new ArgumentData(state);
+        }else {
+            argumentData=new ArgumentData(author,state);
+        }
 
 
-    public void runService(Author author, AuthorGuiState state) {
+        service.putExtra(UpdateLocalService.EXTRA_ARGUMENT, argumentData);
+        context.startService(service);
+    }
+
+
+    private void runService(ArgumentData argDaya) {
 
 
         if (isRun && !isReceiver) {
@@ -148,7 +162,7 @@ public class UpdateLocalService extends MyService {
 
         SpecialSamlibService service=getSpecialSamlibService();
         service.setCallerIsReceiver(isReceiver);
-        mThread = new SamlibUpdateTread(service, author, state);
+        mThread = new SamlibUpdateTread(service, argDaya);
 
         getBus().getObservable()
                 .subscribe(guiUpdateObject -> {
@@ -204,13 +218,11 @@ public class UpdateLocalService extends MyService {
 
     private class SamlibUpdateTread extends Thread {
         final private SamlibUpdateService mSamlibUpdateService;
-        final private Author mAuthor;
-        final private AuthorGuiState mAuthorGuiState;
+        final private ArgumentData mData;
 
-        public SamlibUpdateTread(SamlibUpdateService samlibUpdateService, Author author, AuthorGuiState authorGuiState) {
+        public SamlibUpdateTread(SamlibUpdateService samlibUpdateService, ArgumentData data) {
             mSamlibUpdateService = samlibUpdateService;
-            mAuthor = author;
-            mAuthorGuiState = authorGuiState;
+            mData=data;
         }
 
         @Override
@@ -226,11 +238,11 @@ public class UpdateLocalService extends MyService {
                 result = mSamlibUpdateService.runUpdateService(authors, new AuthorGuiState(iSelected, order));
 
             } else {
-                if (mAuthor == null) {
-                    result = mSamlibUpdateService.runUpdateService(mAuthorGuiState);
+                if (mData.author_id == -1) {
+                    result = mSamlibUpdateService.runUpdateService(mData.getState());
                 } else {
-
-                    result = mSamlibUpdateService.runUpdateService(mAuthor, mAuthorGuiState);
+                    Author author=getAuthorController().getById(mData.author_id);
+                    result = mSamlibUpdateService.runUpdateService(author, mData.getState());
                 }
             }
             if (result) {
@@ -244,10 +256,7 @@ public class UpdateLocalService extends MyService {
 
             isRun = false;
             releaseLock();
-            if (isReceiver) {
-                releaseLock();
-                UpdateLocalService.this.stopSelf();
-            }
+            UpdateLocalService.this.stopSelf();
         }
     }
 
@@ -261,5 +270,60 @@ public class UpdateLocalService extends MyService {
         }
     }
 
+    private static class ArgumentData implements Parcelable{
+        int state_id;
+        String order;
+        int author_id=-1;
+        int isReceiver;
+
+        public ArgumentData(){
+            isReceiver=1;
+        }
+
+        public ArgumentData(AuthorGuiState state){
+            state_id=state.getSelectedTagId();
+            order=state.getSorOrder();
+            isReceiver=0;
+        }
+        public ArgumentData(Author author,AuthorGuiState state){
+            this(state);
+            author_id=author.getId();
+        }
+
+        public AuthorGuiState getState(){
+            return new AuthorGuiState(state_id,order);
+        }
+        protected ArgumentData(Parcel in) {
+            state_id = in.readInt();
+            order = in.readString();
+            author_id = in.readInt();
+            isReceiver=in.readInt();
+        }
+
+        public static final Creator<ArgumentData> CREATOR = new Creator<ArgumentData>() {
+            @Override
+            public ArgumentData createFromParcel(Parcel in) {
+                return new ArgumentData(in);
+            }
+
+            @Override
+            public ArgumentData[] newArray(int size) {
+                return new ArgumentData[size];
+            }
+        };
+
+        @Override
+        public int describeContents() {
+            return 0;
+        }
+
+        @Override
+        public void writeToParcel(Parcel dest, int flags) {
+            dest.writeInt(state_id);
+            dest.writeString(order);
+            dest.writeInt(author_id);
+            dest.writeInt(isReceiver);
+        }
+    }
 
 }
