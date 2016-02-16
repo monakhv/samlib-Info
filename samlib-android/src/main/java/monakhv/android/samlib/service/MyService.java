@@ -28,7 +28,8 @@ import monakhv.samlib.db.AuthorController;
 import monakhv.samlib.http.HttpClientController;
 import monakhv.samlib.log.Log;
 import monakhv.samlib.service.GuiEventBus;
-import monakhv.samlib.service.SamlibUpdateService;
+import rx.Subscription;
+import rx.subscriptions.CompositeSubscription;
 
 
 /**
@@ -39,6 +40,7 @@ public abstract class MyService extends Service {
     private volatile DatabaseHelper helper;
     private volatile boolean created = false;
     private volatile boolean destroyed = false;
+    private CompositeSubscription mCompositeSubscription;
 
     private SamlibApplication mSamlibApplication;
 
@@ -52,7 +54,12 @@ public abstract class MyService extends Service {
         super.onCreate();
 
         mSamlibApplication = (SamlibApplication) getApplication();
+        mCompositeSubscription = new CompositeSubscription();
 
+    }
+
+    public void addSubscription(Subscription subscription){
+        mCompositeSubscription.add(subscription);
     }
 
     public SettingsHelper getSettingsHelper(){
@@ -82,6 +89,9 @@ public abstract class MyService extends Service {
         destroyed = true;
         mSamlibApplication.releaseDatabaseComponent();
         mSamlibApplication.releaseServiceComponent();
+        if (mCompositeSubscription != null){
+            mCompositeSubscription.unsubscribe();
+        }
     }
 
     public DatabaseHelper getHelper() {

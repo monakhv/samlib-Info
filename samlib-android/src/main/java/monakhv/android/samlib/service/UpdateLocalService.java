@@ -30,6 +30,7 @@ import monakhv.android.samlib.data.SettingsHelper;
 import monakhv.android.samlib.sortorder.AuthorSortOrder;
 import monakhv.samlib.db.entity.Author;
 import monakhv.samlib.service.*;
+import rx.Subscription;
 
 
 import java.util.Calendar;
@@ -47,8 +48,8 @@ public class UpdateLocalService extends MyService {
     public static final String PREF_KEY_CALLER = PREF_NAME + ".CALLER";
 
     public static final String ACTION_STOP = "UpdateLocalService.ACTION_STOP";
-    public static final String ACTION_UPDATE = "UpdateLocalService.ACTION_UPDATE";
-    public static final String EXTRA_ARGUMENT = "UpdateLocalService.EXTRA_ARGUMENT";
+    private static final String ACTION_UPDATE = "UpdateLocalService.ACTION_UPDATE";
+    private static final String EXTRA_ARGUMENT = "UpdateLocalService.EXTRA_ARGUMENT";
 
 
 
@@ -164,7 +165,7 @@ public class UpdateLocalService extends MyService {
         service.setCallerIsReceiver(isReceiver);
         mThread = new SamlibUpdateTread(service, argDaya);
 
-        getBus().getObservable()
+        final Subscription subscription=getBus().getObservable()
                 .subscribe(guiUpdateObject -> {
                     if (guiUpdateObject.isProgress()) {
                         if (mMessageConstructor == null) {
@@ -180,6 +181,7 @@ public class UpdateLocalService extends MyService {
                         mMessageConstructor.updateNotification((Author) guiUpdateObject.getObject());
                     }
                 });
+        addSubscription(subscription);
         mThread.start();
 
 
