@@ -29,7 +29,6 @@ import android.widget.*;
 
 import monakhv.android.samlib.search.SearchAuthorActivity;
 import monakhv.android.samlib.search.SearchAuthorsListFragment;
-import monakhv.android.samlib.service.AndroidGuiUpdater;
 import monakhv.android.samlib.service.CleanNotificationData;
 import monakhv.samlib.service.AuthorGuiState;
 import monakhv.android.samlib.sortorder.AuthorSortOrder;
@@ -38,9 +37,9 @@ import monakhv.samlib.db.TagController;
 import monakhv.samlib.db.entity.SamLibConfig;
 import monakhv.samlib.db.entity.Tag;
 import monakhv.samlib.log.Log;
+import monakhv.samlib.service.GuiUpdateObject;
+import rx.Observable;
 import rx.Subscription;
-import rx.android.schedulers.AndroidSchedulers;
-import rx.schedulers.Schedulers;
 
 
 import java.io.Serializable;
@@ -98,6 +97,7 @@ public class MainActivity extends MyBaseAbstractActivity implements
     private DrawerLayout mDrawerLayout;
     private ArrayAdapter<UITag> tagAdapter;
     private Spinner tagFilter;
+    private Observable<GuiUpdateObject> mBus;
 
 
 
@@ -173,13 +173,26 @@ public class MainActivity extends MyBaseAbstractActivity implements
         mAppBarLayout = (AppBarLayout) findViewById(R.id.appBarLayout);
         createDrawer();
 
+        //find Save fragment
+        final SaveFragment saveFragment = (SaveFragment) getSupportFragmentManager().findFragmentByTag(SaveFragment.TAG);
 
+        if (saveFragment != null){//fragment is found
+            mBus=saveFragment.getObjectObservable();
+        }else {//fragment not found we need create it and put under Fragment manager
+            final SaveFragment fragment=new SaveFragment();
+            getSupportFragmentManager().beginTransaction()
+                    .add(fragment,SaveFragment.TAG)
+                    .commit();
+            getSupportFragmentManager().executePendingTransactions();
+            final SaveFragment fr1 = (SaveFragment) getSupportFragmentManager().findFragmentByTag(SaveFragment.TAG);
+            mBus=fr1.getObjectObservable();
+        }
 
     }
 
     @Override
     protected void onDestroy() {
-
+        Log.d(DEBUG_TAG,"onDestroy");
         super.onDestroy();
 
     }
@@ -305,8 +318,6 @@ public class MainActivity extends MyBaseAbstractActivity implements
         Log.d(DEBUG_TAG, "onSaveInstanceState");
         super.onSaveInstanceState(outState);
         outState.putInt(SELECTED_TAG_ID, selectedTagId);
-
-
         outState.putLong(PROGRESS_TIME, Calendar.getInstance().getTimeInMillis());
     }
 
@@ -315,8 +326,6 @@ public class MainActivity extends MyBaseAbstractActivity implements
         Log.d(DEBUG_TAG, "onRestoreInstanceState");
         super.onRestoreInstanceState(savedInstanceState);
         selectedTagId = savedInstanceState.getInt(SELECTED_TAG_ID, SamLibConfig.TAG_AUTHOR_ALL);
-
-
         Tag tag = tagSQL.getById(selectedTagId);
         if (tag != null) {
             authorFragment.selectTag(selectedTagId, null);
@@ -343,13 +352,9 @@ public class MainActivity extends MyBaseAbstractActivity implements
         Log.d(DEBUG_TAG, "onResume");
         super.onResume();
 
-        IntentFilter updateFilter = new IntentFilter(AndroidGuiUpdater.ACTION_RESP);
-        updateFilter.addCategory(Intent.CATEGORY_DEFAULT);
 
-        Subscription authorSubscription = getBus().getObservable().cache()
+        Subscription authorSubscription = mBus
                 .filter(o -> o.isResult() || o.isAuthor())
-                .subscribeOn(Schedulers.newThread())
-                .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(authorFragment.mSubscriber);
         addSubscription(authorSubscription);
 
@@ -362,10 +367,8 @@ public class MainActivity extends MyBaseAbstractActivity implements
             IntentFilter filter = new IntentFilter(DownloadReceiver.ACTION_RESP);
             filter.addCategory(Intent.CATEGORY_DEFAULT);
             registerReceiver(downloadReceiver, filter);
-            Subscription bookSubscription = getBus().getObservable().cache()
+            Subscription bookSubscription = mBus
                     .filter(o -> o.isBook() || o.isGroup())
-                    .subscribeOn(Schedulers.newThread())
-                    .observeOn(AndroidSchedulers.mainThread())
                     .subscribe(bookFragment.mSubscriber);
             addSubscription(bookSubscription);
 
@@ -389,7 +392,7 @@ public class MainActivity extends MyBaseAbstractActivity implements
     @Override
     protected void onPause() {
         super.onPause();
-
+        Log.d(DEBUG_TAG,"onPause");
 
         if (twoPain) {
             unregisterReceiver(downloadReceiver);
@@ -556,6 +559,7 @@ public class MainActivity extends MyBaseAbstractActivity implements
         if (uitag == null) {
             return;
         }
+        selectedTagId=uitag.id;
         authorFragment.selectTag(uitag.id, null);
     }
 

@@ -285,17 +285,6 @@ public class AuthorFragment extends MyBaseAbstractFragment implements
 
     }
 
-    /**
-     * Update Author list and make Author selection
-     *
-     * @param id Author id to select
-     */
-    private void updateAdapter(int id) {
-        aId = id;
-        getLoaderManager().restartLoader(AUTHOR_LOADER_ID, null, this);
-
-    }
-
     @Override
     public void onRefreshBegin(PtrFrameLayout view) {
         Log.d(DEBUG_TAG, "onRefreshBegin: Start update service");
@@ -654,11 +643,6 @@ public class AuthorFragment extends MyBaseAbstractFragment implements
     public void refresh() {
         Log.d(DEBUG_TAG, "refresh: call ");
         updateAdapter();
-    }
-
-    public void refresh(long id) {
-        Log.d(DEBUG_TAG, "refresh: call for add ");
-        updateAdapter((int) id);
     }
 
 
