@@ -28,7 +28,7 @@
     <orderEntry type="library" exported="" name="jgoodies-common-1.6.0" level="project" />
     <orderEntry type="library" exported="" name="jgoodies-forms-1.6.0" level="project" />
     <orderEntry type="library" exported="" name="ormlite-jdbc-4.48" level="project" />
-    <orderEntry type="library" exported="" name="okhttp-2.5.0" level="project" />
+    <orderEntry type="library" exported="" name="okhttp-3.1.2" level="project" />
     <orderEntry type="library" exported="" name="ormlite-core-4.48" level="project" />
     <orderEntry type="library" exported="" name="javax.inject-1" level="project" />
     <orderEntry type="library" exported="" name="dagger-2.0.2" level="project" />

@@ -1,13 +1,16 @@
 package monakhv.samlib.http;
 
-import com.squareup.okhttp.Credentials;
-import com.squareup.okhttp.OkHttpClient;
-import com.squareup.okhttp.Request;
-import com.squareup.okhttp.Response;
 
+
+
+import monakhv.samlib.log.Log;
+import okhttp3.*;
 
 import java.io.IOException;
-import java.net.*;
+import java.net.InetSocketAddress;
+import java.net.Proxy;
+import java.net.SocketAddress;
+
 
 /*
  * Copyright 2015  Dmitry Monakhov
@@ -39,41 +42,39 @@ public class ProxyData {
         this.password = password;
     }
 
-    public Authenticator getAuthenticator() {
-        return new Authenticator() {
-            @Override
-            public PasswordAuthentication getPasswordAuthentication() {
-                return new PasswordAuthentication(user, password.toCharArray());
-            }
-        };
-    }
+//    public Authenticator getAuthenticator() {
+//        return new Authenticator() {
+//            @Override
+//            public PasswordAuthentication getPasswordAuthentication() {
+//                return new PasswordAuthentication(user, password.toCharArray());
+//            }
+//        };
+//    }
 
-    public void applyProxy(OkHttpClient httpclient) {
+    public void applyProxy(OkHttpClient.Builder builder) {
 
         SocketAddress addr = new InetSocketAddress(host, port);
         Proxy proxy = new Proxy(Proxy.Type.HTTP, addr);
 
-        httpclient.setProxy(proxy);
+        builder.proxy(proxy);
 
         if (user == null || user.equalsIgnoreCase("")) {
-            return;//do not make credentials for empty users
+            return ;//do not make credentials for empty users
         }
 
         final String credential = Credentials.basic(user, password);
 
-        httpclient.setAuthenticator(new com.squareup.okhttp.Authenticator() {
+        builder.authenticator(new okhttp3.Authenticator() {
             @Override
-            public Request authenticate(Proxy proxy, Response response) throws IOException {
-                return null;
-            }
-
-            @Override
-            public Request authenticateProxy(Proxy proxy, Response response) throws IOException {
+            public Request authenticate(Route route, Response response) throws IOException {
+                Log.d("ProxyData","authenticate: "+user+":"+password);
                 return response.request().newBuilder()
                         .header("Proxy-Authorization", credential)
                         .build();
             }
+
         });
+
 
     }
 
