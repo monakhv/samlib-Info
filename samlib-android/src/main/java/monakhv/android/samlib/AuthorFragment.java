@@ -46,7 +46,6 @@ import monakhv.android.samlib.sortorder.AuthorSortOrder;
 import monakhv.samlib.db.entity.Author;
 import monakhv.samlib.db.entity.SamLibConfig;
 import monakhv.samlib.log.Log;
-import monakhv.samlib.service.Result;
 import rx.Subscriber;
 
 
@@ -632,8 +631,7 @@ public class AuthorFragment extends MyBaseAbstractFragment implements
                 Log.d(DEBUG_TAG, "updateAdapter: scroll to position: " + sort);
             }
             if (guiUpdateObject.isResult()){
-                Result result = (Result) guiUpdateObject.getObject();
-                mMessageConstructor.showUpdateMessage(result);
+                mMessageConstructor.showMessage(guiUpdateObject);
                 onRefreshComplete();
             }
         }

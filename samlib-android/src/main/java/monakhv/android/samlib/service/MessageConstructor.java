@@ -43,25 +43,26 @@ public class MessageConstructor {
         mSettingsHelper = settingsHelper;
     }
 
-    public CharSequence makeMessage(GuiUpdateObject guiUpdateObject) {
+    public String makeMessage(GuiUpdateObject guiUpdateObject) {
         Result result = (Result) guiUpdateObject.getObject();
 
-        CharSequence msg = "";
+        //CharSequence msg = "";
+        StringBuilder sb = new StringBuilder();
         if (guiUpdateObject.getUpdateType() == GuiUpdateObject.UpdateType.ADD) {//ADD Action
 
             if (result.getTotalToAdd() == 1) {//add single author
                 if (result.getNumberOfAdded() == 1) {
-                    msg = mContext.getText(R.string.add_success);
+                     sb.append(mContext.getString(R.string.add_success));
                 } else if (result.getDoubleAdd() == 1) {
-                    msg = mContext.getText(R.string.add_error_double);
+                    sb.append(mContext.getString(R.string.add_error_double));
                 } else {
-                    msg = mContext.getText(R.string.add_error);
+                    sb.append(mContext.getString(R.string.add_error));
                 }
             } else {//import list of authors
-                msg = mContext.getText(R.string.add_success_multi) + " " + result.getNumberOfAdded();
+                sb.append(mContext.getString(R.string.add_success_multi)).append(" ").append(result.getNumberOfAdded());
 
                 if (result.getDoubleAdd() != 0) {//double is here
-                    msg = msg + "<br>" + mContext.getText(R.string.add_success_double) + " " + result.getDoubleAdd();
+                    sb.append("<br>").append(mContext.getString(R.string.add_success_double)).append(" ").append(result.getDoubleAdd());
                 }
             }
         }//end ADD Action
@@ -69,14 +70,31 @@ public class MessageConstructor {
 
         if (guiUpdateObject.getUpdateType() == GuiUpdateObject.UpdateType.DELETE) {
             if (result.getNumberOfDeleted() == 1) {
-                msg = mContext.getText(R.string.del_success);
+                sb.append(mContext.getString(R.string.del_success));
             } else {
-                msg = mContext.getText(R.string.del_error);
+                sb.append(mContext.getString(R.string.del_error));
             }
         }
-        return msg;
+
+        if (guiUpdateObject.getUpdateType()==GuiUpdateObject.UpdateType.UPDATE_UPDATE){
+            if (result.isRes()) {
+                if (result.getNumberOfUpdated() == 0) {
+                    sb.append(mContext.getString(R.string.toast_update_good_empty));
+                } else {
+                    sb.append(mContext.getString(R.string.toast_update_good_good));
+                }
+
+            } else {
+                sb.append(mContext.getString(R.string.toast_update_error));
+            }
+        }
+        return sb.toString();
     }
 
+    /**
+     * Show Progress update Notification
+     * @param progress current progress state
+     */
     public void updateNotification(SamlibUpdateProgress progress) {
         if (mProgressNotification == null) {
             mProgressNotification = new ProgressNotification(mSettingsHelper, "text");
@@ -84,6 +102,10 @@ public class MessageConstructor {
         mProgressNotification.updateProgress(progress.getTotal(), progress.getCurrent(), progress.getName());
     }
 
+    /**
+     * Modify Progress Notification and put Update for the Author
+     * @param author The Author who has update
+     */
     public void updateNotification(Author author) {
         if (mProgressNotification == null) {
             mProgressNotification = new ProgressNotification(mSettingsHelper, "text");
@@ -92,26 +114,22 @@ public class MessageConstructor {
     }
 
 
-    private void showMessage(int res) {
+    private void showMessage(String msg) {
         int duration = Toast.LENGTH_SHORT;
-        CharSequence msg = mContext.getString(res);
+
         Toast toast = Toast.makeText(mContext, msg, duration);
         toast.show();
     }
 
-    public void showUpdateMessage(Result res) {
-        if (res.isRes()) {
-            if (res.getNumberOfUpdated() == 0) {
-                showMessage(R.string.toast_update_good_empty);
-            } else {
-                showMessage(R.string.toast_update_good_good);
-            }
-
-        } else {
-            showMessage(R.string.toast_update_error);
-        }
+    public void showMessage(GuiUpdateObject guiUpdateObject) {
+        showMessage(makeMessage(guiUpdateObject));
     }
 
+    /**
+     * Show Notification for Update Result
+     *
+     * @param res Result status
+     */
     public void showUpdateNotification(Result res){
         if (res.isRes() && res.getUpdatedAuthors().isEmpty() && !mSettingsHelper.getDebugFlag()) {
             return;//no errors and no updates - no notification

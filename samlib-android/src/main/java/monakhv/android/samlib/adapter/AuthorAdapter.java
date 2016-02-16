@@ -130,6 +130,9 @@ public class AuthorAdapter extends RecyclerAdapter<Author, AuthorAdapter.AuthorV
      * @param sort position to change
      */
     public void notifyChange(Author author, int sort){
+        if (mData==null){
+            return;
+        }
 
         int idx = mData.indexOf(author);
 

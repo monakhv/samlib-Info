@@ -40,7 +40,7 @@ public class SaveFragment extends MyBaseAbstractFragment {
         setRetainInstance(true);
         mObjectObservable=getBus()
                 .getObservable()
-                .cache()
+               // .cache()
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.newThread());
     }

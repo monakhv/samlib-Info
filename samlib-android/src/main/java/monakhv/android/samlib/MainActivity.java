@@ -26,7 +26,6 @@ import android.view.Window;
 import android.widget.*;
 
 
-
 import monakhv.android.samlib.search.SearchAuthorActivity;
 import monakhv.android.samlib.search.SearchAuthorsListFragment;
 import monakhv.android.samlib.service.CleanNotificationData;
@@ -45,7 +44,6 @@ import rx.Subscription;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Calendar;
-
 
 
 /*
@@ -100,7 +98,6 @@ public class MainActivity extends MyBaseAbstractActivity implements
     private Observable<GuiUpdateObject> mBus;
 
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         Log.d(DEBUG_TAG, "onCreate");
@@ -130,7 +127,6 @@ public class MainActivity extends MyBaseAbstractActivity implements
             actionBar.setHomeButtonEnabled(true);
             actionBar.setDisplayShowTitleEnabled(false);
         }
-
 
 
         twoPain = findViewById(R.id.two_pain) != null;
@@ -176,23 +172,34 @@ public class MainActivity extends MyBaseAbstractActivity implements
         //find Save fragment
         final SaveFragment saveFragment = (SaveFragment) getSupportFragmentManager().findFragmentByTag(SaveFragment.TAG);
 
-        if (saveFragment != null){//fragment is found
-            mBus=saveFragment.getObjectObservable();
-        }else {//fragment not found we need create it and put under Fragment manager
-            final SaveFragment fragment=new SaveFragment();
+        if (saveFragment != null) {//fragment is found
+            mBus = saveFragment.getObjectObservable();
+        } else {//fragment not found we need create it and put under Fragment manager
+            final SaveFragment fragment = new SaveFragment();
             getSupportFragmentManager().beginTransaction()
-                    .add(fragment,SaveFragment.TAG)
+                    .add(fragment, SaveFragment.TAG)
                     .commit();
             getSupportFragmentManager().executePendingTransactions();
             final SaveFragment fr1 = (SaveFragment) getSupportFragmentManager().findFragmentByTag(SaveFragment.TAG);
-            mBus=fr1.getObjectObservable();
+            mBus = fr1.getObjectObservable();
+        }
+        final Subscription authorSubscription = mBus
+                .filter(o -> o.isResult() || o.isAuthor())
+                .subscribe(authorFragment.mSubscriber);
+        addSubscription(authorSubscription);
+
+        if (twoPain) {
+            final Subscription bookSubscription = mBus
+                    .filter(o -> o.isBook() || o.isGroup())
+                    .subscribe(bookFragment.mSubscriber);
+            addSubscription(bookSubscription);
         }
 
     }
 
     @Override
     protected void onDestroy() {
-        Log.d(DEBUG_TAG,"onDestroy");
+        Log.d(DEBUG_TAG, "onDestroy");
         super.onDestroy();
 
     }
@@ -353,11 +360,6 @@ public class MainActivity extends MyBaseAbstractActivity implements
         super.onResume();
 
 
-        Subscription authorSubscription = mBus
-                .filter(o -> o.isResult() || o.isAuthor())
-                .subscribe(authorFragment.mSubscriber);
-        addSubscription(authorSubscription);
-
         if (twoPain) {
 
             if (bookFragment == null) {
@@ -392,7 +394,7 @@ public class MainActivity extends MyBaseAbstractActivity implements
     @Override
     protected void onPause() {
         super.onPause();
-        Log.d(DEBUG_TAG,"onPause");
+        Log.d(DEBUG_TAG, "onPause");
 
         if (twoPain) {
             unregisterReceiver(downloadReceiver);
@@ -435,7 +437,7 @@ public class MainActivity extends MyBaseAbstractActivity implements
             String url = data.getStringExtra(SearchAuthorsListFragment.AUTHOR_URL);
             ArrayList<String> urls = new ArrayList<>();
             urls.add(url);
-            getSamlibOperation().makeAuthorAdd(urls,getAuthorGuiState());
+            getSamlibOperation().makeAuthorAdd(urls, getAuthorGuiState());
 
         }
         if (requestCode == PREFS_ACTIVITY) {
@@ -506,7 +508,7 @@ public class MainActivity extends MyBaseAbstractActivity implements
         if (url != null) {//add  Author by URL
             ArrayList<String> urls = new ArrayList<>();
             urls.add(url);
-            getSamlibOperation().makeAuthorAdd(urls,getAuthorGuiState());
+            getSamlibOperation().makeAuthorAdd(urls, getAuthorGuiState());
 
         } else {
             if (TextUtils.isEmpty(text)) {
@@ -559,7 +561,7 @@ public class MainActivity extends MyBaseAbstractActivity implements
         if (uitag == null) {
             return;
         }
-        selectedTagId=uitag.id;
+        selectedTagId = uitag.id;
         authorFragment.selectTag(uitag.id, null);
     }
 
@@ -567,7 +569,6 @@ public class MainActivity extends MyBaseAbstractActivity implements
     public void onNothingSelected(AdapterView<?> parent) {
 
     }
-
 
 
     public static class UITag implements Serializable {
@@ -630,7 +631,7 @@ public class MainActivity extends MyBaseAbstractActivity implements
     }
 
     private void restart(int delay) {
-        PendingIntent intent = PendingIntent.getActivity(this.getBaseContext(), 0, new Intent(getIntent()),PendingIntent.FLAG_ONE_SHOT);
+        PendingIntent intent = PendingIntent.getActivity(this.getBaseContext(), 0, new Intent(getIntent()), PendingIntent.FLAG_ONE_SHOT);
         AlarmManager manager = (AlarmManager) this.getSystemService(Context.ALARM_SERVICE);
         manager.set(AlarmManager.RTC, System.currentTimeMillis() + delay, intent);
         System.exit(2);
