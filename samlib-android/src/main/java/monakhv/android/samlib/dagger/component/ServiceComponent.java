@@ -34,7 +34,6 @@ import monakhv.samlib.service.SamlibService;
 @Subcomponent(modules = {ServiceModule.class})
 public interface ServiceComponent {
     AndroidGuiUpdater getAndroidGuiUpdater();
-    SpecialSamlibService getSpecialSamlibService();
     SamlibService getSamlibService();
     SearchAuthor getSearchAuthor();
 

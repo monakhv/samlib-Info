@@ -54,16 +54,11 @@ public class ServiceModule {
         return new AndroidGuiUpdater(settingsHelper, mUpdateObject, authorController);
     }
 
-    @Provides
-    @UpdateScope
-    SpecialSamlibService providesSpecialSamlibService(AuthorController authorController, AndroidGuiUpdater guiUpdate, SettingsHelper settingsHelper, HttpClientController http, DataExportImport dataExportImport){
-        return new SpecialSamlibService( authorController,  guiUpdate,  settingsHelper,  http, mUpdateObject,  dataExportImport);
-    }
 
     @Provides
     @UpdateScope
-    SamlibService providesSamlibService(AuthorController sql, AndroidGuiUpdater guiUpdate, SettingsHelper settingsHelper, HttpClientController httpClientController){
-        return new  SamlibService(sql,guiUpdate,settingsHelper,httpClientController);
+    SamlibService providesSamlibService( AndroidGuiUpdater guiUpdate, SettingsHelper settingsHelper, HttpClientController httpClientController){
+        return new  SamlibService(guiUpdate,settingsHelper,httpClientController);
     }
     @Provides
     @UpdateScope

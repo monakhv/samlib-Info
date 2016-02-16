@@ -146,7 +146,9 @@ public class UpdateLocalService extends MyService {
         wl = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, DEBUG_TAG);
         wl.acquire();
 
-        mThread = new SamlibUpdateTread(getUpdateService(), author, state);
+        SpecialSamlibService service=getSpecialSamlibService();
+        service.setCallerIsReceiver(isReceiver);
+        mThread = new SamlibUpdateTread(service, author, state);
 
         getBus().getObservable()
                 .subscribe(guiUpdateObject -> {

@@ -7,6 +7,7 @@ import monakhv.android.samlib.SamlibApplication;
 import monakhv.android.samlib.data.DataExportImport;
 import monakhv.android.samlib.data.SettingsHelper;
 import monakhv.android.samlib.sql.DatabaseHelper;
+import monakhv.samlib.db.AuthorController;
 
 
 /*
@@ -72,6 +73,10 @@ public abstract class MyServiceIntent extends IntentService {
 
     public DataExportImport getDataExportImport(){
         return mSamlibApplication.getDataExportImport();
+    }
+
+    public AuthorController getAuthorController(){
+        return mSamlibApplication.getDatabaseComponent(getHelper()).getAuthorController();
     }
 
     @Override

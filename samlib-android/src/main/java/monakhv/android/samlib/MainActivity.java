@@ -38,7 +38,6 @@ import monakhv.samlib.db.TagController;
 import monakhv.samlib.db.entity.SamLibConfig;
 import monakhv.samlib.db.entity.Tag;
 import monakhv.samlib.log.Log;
-import monakhv.samlib.service.SamlibService;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
@@ -83,7 +82,6 @@ public class MainActivity extends MyBaseAbstractActivity implements
     public static final String ACTION_CLEAN = "MainActivity.ACTION_CLEAN";
     public static final String SELECTED_TAG_ID = "SELECTED_TAG_ID";
     public static final String PROGRESS_TIME = "PROGRESS_TIME";
-    private UpdateActivityReceiver updateReceiver;
     private AuthorFragment authorFragment;
     private BookFragment bookFragment;
     private AuthorTagFragment tagFragment;
@@ -340,7 +338,6 @@ public class MainActivity extends MyBaseAbstractActivity implements
         }
     }
 
-    private Subscription mAuthorSubscription,mBookSubscription;
     @Override
     protected void onResume() {
         Log.d(DEBUG_TAG, "onResume");
@@ -348,15 +345,13 @@ public class MainActivity extends MyBaseAbstractActivity implements
 
         IntentFilter updateFilter = new IntentFilter(AndroidGuiUpdater.ACTION_RESP);
         updateFilter.addCategory(Intent.CATEGORY_DEFAULT);
-        updateReceiver = new UpdateActivityReceiver();
 
-
-        registerReceiver(updateReceiver, updateFilter);
-        mAuthorSubscription=getBus().getObservable().cache()
-                .filter(o->o.isResult() || o.isAuthor())
+        Subscription authorSubscription = getBus().getObservable().cache()
+                .filter(o -> o.isResult() || o.isAuthor())
                 .subscribeOn(Schedulers.newThread())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(authorFragment.mSubscriber);
+        addSubscription(authorSubscription);
 
         if (twoPain) {
 
@@ -367,11 +362,12 @@ public class MainActivity extends MyBaseAbstractActivity implements
             IntentFilter filter = new IntentFilter(DownloadReceiver.ACTION_RESP);
             filter.addCategory(Intent.CATEGORY_DEFAULT);
             registerReceiver(downloadReceiver, filter);
-            mBookSubscription=getBus().getObservable().cache()
-                     .filter(o -> o.isBook()|| o.isGroup())
+            Subscription bookSubscription = getBus().getObservable().cache()
+                    .filter(o -> o.isBook() || o.isGroup())
                     .subscribeOn(Schedulers.newThread())
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe(bookFragment.mSubscriber);
+            addSubscription(bookSubscription);
 
 
         }
@@ -394,7 +390,6 @@ public class MainActivity extends MyBaseAbstractActivity implements
     protected void onPause() {
         super.onPause();
 
-        unregisterReceiver(updateReceiver);
 
         if (twoPain) {
             unregisterReceiver(downloadReceiver);
@@ -570,55 +565,6 @@ public class MainActivity extends MyBaseAbstractActivity implements
     }
 
 
-    /**
-     * Receive updates from  Services
-     */
-    public class UpdateActivityReceiver extends BroadcastReceiver {
-
-
-        @Override
-        public void onReceive(Context context, Intent intent) {
-
-            String action = intent.getStringExtra(AndroidGuiUpdater.ACTION);
-
-            if (action != null) {
-                if (action.equalsIgnoreCase(AndroidGuiUpdater.ACTION_TOAST)) {
-                    int duration = Toast.LENGTH_SHORT;
-                    Toast toast = Toast.makeText(context, intent.getCharSequenceExtra(AndroidGuiUpdater.TOAST_STRING), duration);
-                    toast.show();
-
-
-                    authorFragment.onRefreshComplete();
-
-                }//
-
-                if (action.equalsIgnoreCase(AndroidGuiUpdater.ACTION_REFRESH)) {
-
-                    int iObject = intent.getIntExtra(AndroidGuiUpdater.ACTION_REFRESH_OBJECT, -1);
-
-                    if (twoPain && (iObject == AndroidGuiUpdater.ACTION_REFRESH_TAGS)) {
-                        refreshTags();
-                    }
-
-                }
-                if (action.equals(SamlibService.ACTION_ADD)) {
-
-                    long id = intent.getLongExtra(AndroidGuiUpdater.RESULT_AUTHOR_ID, 0);
-                    Log.d(DEBUG_TAG, "onReceive: author add, id = " + id);
-                    int duration = Toast.LENGTH_SHORT;
-                    CharSequence msg = intent.getCharSequenceExtra(AndroidGuiUpdater.TOAST_STRING);
-                    Toast toast = Toast.makeText(context, msg, duration);
-
-                    authorFragment.refresh(id);
-
-                    toast.show();
-                    onAuthorSelected(id);
-
-                }
-
-            }
-        }
-    }
 
     public static class UITag implements Serializable {
         int id;

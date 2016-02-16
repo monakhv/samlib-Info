@@ -21,6 +21,7 @@ import android.content.Intent;
 
 
 import monakhv.android.samlib.SamlibApplication;
+import monakhv.samlib.db.entity.Book;
 import monakhv.samlib.log.Log;
 import monakhv.samlib.service.SamlibService;
 
@@ -32,7 +33,9 @@ import monakhv.samlib.service.SamlibService;
 public class DownloadBookServiceIntent extends MyServiceIntent {
 
     private static final String DEBUG_TAG = "DownloadBookServiceIntent";
-    public static final  String BOOK_ID = "BOOK_ID";
+    public static final  String EXTRA_BOOK_ID = "DownloadBookServiceIntent.BOOK_ID";
+    public static final  String EXTRA_IS_RECEIVER = "DownloadBookServiceIntent.IS_RECEIVER ";
+
 
     SamlibApplication mSamlibApplication;
     public DownloadBookServiceIntent() {
@@ -43,15 +46,24 @@ public class DownloadBookServiceIntent extends MyServiceIntent {
     protected void onHandleIntent(Intent intent) {
 
         Log.d(DEBUG_TAG, "Got intent");
-        long book_id = intent.getLongExtra(BOOK_ID, 0);
+        long book_id = intent.getLongExtra(EXTRA_BOOK_ID, 0);
         mSamlibApplication= (SamlibApplication) getApplication();
-        //currentCaller
-        UpdateObject updateObject=      intent.getParcelableExtra(AndroidGuiUpdater.CALLER_TYPE_EXTRA);
+        boolean isReceiver = intent.getBooleanExtra(EXTRA_IS_RECEIVER,false);
+        UpdateObject updateObject;
+        if (isReceiver){
+            updateObject=new UpdateObject();
+        }
+        else {
+            updateObject=UpdateObject.ACTIVITY_CALLER;
+        }
+
+
 
         SamlibService service =mSamlibApplication.getServiceComponent(updateObject,getHelper()).getSamlibService();
-                //new SamlibService(new AuthorController(getHelper()),guiUpdate,mSettingsHelper,new HttpClientController(mSettingsHelper));
 
-        service.downloadBook(book_id);
+
+        Book book = getAuthorController().getBookController().getById(book_id);
+        service.downloadBook(book);
         mSamlibApplication.releaseServiceComponent();
 
     }
@@ -63,12 +75,12 @@ public class DownloadBookServiceIntent extends MyServiceIntent {
      *
      * @param ctx context
      * @param book_id book id
-     * @param updateObject  Caller type Activity or Not
+     * @param isReceiver  Caller type is Receiver or Not
      */
-    public static void start(Context ctx, long book_id,UpdateObject updateObject ){
+    public static void start(Context ctx, long book_id,boolean isReceiver ){
         Intent service = new Intent(ctx, DownloadBookServiceIntent.class);
-        service.putExtra(DownloadBookServiceIntent.BOOK_ID, book_id);
-        service.putExtra(AndroidGuiUpdater.CALLER_TYPE_EXTRA, updateObject);
+        service.putExtra(DownloadBookServiceIntent.EXTRA_BOOK_ID, book_id);
+        service.putExtra(DownloadBookServiceIntent.EXTRA_IS_RECEIVER, isReceiver);
         ctx.startService(service);
     }
 }

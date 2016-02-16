@@ -22,8 +22,12 @@ package monakhv.android.samlib.dagger.module;
 import dagger.Module;
 import dagger.Provides;
 import monakhv.android.samlib.dagger.DatabaseScope;
+import monakhv.android.samlib.dagger.UpdateScope;
+import monakhv.android.samlib.data.DataExportImport;
 import monakhv.android.samlib.data.SettingsHelper;
 import monakhv.android.samlib.data.backup.AuthorStatePrefs;
+import monakhv.android.samlib.service.AndroidGuiUpdater;
+import monakhv.android.samlib.service.SpecialSamlibService;
 import monakhv.android.samlib.sql.DatabaseHelper;
 import monakhv.android.samlib.tasks.AddAuthorRestore;
 import monakhv.samlib.db.AuthorController;
@@ -60,6 +64,13 @@ public class DatabaseModule {
     SamlibUpdateService providesSamlibUpdateService(AuthorController authorController, SettingsHelper settingsHelper, HttpClientController httpClientController, GuiEventBus bus){
         return new SamlibUpdateService( authorController,settingsHelper,httpClientController,bus);
     }
+
+    @Provides
+    @DatabaseScope
+    SpecialSamlibService providesSpecialSamlibService(AuthorController authorController, SettingsHelper settings, HttpClientController httpClientController, GuiEventBus guiEventBus,DataExportImport exportImport){
+        return new SpecialSamlibService( authorController,  settings,  httpClientController,  guiEventBus,  exportImport);
+    }
+
 
     @Provides
     @DatabaseScope

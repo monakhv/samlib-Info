@@ -66,8 +66,8 @@ public abstract class MyService extends Service {
         return mSamlibApplication.getApplicationComponent().getHttpClientController();
     }
 
-    public SamlibUpdateService getUpdateService(){
-        return mSamlibApplication.getDatabaseComponent(getHelper()).getSamLibUpdateService();
+    public SpecialSamlibService getSpecialSamlibService(){
+        return mSamlibApplication.getDatabaseComponent(getHelper()).getSpecialSamlibService();
     }
 
     public AuthorController getAuthorController(){

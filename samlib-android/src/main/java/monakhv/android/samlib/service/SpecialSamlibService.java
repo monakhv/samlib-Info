@@ -25,8 +25,8 @@ import monakhv.samlib.db.AuthorController;
 import monakhv.samlib.db.entity.Author;
 import monakhv.samlib.db.entity.Book;
 import monakhv.samlib.http.HttpClientController;
-import monakhv.samlib.service.GuiUpdate;
-import monakhv.samlib.service.SamlibService;
+import monakhv.samlib.service.GuiEventBus;
+import monakhv.samlib.service.SamlibUpdateService;
 
 import javax.inject.Inject;
 
@@ -34,28 +34,34 @@ import javax.inject.Inject;
  * Version of SamlibService where we can download books after update
  * Created by monakhv on 18.01.16.
  */
-public class SpecialSamlibService extends SamlibService {
+public class SpecialSamlibService extends SamlibUpdateService {
     private final static String DEBUG_TAG="SpecialSamlibService";
-    private final UpdateObject mUpdateObject;
+
     private final SettingsHelper mSettingsHelper;
+    private final AuthorController mAuthorController;
     private final DataExportImport mDataExportImport;
+    private boolean callerIsReceiver=true;
 
     @Inject
-    public SpecialSamlibService(AuthorController authorController, GuiUpdate guiUpdate, SettingsHelper settingsHelper, HttpClientController http, UpdateObject updateObject, DataExportImport dataExportImport) {
-        super(authorController, guiUpdate, settingsHelper, http);
-        mUpdateObject=updateObject;
-        mSettingsHelper=settingsHelper;
-        mDataExportImport=dataExportImport;
+    public SpecialSamlibService(AuthorController authorController, SettingsHelper settings, HttpClientController httpClientController, GuiEventBus guiEventBus,DataExportImport exportImport){
+        super(authorController, settings, httpClientController, guiEventBus);
+        mAuthorController=authorController;
+        mSettingsHelper=settings;
+        mDataExportImport=exportImport;
+    }
+
+    public void setCallerIsReceiver(boolean callerIsReceiver) {
+        this.callerIsReceiver = callerIsReceiver;
     }
 
     @Override
     public void loadBook(Author a) {
 
-        if (mUpdateObject.callerIsReceiver()) {
-            for (Book book : authorController.getBookController().getBooksByAuthor(a)) {//book cycle for the author to update
+        if (callerIsReceiver) {
+            for (Book book : mAuthorController.getBookController().getBooksByAuthor(a)) {//book cycle for the author to update
                 if (book.isIsNew() && mSettingsHelper.testAutoLoadLimit(book) && mDataExportImport.needUpdateFile(book)) {
                     monakhv.samlib.log.Log.i(DEBUG_TAG, "loadBook: Auto Load book: " + book.getId());
-                    DownloadBookServiceIntent.start(mSettingsHelper.getContext(), book.getId(), mUpdateObject);//we do not need GUI update
+                    DownloadBookServiceIntent.start(mSettingsHelper.getContext(), book.getId(), callerIsReceiver);//we do not need GUI update
                 }
             }
 
