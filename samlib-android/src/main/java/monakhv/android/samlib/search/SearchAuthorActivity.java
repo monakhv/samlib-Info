@@ -38,8 +38,8 @@ public class SearchAuthorActivity extends MyBaseAbstractActivity {
 
     static private final String DEBUG_TAG = "SearchAuthorActivity";
     public static final String EXTRA_PATTERN = "EXTRA_PATTERN";
-    private SearchAuthorsFragment listFragment;
-    private View searchPanel;
+    private SearchAuthorsFragment mSearchAuthorsFragment;
+    private View mSearchPanel;
 
 
     @Override
@@ -69,8 +69,8 @@ public class SearchAuthorActivity extends MyBaseAbstractActivity {
     protected void onResume() {
         super.onResume();
 
-        listFragment = (SearchAuthorsFragment) getSupportFragmentManager().findFragmentById(R.id.listAuthorSearchFragment);
-        searchPanel = findViewById(R.id.search_author_panel_sa);
+        mSearchAuthorsFragment = (SearchAuthorsFragment) getSupportFragmentManager().findFragmentById(R.id.listAuthorSearchFragment);
+        mSearchPanel = findViewById(R.id.search_author_panel_sa);
     }
 
     @Override
@@ -103,10 +103,10 @@ public class SearchAuthorActivity extends MyBaseAbstractActivity {
     }
 
     private void flipPanel() {
-        if (searchPanel.getVisibility() == View.GONE) {
-            searchPanel.setVisibility(View.VISIBLE);
+        if (mSearchPanel.getVisibility() == View.GONE) {
+            mSearchPanel.setVisibility(View.VISIBLE);
         } else {
-            searchPanel.setVisibility(View.GONE);
+            mSearchPanel.setVisibility(View.GONE);
         }
     }
 
@@ -123,7 +123,7 @@ public class SearchAuthorActivity extends MyBaseAbstractActivity {
         editText.setText("");
         flipPanel();
         Log.d(DEBUG_TAG, "making search");
-        listFragment.search(text);
+        mSearchAuthorsFragment.search(text);
     }
 
 
