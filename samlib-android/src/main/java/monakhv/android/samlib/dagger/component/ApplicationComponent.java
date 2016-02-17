@@ -30,6 +30,7 @@ import monakhv.android.samlib.dagger.module.DatabaseModule;
 import monakhv.android.samlib.receiver.AutoStartUp;
 import monakhv.samlib.http.HttpClientController;
 import monakhv.samlib.service.GuiEventBus;
+import monakhv.samlib.service.SamlibSearchService;
 
 /**
  * Root Component of the graph
@@ -50,6 +51,8 @@ public interface ApplicationComponent {
     HttpClientController getHttpClientController();
 
     DatabaseComponent plus(DatabaseModule module);
+
+    SamlibSearchService getSearchService();
 
 
 }

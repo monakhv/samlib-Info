@@ -13,24 +13,20 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  *
- *  19.01.16 18:02
+ *  17.02.16 9:48
  *
  */
 
-package monakhv.android.samlib.dagger.component;
-
-import dagger.Subcomponent;
-import monakhv.android.samlib.dagger.UpdateScope;
-import monakhv.android.samlib.dagger.module.ServiceModule;
-import monakhv.samlib.service.SamlibService;
+package monakhv.samlib.exception;
 
 /**
- * Created by monakhv on 15.01.16.
+ * Created by monakhv on 17.02.16.
  */
-@UpdateScope
-@Subcomponent(modules = {ServiceModule.class})
-public interface ServiceComponent {
-    SamlibService getSamlibService();
+public class SamlibSearchLimitExceeded extends SamLibException {
+    public SamlibSearchLimitExceeded(){
 
-
+    }
+    public SamlibSearchLimitExceeded(String msg){
+        super(msg);
+    }
 }

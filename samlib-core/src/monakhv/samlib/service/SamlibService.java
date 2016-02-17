@@ -63,76 +63,76 @@ public class SamlibService {
     }
 
 
-    /**
-     * Make author search according to the first part aof theAuthor name
-     *
-     * @param pattern part of the author name
-     * @return List of found authors
-     * @throws IOException
-     * @throws SamlibParseException
-     */
-    public List<AuthorCard> makeSearch(String pattern) throws IOException, SamlibParseException, SamlibInterruptException {
-        Log.i(DEBUG_TAG, "makeSearch: Search author with pattern: " + pattern);
-        List<AuthorCard> result = new ArrayList<>();
-
-        int page = 1;
-
-        HashMap<String, ArrayList<AuthorCard>> colAuthors = http.searchAuthors(pattern, page);
-        RuleBasedCollator russianCollator = (RuleBasedCollator) Collator.getInstance(new Locale("ru", "RU"));
-
-        try {
-            russianCollator = new RuleBasedCollator(settingsHelper.getCollationRule());
-        } catch (ParseException ex) {
-            Log.e(DEBUG_TAG, "makeSearch: Collator error", ex);
-
-        }
-
-        russianCollator.setStrength(Collator.IDENTICAL);
-        russianCollator.setDecomposition(Collator.NO_DECOMPOSITION);
-
-
-        while (colAuthors != null) {//page cycle while we find anything
-
-            String[] keys = colAuthors.keySet().toArray(new String[1]);
-
-            Arrays.sort(keys, russianCollator);
-            int ires = Arrays.binarySearch(keys, pattern, russianCollator);
-            Log.d(DEBUG_TAG, "makeSearch: Page number:" + page + "    search result " + ires + "   length is " + keys.length);
-
-            int iStart;
-            if (ires < 0) {
-                iStart = -ires - 1;
-            } else {
-                iStart = ires;
-            }
-            for (int i = iStart; i < keys.length; i++) {
-                String sKey = keys[i];
-                if (sKey.toLowerCase().startsWith(pattern.toLowerCase())) {
-                    for (AuthorCard ac : colAuthors.get(sKey)) {
-
-                        result.add(ac);
-
-                        if (result.size() >= SamLibConfig.SEARCH_LIMIT) {
-                            return result;
-                        }
-                    }
-
-                } else {
-                    Log.d(DEBUG_TAG, "makeSearch: Search for " + pattern + " stop by substring  -   " + sKey + "   " + keys.length + "         " + iStart + "  -  " + ires);
-
-
-                    return result;
-                }
-            }
-
-
-            ++page;
-            colAuthors = http.searchAuthors(pattern, page);
-        }
-        Log.d(DEBUG_TAG, "makeSearch: Results: " + result.size());
-
-        return result;
-    }
+//    /**
+//     * Make author search according to the first part aof theAuthor name
+//     *
+//     * @param pattern part of the author name
+//     * @return List of found authors
+//     * @throws IOException
+//     * @throws SamlibParseException
+//     */
+//    public List<AuthorCard> makeSearch(String pattern) throws IOException, SamlibParseException, SamlibInterruptException {
+//        Log.i(DEBUG_TAG, "makeSearch: Search author with pattern: " + pattern);
+//        List<AuthorCard> result = new ArrayList<>();
+//
+//        int page = 1;
+//
+//        HashMap<String, ArrayList<AuthorCard>> colAuthors = http.searchAuthors(pattern, page);
+//        RuleBasedCollator russianCollator = (RuleBasedCollator) Collator.getInstance(new Locale("ru", "RU"));
+//
+//        try {
+//            russianCollator = new RuleBasedCollator(settingsHelper.getCollationRule());
+//        } catch (ParseException ex) {
+//            Log.e(DEBUG_TAG, "makeSearch: Collator error", ex);
+//
+//        }
+//
+//        russianCollator.setStrength(Collator.IDENTICAL);
+//        russianCollator.setDecomposition(Collator.NO_DECOMPOSITION);
+//
+//
+//        while (colAuthors != null) {//page cycle while we find anything
+//
+//            String[] keys = colAuthors.keySet().toArray(new String[1]);
+//
+//            Arrays.sort(keys, russianCollator);
+//            int ires = Arrays.binarySearch(keys, pattern, russianCollator);
+//            Log.d(DEBUG_TAG, "makeSearch: Page number:" + page + "    search result " + ires + "   length is " + keys.length);
+//
+//            int iStart;
+//            if (ires < 0) {
+//                iStart = -ires - 1;
+//            } else {
+//                iStart = ires;
+//            }
+//            for (int i = iStart; i < keys.length; i++) {
+//                String sKey = keys[i];
+//                if (sKey.toLowerCase().startsWith(pattern.toLowerCase())) {
+//                    for (AuthorCard ac : colAuthors.get(sKey)) {
+//
+//                        result.add(ac);
+//
+//                        if (result.size() >= SamLibConfig.SEARCH_LIMIT) {
+//                            return result;
+//                        }
+//                    }
+//
+//                } else {
+//                    Log.d(DEBUG_TAG, "makeSearch: Search for " + pattern + " stop by substring  -   " + sKey + "   " + keys.length + "         " + iStart + "  -  " + ires);
+//
+//
+//                    return result;
+//                }
+//            }
+//
+//
+//            ++page;
+//            colAuthors = http.searchAuthors(pattern, page);
+//        }
+//        Log.d(DEBUG_TAG, "makeSearch: Results: " + result.size());
+//
+//        return result;
+//    }
 
 
 

@@ -49,11 +49,7 @@ public class ApplicationModule {
         mContext=context;
     }
 
-    @Provides
-    @Singleton
-    public GuiEventBus providesGuiEventBus(){
-        return new GuiEventBus();
-    }
+
     @Provides
     @Singleton
     Context providesContext(){

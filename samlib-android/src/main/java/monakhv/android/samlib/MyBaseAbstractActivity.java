@@ -11,7 +11,7 @@ import monakhv.android.samlib.sql.DatabaseHelper;
 import monakhv.samlib.db.AuthorController;
 import monakhv.samlib.service.GuiEventBus;
 import monakhv.samlib.service.SamlibOperation;
-import monakhv.samlib.service.SamlibUpdateService;
+import monakhv.samlib.service.SamlibSearchService;
 import rx.Subscription;
 import rx.subscriptions.CompositeSubscription;
 
@@ -73,18 +73,13 @@ public class MyBaseAbstractActivity extends AppCompatActivity implements MyBaseA
     private SamlibOperation getSamlibOperationInternal() {
         return mSamlibApplication.getDatabaseComponent(getDatabaseHelper()).getSamlibOperation();
     }
-    @Override
-    public SamlibUpdateService getSamlibUpdateService(){
-        return mSamlibApplication.getDatabaseComponent(getDatabaseHelper()).getSamLibUpdateService();
-    }
 
-    @Override
-    public DatabaseHelper getDbHelper() {
-        return getDatabaseHelper();
-    }
 
     public GuiEventBus getBus(){
         return mSamlibApplication.getApplicationComponent().getGuiEventBus();
+    }
+    public SamlibSearchService getSearchService(){
+        return mSamlibApplication.getApplicationComponent().getSearchService();
     }
     public void addSubscription(Subscription subscription){
         mCompositeSubscription.add(subscription);

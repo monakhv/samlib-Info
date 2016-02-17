@@ -26,6 +26,8 @@ import monakhv.android.samlib.data.DataExportImport;
 import monakhv.android.samlib.data.Logger;
 import monakhv.android.samlib.data.SettingsHelper;
 import monakhv.samlib.http.HttpClientController;
+import monakhv.samlib.service.GuiEventBus;
+import monakhv.samlib.service.SamlibSearchService;
 
 import javax.inject.Singleton;
 
@@ -58,4 +60,18 @@ public class ApiModule {
     DataExportImport providesDataExportImport(SettingsHelper settingsHelper){
         return new DataExportImport(settingsHelper);
     }
+
+    @Provides
+    @Singleton
+    public GuiEventBus providesGuiEventBus(){
+        return new GuiEventBus();
+    }
+
+    @Provides
+    @Singleton
+    public SamlibSearchService providesSamlibSearchService(HttpClientController httpController,SettingsHelper settingsHelper){
+        return new SamlibSearchService(httpController,settingsHelper);
+    }
+
+
 }

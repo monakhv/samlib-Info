@@ -28,7 +28,7 @@ import android.widget.*;
 
 
 import monakhv.android.samlib.search.SearchAuthorActivity;
-import monakhv.android.samlib.search.SearchAuthorsListFragment;
+import monakhv.android.samlib.search.SearchAuthorsFragment;
 import monakhv.android.samlib.service.CleanNotificationData;
 import monakhv.samlib.service.AuthorGuiState;
 import monakhv.android.samlib.sortorder.AuthorSortOrder;
@@ -436,7 +436,7 @@ public class MainActivity extends MyBaseAbstractActivity implements
         if (requestCode == SEARCH_ACTIVITY) {
             Log.v(DEBUG_TAG, "Start add Author");
 
-            String url = data.getStringExtra(SearchAuthorsListFragment.AUTHOR_URL);
+            String url = data.getStringExtra(SearchAuthorsFragment.AUTHOR_URL);
             ArrayList<String> urls = new ArrayList<>();
             urls.add(url);
             getSamlibOperation().makeAuthorAdd(urls, getAuthorGuiState());
