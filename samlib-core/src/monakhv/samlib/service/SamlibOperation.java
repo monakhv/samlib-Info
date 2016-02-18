@@ -41,6 +41,7 @@ import java.util.concurrent.TimeUnit;
  * Subject bus using java -rx
  * Created by monakhv on 12.02.16.
  */
+@SuppressWarnings("Convert2streamapi")
 public class SamlibOperation {
     private static final String DEBUG_TAG = "SamlibOperation";
     public static final long SLEEP_INTERVAL_SECONDS = 1L;

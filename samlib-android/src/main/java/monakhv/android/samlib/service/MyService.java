@@ -27,6 +27,7 @@ import monakhv.android.samlib.sql.DatabaseHelper;
 import monakhv.samlib.db.AuthorController;
 import monakhv.samlib.http.HttpClientController;
 import monakhv.samlib.log.Log;
+import monakhv.samlib.service.BookDownloadService;
 import monakhv.samlib.service.GuiEventBus;
 import rx.Subscription;
 import rx.subscriptions.CompositeSubscription;
@@ -58,11 +59,11 @@ public abstract class MyService extends Service {
 
     }
 
-    public void addSubscription(Subscription subscription){
+    protected void addSubscription(Subscription subscription){
         mCompositeSubscription.add(subscription);
     }
 
-    public SettingsHelper getSettingsHelper(){
+    protected SettingsHelper getSettingsHelper(){
         return mSamlibApplication.getSettingsHelper();
     }
 
@@ -70,15 +71,19 @@ public abstract class MyService extends Service {
         return mSamlibApplication.getApplicationComponent().getGuiEventBus();
     }
 
-    public HttpClientController getHttpClientController(){
+    protected HttpClientController getHttpClientController(){
         return mSamlibApplication.getApplicationComponent().getHttpClientController();
     }
 
-    public SpecialSamlibService getSpecialSamlibService(){
+    protected BookDownloadService getBookDownloadService(){
+        return mSamlibApplication.getApplicationComponent().getBookDownloadService();
+    }
+
+    protected SpecialAuthorService getSpecialSamlibService(){
         return mSamlibApplication.getDatabaseComponent(getHelper()).getSpecialSamlibService();
     }
 
-    public AuthorController getAuthorController(){
+    protected AuthorController getAuthorController(){
         return mSamlibApplication.getDatabaseComponent(getHelper()).getAuthorController();
     }
     @Override

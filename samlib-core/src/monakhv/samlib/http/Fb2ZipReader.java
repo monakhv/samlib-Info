@@ -3,6 +3,7 @@ package monakhv.samlib.http;
 
 
 import monakhv.samlib.log.Log;
+import rx.subjects.Subject;
 
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -29,35 +30,48 @@ import java.util.zip.ZipInputStream;
  *
  * 4/1/14.
  */
+
+
+/**
+ *
+ *  Y = A*X +B
+ *  A = 1.78
+ *  B=-8.1
+ */
 public class Fb2ZipReader implements HttpClientController.PageReader {
+    private static final String DEBUG_TAG="Fb2ZipReader";
     private File file;
-    private long length;
+    final private Subject<Integer, Integer> mSubject;
+    final long mSize;
 
-
-    public Fb2ZipReader(File file) {
+    public Fb2ZipReader(File file,long size,Subject<Integer, Integer> subject) {
         this.file = file;
+        mSize=size;
+        mSubject=subject;
     }
 
-    @Override
-    public void setContentLength(long s) {
-        length=s;
-    }
 
     @Override
     public String doReadPage(InputStream in) throws IOException {
         ZipInputStream zipInp = new ZipInputStream(in);
         ZipEntry ze;
+        double size=0.;
+        double report;
         while ((ze = zipInp.getNextEntry()) != null) {
-            Log.v("Fb2ZipReader", "Unzipping " + ze.getName() + " into " + file.getParent());
+            Log.v(DEBUG_TAG, "Unzipping " + ze.getName() + " into " + file.getParent());
 
             if (!ze.isDirectory()) {
                 FileOutputStream fout = new FileOutputStream(file.getParent() + "/" + ze.getName());
                 final int BUFFER_SIZE = 2048;
                 BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(fout, BUFFER_SIZE);
-                int count = 0;
+                int count ;
+
                 byte[] buffer = new byte[BUFFER_SIZE];
                 while ((count = zipInp.read(buffer, 0, BUFFER_SIZE)) != -1) {
                     bufferedOutputStream.write(buffer, 0, count);
+                    size+=count;
+                    report=100*(1.78*size-8.1)/1024/mSize;
+                    mSubject.onNext((int) report);
                 }
                 bufferedOutputStream.flush();
                 bufferedOutputStream.close();
@@ -67,6 +81,8 @@ public class Fb2ZipReader implements HttpClientController.PageReader {
             }
         }
         zipInp.close();
+        size=size/1024.;
+        Log.d(DEBUG_TAG,"total size: "+size);
         return null;
     }
 }

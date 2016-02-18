@@ -36,6 +36,7 @@ import okhttp3.Call;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
+import rx.subjects.Subject;
 
 
 /**
@@ -57,7 +58,6 @@ public class HttpClientController {
     public interface PageReader {
         String doReadPage(InputStream in) throws IOException;
 
-        void setContentLength(long s);
     }
 
     public static final int RETRY_LIMIT = 5;
@@ -66,28 +66,20 @@ public class HttpClientController {
     public static final String ENCODING = "windows-1251";
     protected static final String USER_AGENT = "Android reader";
     private static final String DEBUG_TAG = "HttpClientController";
-    private ProxyData proxy;
-    private final SamLibConfig slc;
+    private ProxyData mProxyData;
+    private final SamLibConfig mSamLibConfig;
 
-    private final AbstractSettings settingsHelper;
+    private final AbstractSettings mSettingsHelper;
     private Call mCall;
 
 
-//    public static HttpClientController getInstance(AbstractSettings context) {
-//        if (instance == null) {
-//            instance = new HttpClientController(context);
-//        }
-//
-//        return instance;
-//    }
-
     public HttpClientController(AbstractSettings context) {
-        slc = SamLibConfig.getInstance(context);
+        mSamLibConfig = SamLibConfig.getInstance(context);
 
-        settingsHelper = context;
-        proxy = settingsHelper.getProxy();
-        proxy = settingsHelper.getProxy();
-        setProxy(proxy);
+        mSettingsHelper = context;
+        mProxyData = mSettingsHelper.getProxy();
+        mProxyData = mSettingsHelper.getProxy();
+        setProxyData(mProxyData);
 
     }
 
@@ -112,7 +104,7 @@ public class HttpClientController {
     public Author getAuthorByURL(String link, Author a) throws IOException, SamlibParseException, SamlibInterruptException {
 
         a.setUrl(link);
-        String str = getURL(slc.getAuthorIndexDate(a), new StringReader());
+        String str = getURL(mSamLibConfig.getAuthorIndexDate(a), new StringReader());
 
         parseAuthorIndexDateData(a, str);
         return a;
@@ -147,18 +139,18 @@ public class HttpClientController {
      * @throws IOException          connection problem occurred
      * @throws SamlibParseException remote host return status other then 200
      */
-    public void downloadBook(Book book) throws IOException, SamlibParseException, SamlibInterruptException {
-        File f = settingsHelper.getBookFile(book, book.getFileType());
+    public void downloadBook(Book book,Subject<Integer, Integer> subject) throws IOException, SamlibParseException, SamlibInterruptException {
+        File f = mSettingsHelper.getBookFile(book, book.getFileType());
         PageReader reader;
         switch (book.getFileType()) {
             case HTML:
-                reader = new TextFileReader(f);
-                getURL(slc.getBookUrl(book), reader);
+                reader = new TextFileReader(f,book.getSize(),subject);
+                getURL(mSamLibConfig.getBookUrl(book), reader);
                 SamLibConfig.transformBook(f);
                 break;
             case FB2:
-                reader = new Fb2ZipReader(f);
-                getURL(slc.getBookUrl(book), reader);
+                reader = new Fb2ZipReader(f,book.getSize(),subject);
+                getURL(mSamLibConfig.getBookUrl(book), reader);
                 break;
             default:
                 throw new IOException();
@@ -179,7 +171,7 @@ public class HttpClientController {
     public HashMap<String, ArrayList<AuthorCard>> searchAuthors(String pattern, int page) throws IOException, SamlibParseException, SamlibInterruptException {
         String str;
         try {
-            str = getURL(slc.getSearchAuthorURL(pattern, page), new StringReader());
+            str = getURL(mSamLibConfig.getSearchAuthorURL(pattern, page), new StringReader());
         } catch (NullPointerException ex) {
             Log.w(DEBUG_TAG, "searchAuthors: Search error for pattern: " + pattern, ex);
             throw new SamlibParseException("Pattern: " + pattern);
@@ -216,7 +208,7 @@ public class HttpClientController {
                     throw new SamlibInterruptException("getURL:InterruptedIOException");
                 }
                 if (e instanceof SocketTimeoutException) {
-                    slc.flipOrder();
+                    mSamLibConfig.flipOrder();
                     ioException = e;
                     Log.i(DEBUG_TAG, "getURL: SocketTimeoutException make flip", e);
 
@@ -227,7 +219,7 @@ public class HttpClientController {
                 }
 
             } catch (IOException e) {
-                slc.flipOrder();
+                mSamLibConfig.flipOrder();
                 ioException = e;
                 if (Thread.interrupted()) {
                     Log.i(DEBUG_TAG, "getURL:1 thread is interrupted throw SamlibInterruptException", e);
@@ -238,7 +230,7 @@ public class HttpClientController {
                 Log.e(DEBUG_TAG, "getURL: IOException: " + sUrl, e);
 
             } catch (SamlibParseException e) {
-                slc.flipOrder();
+                mSamLibConfig.flipOrder();
                 samlibParseException = e;
                 Log.e(DEBUG_TAG, "AuthorParseException: " + sUrl, e);
 
@@ -315,10 +307,10 @@ public class HttpClientController {
                 .connectTimeout(CONNECTION_TIMEOUT, TimeUnit.MILLISECONDS)
                 .readTimeout(READ_TIMEOUT, TimeUnit.MILLISECONDS);
 
-        if (proxy != null) {
-            proxy.applyProxy(builder);
+        if (mProxyData != null) {
+            mProxyData.applyProxy(builder);
         }
-        client=builder.build();
+        client = builder.build();
 
         Request request = new Request.Builder()
                 .url(url)
@@ -354,18 +346,17 @@ public class HttpClientController {
 
             throw new SamlibParseException("URL:" + url.toString() + "  status code: " + status);
         }
-        reader.setContentLength(response.body().contentLength());
-        Log.d("DEBUG_TAG", "Length: " + response.header("Content-Length"));
+
 
         return reader.doReadPage(response.body().byteStream());
 
     }
 
-    public void setProxy(ProxyData proxy1) {
-        proxy = proxy1;
+    public void setProxyData(ProxyData proxy1) {
+        mProxyData = proxy1;
         if (proxy1 == null) {
             cleanProxy();
-            return;
+
         }
         //Authenticator.setDefault(proxy1.getAuthenticator());
 
@@ -373,7 +364,7 @@ public class HttpClientController {
 
     private void cleanProxy() {
         Authenticator.setDefault(null);
-        proxy = null;
+        mProxyData = null;
 
     }
 

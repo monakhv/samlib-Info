@@ -94,7 +94,7 @@ limitations under the License.
                 android:name=".service.GoogleAutoService">
         </service>
         <service
-                android:name=".service.DownloadBookServiceIntent">
+                android:name=".service.DownloadBookService">
         </service>
         <service
                 android:name=".service.CleanBookServiceIntent">

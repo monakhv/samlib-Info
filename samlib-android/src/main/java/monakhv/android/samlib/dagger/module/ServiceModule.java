@@ -21,15 +21,6 @@ package monakhv.android.samlib.dagger.module;
 
 
 import dagger.Module;
-import dagger.Provides;
-import monakhv.android.samlib.dagger.UpdateScope;
-import monakhv.android.samlib.data.SettingsHelper;
-import monakhv.android.samlib.service.AndroidGuiUpdater;
-import monakhv.android.samlib.service.UpdateObject;
-
-import monakhv.samlib.db.AuthorController;
-import monakhv.samlib.http.HttpClientController;
-import monakhv.samlib.service.SamlibService;
 
 /**
  * To care inject constructor for services
@@ -37,25 +28,6 @@ import monakhv.samlib.service.SamlibService;
  */
 @Module
 public class ServiceModule {
-    private final UpdateObject mUpdateObject;
 
-
-    public ServiceModule(UpdateObject updateObject){
-        mUpdateObject=updateObject;
-
-    }
-
-    @Provides
-    @UpdateScope
-    AndroidGuiUpdater providesAndroidGuiUpdater(SettingsHelper settingsHelper,AuthorController authorController){
-        return new AndroidGuiUpdater(settingsHelper, mUpdateObject, authorController);
-    }
-
-
-    @Provides
-    @UpdateScope
-    SamlibService providesSamlibService( AndroidGuiUpdater guiUpdate, SettingsHelper settingsHelper, HttpClientController httpClientController){
-        return new  SamlibService(guiUpdate,settingsHelper,httpClientController);
-    }
 
 }

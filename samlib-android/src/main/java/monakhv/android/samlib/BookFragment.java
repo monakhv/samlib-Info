@@ -16,6 +16,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 
+import android.widget.Toast;
 import monakhv.android.samlib.adapter.*;
 
 
@@ -24,7 +25,6 @@ import monakhv.android.samlib.dialogs.ContextMenuDialog;
 import monakhv.android.samlib.dialogs.MyMenuData;
 import monakhv.android.samlib.dialogs.SingleChoiceSelectDialog;
 import monakhv.android.samlib.recyclerview.DividerItemDecoration;
-import monakhv.android.samlib.service.DownloadBookServiceIntent;
 import monakhv.samlib.service.AuthorGuiState;
 import monakhv.samlib.service.BookGuiState;
 import monakhv.samlib.service.GuiUpdateObject;
@@ -36,7 +36,7 @@ import monakhv.samlib.db.entity.GroupBook;
 import monakhv.samlib.db.entity.SamLibConfig;
 import monakhv.samlib.log.Log;
 import rx.Subscriber;
-
+import rx.Subscription;
 
 import java.util.List;
 
@@ -522,17 +522,45 @@ public class BookFragment extends MyBaseAbstractFragment implements
             progress = new ProgressDialog(getActivity());
             progress.setMessage(getActivity().getText(R.string.download_Loading));
             progress.setCancelable(true);
-            progress.setIndeterminate(true);
+            //progress.setIndeterminate(true);
+            progress.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+            progress.setMax(100);
             progress.show();
-            DownloadBookServiceIntent.start(getActivity(), book.getId(), false);
+            //DownloadBookService.start(getActivity(), book.getId(), false);
 
-
+            final Subscription subscription=getBookDownloadService().downloadBook(book).subscribe(getBookDownloadProgress());
+            addSubscription(subscription);
         } else {
 
             launchReader(book);
         }
 
     }
+
+    private Subscriber<Integer> getBookDownloadProgress(){
+        return new Subscriber<Integer>() {
+            @Override
+            public void onCompleted() {
+                progress.dismiss();
+                launchReader(book);
+            }
+
+            @Override
+            public void onError(Throwable e) {
+                progress.dismiss();
+                Toast toast = Toast.makeText(getActivity(), getActivity().getText(R.string.download_book_error), Toast.LENGTH_SHORT);
+                toast.show();
+            }
+
+            @Override
+            public void onNext(Integer integer) {
+                progress.setProgress(integer);
+                //Log.d(DEBUG_TAG,"onNext: "+integer);
+            }
+        };
+
+    }
+
 
     /**
      * Launch Reader to read the book considering book is downloaded

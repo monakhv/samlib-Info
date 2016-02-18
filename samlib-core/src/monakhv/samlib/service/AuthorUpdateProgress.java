@@ -22,12 +22,12 @@ package monakhv.samlib.service;
 /**
  * Created by monakhv on 12.02.16.
  */
-public class SamlibUpdateProgress {
+public class AuthorUpdateProgress {
     int total;
     int current;
     String name;
 
-    public SamlibUpdateProgress(int total, int current, String name) {
+    public AuthorUpdateProgress(int total, int current, String name) {
         this.total = total;
         this.current = current;
         this.name = name;

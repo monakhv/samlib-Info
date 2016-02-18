@@ -41,8 +41,8 @@ import java.util.concurrent.TimeUnit;
 /**
  * Created by monakhv on 12.02.16.
  */
-public class SamlibUpdateService {
-    private static final String DEBUG_TAG = "SamlibUpdateService";
+public class AuthorUpdateService {
+    private static final String DEBUG_TAG = "AuthorUpdateService";
     public static final long SLEEP_INTERVAL_SECONDS = 1L;
     public static final int SLEEP_DELAY_MIN = 5;
     public static final int SLEEP_DELAY_MAX = 15;
@@ -55,7 +55,7 @@ public class SamlibUpdateService {
     private final GuiEventBus mGuiEventBus;
 
 
-    public SamlibUpdateService(AuthorController authorController, AbstractSettings settings, HttpClientController httpClientController, GuiEventBus guiEventBus) {
+    public AuthorUpdateService(AuthorController authorController, AbstractSettings settings, HttpClientController httpClientController, GuiEventBus guiEventBus) {
         mAuthorController = authorController;
         mHttpClientController = httpClientController;
         mAbstractSettings = settings;
@@ -91,7 +91,7 @@ public class SamlibUpdateService {
         int total = authors.size();
         int iCurrent = 0;//to send update information to pull-to-refresh
         for (Author a : authors) {//main author cycle
-            mGuiEventBus.post(new GuiUpdateObject(new SamlibUpdateProgress(total, ++iCurrent, a.getName())));
+            mGuiEventBus.post(new GuiUpdateObject(new AuthorUpdateProgress(total, ++iCurrent, a.getName())));
 
             mAuthorController.loadBooks(a);
             mAuthorController.loadGroupBooks(a);
@@ -183,7 +183,7 @@ public class SamlibUpdateService {
             int iCurrent = 0;//to send update information to pull-to-refresh
 
             for (Author a : authors) {//main author cycle
-                subscriber.onNext(new GuiUpdateObject(new SamlibUpdateProgress(total, ++iCurrent, a.getName())));
+                subscriber.onNext(new GuiUpdateObject(new AuthorUpdateProgress(total, ++iCurrent, a.getName())));
 
                 mAuthorController.loadBooks(a);
                 mAuthorController.loadGroupBooks(a);

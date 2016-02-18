@@ -83,7 +83,7 @@ public class MainActivity extends MyBaseAbstractActivity implements
     private AuthorFragment authorFragment;
     private BookFragment bookFragment;
     private AuthorTagFragment tagFragment;
-    private DownloadReceiver downloadReceiver;
+
 
     private boolean twoPain;
     private boolean isTagShow = false;
@@ -367,10 +367,7 @@ public class MainActivity extends MyBaseAbstractActivity implements
             if (bookFragment == null) {
                 Log.e(DEBUG_TAG, "Fragment is NULL for two pane layout!!");
             }
-            downloadReceiver = new DownloadReceiver(bookFragment, getAuthorController().getBookController());
-            IntentFilter filter = new IntentFilter(DownloadReceiver.ACTION_RESP);
-            filter.addCategory(Intent.CATEGORY_DEFAULT);
-            registerReceiver(downloadReceiver, filter);
+
             Subscription bookSubscription = mBus
                     .filter(o -> o.isBook() || o.isGroup())
                     .subscribe(bookFragment.mSubscriber);
@@ -398,9 +395,6 @@ public class MainActivity extends MyBaseAbstractActivity implements
         super.onPause();
         Log.d(DEBUG_TAG, "onPause");
 
-        if (twoPain) {
-            unregisterReceiver(downloadReceiver);
-        }
 
         if (mAppBarLayout != null) {
             mAppBarLayout.removeOnOffsetChangedListener(this);

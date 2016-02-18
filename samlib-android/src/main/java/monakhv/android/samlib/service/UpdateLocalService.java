@@ -161,7 +161,7 @@ public class UpdateLocalService extends MyService {
         wl = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, DEBUG_TAG);
         wl.acquire();
 
-        SpecialSamlibService service=getSpecialSamlibService();
+        SpecialAuthorService service=getSpecialSamlibService();
         service.setCallerIsReceiver(isReceiver);
         mThread = new SamlibUpdateTread(service, argDaya);
 
@@ -171,7 +171,7 @@ public class UpdateLocalService extends MyService {
                         if (mMessageConstructor == null) {
                             mMessageConstructor = new MessageConstructor(this, getSettingsHelper());
                         }
-                        mMessageConstructor.updateNotification((SamlibUpdateProgress) guiUpdateObject.getObject());
+                        mMessageConstructor.updateNotification((AuthorUpdateProgress) guiUpdateObject.getObject());
                     }
                     if (guiUpdateObject.isResult()) {
                         mMessageConstructor.cancelProgress();
@@ -219,11 +219,11 @@ public class UpdateLocalService extends MyService {
     }
 
     private class SamlibUpdateTread extends Thread {
-        final private SamlibUpdateService mSamlibUpdateService;
+        final private AuthorUpdateService mAuthorUpdateService;
         final private ArgumentData mData;
 
-        public SamlibUpdateTread(SamlibUpdateService samlibUpdateService, ArgumentData data) {
-            mSamlibUpdateService = samlibUpdateService;
+        public SamlibUpdateTread(AuthorUpdateService authorUpdateService, ArgumentData data) {
+            mAuthorUpdateService = authorUpdateService;
             mData=data;
         }
 
@@ -237,14 +237,14 @@ public class UpdateLocalService extends MyService {
                 int iSelected = Integer.parseInt(sTag);
                 String order = AuthorSortOrder.valueOf(getSettingsHelper().getAuthorSortOrderString()).getOrder();
                 List<Author> authors = getAuthorController().getAll(iSelected, order);
-                result = mSamlibUpdateService.runUpdateService(authors, new AuthorGuiState(iSelected, order));
+                result = mAuthorUpdateService.runUpdateService(authors, new AuthorGuiState(iSelected, order));
 
             } else {
                 if (mData.author_id == -1) {
-                    result = mSamlibUpdateService.runUpdateService(mData.getState());
+                    result = mAuthorUpdateService.runUpdateService(mData.getState());
                 } else {
                     Author author=getAuthorController().getById(mData.author_id);
-                    result = mSamlibUpdateService.runUpdateService(author, mData.getState());
+                    result = mAuthorUpdateService.runUpdateService(author, mData.getState());
                 }
             }
             if (result) {

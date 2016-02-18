@@ -56,7 +56,7 @@ public class GuiUpdateObject  {
 
     }
 
-    public GuiUpdateObject(SamlibUpdateProgress progress){
+    public GuiUpdateObject(AuthorUpdateProgress progress){
         mObject=progress;
         mObjectType=ObjectType.PROGRESS_UPDATE;
         mUpdateType=UpdateType.UPDATE_UPDATE;

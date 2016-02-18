@@ -22,19 +22,17 @@ package monakhv.android.samlib.dagger.module;
 import dagger.Module;
 import dagger.Provides;
 import monakhv.android.samlib.dagger.DatabaseScope;
-import monakhv.android.samlib.dagger.UpdateScope;
 import monakhv.android.samlib.data.DataExportImport;
 import monakhv.android.samlib.data.SettingsHelper;
 import monakhv.android.samlib.data.backup.AuthorStatePrefs;
-import monakhv.android.samlib.service.AndroidGuiUpdater;
-import monakhv.android.samlib.service.SpecialSamlibService;
+import monakhv.android.samlib.service.SpecialAuthorService;
 import monakhv.android.samlib.sql.DatabaseHelper;
 import monakhv.android.samlib.tasks.AddAuthorRestore;
 import monakhv.samlib.db.AuthorController;
 import monakhv.samlib.http.HttpClientController;
 import monakhv.samlib.service.GuiEventBus;
 import monakhv.samlib.service.SamlibOperation;
-import monakhv.samlib.service.SamlibUpdateService;
+import monakhv.samlib.service.AuthorUpdateService;
 
 /**
  * Database Module
@@ -61,14 +59,14 @@ public class DatabaseModule {
 
     @Provides
     @DatabaseScope
-    SamlibUpdateService providesSamlibUpdateService(AuthorController authorController, SettingsHelper settingsHelper, HttpClientController httpClientController, GuiEventBus bus){
-        return new SamlibUpdateService( authorController,settingsHelper,httpClientController,bus);
+    AuthorUpdateService providesSamlibUpdateService(AuthorController authorController, SettingsHelper settingsHelper, HttpClientController httpClientController, GuiEventBus bus){
+        return new AuthorUpdateService( authorController,settingsHelper,httpClientController,bus);
     }
 
     @Provides
     @DatabaseScope
-    SpecialSamlibService providesSpecialSamlibService(AuthorController authorController, SettingsHelper settings, HttpClientController httpClientController, GuiEventBus guiEventBus,DataExportImport exportImport){
-        return new SpecialSamlibService( authorController,  settings,  httpClientController,  guiEventBus,  exportImport);
+    SpecialAuthorService providesSpecialSamlibService(AuthorController authorController, SettingsHelper settings, HttpClientController httpClientController, GuiEventBus guiEventBus, DataExportImport exportImport){
+        return new SpecialAuthorService( authorController,  settings,  httpClientController,  guiEventBus,  exportImport);
     }
 
 

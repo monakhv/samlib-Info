@@ -22,7 +22,6 @@ package monakhv.android.samlib.dagger.component;
 import dagger.Subcomponent;
 import monakhv.android.samlib.dagger.UpdateScope;
 import monakhv.android.samlib.dagger.module.ServiceModule;
-import monakhv.samlib.service.SamlibService;
 
 /**
  * Created by monakhv on 15.01.16.
@@ -30,7 +29,7 @@ import monakhv.samlib.service.SamlibService;
 @UpdateScope
 @Subcomponent(modules = {ServiceModule.class})
 public interface ServiceComponent {
-    SamlibService getSamlibService();
+
 
 
 }

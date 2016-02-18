@@ -1,5 +1,8 @@
 package monakhv.samlib.http;
 
+import monakhv.samlib.log.Log;
+import rx.subjects.Subject;
+
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -8,11 +11,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 
+
 /*
  * Copyright 2014  Dmitry Monakhov
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not use this mFile except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *      http://www.apache.org/licenses/LICENSE-2.0
@@ -27,31 +31,45 @@ import java.io.InputStreamReader;
  */
 
 /**
- * Read web page and put data into text file
+ * Read web page and put data into text mFile
+ *
+ *  Y = A*X +B
+ *  A = 0.55
+ *  B=4.59
+ *
+ *
+ *
  */
 public class TextFileReader implements HttpClientController.PageReader {
-    private File file;
-    private long length;
-    public TextFileReader(File file){
-        this.file = file;
+    final private File mFile;
+    final private Subject<Integer, Integer> mSubject;
+    final long mSize;
+    public TextFileReader(File file,long size,Subject<Integer, Integer> subject){
+        mSubject=subject;
+        this.mFile = file;
+        mSize=size;
     }
 
-    @Override
-    public void setContentLength(long s) {
-        length=s;
-    }
 
     @Override
     public String doReadPage(InputStream content) throws IOException {
         BufferedReader in = new BufferedReader(new InputStreamReader(content, HttpClientController.ENCODING));
-        BufferedWriter bw = new BufferedWriter(new FileWriter(file));
+        BufferedWriter bw = new BufferedWriter(new FileWriter(mFile));
         String inputLine = in.readLine();
 
+        double size=0;
+        double report;
         while (inputLine != null) {
+            size+=inputLine.getBytes("UTF-8").length;
+            report=100*(0.55*size/1024+4.59)/mSize;
+            mSubject.onNext((int) report);
             bw.write(inputLine);
             bw.newLine();
             inputLine = in.readLine();
         }
+        size=size/1024.;
+        Log.d("TextFileReader","size: "+size);
+        Log.d("TextFileReader","size: "+((double ) (0.55*size+4.59))+"   book size "+mSize);
         bw.flush();
         bw.close();
         return null;

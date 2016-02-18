@@ -1,7 +1,7 @@
 package monakhv.samlib.desk.workers;
 
 import monakhv.samlib.db.entity.Author;
-import monakhv.samlib.service.SamlibService;
+import monakhv.samlib.service.BookDownloadService;
 
 import javax.swing.*;
 
@@ -23,10 +23,10 @@ import javax.swing.*;
  * 16.07.15.
  */
 public class ReadAuthorWorker extends SwingWorker<Void,Void> {
-    private SamlibService service;
+    private BookDownloadService service;
     private Author authors;
 
-    public ReadAuthorWorker(SamlibService service, Author authors) {
+    public ReadAuthorWorker(BookDownloadService service, Author authors) {
         this.service = service;
         this.authors = authors;
     }

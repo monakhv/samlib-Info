@@ -40,12 +40,12 @@ import java.util.Locale;
  *
  * Created by monakhv on 16.02.16.
  */
-public class SamlibSearchService {
-    private static final String DEBUG_TAG = "SamlibSearchService";
+public class AuthorSearchService {
+    private static final String DEBUG_TAG = "AuthorSearchService";
     final private HttpClientController mHttpClientController;
     final private AbstractSettings mSettings;
 
-    public SamlibSearchService(HttpClientController httpClientController, AbstractSettings settings) {
+    public AuthorSearchService(HttpClientController httpClientController, AbstractSettings settings) {
         mHttpClientController = httpClientController;
         mSettings = settings;
     }

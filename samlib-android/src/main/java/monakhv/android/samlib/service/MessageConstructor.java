@@ -26,7 +26,7 @@ import monakhv.android.samlib.data.SettingsHelper;
 import monakhv.samlib.db.entity.Author;
 import monakhv.samlib.service.GuiUpdateObject;
 import monakhv.samlib.service.Result;
-import monakhv.samlib.service.SamlibUpdateProgress;
+import monakhv.samlib.service.AuthorUpdateProgress;
 
 /**
  * Make display messages and notifications
@@ -95,7 +95,7 @@ public class MessageConstructor {
      * Show Progress update Notification
      * @param progress current progress state
      */
-    public void updateNotification(SamlibUpdateProgress progress) {
+    public void updateNotification(AuthorUpdateProgress progress) {
         if (mProgressNotification == null) {
             mProgressNotification = new ProgressNotification(mSettingsHelper, "text");
         }

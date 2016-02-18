@@ -1,6 +1,6 @@
 package monakhv.samlib.desk.workers;
 
-import monakhv.samlib.service.SamlibService;
+import monakhv.samlib.service.BookDownloadService;
 
 import javax.swing.*;
 
@@ -22,10 +22,10 @@ import javax.swing.*;
  * 16.07.15.
  */
 public class LoadBookWorker extends SwingWorker<Void,Void>{
-    private SamlibService service;
+    private BookDownloadService service;
     private long book_id;
 
-    public LoadBookWorker(SamlibService service, long book_id) {
+    public LoadBookWorker(BookDownloadService service, long book_id) {
         this.service = service;
         this.book_id = book_id;
     }

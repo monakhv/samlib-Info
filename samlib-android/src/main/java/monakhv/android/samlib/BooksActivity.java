@@ -17,7 +17,6 @@ package monakhv.android.samlib;
 
 
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.os.Bundle;
 
 
@@ -41,7 +40,6 @@ public class BooksActivity extends MyAbstractAnimActivity implements BookFragmen
     private static final String DEBUG_TAG = "BooksActivity";
     private static final int TAGS_ACTIVITY = 21;
     private long author_id = 0;
-    private DownloadReceiver receiver;
     private BookFragment mBookFragment;
 
 
@@ -77,6 +75,12 @@ public class BooksActivity extends MyAbstractAnimActivity implements BookFragmen
 
         mBookFragment = (BookFragment) getSupportFragmentManager().findFragmentById(R.id.listBooksFragment);
         mBookFragment.setHasOptionsMenu(true);
+
+        Subscription bookSubscription = getBus().getObservable()
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeOn(Schedulers.newThread())
+                .subscribe(mBookFragment.mSubscriber);
+        addSubscription(bookSubscription);
 
     }
 
@@ -118,14 +122,10 @@ public class BooksActivity extends MyAbstractAnimActivity implements BookFragmen
     }
 
 
-    private Subscription mBookSubscription;
     @Override
     protected void onResume() {
         super.onResume();
-        mBookSubscription=getBus().getObservable()
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribeOn(Schedulers.newThread())
-                .subscribe(mBookFragment.mSubscriber);
+
 
 
 
@@ -144,11 +144,6 @@ public class BooksActivity extends MyAbstractAnimActivity implements BookFragmen
         }
 
 
-        receiver = new DownloadReceiver(mBookFragment, getAuthorController().getBookController());
-        IntentFilter filter = new IntentFilter(DownloadReceiver.ACTION_RESP);
-        filter.addCategory(Intent.CATEGORY_DEFAULT);
-        registerReceiver(receiver, filter);
-
 
 
     }
@@ -156,8 +151,6 @@ public class BooksActivity extends MyAbstractAnimActivity implements BookFragmen
     @Override
     protected void onPause() {
         super.onPause();
-        unregisterReceiver(receiver);
-        mBookSubscription.unsubscribe();
     }
 
 

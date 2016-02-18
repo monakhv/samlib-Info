@@ -195,7 +195,7 @@ public class SamlibPreferencesFragment extends PreferenceFragment
         //if http instance already exist make sure we have right proxy settings
         final SamlibApplication samlibApplication= (SamlibApplication) getActivity().getApplication();
 
-        samlibApplication.getApplicationComponent().getHttpClientController().setProxy(mCallbacks.getSettingsHelper().getProxy());
+        samlibApplication.getApplicationComponent().getHttpClientController().setProxyData(mCallbacks.getSettingsHelper().getProxy());
         Log.d(DEBUG_TAG, "onPause");
         getPreferenceScreen().getSharedPreferences().unregisterOnSharedPreferenceChangeListener(this);
 

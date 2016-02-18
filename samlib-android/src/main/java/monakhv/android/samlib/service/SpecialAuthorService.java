@@ -25,17 +25,18 @@ import monakhv.samlib.db.AuthorController;
 import monakhv.samlib.db.entity.Author;
 import monakhv.samlib.db.entity.Book;
 import monakhv.samlib.http.HttpClientController;
+import monakhv.samlib.service.AuthorUpdateService;
 import monakhv.samlib.service.GuiEventBus;
-import monakhv.samlib.service.SamlibUpdateService;
 
 import javax.inject.Inject;
 
 /**
- * Version of SamlibService where we can download books after update
+ * Version of BookDownloadService where we can download books after update
  * Created by monakhv on 18.01.16.
  */
-public class SpecialSamlibService extends SamlibUpdateService {
-    private final static String DEBUG_TAG="SpecialSamlibService";
+@SuppressWarnings("Convert2streamapi")
+public class SpecialAuthorService extends AuthorUpdateService {
+    private final static String DEBUG_TAG="SpecialAuthorService";
 
     private final SettingsHelper mSettingsHelper;
     private final AuthorController mAuthorController;
@@ -43,7 +44,7 @@ public class SpecialSamlibService extends SamlibUpdateService {
     private boolean callerIsReceiver=true;
 
     @Inject
-    public SpecialSamlibService(AuthorController authorController, SettingsHelper settings, HttpClientController httpClientController, GuiEventBus guiEventBus,DataExportImport exportImport){
+    public SpecialAuthorService(AuthorController authorController, SettingsHelper settings, HttpClientController httpClientController, GuiEventBus guiEventBus, DataExportImport exportImport){
         super(authorController, settings, httpClientController, guiEventBus);
         mAuthorController=authorController;
         mSettingsHelper=settings;
@@ -61,7 +62,9 @@ public class SpecialSamlibService extends SamlibUpdateService {
             for (Book book : mAuthorController.getBookController().getBooksByAuthor(a)) {//book cycle for the author to update
                 if (book.isIsNew() && mSettingsHelper.testAutoLoadLimit(book) && mDataExportImport.needUpdateFile(book)) {
                     monakhv.samlib.log.Log.i(DEBUG_TAG, "loadBook: Auto Load book: " + book.getId());
-                    DownloadBookServiceIntent.start(mSettingsHelper.getContext(), book.getId(), callerIsReceiver);//we do not need GUI update
+
+
+                    DownloadBookService.start(mSettingsHelper.getContext(), book);//we do not need GUI update
                 }
             }
 
