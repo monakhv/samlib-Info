@@ -95,7 +95,7 @@ limitations under the License.
 
     <string name="del_success">Автор удалён</string>
     <string name="del_error">Ошибка удаления автора</string>
-
+    <string name="no_such_application_to_view">У Вас нет приложения для просмотра данного типа файлов!</string>
     
     <string name="author_search_error">Ошибка поиска</string>
     <string name="author_search_empty">Ничего не найдено</string>

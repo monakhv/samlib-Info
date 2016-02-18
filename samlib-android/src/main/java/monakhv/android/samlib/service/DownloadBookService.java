@@ -53,6 +53,7 @@ public class DownloadBookService extends MyService {
         if (book_id>0){
             Book book = getAuthorController().getBookController().getById(book_id);
             final Subscription subscription=getBookDownloadService().downloadBook(book)
+                    .onBackpressureBuffer()
                     .subscribe(new Subscriber<Integer>() {
                         @Override
                         public void onCompleted() {

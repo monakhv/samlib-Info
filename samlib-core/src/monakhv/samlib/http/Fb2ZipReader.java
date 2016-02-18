@@ -35,8 +35,8 @@ import java.util.zip.ZipInputStream;
 /**
  *
  *  Y = A*X +B
- *  A = 1.78
- *  B=-8.1
+ *  A =0.56
+ *  B=4.55
  */
 public class Fb2ZipReader implements HttpClientController.PageReader {
     private static final String DEBUG_TAG="Fb2ZipReader";
@@ -70,7 +70,7 @@ public class Fb2ZipReader implements HttpClientController.PageReader {
                 while ((count = zipInp.read(buffer, 0, BUFFER_SIZE)) != -1) {
                     bufferedOutputStream.write(buffer, 0, count);
                     size+=count;
-                    report=100*(1.78*size-8.1)/1024/mSize;
+                    report=100*(0.56*size/1024.+4.55)/mSize;
                     mSubject.onNext((int) report);
                 }
                 bufferedOutputStream.flush();
@@ -83,6 +83,7 @@ public class Fb2ZipReader implements HttpClientController.PageReader {
         zipInp.close();
         size=size/1024.;
         Log.d(DEBUG_TAG,"total size: "+size);
+        Log.d(DEBUG_TAG,"size: "+((double ) (0.56*size+4.55))+"   book size "+mSize);
         return null;
     }
 }

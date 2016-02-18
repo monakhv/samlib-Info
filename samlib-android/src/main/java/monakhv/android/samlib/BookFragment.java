@@ -37,6 +37,7 @@ import monakhv.samlib.db.entity.SamLibConfig;
 import monakhv.samlib.log.Log;
 import rx.Subscriber;
 import rx.Subscription;
+import rx.android.schedulers.AndroidSchedulers;
 
 import java.util.List;
 
@@ -528,7 +529,10 @@ public class BookFragment extends MyBaseAbstractFragment implements
             progress.show();
             //DownloadBookService.start(getActivity(), book.getId(), false);
 
-            final Subscription subscription=getBookDownloadService().downloadBook(book).subscribe(getBookDownloadProgress());
+            final Subscription subscription=getBookDownloadService().downloadBook(book)
+                    .onBackpressureBuffer()
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(getBookDownloadProgress());
             addSubscription(subscription);
         } else {
 
@@ -548,6 +552,7 @@ public class BookFragment extends MyBaseAbstractFragment implements
             @Override
             public void onError(Throwable e) {
                 progress.dismiss();
+                Log.e(DEBUG_TAG,"onError",e);
                 Toast toast = Toast.makeText(getActivity(), getActivity().getText(R.string.download_book_error), Toast.LENGTH_SHORT);
                 toast.show();
             }
@@ -591,6 +596,11 @@ public class BookFragment extends MyBaseAbstractFragment implements
         launchBrowser.setAction(android.content.Intent.ACTION_VIEW);
         launchBrowser.setDataAndType(Uri.parse(url), book.getFileMime());
 
+        if (launchBrowser.resolveActivity(getActivity().getPackageManager())==null){
+            Toast toast=Toast.makeText(getContext(),getString(R.string.no_such_application_to_view),Toast.LENGTH_SHORT);
+            toast.show();
+            return;
+        }
 
         if (getSettingsHelper().getAutoMarkFlag()) {
             adapter.makeRead(selected_position);

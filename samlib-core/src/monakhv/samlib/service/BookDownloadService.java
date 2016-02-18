@@ -48,9 +48,9 @@ public class BookDownloadService {
     }
 
 
-    public Observable<Integer> downloadBook(Book book) {
+    public Observable<Integer> downloadBook(final Book book) {
 
-        Subject<Integer,Integer> subject= new SerializedSubject<>(PublishSubject.<Integer>create());
+        final Subject<Integer,Integer> subject= new SerializedSubject<>(PublishSubject.<Integer>create());
 
         Thread thread = new Thread() {
             @Override
