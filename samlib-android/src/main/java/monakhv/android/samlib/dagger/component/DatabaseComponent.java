@@ -24,7 +24,10 @@ import monakhv.android.samlib.dagger.DatabaseScope;
 import monakhv.android.samlib.dagger.module.DatabaseModule;
 import monakhv.android.samlib.dagger.module.ServiceModule;
 import monakhv.android.samlib.data.backup.AuthorStatePrefs;
+import monakhv.android.samlib.service.SpecialAuthorService;
 import monakhv.samlib.db.AuthorController;
+import monakhv.samlib.service.SamlibOperation;
+import monakhv.samlib.service.AuthorUpdateService;
 
 /**
  * Component for database module
@@ -35,5 +38,8 @@ import monakhv.samlib.db.AuthorController;
 public interface DatabaseComponent {
     ServiceComponent plus(ServiceModule module);
     AuthorController getAuthorController();
+    SamlibOperation getSamlibOperation();
+    AuthorUpdateService getSamLibUpdateService();
     AuthorStatePrefs getAuthorStatePrefs();
+    SpecialAuthorService getSpecialSamlibService();
 }

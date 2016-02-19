@@ -5,22 +5,19 @@ import android.graphics.Color;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 import monakhv.android.samlib.R;
-import monakhv.android.samlib.animation.Flip3D;
-import monakhv.android.samlib.animation.FlipIcon;
 import monakhv.android.samlib.awesome.FontManager;
 import monakhv.android.samlib.awesome.TextLabel;
 import monakhv.samlib.db.entity.Author;
+import monakhv.samlib.log.Log;
 
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 import java.util.Locale;
 
 /*
@@ -48,13 +45,11 @@ public class AuthorAdapter extends RecyclerAdapter<Author, AuthorAdapter.AuthorV
    // private Calendar now;
 
 
-    private final List<RecyclerView> mRecyclerViews;
-
 
     public AuthorAdapter(RecyclerAdapter.CallBack callBack) {
         super(callBack);
 
-        mRecyclerViews=new ArrayList<>();
+        setHasStableIds(true);
         df = new SimpleDateFormat(DATE_FORMAT, Locale.FRANCE);
      //   now = Calendar.getInstance();
     }
@@ -75,54 +70,15 @@ public class AuthorAdapter extends RecyclerAdapter<Author, AuthorAdapter.AuthorV
 
 
 
-//        if ((now.getTimeInMillis() - dd) < YEAR) {
-//            oldBookResource = (R.drawable.author_old);
-//        } else {
-//            oldBookResource = (R.drawable.author_very_old);
-//        }
-        Flip3D.animationFlip3DListener listener;
         if (isNew) {
             holder.authorName.setTypeface(Typeface.DEFAULT_BOLD);
-            listener = new Flip3D.animationFlip3DListener() {
-                @Override
-                public void onStart() {
+            holder.flipIcon.setImageDrawable(holder.newAuthorImage);
+            holder.flipIcon.setTag(1);
 
-                }
-
-                @Override
-                public boolean canStart() {
-                    return true;
-                }
-
-                @Override
-                public void onEnd() {
-                    Log.i(DEBUG_TAG, "Making Author read!");
-                    mCallBack.makeNewFlip(author.getId());
-                }
-
-            };
-            holder.flipIcon.setData(holder.newAuthorImage, holder.oldAuthorImage, listener, false);
         } else {
             holder.authorName.setTypeface(Typeface.DEFAULT);
-            listener = new Flip3D.animationFlip3DListener() {
-                @Override
-                public void onStart() {
-
-                }
-                @Override
-                public boolean canStart() {
-                    return true;
-                }
-
-                @Override
-                public void onEnd() {
-                    Log.i(DEBUG_TAG, "Making Author new!!");
-//                    sql.getBookController().markUnRead(book);
-//                    Author a = sql.getByBook(book);
-//                    sql.testMarkRead(a);
-                }
-            };
-            holder.flipIcon.setData(holder.oldAuthorImage, holder.newAuthorImage, listener, false);
+            holder.flipIcon.setImageDrawable(holder.oldAuthorImage);
+            holder.flipIcon.setTag(0);
         }
 
         holder.tgnames.setText(author.getAll_tags_name());
@@ -146,24 +102,62 @@ public class AuthorAdapter extends RecyclerAdapter<Author, AuthorAdapter.AuthorV
             return;
         }
         if (author.isIsNew()) {
-            RecyclerView.ViewHolder viewHolder=mRecyclerViews.get(0).findViewHolderForAdapterPosition(getSelectedPosition());
-            final AuthorViewHolder authorViewHolder;
-            if (viewHolder instanceof AuthorViewHolder){
-                authorViewHolder = (AuthorViewHolder) viewHolder;
-            }
-            else {
-                authorViewHolder=null;
-            }
-            if (authorViewHolder != null) {
-                authorViewHolder.flipIcon.makeFlip();
-            } else {
-                mCallBack.makeNewFlip(author.getId());
-            }
+            mCallBack.makeNewFlip(author);
             toggleSelection(NOT_SELECTED,false);//clean selection
         }
 
 
     }
+
+    @Override
+    public long getItemId(int position) {
+        return mData.get(position).getId();
+    }
+
+
+    public void add(Author author,int sort){
+        mData.add(sort,author);
+        notifyItemInserted(sort);
+    }
+    public void remove(int idx){
+        mData.remove(idx);
+        notifyItemRemoved(idx);
+    }
+
+    /**
+     *  Change reflection of Item by the data of the Author
+     * @param author  Author
+     * @param sort position to change
+     */
+    public void notifyChange(Author author, int sort){
+        if (mData==null){
+            return;
+        }
+
+        int idx = mData.indexOf(author);
+
+        if (idx != -1 && sort != -1 && idx !=sort){
+            mData.remove(idx);
+            mData.add(sort,author);
+//            notifyItemRemoved(idx);
+//            notifyItemInserted(sort);
+            notifyItemMoved(idx,sort);
+            notifyItemChanged(sort);
+            Log.d(DEBUG_TAG,"notifyChange: make move: "+idx+" to: "+sort );
+            return;
+        }
+
+        if (idx != -1){
+            mData.set(idx,author);
+            notifyItemChanged(idx);
+            Log.d(DEBUG_TAG,"notifyChange: in-place update" );
+            return;
+        }
+
+        Log.e(DEBUG_TAG,"notifyChange: wrong index: "+idx );
+
+    }
+
 
     /**
      * Find item with given id and select it
@@ -182,22 +176,12 @@ public class AuthorAdapter extends RecyclerAdapter<Author, AuthorAdapter.AuthorV
         return NOT_SELECTED;
     }
 
-    @Override
-    public void onAttachedToRecyclerView(RecyclerView recyclerView) {
-        super.onAttachedToRecyclerView(recyclerView);
-        mRecyclerViews.add(recyclerView);
-    }
 
-    @Override
-    public void onDetachedFromRecyclerView(RecyclerView recyclerView) {
-        super.onDetachedFromRecyclerView(recyclerView);
-        mRecyclerViews.remove(recyclerView);
-    }
 
     public static class AuthorViewHolder extends RecyclerView.ViewHolder {
         //{R.id.authorName, R.id.updated, R.id.icon, R.id.tgnames, R.id.authorURL};
         public TextView authorName, updatedData, tgnames, authorURL;
-        public FlipIcon flipIcon;
+        public ImageView flipIcon;
         public Drawable oldAuthorImage, newAuthorImage;
 
 
@@ -210,7 +194,7 @@ public class AuthorAdapter extends RecyclerAdapter<Author, AuthorAdapter.AuthorV
             tgnames = (TextView) itemView.findViewById(R.id.tgnames);
             authorURL = (TextView) itemView.findViewById(R.id.authorURL);
 
-            flipIcon = (FlipIcon) itemView.findViewById(R.id.FlipIcon);
+            flipIcon = (ImageView) itemView.findViewById(R.id.FlipIcon);
             final Context context=itemView.getContext();
             newAuthorImage = TextLabel.builder()
                     .beginConfig()

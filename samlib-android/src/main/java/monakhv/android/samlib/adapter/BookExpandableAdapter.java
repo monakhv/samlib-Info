@@ -22,7 +22,6 @@ import android.app.Activity;
 import android.content.Context;
 import android.graphics.Typeface;
 import android.support.annotation.NonNull;
-import android.support.v7.widget.RecyclerView;
 import android.text.Html;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -31,50 +30,52 @@ import com.bignerdranch.expandablerecyclerview.Adapter.ExpandableRecyclerAdapter
 import com.bignerdranch.expandablerecyclerview.Model.ParentListItem;
 import com.bignerdranch.expandablerecyclerview.Model.ParentWrapper;
 import monakhv.android.samlib.R;
-import monakhv.android.samlib.animation.Flip3D;
 import monakhv.android.samlib.data.SettingsHelper;
 import monakhv.samlib.db.entity.Book;
+import monakhv.samlib.db.entity.GroupBook;
 import monakhv.samlib.db.entity.SamLibConfig;
 import monakhv.samlib.log.Log;
 
-import java.util.ArrayList;
+
 import java.util.List;
 
 /**
  * Base on this
  * https://github.com/bignerdranch/expandable-recycler-view
  * https://www.bignerdranch.com/blog/expand-a-recyclerview-in-four-steps/
- * <p/>
+ * <p>
  * Created by monakhv on 28.12.15.
  */
 public class BookExpandableAdapter extends ExpandableRecyclerAdapter<GroupViewHolder, BookViewHolder> {
-    public interface CallBack {
-        void makeNewFlip(int id);
 
-        Book reloadBook(int id);
+    public interface CallBack {
+        void makeBookNewFlip(Book book);
+
+        void makeGroupNewFlip(GroupBook groupBook);
     }
 
     private static final String DEBUG_TAG = "BookExpandableAdapter";
     public static final int NOT_SELECTED = -1;
     private int selected = NOT_SELECTED;
+    public static final int TYPE_PARENT = 0;
+    private static final int TYPE_CHILD = 1;
 
 
     private final LayoutInflater mInflater;
     private final SettingsHelper mSettingsHelper;
+    private final int maxGroupId;
     private long author_id;
     private Context mContext;
     protected CallBack mCallBack;
-    private boolean mAnimationRunning = false;
-    private List<RecyclerView> mRecyclerViews;
 
-    public BookExpandableAdapter(@NonNull List<? extends ParentListItem> parentItemList, Activity context, CallBack callBack, SettingsHelper settingsHelper) {
+    public BookExpandableAdapter(@NonNull List<? extends ParentListItem> parentItemList, int maxGroupId, Activity context, CallBack callBack, SettingsHelper settingsHelper) {
         super(parentItemList);
-
+        this.maxGroupId = maxGroupId;
         mInflater = LayoutInflater.from(context);
         mCallBack = callBack;
         mContext = context;
         mSettingsHelper = settingsHelper;
-        mRecyclerViews = new ArrayList<>();
+        setHasStableIds(true);
     }
 
     public void setAuthor_id(long author_id) {
@@ -89,10 +90,9 @@ public class BookExpandableAdapter extends ExpandableRecyclerAdapter<GroupViewHo
     }
 
     @Override
-    public void onBindParentViewHolder(GroupViewHolder groupViewHolder, final int position, ParentListItem parentListItem) {
+    public void onBindParentViewHolder(GroupViewHolder groupViewHolder, int position, ParentListItem parentListItem) {
         GroupListItem gi = (GroupListItem) parentListItem;
         groupViewHolder.groupTitle.setText(gi.getName());
-        groupViewHolder.position = position;
 
 
         if (gi.getName() == null || gi.getChildItemList().isEmpty()) {
@@ -108,10 +108,14 @@ public class BookExpandableAdapter extends ExpandableRecyclerAdapter<GroupViewHo
             if (gi.newNumber == 0) {
                 groupViewHolder.groupTitle.setTypeface(Typeface.DEFAULT);
                 groupViewHolder.bookNumber.setText(mContext.getString(R.string.group_book_number) + " " + gi.getChildItemList().size());
-                groupViewHolder.newIcon.setData(groupViewHolder.oldGroupImage, groupViewHolder.newGroupImage, groupViewHolder.listener, false);
+                groupViewHolder.newIcon.setImageDrawable(groupViewHolder.oldGroupImage);
+                groupViewHolder.newIcon.setTag(0);
+                //.setData(groupViewHolder.oldGroupImage, groupViewHolder.newGroupImage, groupViewHolder.listener, false);
             } else {
                 groupViewHolder.groupTitle.setTypeface(Typeface.DEFAULT_BOLD);
-                groupViewHolder.newIcon.setData(groupViewHolder.newGroupImage, groupViewHolder.oldGroupImage, groupViewHolder.listener, false);
+                groupViewHolder.newIcon.setImageDrawable(groupViewHolder.newGroupImage);
+                groupViewHolder.newIcon.setTag(1);
+                //.setData(groupViewHolder.newGroupImage, groupViewHolder.oldGroupImage, groupViewHolder.listener, false);
                 groupViewHolder.bookNumber.setText(mContext.getString(R.string.group_book_number) + " " + gi.getChildItemList().size()
                         + " "
                         + mContext.getString(R.string.group_book_number_new)
@@ -134,10 +138,19 @@ public class BookExpandableAdapter extends ExpandableRecyclerAdapter<GroupViewHo
     @Override
     public BookViewHolder onCreateChildViewHolder(ViewGroup viewGroup) {
         View v = mInflater.inflate(R.layout.book_row_anim, viewGroup, false);
-        return new BookViewHolder(v);
+        return new BookViewHolder(v, this);
 
     }
 
+    public void flipCollapse(int position) {
+        ParentWrapper parentWrapper = (ParentWrapper) mItemList.get(position);
+
+        if (parentWrapper.isExpanded()) {
+            collapseParent(parentWrapper.getParentListItem());
+        } else {
+            expandParent(parentWrapper.getParentListItem());
+        }
+    }
 
     @SuppressWarnings("deprecation")
     @Override
@@ -176,59 +189,15 @@ public class BookExpandableAdapter extends ExpandableRecyclerAdapter<GroupViewHo
         }
 
         holder.bookForm.setText(book.getForm());
-
-
-        Flip3D.animationFlip3DListener listener;
-
-
         if (book.isIsNew()) {
             holder.bookTitle.setTypeface(Typeface.DEFAULT_BOLD);
-            listener = new Flip3D.animationFlip3DListener() {
-                @Override
-                public void onStart() {
-                    Log.i(DEBUG_TAG, "Making book read: " + book.getUri());
-                    mAnimationRunning = true;
-                    mCallBack.makeNewFlip(book.getId());
-                }
-
-                @Override
-                public boolean canStart() {
-                    return !mAnimationRunning;
-                }
-
-                @Override
-                public void onEnd() {
-                    mAnimationRunning = false;
-                    makeCleanNew(book);
-                }
-            };
-            holder.flipIcon.setData(holder.openBook, holder.closeBook, listener, true);
+            holder.flipIcon.setImageDrawable(holder.openBook);
+            holder.flipIcon.setTag(1);
 
         } else {
             holder.bookTitle.setTypeface(Typeface.DEFAULT);
-            listener = new Flip3D.animationFlip3DListener() {
-                @Override
-                public void onStart() {
-                    Log.i(DEBUG_TAG, "Making book new: " + book.getUri());
-                    mCallBack.makeNewFlip(book.getId());
-                    mAnimationRunning = true;
-                }
-
-                @Override
-                public boolean canStart() {
-                    return !mAnimationRunning;
-                }
-
-                @Override
-                public void onEnd() {
-                    mAnimationRunning = false;
-                    makeSetNew(book);
-
-                }
-            };
-
-            holder.flipIcon.setData(holder.closeBook, holder.openBook, listener, true);
-
+            holder.flipIcon.setImageDrawable(holder.closeBook);
+            holder.flipIcon.setTag(0);
         }
         holder.itemView.setActivated(position == getSelectedPosition());
 
@@ -249,94 +218,101 @@ public class BookExpandableAdapter extends ExpandableRecyclerAdapter<GroupViewHo
             holder.lockIcon.setVisibility(View.GONE);
         }
 
+    }
+
+    @Override
+    public long getItemId(int position) {
+        int iType = getItemViewType(position);
+        Object o = mItemList.get(position);
+        if (iType == TYPE_PARENT) {
+            ParentWrapper pw = (ParentWrapper) o;
+            ParentListItem parentListItem = pw.getParentListItem();
+            GroupListItem gi = (GroupListItem) parentListItem;
+            return gi.getId();
+        }
+        if (iType == TYPE_CHILD) {
+            Book book = (Book) o;
+            return maxGroupId + book.getId();
+        }
+        throw new IllegalStateException("getItemId: Incorrect ViewType found");
+    }
+
+    public void updateData(GroupListItem groupListItem, int sort) {
+
+        //TODO: group Move is not implemented yet
+        if (groupListItem.getId() == -1) {
+            Log.d(DEBUG_TAG, "change parent: 0!");
+            ParentListItem parentListItem = getParentItemList().get(0);
+            GroupListItem gi = (GroupListItem) parentListItem;
+            gi.newNumber = 0;
+            gi.setChildItemList(groupListItem.getChildItemList());
+            notifyParentItemChanged(0);
+        } else {
+            int parentListItemCount = getParentItemList().size();
+            for (int i = 0; i < parentListItemCount; i++) {
+                ParentListItem parentListItem = getParentItemList().get(i);
+                GroupListItem gi = (GroupListItem) parentListItem;
+
+                if (gi.getId() == groupListItem.getId()) {
+                    gi.setChildItemList(groupListItem.getChildItemList());
+                    gi.newNumber = groupListItem.newNumber;
+                    Log.d(DEBUG_TAG, "change parent: " + i);
+                    notifyParentItemChanged(i);
+                    return;
+                }
+            }
+
+        }
+
 
     }
 
-    /**
-     * make update book List view
-     *
-     * @param book  book was changed
-     * @param isNew true - set "new" mark or false to clean "new" mark
-     */
-    private void updateBook(Book book, boolean isNew) {
-
+    public void updateData(Book book, GroupBook group, int sort) {
         int parentListItemCount = getParentItemList().size();
-        Log.i(DEBUG_TAG, "updateBook: parent list size:  " + parentListItemCount);
+        Log.i(DEBUG_TAG, "updateData: parent list size:  " + parentListItemCount);
         ParentListItem parentListItem;
+
+        int iParent;
+        if (group == null) {
+            iParent = -1;
+        } else {
+            iParent = group.getId();
+        }
+
+
         for (int i = 0; i < parentListItemCount; i++) {
             parentListItem = getParentItemList().get(i);
             GroupListItem gi = (GroupListItem) parentListItem;
-
-            int idx = gi.getChildItemList().indexOf(book);
-            if (idx != -1) {
-                if (isNew) {
-                    ++gi.newNumber;
-                } else {
-                    if (gi.newNumber > 0) {
+            if (gi.getId() == iParent) {
+                if (group == null) {
+                    if (book.isIsNew()) {
+                        ++gi.newNumber;
+                    } else {
                         --gi.newNumber;
                     }
-                }
-
-
-                Log.d(DEBUG_TAG, "updateBook: update parent: " + i + "  update child: " + idx + " -- " + getParentWrapperIndex(i));
-                gi.getChildItemList().set(idx, book);
-                //notifyChildItemChanged(i, idx);
-
-                RecyclerView.ViewHolder viewHolder = mRecyclerViews.get(0).findViewHolderForAdapterPosition(getParentWrapperIndex(i));
-                final GroupViewHolder groupViewHolder;
-                if (viewHolder instanceof GroupViewHolder) {
-                    groupViewHolder = (GroupViewHolder) viewHolder;
-                    groupViewHolder.position = i;
                 } else {
-                    groupViewHolder = null;
-                    Log.e(DEBUG_TAG, "updateBook: group holder is wrong");
+                    gi.load(group);
                 }
 
-                if ((groupViewHolder != null) && (
-                        (isNew && gi.newNumber == 1) || (!isNew && gi.newNumber == 0)
-                )
-                        ) {
-                    groupViewHolder.newIcon.makeFlip();
-                    Log.d(DEBUG_TAG, "updateBook: parent animation: " + isNew + "  " + i + "  " + gi.newNumber);
+                int idx = gi.getChildItemList().indexOf(book);
+                if (idx != -1) {
+                    if (sort == -1) {
+                        gi.getChildItemList().set(idx, book);
+                        notifyParentItemChanged(i);
+                    } else {
+                        gi.getChildItemList().remove(idx);
+                        gi.getChildItemList().add(sort, book);
+
+                        notifyChildItemMoved(i, idx, sort);
+                        notifyParentItemChanged(i);
+                    }
+                    Log.d(DEBUG_TAG, "updateData: update parent: " + i + "  update child: " + idx + " -- " + getParentWrapperIndex(i));
                     return;
                 }
-
-                Log.d(DEBUG_TAG, "updateBook: parent NO animation: " + isNew + "  " + i + "  " + gi.newNumber);
-
-                notifyParentItemChanged(i);
-
-
-                //
-                return;
-
             }
 
-        }//end parent item cycle
-
-        Log.w(DEBUG_TAG, "updateBook: No book found to update!");
-    }
-
-    /**
-     * Clean New mark for book and its group
-     *
-     * @param b Book to clean new mark
-     */
-    private void makeCleanNew(Book b) {
-        Book book = mCallBack.reloadBook(b.getId());
-
-        updateBook(book, false);
-    }
-
-    /**
-     * Set new mark for book and its group
-     *
-     * @param b Book object to set new mark
-     */
-    private void makeSetNew(Book b) {
-        Book book = mCallBack.reloadBook(b.getId());
-
-
-        updateBook(book, true);
+        }
+        Log.w(DEBUG_TAG, "updateData: No book found to update!");
 
     }
 
@@ -406,6 +382,12 @@ public class BookExpandableAdapter extends ExpandableRecyclerAdapter<GroupViewHo
 
     }
 
+    /**
+     * Return the book for current position
+     *
+     * @param position the position for Book
+     * @return book or NULL if the position is not for Book object
+     */
     public Book getBook(int position) {
         if (position < 0) {
             return null;
@@ -419,30 +401,41 @@ public class BookExpandableAdapter extends ExpandableRecyclerAdapter<GroupViewHo
         return (Book) o;
     }
 
+    /**
+     * Make flip read of the Book  or nothing if the position is not For Book
+     *
+     * @param position the position for Book
+     */
     public void makeRead(int position) {
-
-        if (mAnimationRunning) {
-            return;//not start new animation when the previous not finished yet.
+        Book book = getBook(position);
+        if (book != null) {
+            mCallBack.makeBookNewFlip(book);
         }
-        if (getBook(position) != null) {
-            RecyclerView.ViewHolder viewHolder=mRecyclerViews.get(0).findViewHolderForAdapterPosition(position);
-            if (viewHolder instanceof BookViewHolder){
-                BookViewHolder bookViewHolder= (BookViewHolder) viewHolder;
-                bookViewHolder.flipIcon.makeFlip();
+    }
+
+
+    public void makeAllRead(int position) {
+        Object o = mItemList.get(position);
+
+        if (o instanceof Book) {
+            Book book = (Book) o;
+            if (!book.isIsNew()) {
+                return;
             }
+            mCallBack.makeBookNewFlip(book);
         }
-    }
-
-    @Override
-    public void onAttachedToRecyclerView(RecyclerView recyclerView) {
-        super.onAttachedToRecyclerView(recyclerView);
-        mRecyclerViews.add(recyclerView);
-    }
-
-    @Override
-    public void onDetachedFromRecyclerView(RecyclerView recyclerView) {
-        super.onDetachedFromRecyclerView(recyclerView);
-        mRecyclerViews.remove(recyclerView);
+        if (o instanceof ParentWrapper) {
+            Log.d(DEBUG_TAG, "makeAllRead: parent wrapper");
+            final ParentWrapper parentWrapper = (ParentWrapper) o;
+            final ParentListItem parentListItem = parentWrapper.getParentListItem();
+            final GroupListItem groupListItem = (GroupListItem) parentListItem;
+            if (groupListItem.newNumber == 0) {
+                Log.d(DEBUG_TAG, "makeAllRead: nothing to clean exiting");
+                return;
+            }
+            Log.d(DEBUG_TAG, "makeAllRead: call clean group: " + groupListItem.getName());
+            mCallBack.makeGroupNewFlip(groupListItem.getGroupBook());
+        }
     }
 
     private int getParentWrapperIndex(int parentIndex) {
@@ -460,4 +453,6 @@ public class BookExpandableAdapter extends ExpandableRecyclerAdapter<GroupViewHo
 
         return -1;
     }
+
+
 }

@@ -36,6 +36,7 @@ public class BookLoader extends AbstractLoader<GroupListItem> {
     private final long id;
     private final String order;
     private final Context mContext;
+    private int maxGroupId=-1;
 
     public BookLoader(final Context context, final AuthorController authorController, long id, String order) {
         super(context);
@@ -82,11 +83,16 @@ public class BookLoader extends AbstractLoader<GroupListItem> {
                     GroupListItem grr = new GroupListItem(groupBook);
                     grr.mChildItemList = mAuthorController.getBookController().getBookForGroup( groupBook, order);
                     res.add(grr);
+                    if (groupBook.getId()>maxGroupId){
+                        maxGroupId=groupBook.getId();
+                    }
                 }
             }
             return res;
         }
     }
 
-
+    public int getMaxGroupId() {
+        return maxGroupId;
+    }
 }

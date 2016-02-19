@@ -9,6 +9,12 @@ import monakhv.android.samlib.data.DataExportImport;
 import monakhv.android.samlib.data.SettingsHelper;
 import monakhv.android.samlib.sql.DatabaseHelper;
 import monakhv.samlib.db.AuthorController;
+import monakhv.samlib.service.GuiEventBus;
+import monakhv.samlib.service.SamlibOperation;
+import monakhv.samlib.service.AuthorSearchService;
+import monakhv.samlib.service.BookDownloadService;
+import rx.Subscription;
+import rx.subscriptions.CompositeSubscription;
 
 
 /*
@@ -31,11 +37,14 @@ import monakhv.samlib.db.AuthorController;
 public class MyBaseAbstractActivity extends AppCompatActivity implements MyBaseAbstractFragment.DaggerCaller {
     private volatile DatabaseHelper helper;
     private SamlibApplication mSamlibApplication;
+    private SamlibOperation mSamlibOperation;
+    private CompositeSubscription mCompositeSubscription;
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         mSamlibApplication=(SamlibApplication) getApplication();
         setTheme(mSamlibApplication.getSettingsHelper().getTheme());
         super.onCreate(savedInstanceState);
+        mCompositeSubscription = new CompositeSubscription();
 
     }
 
@@ -55,10 +64,32 @@ public class MyBaseAbstractActivity extends AppCompatActivity implements MyBaseA
     }
 
     @Override
-    public DatabaseHelper getDbHelper() {
-        return getDatabaseHelper();
+    public SamlibOperation getSamlibOperation() {
+        if (mSamlibOperation == null){
+            mSamlibOperation=getSamlibOperationInternal();
+        }
+        return mSamlibOperation;
     }
 
+    private SamlibOperation getSamlibOperationInternal() {
+        return mSamlibApplication.getDatabaseComponent(getDatabaseHelper()).getSamlibOperation();
+    }
+    @Override
+    public GuiEventBus getBus(){
+        return mSamlibApplication.getApplicationComponent().getGuiEventBus();
+    }
+    @Override
+    public AuthorSearchService getSearchService(){
+        return mSamlibApplication.getApplicationComponent().getSearchService();
+    }
+    @Override
+    public BookDownloadService getBookDownloadService(){
+        return mSamlibApplication.getApplicationComponent().getBookDownloadService();
+    }
+    @Override
+    public void addSubscription(Subscription subscription){
+        mCompositeSubscription.add(subscription);
+    }
     /**
      * Get a helper for this action.
      */
@@ -82,6 +113,12 @@ public class MyBaseAbstractActivity extends AppCompatActivity implements MyBaseA
         super.onDestroy();
         if (helper != null) {
             releaseHelper(helper);
+        }
+        if (mSamlibOperation != null){
+            mSamlibOperation=null;
+        }
+        if (mCompositeSubscription != null){
+            mCompositeSubscription.unsubscribe();
         }
         mSamlibApplication.releaseDatabaseComponent();
     }

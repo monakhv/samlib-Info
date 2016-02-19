@@ -33,6 +33,7 @@ import monakhv.android.samlib.data.DataExportImport;
 import monakhv.android.samlib.data.Logger;
 import monakhv.android.samlib.data.SettingsHelper;
 import monakhv.samlib.http.HttpClientController;
+import monakhv.samlib.service.GuiEventBus;
 
 import javax.inject.Singleton;
 
@@ -47,6 +48,7 @@ public class ApplicationModule {
     public ApplicationModule(Context context){
         mContext=context;
     }
+
 
     @Provides
     @Singleton

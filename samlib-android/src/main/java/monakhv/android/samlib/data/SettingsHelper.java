@@ -47,6 +47,7 @@ import monakhv.samlib.db.entity.Book;
 import monakhv.samlib.db.entity.SamLibConfig;
 import monakhv.samlib.http.ProxyData;
 import monakhv.samlib.log.Log;
+import rx.Subscription;
 
 
 /**

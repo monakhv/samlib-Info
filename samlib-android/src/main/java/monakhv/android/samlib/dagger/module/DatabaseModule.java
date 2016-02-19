@@ -22,12 +22,17 @@ package monakhv.android.samlib.dagger.module;
 import dagger.Module;
 import dagger.Provides;
 import monakhv.android.samlib.dagger.DatabaseScope;
+import monakhv.android.samlib.data.DataExportImport;
 import monakhv.android.samlib.data.SettingsHelper;
 import monakhv.android.samlib.data.backup.AuthorStatePrefs;
+import monakhv.android.samlib.service.SpecialAuthorService;
 import monakhv.android.samlib.sql.DatabaseHelper;
 import monakhv.android.samlib.tasks.AddAuthorRestore;
 import monakhv.samlib.db.AuthorController;
 import monakhv.samlib.http.HttpClientController;
+import monakhv.samlib.service.GuiEventBus;
+import monakhv.samlib.service.SamlibOperation;
+import monakhv.samlib.service.AuthorUpdateService;
 
 /**
  * Database Module
@@ -45,6 +50,25 @@ public class DatabaseModule {
     AuthorController providesAuthorController() {
         return new AuthorController(mDatabaseHelper);
     }
+
+    @Provides
+    @DatabaseScope
+    SamlibOperation providesSamlibOperation(AuthorController authorController, SettingsHelper settingsHelper, HttpClientController httpClientController, GuiEventBus bus){
+        return new SamlibOperation( authorController,settingsHelper,httpClientController,bus);
+    }
+
+    @Provides
+    @DatabaseScope
+    AuthorUpdateService providesSamlibUpdateService(AuthorController authorController, SettingsHelper settingsHelper, HttpClientController httpClientController, GuiEventBus bus){
+        return new AuthorUpdateService( authorController,settingsHelper,httpClientController,bus);
+    }
+
+    @Provides
+    @DatabaseScope
+    SpecialAuthorService providesSpecialSamlibService(AuthorController authorController, SettingsHelper settings, HttpClientController httpClientController, GuiEventBus guiEventBus, DataExportImport exportImport){
+        return new SpecialAuthorService( authorController,  settings,  httpClientController,  guiEventBus,  exportImport);
+    }
+
 
     @Provides
     @DatabaseScope

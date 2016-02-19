@@ -19,7 +19,6 @@ package monakhv.samlib.http;
 import java.io.*;
 
 import java.net.Authenticator;
-import java.net.Proxy;
 import java.net.SocketTimeoutException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -29,22 +28,25 @@ import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 
 
-import com.squareup.okhttp.OkHttpClient;
-import com.squareup.okhttp.Request;
-import com.squareup.okhttp.Response;
 import monakhv.samlib.data.AbstractSettings;
 import monakhv.samlib.db.entity.*;
 import monakhv.samlib.exception.*;
 import monakhv.samlib.log.Log;
+import okhttp3.Call;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
+import rx.subjects.Subject;
+
 
 /**
  * @author Dmitry Monakhov
- *         <p/>
+ *         <p>
  *         The Class make all internet connection for SamLib Info project. Must be call
  *         from Async tasks or Services only! Have 4 main method
- *         <p/>
+ *         <p>
  *         - addAuthor to add new Author to data base. The method is used by AuthorEditorServiceIntent
- *         <p/>
+ *         <p>
  *         - getAuthorByURL get Author object using http connection.The method is
  *         used by Update service
  *         - downloadBook to download book content to file in
@@ -53,9 +55,9 @@ import monakhv.samlib.log.Log;
  */
 public class HttpClientController {
 
-
     public interface PageReader {
         String doReadPage(InputStream in) throws IOException;
+
     }
 
     public static final int RETRY_LIMIT = 5;
@@ -64,40 +66,33 @@ public class HttpClientController {
     public static final String ENCODING = "windows-1251";
     protected static final String USER_AGENT = "Android reader";
     private static final String DEBUG_TAG = "HttpClientController";
-    private ProxyData proxy;
-    //private static HttpClientController instance = null;
-    private final SamLibConfig slc;
-    private final OkHttpClient httpclient;
+    private ProxyData mProxyData;
+    private final SamLibConfig mSamLibConfig;
 
-    private final AbstractSettings settingsHelper;
+    private final AbstractSettings mSettingsHelper;
+    private Call mCall;
 
-//    public static HttpClientController getInstance(AbstractSettings context) {
-//        if (instance == null) {
-//            instance = new HttpClientController(context);
-//        }
-//
-//        return instance;
-//    }
 
     public HttpClientController(AbstractSettings context) {
-        httpclient = new OkHttpClient();
-        slc = SamLibConfig.getInstance(context);
+        mSamLibConfig = SamLibConfig.getInstance(context);
 
-        settingsHelper = context;
-        proxy = settingsHelper.getProxy();
-        proxy = settingsHelper.getProxy();
-        setProxy(proxy);
+        mSettingsHelper = context;
+        mProxyData = mSettingsHelper.getProxy();
+        mProxyData = mSettingsHelper.getProxy();
+        setProxyData(mProxyData);
 
     }
 
     public void cancelAll() {
-        httpclient.cancel(DEBUG_TAG);
+        if (mCall != null) {
+            mCall.cancel();
+        }
     }
 
     /**
      * Construct Author object using reduced.
      * URL Internet connection is made using set of mirrors
-     * <p/>
+     * <p>
      * This is the method for update service
      *
      * @param link reduced URL
@@ -109,7 +104,7 @@ public class HttpClientController {
     public Author getAuthorByURL(String link, Author a) throws IOException, SamlibParseException, SamlibInterruptException {
 
         a.setUrl(link);
-        String str = getURL(slc.getAuthorIndexDate(a), new StringReader());
+        String str = getURL(mSamLibConfig.getAuthorIndexDate(a), new StringReader());
 
         parseAuthorIndexDateData(a, str);
         return a;
@@ -137,25 +132,25 @@ public class HttpClientController {
      * Save book to appropriate file and make file transformation to make it
      * readable by android applications like ALRead and CoolReader.
      * Internet connection is made using set of mirrors.
-     * <p/>
+     * <p>
      * This is the method for DownloadBook service
      *
      * @param book the book to download
      * @throws IOException          connection problem occurred
      * @throws SamlibParseException remote host return status other then 200
      */
-    public void downloadBook(Book book) throws IOException, SamlibParseException, SamlibInterruptException {
-        File f = settingsHelper.getBookFile(book, book.getFileType());
+    public void downloadBook(Book book,Subject<Integer, Integer> subject) throws IOException, SamlibParseException, SamlibInterruptException {
+        File f = mSettingsHelper.getBookFile(book, book.getFileType());
         PageReader reader;
         switch (book.getFileType()) {
             case HTML:
-                reader = new TextFileReader(f);
-                getURL(slc.getBookUrl(book), reader);
+                reader = new TextFileReader(f,book.getSize(),subject);
+                getURL(mSamLibConfig.getBookUrl(book), reader);
                 SamLibConfig.transformBook(f);
                 break;
             case FB2:
-                reader = new Fb2ZipReader(f);
-                getURL(slc.getBookUrl(book), reader);
+                reader = new Fb2ZipReader(f,book.getSize(),subject);
+                getURL(mSamLibConfig.getBookUrl(book), reader);
                 break;
             default:
                 throw new IOException();
@@ -176,9 +171,9 @@ public class HttpClientController {
     public HashMap<String, ArrayList<AuthorCard>> searchAuthors(String pattern, int page) throws IOException, SamlibParseException, SamlibInterruptException {
         String str;
         try {
-            str = getURL(slc.getSearchAuthorURL(pattern, page), new StringReader());
+            str = getURL(mSamLibConfig.getSearchAuthorURL(pattern, page), new StringReader());
         } catch (NullPointerException ex) {
-            Log.w(DEBUG_TAG,"searchAuthors: Search error for pattern: "+pattern,ex);
+            Log.w(DEBUG_TAG, "searchAuthors: Search error for pattern: " + pattern, ex);
             throw new SamlibParseException("Pattern: " + pattern);
         }
 
@@ -208,27 +203,26 @@ public class HttpClientController {
                 res = _getURL(url, reader);
             } catch (InterruptedIOException e) {
                 if (Thread.interrupted()) {
-                    Log.i(DEBUG_TAG,"getURL: thread is interrupted throw SamlibInterruptException",e);
+                    Log.i(DEBUG_TAG, "getURL: thread is interrupted throw SamlibInterruptException", e);
 
                     throw new SamlibInterruptException("getURL:InterruptedIOException");
                 }
-                if (e instanceof SocketTimeoutException){
-                    slc.flipOrder();
+                if (e instanceof SocketTimeoutException) {
+                    mSamLibConfig.flipOrder();
                     ioException = e;
-                    Log.i(DEBUG_TAG,"getURL: SocketTimeoutException make flip",e);
+                    Log.i(DEBUG_TAG, "getURL: SocketTimeoutException make flip", e);
 
-                }
-                else {
-                    Log.i(DEBUG_TAG,"getURL: thread is NOT interrupted throw InterruptedIOException",e);
+                } else {
+                    Log.i(DEBUG_TAG, "getURL: thread is NOT interrupted throw InterruptedIOException", e);
 
                     throw new InterruptedIOException("getURL:InterruptedIOException");
                 }
 
             } catch (IOException e) {
-                slc.flipOrder();
+                mSamLibConfig.flipOrder();
                 ioException = e;
                 if (Thread.interrupted()) {
-                    Log.i(DEBUG_TAG,"getURL:1 thread is interrupted throw SamlibInterruptException",e);
+                    Log.i(DEBUG_TAG, "getURL:1 thread is interrupted throw SamlibInterruptException", e);
 
                     throw new SamlibInterruptException("getURL:IOException");
                 }
@@ -236,7 +230,7 @@ public class HttpClientController {
                 Log.e(DEBUG_TAG, "getURL: IOException: " + sUrl, e);
 
             } catch (SamlibParseException e) {
-                slc.flipOrder();
+                mSamLibConfig.flipOrder();
                 samlibParseException = e;
                 Log.e(DEBUG_TAG, "AuthorParseException: " + sUrl, e);
 
@@ -308,10 +302,15 @@ public class HttpClientController {
      */
     private String __getURL(URL url, PageReader reader) throws IOException, SamLibIsBusyException, SamlibParseException {
 
+        final OkHttpClient client;
+        OkHttpClient.Builder builder = new OkHttpClient.Builder()
+                .connectTimeout(CONNECTION_TIMEOUT, TimeUnit.MILLISECONDS)
+                .readTimeout(READ_TIMEOUT, TimeUnit.MILLISECONDS);
 
-
-        httpclient.setConnectTimeout(CONNECTION_TIMEOUT, TimeUnit.MILLISECONDS);
-        httpclient.setReadTimeout(READ_TIMEOUT, TimeUnit.MILLISECONDS);
+        if (mProxyData != null) {
+            mProxyData.applyProxy(builder);
+        }
+        client = builder.build();
 
         Request request = new Request.Builder()
                 .url(url)
@@ -322,17 +321,12 @@ public class HttpClientController {
                 .build();
 
 
-        if (proxy != null) {
-            proxy.applyProxy(httpclient);
-        }
-        else {
-            httpclient.setProxy(Proxy.NO_PROXY);
-        }
+        mCall = client.newCall(request);
 
 
         Response response;
         try {
-            response = httpclient.newCall(request).execute();
+            response = mCall.execute();
             Log.d(DEBUG_TAG, "__getURL: Status Response: " + response.message());
 
         } catch (NullPointerException ex) {
@@ -358,19 +352,19 @@ public class HttpClientController {
 
     }
 
-    public void setProxy(ProxyData proxy1) {
-        proxy = proxy1;
+    public void setProxyData(ProxyData proxy1) {
+        mProxyData = proxy1;
         if (proxy1 == null) {
             cleanProxy();
-            return;
+
         }
-        Authenticator.setDefault(proxy1.getAuthenticator());
+        //Authenticator.setDefault(proxy1.getAuthenticator());
 
     }
 
     private void cleanProxy() {
         Authenticator.setDefault(null);
-        proxy = null;
+        mProxyData = null;
 
     }
 
@@ -380,34 +374,33 @@ public class HttpClientController {
      *
      * @param a    Author object to load data to
      * @param text String data to parse
-     *
      */
-    private void parseAuthorIndexDateData(Author a, String text)  {
+    private void parseAuthorIndexDateData(Author a, String text) {
         String[] lines = text.split("\n");
 
-        String authorName=null;
+        String authorName = null;
         List<GroupBook> groups = new ArrayList<>();
-        int iBooks=0;
+        int iBooks = 0;
         for (String line : lines) {
             Matcher nameMatcher = SamLibConfig.AUTHOR_NAME_PATTERN.matcher(line);
             Matcher bookMatcher = SamLibConfig.BOOK_PATTERN.matcher(line);
 
-            if (  (authorName == null)  && nameMatcher.find()){
-                authorName=nameMatcher.group(1);
-                Log.i(DEBUG_TAG,"Name = "+authorName);
+            if ((authorName == null) && nameMatcher.find()) {
+                authorName = nameMatcher.group(1);
+                Log.i(DEBUG_TAG, "Name = " + authorName);
             }
 
-            if (bookMatcher.find()){
+            if (bookMatcher.find()) {
                 ++iBooks;
-                Book book = new Book(a,bookMatcher);
-                GroupBook g=book.getGroupBook();
-                if (! groups.contains(g)){
+                Book book = new Book(a, bookMatcher);
+                GroupBook g = book.getGroupBook();
+                if (!groups.contains(g)) {
                     groups.add(g);
                 }
                 a.getBooks().add(book);
 
 
-                if (authorName != null){
+                if (authorName != null) {
                     book.setAuthorName(authorName);
                 }
             }
@@ -415,10 +408,9 @@ public class HttpClientController {
             //Log.i(DEBUG_TAG,line);
         }
         a.setGroupBooks(groups);
-        Log.i(DEBUG_TAG,"Books = "+iBooks);
+        Log.i(DEBUG_TAG, "Books = " + iBooks);
 
     }
-
 
 
     private HashMap<String, ArrayList<AuthorCard>> parseSearchAuthorData(String text) throws SamlibParseException {

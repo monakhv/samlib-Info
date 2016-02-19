@@ -23,8 +23,9 @@ import android.content.Context;
 import android.support.v4.app.Fragment;
 import monakhv.android.samlib.data.DataExportImport;
 import monakhv.android.samlib.data.SettingsHelper;
-import monakhv.android.samlib.sql.DatabaseHelper;
 import monakhv.samlib.db.AuthorController;
+import monakhv.samlib.service.*;
+import rx.Subscription;
 
 
 /**
@@ -36,7 +37,12 @@ public class MyBaseAbstractFragment extends Fragment {
         SettingsHelper getSettingsHelper();
         DataExportImport getDataExportImport();
         AuthorController getAuthorController();
-        DatabaseHelper getDbHelper();
+        SamlibOperation getSamlibOperation();
+        AuthorSearchService getSearchService();
+        GuiEventBus getBus();
+        BookDownloadService getBookDownloadService();
+        void addSubscription(Subscription subscription);
+
     }
     private DaggerCaller mDaggerCaller;
 
@@ -57,10 +63,13 @@ public class MyBaseAbstractFragment extends Fragment {
     protected SettingsHelper getSettingsHelper(){
         return mDaggerCaller.getSettingsHelper();
     }
-    protected DataExportImport getDataExportImport(){
-        return mDaggerCaller.getDataExportImport();
-    }
     protected AuthorController getAuthorController(){
         return mDaggerCaller.getAuthorController();
     }
+    protected SamlibOperation getSamlibOperation(){return  mDaggerCaller.getSamlibOperation();}
+    protected GuiEventBus getBus(){return  mDaggerCaller.getBus();}
+    protected AuthorSearchService getSearchService() {return mDaggerCaller.getSearchService();}
+    protected BookDownloadService getBookDownloadService(){return mDaggerCaller.getBookDownloadService();}
+    protected void addSubscription(Subscription subscription){mDaggerCaller.addSubscription(subscription);}
+
 }

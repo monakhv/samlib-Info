@@ -51,7 +51,7 @@ public class GroupListItem implements ParentListItem,Serializable {
 
     List<Book> mChildItemList;
 
-    GroupListItem(){
+    public GroupListItem(){
         name=null;
         initiallyExpanded=true;
         mGroupBook=new GroupBook();
@@ -59,6 +59,15 @@ public class GroupListItem implements ParentListItem,Serializable {
     }
 
     GroupListItem(GroupBook groupBook){
+        load(groupBook);
+    }
+
+    public GroupListItem(GroupBook groupBook, List<Book> childList) {
+        this(groupBook);
+        mChildItemList=childList;
+    }
+
+    public void load(GroupBook groupBook){
         mGroupBook=groupBook;
         name=mGroupBook.getDisplayName();
         initiallyExpanded=false;
@@ -66,13 +75,13 @@ public class GroupListItem implements ParentListItem,Serializable {
         hidden=groupBook.isHidden();
         id=groupBook.getId();
     }
-
-    GroupListItem(String name){
-        this.name=name;
-        initiallyExpanded=true;
-        mGroupBook=new GroupBook(null,name);
-        id=-2;
-    }
+//
+//    GroupListItem(String name){
+//        this.name=name;
+//        initiallyExpanded=true;
+//        mGroupBook=new GroupBook(null,name);
+//        id=-2;
+//    }
 
     @Override
     public boolean equals(Object o) {
@@ -101,6 +110,14 @@ public class GroupListItem implements ParentListItem,Serializable {
     @Override
     public List<Book> getChildItemList() {
         return mChildItemList;
+    }
+
+    public void setChildItemList(List<Book> childItemList) {
+        mChildItemList = childItemList;
+    }
+
+    public GroupBook getGroupBook() {
+        return mGroupBook;
     }
 
     @Override

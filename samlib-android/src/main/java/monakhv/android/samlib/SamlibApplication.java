@@ -30,7 +30,6 @@ import monakhv.android.samlib.dagger.module.ServiceModule;
 import monakhv.android.samlib.data.DataExportImport;
 import monakhv.android.samlib.data.Logger;
 import monakhv.android.samlib.data.SettingsHelper;
-import monakhv.android.samlib.service.UpdateObject;
 import monakhv.android.samlib.sql.DatabaseHelper;
 import monakhv.samlib.log.Log;
 
@@ -82,10 +81,7 @@ public class SamlibApplication extends Application {
         return dataExportImport;
     }
 
-    public ServiceComponent getServiceComponent(UpdateObject updateObject, DatabaseHelper databaseHelper) {
-        mServiceComponent=applicationComponent.plus(new DatabaseModule(databaseHelper)).plus(new ServiceModule(updateObject));
-        return mServiceComponent;
-    }
+
 
     public DatabaseComponent getDatabaseComponent(DatabaseHelper databaseHelper){
         mDatabaseComponent=applicationComponent.plus(new DatabaseModule(databaseHelper));

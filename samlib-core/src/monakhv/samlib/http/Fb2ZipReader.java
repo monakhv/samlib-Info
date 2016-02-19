@@ -3,6 +3,7 @@ package monakhv.samlib.http;
 
 
 import monakhv.samlib.log.Log;
+import rx.subjects.Subject;
 
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -29,11 +30,24 @@ import java.util.zip.ZipInputStream;
  *
  * 4/1/14.
  */
-public class Fb2ZipReader implements HttpClientController.PageReader {
-    private File file;
 
-    public Fb2ZipReader(File file) {
+
+/**
+ *
+ *  Y = A*X +B
+ *  A =0.56
+ *  B=4.55
+ */
+public class Fb2ZipReader implements HttpClientController.PageReader {
+    private static final String DEBUG_TAG="Fb2ZipReader";
+    private File file;
+    final private Subject<Integer, Integer> mSubject;
+    final long mSize;
+
+    public Fb2ZipReader(File file,long size,Subject<Integer, Integer> subject) {
         this.file = file;
+        mSize=size;
+        mSubject=subject;
     }
 
 
@@ -41,29 +55,35 @@ public class Fb2ZipReader implements HttpClientController.PageReader {
     public String doReadPage(InputStream in) throws IOException {
         ZipInputStream zipInp = new ZipInputStream(in);
         ZipEntry ze;
+        double size=0.;
+        double report;
         while ((ze = zipInp.getNextEntry()) != null) {
-            Log.v("Fb2ZipReader", "Unzipping " + ze.getName() + " into " + file.getParent());
+            Log.v(DEBUG_TAG, "Unzipping " + ze.getName() + " into " + file.getParent());
 
             if (!ze.isDirectory()) {
                 FileOutputStream fout = new FileOutputStream(file.getParent() + "/" + ze.getName());
                 final int BUFFER_SIZE = 2048;
                 BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(fout, BUFFER_SIZE);
-                int count = 0;
+                int count ;
+
                 byte[] buffer = new byte[BUFFER_SIZE];
                 while ((count = zipInp.read(buffer, 0, BUFFER_SIZE)) != -1) {
                     bufferedOutputStream.write(buffer, 0, count);
+                    size+=count;
+                    report=100*(0.56*size/1024.+4.55)/mSize;
+                    mSubject.onNext((int) report);
                 }
                 bufferedOutputStream.flush();
                 bufferedOutputStream.close();
 
-//                for (int c = zipInp.read(); c != -1; c = zipInp.read()) {
-//                    fout.write(c);
-//                }
                 zipInp.closeEntry();
                 fout.close();
             }
         }
         zipInp.close();
+        size=size/1024.;
+        Log.d(DEBUG_TAG,"total size: "+size);
+        Log.d(DEBUG_TAG,"size: "+((double ) (0.56*size+4.55))+"   book size "+mSize);
         return null;
     }
 }

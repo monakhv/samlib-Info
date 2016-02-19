@@ -45,7 +45,7 @@ public class CleanBookServiceIntent extends MyServiceIntent {
 
     public static void start(Context ctx) {
         Intent service = new Intent(ctx, CleanBookServiceIntent.class);
-        //service.putExtra(DownloadBookServiceIntent.BOOK_ID, book_id);
+        //service.putExtra(DownloadBookService.BOOK_ID, book_id);
         ctx.startService(service);
     }
 }

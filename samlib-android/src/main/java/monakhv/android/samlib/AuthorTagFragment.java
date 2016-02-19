@@ -17,12 +17,12 @@ import android.widget.EditText;
 import android.widget.ListView;
 import com.j256.ormlite.android.AndroidDatabaseResults;
 import monakhv.android.samlib.dialogs.EnterStringDialog;
-import monakhv.android.samlib.service.AuthorEditorServiceIntent;
 import monakhv.samlib.db.AuthorController;
 import monakhv.samlib.db.SQLController;
 import monakhv.samlib.db.TagController;
 import monakhv.samlib.db.entity.Author;
 import monakhv.samlib.db.entity.Tag;
+import monakhv.samlib.service.AuthorGuiState;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -46,13 +46,14 @@ import java.util.List;
  */
 public class AuthorTagFragment extends MyBaseAbstractFragment {
     public interface AuthorTagCallback{
+        AuthorGuiState getAuthorGuiState();
         void onFinish(long id);
 
     }
     private static final String DEBUG_TAG = "AuthorTagFragment";
     private long author_id=0;
     private SimpleCursorAdapter adapter;
-    private AuthorTagCallback callBack;
+    private AuthorTagCallback mCallBack;
 
     private boolean addVisible = false;
     private ListView listView;
@@ -139,7 +140,7 @@ public class AuthorTagFragment extends MyBaseAbstractFragment {
             throw new IllegalStateException(
                     "Activity must implement fragment's callbacks.");
         }
-        callBack = (AuthorTagCallback) activity;
+        mCallBack = (AuthorTagCallback) activity;
     }
 
 
@@ -186,7 +187,7 @@ public class AuthorTagFragment extends MyBaseAbstractFragment {
                         Tag tag = mTagController.getById(cursor.getInt(cursor.getColumnIndex(SQLController.COL_ID)));
                         mTagController.delete(tag);
                         cursor = null;
-                        AuthorEditorServiceIntent.updateAllAuthorsTags(getActivity());
+                        getSamlibOperation().makeUpdateTags(mCallBack.getAuthorGuiState());
                         refreshList();
                     }
 
@@ -215,7 +216,8 @@ public class AuthorTagFragment extends MyBaseAbstractFragment {
                 public void okClick(String txt) {
                     tag.setName(txt);
                     mTagController.update(tag);
-                    AuthorEditorServiceIntent.updateAllAuthorsTags(getActivity());
+                    getSamlibOperation().makeUpdateTags(mCallBack.getAuthorGuiState());
+
                     refreshList();
                 }
             },getText(R.string.tag_edit_title).toString(),tag.getName());
@@ -243,7 +245,7 @@ public class AuthorTagFragment extends MyBaseAbstractFragment {
         final AuthorController sql = getAuthorController();
         Author a = sql.getById(author_id);
         sql.syncTags(a, tags);
-        AuthorEditorServiceIntent.updateAllAuthorsTags(getActivity());
+        getSamlibOperation().makeUpdateTags(mCallBack.getAuthorGuiState());
         getSettingsHelper().requestBackup();
         a=sql.getById(author_id);
         //Log.d(DEBUG_TAG, "okClick:   " + a.getName() + ": " + a.getAll_tags_name() + "  -  " + a.getTagIds().size() + " = " + a.getTag2Authors().size());
@@ -339,7 +341,7 @@ public class AuthorTagFragment extends MyBaseAbstractFragment {
      *
      */
     public void cancelClick() {
-        callBack.onFinish(author_id);
+        mCallBack.onFinish(author_id);
 
     }
 
@@ -363,7 +365,7 @@ public class AuthorTagFragment extends MyBaseAbstractFragment {
     public boolean onOptionsItemSelected(MenuItem item) {
         int sel = item.getItemId();
         if (sel == android.R.id.home ){
-            callBack.onFinish(getAuthor_id());
+            mCallBack.onFinish(getAuthor_id());
             return true;
         }
 

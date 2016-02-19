@@ -95,7 +95,7 @@ limitations under the License.
 
     <string name="del_success">Автор удалён</string>
     <string name="del_error">Ошибка удаления автора</string>
-
+    <string name="no_such_application_to_view">У Вас нет приложения для просмотра данного типа файлов!</string>
     
     <string name="author_search_error">Ошибка поиска</string>
     <string name="author_search_empty">Ничего не найдено</string>
@@ -320,6 +320,7 @@ limitations under the License.
 
     <string name="fa_pencil">&#xf040;</string>
     <string name="fa_user">&#xf007;</string>
+    <string name="fa_user_plus">&#xf234;</string>
     <string name="fa_caret_down">&#xf0d7;</string>
 
     <string name="icon_heart">&#xf004;</string>

@@ -106,6 +106,18 @@ public class GroupBookController {
         return groupBook;
     }
 
+    public GroupBook getById(long id) {
+        Integer dd = (int) id;
+        GroupBook a;
+        try {
+            a = dao.queryForId(dd);
+        } catch (SQLException e) {
+            Log.e(DEBUG_TAG, "getById - Error", e);
+            return null;
+        }
+
+        return a;
+    }
 
 
     /**

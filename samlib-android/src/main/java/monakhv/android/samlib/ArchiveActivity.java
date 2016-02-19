@@ -38,11 +38,11 @@ import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView.OnItemClickListener;
+import monakhv.android.samlib.service.MessageConstructor;
+import monakhv.samlib.service.GuiUpdateObject;
 
-
-import monakhv.android.samlib.service.AndroidGuiUpdater;
-import monakhv.android.samlib.service.AuthorEditorServiceIntent;
-import monakhv.samlib.service.SamlibService;
+import rx.Subscriber;
+import rx.Subscription;
 
 import java.util.ArrayList;
 
@@ -57,10 +57,8 @@ public class ArchiveActivity extends MyBaseAbstractActivity {
     private static final String DEBUG_TAG = "ArchiveActivity";
     private SingleChoiceSelectDialog dialog = null;
     private String selectedFile;
-
-
-    private AuthorEditReceiver authorReceiver;
     private CheckBox cb;
+    private Subscription mResultSubscription;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -72,12 +70,9 @@ public class ArchiveActivity extends MyBaseAbstractActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         cb = (CheckBox) findViewById(R.id.cbGoogleAuto);
-        cb.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                Log.d(DEBUG_TAG, "set Googe Auto to: " + isChecked);
-                getSettingsHelper().setGoogleAuto(isChecked);
-            }
+        cb.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            Log.d(DEBUG_TAG, "set Googe Auto to: " + isChecked);
+            getSettingsHelper().setGoogleAuto(isChecked);
         });
         cb.setChecked(getSettingsHelper().isGoogleAuto());
         cb.setEnabled(getSettingsHelper().isGoogleAutoEnable());
@@ -130,15 +125,13 @@ public class ArchiveActivity extends MyBaseAbstractActivity {
     @SuppressWarnings("UnusedParameters")
     public void importDB(View v) {
         final String[] files = getDataExportImport().getFilesToImportDB();
-        OnItemClickListener listener = new OnItemClickListener() {
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                selectedFile = files[position];
-                Log.d(DEBUG_TAG, selectedFile);
-                dialog.dismiss();
-                Dialog alert = createImportAlert(importDBListener,selectedFile);
-                alert.show();
-                //_importDB(files[position]);
-            }
+        OnItemClickListener listener = (parent, view, position, id) -> {
+            selectedFile = files[position];
+            Log.d(DEBUG_TAG, selectedFile);
+            dialog.dismiss();
+            Dialog alert = createImportAlert(importDBListener,selectedFile);
+            alert.show();
+            //_importDB(files[position]);
         };
         dialog = SingleChoiceSelectDialog.getInstance(files, listener,getText(R.string.dialog_title_file).toString());
 
@@ -193,15 +186,13 @@ public class ArchiveActivity extends MyBaseAbstractActivity {
     @SuppressWarnings("UnusedParameters")
     public void importTxt(View v) {
         final String[] files = getDataExportImport().getFilesToImportTxt();
-        OnItemClickListener listener = new OnItemClickListener() {
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                selectedFile = files[position];
-                Log.d(DEBUG_TAG, selectedFile);
-                dialog.dismiss();
+        OnItemClickListener listener = (parent, view, position, id) -> {
+            selectedFile = files[position];
+            Log.d(DEBUG_TAG, selectedFile);
+            dialog.dismiss();
 //                Dialog alert= createImportAlert(selectedFile);
 //                alert.show();
-                _importTxt(files[position]);
-            }
+            _importTxt(files[position]);
         };
         dialog =  SingleChoiceSelectDialog.getInstance(files, listener,getText(R.string.dialog_title_file).toString());
 
@@ -214,7 +205,7 @@ public class ArchiveActivity extends MyBaseAbstractActivity {
         
         ArrayList<String> urls =  getDataExportImport().importAuthorList(file);
         if (!urls.isEmpty()){
-            AuthorEditorServiceIntent.addAuthor(this,urls);
+            getSamlibOperation().makeAuthorAdd(urls,null);
             progress = new ProgressDialog(this);
             progress.setMessage(getText(R.string.arc_import_text_title));
             progress.setCancelable(false);
@@ -238,18 +229,14 @@ public class ArchiveActivity extends MyBaseAbstractActivity {
     }
     @SuppressWarnings("UnusedParameters")
     public void importGoogle(View v) {
-        DialogInterface.OnClickListener listener = new OnClickListener() {
+        DialogInterface.OnClickListener listener = (dialog1, which) -> {
+            switch (which) {
+                case Dialog.BUTTON_POSITIVE:
+                    makeGoogleOperation(GoogleDiskOperation.OperationType.IMPORT);
+                    break;
+                case Dialog.BUTTON_NEGATIVE:
+                    break;
 
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                switch (which) {
-                    case Dialog.BUTTON_POSITIVE:
-                        makeGoogleOperation(GoogleDiskOperation.OperationType.IMPORT);
-                        break;
-                    case Dialog.BUTTON_NEGATIVE:
-                        break;
-
-                }
             }
         };
         Dialog alert = createImportAlert(listener,getString(R.string.arc_google_file));
@@ -279,17 +266,19 @@ public class ArchiveActivity extends MyBaseAbstractActivity {
         filter.addCategory(Intent.CATEGORY_DEFAULT);
         registerReceiver(receiver, filter);
 
-        IntentFilter authorFilter = new IntentFilter(AuthorEditorServiceIntent.RECEIVER_FILTER);
-       authorFilter.addCategory(Intent.CATEGORY_DEFAULT);
-       authorReceiver = new AuthorEditReceiver();
-        registerReceiver(authorReceiver,authorFilter);
+        mResultSubscription=getBus()
+                .getObservable()
+                .filter(GuiUpdateObject::isResult)
+                .subscribe(mSubscriber);
+        addSubscription(mResultSubscription);
+
     }
 
     @Override
     protected void onPause() {
         super.onPause();
         unregisterReceiver(receiver);
-        unregisterReceiver(authorReceiver);
+        mResultSubscription.unsubscribe();
     }
 
     @Override
@@ -338,32 +327,35 @@ public class ArchiveActivity extends MyBaseAbstractActivity {
 
         }
     }
-
-    public class AuthorEditReceiver extends BroadcastReceiver {
+    Subscriber<GuiUpdateObject> mSubscriber = new Subscriber<GuiUpdateObject>() {
 
         @Override
-        public void onReceive(Context context, Intent intent) {
-            CharSequence msg = intent.getCharSequenceExtra(AndroidGuiUpdater.TOAST_STRING);
-            if (intent.getStringExtra(AndroidGuiUpdater.ACTION).equals(SamlibService.ACTION_ADD))
-            {
-                TextView tvMsg = new TextView(ArchiveActivity.this);
-                tvMsg.setText(Html.fromHtml(msg.toString()));
-                AlertDialog.Builder builder = new AlertDialog.Builder(ArchiveActivity.this);
-                builder.setTitle(R.string.import_author_result)
-                        .setView(tvMsg)
-                        .setCancelable(false)
-                        .setNegativeButton(R.string.Yes,new OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                dialog.cancel();
-                            }
-                        });
-                AlertDialog alert = builder.create();
-                progress.dismiss();
-                alert.show();
-
-            }
-
+        public void onCompleted() {
+            Log.d(DEBUG_TAG,"onCompleted");
         }
-    }
+
+        @Override
+        public void onError(Throwable e) {
+            Log.e(DEBUG_TAG,"onError",e);
+        }
+
+        @Override
+        public void onNext(GuiUpdateObject guiUpdateObject) {
+            AlertDialog.Builder builder = new AlertDialog.Builder(ArchiveActivity.this);
+            MessageConstructor mc = new MessageConstructor(ArchiveActivity.this,getSettingsHelper());
+            TextView tvMsg = new TextView(ArchiveActivity.this);
+            tvMsg.setText(Html.fromHtml(mc.makeMessage(guiUpdateObject).toString()));
+            builder.setTitle(R.string.import_author_result)
+                    .setView(tvMsg)
+                    .setCancelable(false)
+                    .setNegativeButton(R.string.Yes, (dialog1, which) -> {
+                        dialog1.cancel();
+                    });
+            AlertDialog alert = builder.create();
+            progress.dismiss();
+            alert.show();
+        }
+    };
+
+
 }

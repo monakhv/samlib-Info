@@ -8,7 +8,6 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
-import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.*;
@@ -17,6 +16,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 
+import android.widget.Toast;
 import monakhv.android.samlib.adapter.*;
 
 
@@ -25,16 +25,19 @@ import monakhv.android.samlib.dialogs.ContextMenuDialog;
 import monakhv.android.samlib.dialogs.MyMenuData;
 import monakhv.android.samlib.dialogs.SingleChoiceSelectDialog;
 import monakhv.android.samlib.recyclerview.DividerItemDecoration;
-import monakhv.android.samlib.service.AuthorEditorServiceIntent;
-import monakhv.android.samlib.service.DownloadBookServiceIntent;
-import monakhv.android.samlib.service.UpdateObject;
+import monakhv.samlib.service.AuthorGuiState;
+import monakhv.samlib.service.BookGuiState;
+import monakhv.samlib.service.GuiUpdateObject;
 import monakhv.android.samlib.sortorder.BookSortOrder;
 
 import monakhv.samlib.db.AuthorController;
 import monakhv.samlib.db.entity.Book;
+import monakhv.samlib.db.entity.GroupBook;
 import monakhv.samlib.db.entity.SamLibConfig;
 import monakhv.samlib.log.Log;
-
+import rx.Subscriber;
+import rx.Subscription;
+import rx.android.schedulers.AndroidSchedulers;
 
 import java.util.List;
 
@@ -59,22 +62,21 @@ public class BookFragment extends MyBaseAbstractFragment implements
         ListSwipeListener.SwipeCallBack, LoaderManager.LoaderCallbacks<List<GroupListItem>>,
         BookExpandableAdapter.CallBack {
     public interface Callbacks {
+        AuthorGuiState getAuthorGuiState();
 
         void showTags(long author_id);
     }
 
-
     @Override
-    public Book reloadBook(int id) {
-        return sql.getBookController().getById(id);
-    }
-
-    @Override
-    public void makeNewFlip(int id) {
-        AuthorEditorServiceIntent.markBookReadFlip(getActivity(), id);
+    public void makeBookNewFlip(Book book) {
+        getSamlibOperation().makeBookReadFlip(book, new BookGuiState((int) author_id, order.getOrder()), mCallbacks.getAuthorGuiState());
     }
 
 
+    @Override
+    public void makeGroupNewFlip(GroupBook groupBook) {
+        getSamlibOperation().makeGroupReadFlip(groupBook, new BookGuiState((int) author_id, order.getOrder()), mCallbacks.getAuthorGuiState());
+    }
 
 
     private static final String DEBUG_TAG = "BookFragment";
@@ -104,7 +106,7 @@ public class BookFragment extends MyBaseAbstractFragment implements
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Log.d(DEBUG_TAG, "onCreate call");
-        adapterState=null;
+        adapterState = null;
 
         if (getActivity().getIntent().getExtras() == null) {
             author_id = 0;
@@ -146,7 +148,7 @@ public class BookFragment extends MyBaseAbstractFragment implements
         mProgressBar = (ProgressBar) view.findViewById(R.id.bookProgress);
 
 
-        adapter = new BookExpandableAdapter(GroupListItem.EMPTY, getActivity(),this,getSettingsHelper());
+        adapter = new BookExpandableAdapter(GroupListItem.EMPTY, -1, getActivity(), this, getSettingsHelper());
         adapter.setAuthor_id(author_id);
         bookRV.setHasFixedSize(true);
         bookRV.setLayoutManager(new LinearLayoutManager(getActivity()));
@@ -155,18 +157,16 @@ public class BookFragment extends MyBaseAbstractFragment implements
 
         bookRV.addItemDecoration(new DividerItemDecoration(getActivity(), DividerItemDecoration.VERTICAL_LIST));
 
-        bookRV.setOnTouchListener(new View.OnTouchListener() {
-            public boolean onTouch(View v, MotionEvent event) {
-                detector.onTouchEvent(event);
-                return false;
-            }
+        bookRV.setOnTouchListener((v, event) -> {
+            detector.onTouchEvent(event);
+            return false;
         });
 
         emptyText.setVisibility(View.GONE);
         bookRV.setVisibility(View.GONE);
         mProgressBar.setVisibility(View.VISIBLE);
         getLoaderManager().initLoader(BOOK_LOADER_ID, null, this);
-        bookRV.setItemAnimator(new DefaultItemAnimator());
+        bookRV.setItemAnimator(new BookAnimator());
         return view;
     }
 
@@ -181,14 +181,15 @@ public class BookFragment extends MyBaseAbstractFragment implements
 
         //adapter.setData(data);
 
-        adapter = new BookExpandableAdapter(data, getActivity(),this,getSettingsHelper());
+        BookLoader bookLoader = (BookLoader) loader;
+        adapter = new BookExpandableAdapter(data, bookLoader.getMaxGroupId(), getActivity(), this, getSettingsHelper());
         adapter.setAuthor_id(author_id);
         bookRV.setAdapter(adapter);
         Log.d(DEBUG_TAG, "onLoadFinished: adapter size = " + adapter.getItemCount());
         mProgressBar.setVisibility(View.GONE);
         makeEmpty();
-        if (adapterState != null && ! adapterState.isEmpty()){
-            Log.d(DEBUG_TAG,"onLoadFinished: load adapter data");
+        if (adapterState != null && !adapterState.isEmpty()) {
+            Log.d(DEBUG_TAG, "onLoadFinished: load adapter data");
             adapter.onRestoreInstanceState(adapterState);
             adapterState.clear();
         }
@@ -198,7 +199,7 @@ public class BookFragment extends MyBaseAbstractFragment implements
     public void onLoaderReset(Loader<List<GroupListItem>> loader) {
 
         //adapter.setData(null);
-        adapter = new BookExpandableAdapter(GroupListItem.EMPTY, getActivity(),this,getSettingsHelper());
+        adapter = new BookExpandableAdapter(GroupListItem.EMPTY, -1, getActivity(), this, getSettingsHelper());
         bookRV.setAdapter(adapter);
 
     }
@@ -224,7 +225,7 @@ public class BookFragment extends MyBaseAbstractFragment implements
     }
 
     void updateAdapter() {
-        Log.d(DEBUG_TAG,"updateAdapter call");
+        Log.d(DEBUG_TAG, "updateAdapter call");
         //very ugly hack
         if (order == null) {
             Context ctx = getActivity().getApplicationContext();
@@ -236,6 +237,56 @@ public class BookFragment extends MyBaseAbstractFragment implements
         }
         getLoaderManager().restartLoader(BOOK_LOADER_ID, null, this);
     }
+
+    public void updateAdapter(Book book) {
+
+        GroupBook groupBook = sql.getGroupBookController().getByBook(book);
+
+        adapter.updateData(book, groupBook, -1);
+    }
+
+
+    Subscriber<GuiUpdateObject> mSubscriber = new Subscriber<GuiUpdateObject>() {
+        @Override
+        public void onCompleted() {
+            Log.i(DEBUG_TAG, "onCompleted");
+        }
+
+        @Override
+        public void onError(Throwable e) {
+            Log.e(DEBUG_TAG, "onError", e);
+        }
+
+        @Override
+        public void onNext(GuiUpdateObject guiUpdateObject) {
+            //TODO: should move out of main thread
+            if (guiUpdateObject.isBook()) {
+                Book b = (Book) guiUpdateObject.getObject();
+                GroupBook groupBook = sql.getGroupBookController().getByBook(b);
+
+                adapter.updateData(b, groupBook, guiUpdateObject.getSortOrder());
+            }
+            if (guiUpdateObject.isGroup()) {
+                Log.d(DEBUG_TAG,"onNext: get Group");
+                GroupListItem groupListItem;
+                if (guiUpdateObject.getObjectId() == -1) {
+                    Log.d(DEBUG_TAG,"onNext: id = -1");
+                    groupListItem = new GroupListItem();
+                    List<Book> childList = sql.getBookController().getAll(sql.getById(author_id), order.getOrder());
+                    Log.d(DEBUG_TAG,"onNext: childList: "+childList.size());
+                    groupListItem.setChildItemList(childList);
+                } else {
+                    GroupBook groupBook = (GroupBook) guiUpdateObject.getObject();
+                    List<Book> childList = sql.getBookController().getBookForGroup(groupBook, order.getOrder());
+                    groupListItem = new GroupListItem(groupBook, childList);
+                    Log.d(DEBUG_TAG,"onNext: get Group: "+groupBook.getName()+"  id: "+groupBook.getId());
+                }
+
+
+                adapter.updateData(groupListItem, guiUpdateObject.getSortOrder());
+            }
+        }
+    };
 
     /**
      * Set new author_id and update selection,adapter and empty view
@@ -259,6 +310,17 @@ public class BookFragment extends MyBaseAbstractFragment implements
     public boolean singleClick(MotionEvent e) {
         int position = bookRV.getChildAdapterPosition(bookRV.findChildViewUnder(e.getX(), e.getY()));
 
+        if (position < 0) {
+            return true;
+        }
+        try {
+            if (adapter.getItemViewType(position) == BookExpandableAdapter.TYPE_PARENT) {
+                adapter.flipCollapse(position);
+                return true;
+            }
+        } catch (IllegalStateException ex) {
+            Log.w(DEBUG_TAG, "singleClick: wrong state: " + position, ex);
+        }
 
         book = adapter.getBook(position);
 
@@ -278,7 +340,7 @@ public class BookFragment extends MyBaseAbstractFragment implements
         Log.v(DEBUG_TAG, "making swipeRight");
         int position = bookRV.getChildAdapterPosition(bookRV.findChildViewUnder(e.getX(), e.getY()));
 
-        adapter.makeRead(position);
+        adapter.makeAllRead(position);
         return true;
     }
 
@@ -305,6 +367,7 @@ public class BookFragment extends MyBaseAbstractFragment implements
     private final int menu_choose_version = 7;
 
     private int selected_position;
+
     @Override
     public void longPress(MotionEvent e) {
         int position = bookRV.getChildAdapterPosition(bookRV.findChildViewUnder(e.getX(), e.getY()));
@@ -336,13 +399,10 @@ public class BookFragment extends MyBaseAbstractFragment implements
         }
 
 
-        contextMenuDialog = ContextMenuDialog.getInstance(menu, new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                int item = menu.getIdByPosition(position);
-                contextSelector(item);
-                contextMenuDialog.dismiss();
-            }
+        contextMenuDialog = ContextMenuDialog.getInstance(menu, (parent, view, position1, id) -> {
+            int item = menu.getIdByPosition(position1);
+            contextSelector(item);
+            contextMenuDialog.dismiss();
         }, null);
 
         contextMenuDialog.show(getActivity().getSupportFragmentManager(), "bookContext");
@@ -360,9 +420,11 @@ public class BookFragment extends MyBaseAbstractFragment implements
         }
         if (item == menu_selected) {
             sql.getBookController().setSelected(book);
+            updateAdapter(book);
         }
         if (item == menu_deselected) {
             sql.getBookController().setDeselected(book);
+            updateAdapter(book);
         }
         if (item == menu_reload) {
 
@@ -383,7 +445,8 @@ public class BookFragment extends MyBaseAbstractFragment implements
                 getSettingsHelper().makePreserved(book);
                 book.setPreserve(true);
             }
-            updateBook(book);
+            sql.getBookController().update(book);
+            updateAdapter(book);
 
         }
         if (item == menu_choose_version) {
@@ -393,14 +456,11 @@ public class BookFragment extends MyBaseAbstractFragment implements
                 //TODO: alarm no version is found
                 return;
             }
-            dialog = SingleChoiceSelectDialog.getInstance(files, new AdapterView.OnItemClickListener() {
-                @Override
-                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                    dialog.dismiss();
-                    String file = files[position];
+            dialog = SingleChoiceSelectDialog.getInstance(files, (parent, view, position, id) -> {
+                dialog.dismiss();
+                String file = files[position];
 
-                    launchReader(book, file);
-                }
+                launchReader(book, file);
             }, getString(R.string.menu_version_choose));
             dialog.show(getActivity().getSupportFragmentManager(), "readVersion");
 
@@ -437,14 +497,11 @@ public class BookFragment extends MyBaseAbstractFragment implements
      * Show Dialog to select sort order for Book list
      */
     public void selectSortOrder() {
-        AdapterView.OnItemClickListener listener = new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                BookSortOrder so = BookSortOrder.values()[position];
-                setSortOrder(so);
-                sortDialog.dismiss();
+        AdapterView.OnItemClickListener listener = (parent, view, position, id) -> {
+            BookSortOrder so = BookSortOrder.values()[position];
+            setSortOrder(so);
+            sortDialog.dismiss();
 
-            }
         };
         sortDialog = SingleChoiceSelectDialog.getInstance(BookSortOrder.getTitles(getActivity()), listener, this.getString(R.string.dialog_title_sort_book), getSortOrder().ordinal());
         sortDialog.show(getActivity().getSupportFragmentManager(), "DoBookSortDialog");
@@ -466,17 +523,49 @@ public class BookFragment extends MyBaseAbstractFragment implements
             progress = new ProgressDialog(getActivity());
             progress.setMessage(getActivity().getText(R.string.download_Loading));
             progress.setCancelable(true);
-            progress.setIndeterminate(true);
+            //progress.setIndeterminate(true);
+            progress.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+            progress.setMax(100);
             progress.show();
-            DownloadBookServiceIntent.start(getActivity(), book.getId(), UpdateObject.ACTIVITY_CALLER);
+            //DownloadBookService.start(getActivity(), book.getId(), false);
 
-
+            final Subscription subscription=getBookDownloadService().downloadBook(book)
+                    .onBackpressureBuffer()
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(getBookDownloadProgress());
+            addSubscription(subscription);
         } else {
 
             launchReader(book);
         }
 
     }
+
+    private Subscriber<Integer> getBookDownloadProgress(){
+        return new Subscriber<Integer>() {
+            @Override
+            public void onCompleted() {
+                progress.dismiss();
+                launchReader(book);
+            }
+
+            @Override
+            public void onError(Throwable e) {
+                progress.dismiss();
+                Log.e(DEBUG_TAG,"onError",e);
+                Toast toast = Toast.makeText(getActivity(), getActivity().getText(R.string.download_book_error), Toast.LENGTH_SHORT);
+                toast.show();
+            }
+
+            @Override
+            public void onNext(Integer integer) {
+                progress.setProgress(integer);
+                //Log.d(DEBUG_TAG,"onNext: "+integer);
+            }
+        };
+
+    }
+
 
     /**
      * Launch Reader to read the book considering book is downloaded
@@ -507,9 +596,14 @@ public class BookFragment extends MyBaseAbstractFragment implements
         launchBrowser.setAction(android.content.Intent.ACTION_VIEW);
         launchBrowser.setDataAndType(Uri.parse(url), book.getFileMime());
 
+        if (launchBrowser.resolveActivity(getActivity().getPackageManager())==null){
+            Toast toast=Toast.makeText(getContext(),getString(R.string.no_such_application_to_view),Toast.LENGTH_SHORT);
+            toast.show();
+            return;
+        }
 
         if (getSettingsHelper().getAutoMarkFlag()) {
-           adapter.makeRead(selected_position);
+            adapter.makeRead(selected_position);
         }
         startActivity(launchBrowser);
     }
@@ -539,25 +633,19 @@ public class BookFragment extends MyBaseAbstractFragment implements
         return super.onOptionsItemSelected(item);
     }
 
-    private void updateBook(Book book) {
-        sql.getBookController().update(book);
-        updateAdapter();
-    }
-
-
 
     @Override
     public void onResume() {
         super.onResume();
-        Log.d(DEBUG_TAG,"onResume call");
+        Log.d(DEBUG_TAG, "onResume call");
 
     }
 
     @Override
     public void onPause() {
         super.onPause();
-        Log.d(DEBUG_TAG,"onPause call");
-        if (adapterState == null){
+        Log.d(DEBUG_TAG, "onPause call");
+        if (adapterState == null) {
             adapterState = new Bundle();
         }
 

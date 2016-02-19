@@ -65,12 +65,12 @@ public abstract class AbstractDataExportImport {
             case HTML:
                 return ff == null || !ff.exists() || ff.lastModified() < book.getModifyTime();
             case FB2:
-                if (ff.exists()) {
+                if (ff!= null) {
                     return ff.lastModified() < book.getModifyTime();
                 } else {
                     book.setFileType(AbstractSettings.FileType.HTML);
                     ff = settings.getBookFile4Read(book, book.getFileType());
-                    return !ff.exists() || ff.lastModified() < book.getModifyTime();
+                    return ff == null || !ff.exists() || ff.lastModified() < book.getModifyTime();
                 }
             default:
                 throw new UnsupportedOperationException();

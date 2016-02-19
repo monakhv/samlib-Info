@@ -26,6 +26,7 @@ import android.os.Bundle;
 
 import monakhv.samlib.db.AuthorController;
 import monakhv.samlib.db.entity.Author;
+import monakhv.samlib.service.AuthorGuiState;
 
 /**
  *
@@ -97,5 +98,10 @@ public class AuthorTagsActivity extends MyBaseAbstractActivity implements Author
         setResult(RESULT_OK, intent);
         finish();
 
+    }
+
+    @Override
+    public AuthorGuiState getAuthorGuiState() {
+        return null;
     }
 }
