@@ -24,6 +24,7 @@ import com.j256.ormlite.table.DatabaseTable;
 import monakhv.samlib.db.SQLController;
 
 import java.io.Serializable;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -48,6 +49,7 @@ public class GroupBook  implements Serializable{
     @DatabaseField(columnName = SQLController.COL_GROUP_IS_HIDDEN)
     protected boolean hidden = false;
     SqlOperation mSqlOperation;
+    private List<Book> mBooks;
 
 
     public GroupBook(){
@@ -101,6 +103,14 @@ public class GroupBook  implements Serializable{
 
     public void setNewNumber(int mNewNumber) {
         this.mNewNumber = mNewNumber;
+    }
+
+    public List<Book> getBooks() {
+        return mBooks;
+    }
+
+    public void setBooks(List<Book> books) {
+        mBooks = books;
     }
 
     public void addNew(){

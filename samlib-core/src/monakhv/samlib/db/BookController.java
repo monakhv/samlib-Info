@@ -277,19 +277,19 @@ public class BookController {
 
     }
 
-    public List<Book> getBookForGroup(GroupBook groupBook,String order) {
+    public void getBookForGroup(GroupBook groupBook,String order) {
         QueryBuilder<Book, Integer> qbBooks = dao.queryBuilder();
         if (order != null) {
             qbBooks.orderByRaw(order);
         }
         try {
             qbBooks.where()
-
                     .eq(SQLController.COL_BOOK_GROUP_ID, groupBook);
-            return dao.query(qbBooks.prepare());
+
+            groupBook.setBooks(dao.query(qbBooks.prepare()));
         } catch (SQLException e) {
             Log.e(DEBUG_TAG,"getBookForGroup: query error",e);
-            return null;
+
         }
 
     }
@@ -328,9 +328,10 @@ public class BookController {
         GroupBook groupBook=grpCtl.getByBook(book);
 
         if (groupBook != null){
-            List<Book> books = getBookForGroup(groupBook,null);
+            getBookForGroup(groupBook,null);
+
             int newNumber=0;
-            for (Book b:books){
+            for (Book b:groupBook.getBooks()){
                 if (b.isIsNew()){
                     ++newNumber;
                 }

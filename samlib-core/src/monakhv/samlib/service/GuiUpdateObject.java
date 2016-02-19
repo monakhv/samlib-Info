@@ -52,9 +52,6 @@ public class GuiUpdateObject  {
     protected int mObjectId=-1;
     protected int mSortOrder = -1;
 
-    public GuiUpdateObject(){
-
-    }
 
     public GuiUpdateObject(AuthorUpdateProgress progress){
         mObject=progress;
@@ -67,8 +64,9 @@ public class GuiUpdateObject  {
         mUpdateType=updateType;
         mObjectType=ObjectType.RESULT;
     }
-    public GuiUpdateObject(ObjectType objectType){
+    public GuiUpdateObject(ObjectType objectType,Object object){
         mObjectType=objectType;
+        mObject=object;
     }
     /**
      * Update Book Gui after book new mark changes
@@ -164,28 +162,8 @@ public class GuiUpdateObject  {
         return mUpdateType;
     }
 
-    public ObjectType getObjectType() {
-        return mObjectType;
-    }
-
     public Object getObject() {
         return mObject;
-    }
-
-    public void setObjectType(ObjectType objectType) {
-        mObjectType = objectType;
-    }
-
-    public void setUpdateType(UpdateType updateType) {
-        mUpdateType = updateType;
-    }
-
-    public void setObjectId(int objectId) {
-        mObjectId = objectId;
-    }
-
-    public void setSortOrder(int sortOrder) {
-        mSortOrder = sortOrder;
     }
 
 

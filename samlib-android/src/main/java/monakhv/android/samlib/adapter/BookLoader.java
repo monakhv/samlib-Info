@@ -36,14 +36,14 @@ public class BookLoader extends AbstractLoader<GroupListItem> {
     private final long id;
     private final String order;
     private final Context mContext;
-    private int maxGroupId=-1;
+    private int maxGroupId = -1;
 
     public BookLoader(final Context context, final AuthorController authorController, long id, String order) {
         super(context);
-        mContext=context;
+        mContext = context;
         this.id = id;
         this.order = order;
-        mAuthorController=authorController;
+        mAuthorController = authorController;
     }
 
     @Override
@@ -72,19 +72,19 @@ public class BookLoader extends AbstractLoader<GroupListItem> {
 
             List<GroupBook> rr = mAuthorController.getGroupBookController().getByAuthor(a);
 
-            if (rr.isEmpty()) {
+            if (rr.isEmpty()) {//No groups found group all books into single group
 
                 gr.mChildItemList = mAuthorController.getBookController().getAll(a, order);
                 gr.setName(mContext.getString(R.string.group_book_all));
-                gr.newNumber=mAuthorController.getBookController().getAllNew(a, order).size();
+                gr.newNumber = mAuthorController.getBookController().getAllNew(a, order).size();
                 res.add(gr);
             } else {
                 for (GroupBook groupBook : rr) {
+                    mAuthorController.getBookController().getBookForGroup(groupBook, order);
                     GroupListItem grr = new GroupListItem(groupBook);
-                    grr.mChildItemList = mAuthorController.getBookController().getBookForGroup( groupBook, order);
                     res.add(grr);
-                    if (groupBook.getId()>maxGroupId){
-                        maxGroupId=groupBook.getId();
+                    if (groupBook.getId() > maxGroupId) {
+                        maxGroupId = groupBook.getId();
                     }
                 }
             }

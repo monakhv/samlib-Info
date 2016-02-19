@@ -160,10 +160,11 @@ public class SamlibOperation {
         List<GroupBook> groupBooks = mAuthorController.getGroupBookController().getByAuthor(a);
         Log.d(DEBUG_TAG, "Update author status: " + i + "   sort " + sort+" groups: "+groupBooks.size());
         for (GroupBook groupBook : groupBooks) {
+            //groupBook.setBooks(mAuthorController.getBookController().getBookForGroup(groupBook,b));
             makeGuiUpdate(new GuiUpdateObject(groupBook, groupBooks.indexOf(groupBook)));
         }
         if (groupBooks.size()==0){//special case when Author has no groups
-            makeGuiUpdate(new GuiUpdateObject(GuiUpdateObject.ObjectType.GROUP));
+            makeGuiUpdate(new GuiUpdateObject(GuiUpdateObject.ObjectType.GROUP,null));
         }
         return true;
 
@@ -177,7 +178,8 @@ public class SamlibOperation {
             Author author = mAuthorController.getById(bState.mAuthorId);
             books = mAuthorController.getBookController().getAll(author, bState.mSortOrder);
         } else {//Author has groups
-            books = mAuthorController.getBookController().getBookForGroup(groupBook, bState.mSortOrder);
+            mAuthorController.getBookController().getBookForGroup(groupBook, bState.mSortOrder);
+            books = groupBook.getBooks();
         }
 
 
@@ -196,10 +198,12 @@ public class SamlibOperation {
         }
 
         if (groupBook == null) {
-            makeGuiUpdate(new GuiUpdateObject(GuiUpdateObject.ObjectType.GROUP));
+            makeGuiUpdate(new GuiUpdateObject(GuiUpdateObject.ObjectType.GROUP,mAuthorController.getBookController().getAll(author,bState.mSortOrder)));
         } else {
             List<GroupBook> rr = mAuthorController.getGroupBookController().getByAuthor(author);
             GroupBook g = mAuthorController.getGroupBookController().getById(groupBook.getId());
+            mAuthorController.getBookController().getBookForGroup(g,bState.mSortOrder);
+
             makeGuiUpdate(new GuiUpdateObject(g, rr.indexOf(groupBook)));
 
         }
@@ -243,8 +247,10 @@ public class SamlibOperation {
         if (groupBook == null) {
             books = mAuthorController.getBookController().getAll(a, bState.mSortOrder);
         } else {
-            books = mAuthorController.getBookController().getBookForGroup(groupBook, bState.mSortOrder);
+            mAuthorController.getBookController().getBookForGroup(groupBook, bState.mSortOrder);
+            books = groupBook.getBooks();
         }
+        book.setGroupBook(groupBook);
 
         makeGuiUpdate(new GuiUpdateObject(book, books.indexOf(book)));
 
@@ -330,7 +336,7 @@ public class SamlibOperation {
 
             }
         }
-        makeGuiUpdate(new GuiUpdateObject(GuiUpdateObject.ObjectType.TAG));
+        makeGuiUpdate(new GuiUpdateObject(GuiUpdateObject.ObjectType.TAG,null));
 
     }
 

@@ -54,18 +54,15 @@ public class GroupListItem implements ParentListItem,Serializable {
     public GroupListItem(){
         name=null;
         initiallyExpanded=true;
-        mGroupBook=new GroupBook();
+        //mGroupBook=new GroupBook();
         id=-1;
     }
 
-    GroupListItem(GroupBook groupBook){
+    public GroupListItem(GroupBook groupBook){
         load(groupBook);
     }
 
-    public GroupListItem(GroupBook groupBook, List<Book> childList) {
-        this(groupBook);
-        mChildItemList=childList;
-    }
+
 
     public void load(GroupBook groupBook){
         mGroupBook=groupBook;
@@ -74,6 +71,7 @@ public class GroupListItem implements ParentListItem,Serializable {
         newNumber=groupBook.getNewNumber();
         hidden=groupBook.isHidden();
         id=groupBook.getId();
+        mChildItemList=groupBook.getBooks();
     }
 //
 //    GroupListItem(String name){

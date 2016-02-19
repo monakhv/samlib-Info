@@ -36,10 +36,10 @@ import java.util.List;
  */
 public class GroupBookController {
     private static final String DEBUG_TAG = "GroupBookController";
-    private Dao<GroupBook, Integer> dao;
+    private Dao<GroupBook, Integer> mGroupDao;
 
     GroupBookController(DaoBuilder sql) {
-        dao = sql.getGroupBookDao();
+        mGroupDao = sql.getGroupBookDao();
     }
 
     public void operate(Author author) {
@@ -68,7 +68,7 @@ public class GroupBookController {
     private int insert(GroupBook groupBook) {
         int res = -1;
         try {
-            res = dao.create(groupBook);
+            res = mGroupDao.create(groupBook);
         } catch (SQLException e) {
             Log.e(DEBUG_TAG, "insert: error insert ", e);
         }
@@ -77,7 +77,7 @@ public class GroupBookController {
 
     private int delete(GroupBook groupBook) {
         try {
-            return dao.delete(groupBook);
+            return mGroupDao.delete(groupBook);
         } catch (SQLException e) {
             Log.e(DEBUG_TAG, "delete: delete error", e);
             return -1;
@@ -87,7 +87,7 @@ public class GroupBookController {
 
     int update(GroupBook groupBook) {
         try {
-            return dao.update(groupBook);
+            return mGroupDao.update(groupBook);
         } catch (SQLException e) {
             Log.e(DEBUG_TAG, "update: update error", e);
 
@@ -98,7 +98,7 @@ public class GroupBookController {
     public GroupBook getByBook(Book book){
         GroupBook groupBook;
         try {
-            groupBook = dao.queryForId(book.getGroupBook().getId());
+            groupBook = mGroupDao.queryForId(book.getGroupBook().getId());
         } catch (SQLException e) {
             Log.e(DEBUG_TAG,"getByBook: not found uri: "+book.getUri(),e);
             return null;
@@ -110,7 +110,7 @@ public class GroupBookController {
         Integer dd = (int) id;
         GroupBook a;
         try {
-            a = dao.queryForId(dd);
+            a = mGroupDao.queryForId(dd);
         } catch (SQLException e) {
             Log.e(DEBUG_TAG, "getById - Error", e);
             return null;
@@ -127,12 +127,12 @@ public class GroupBookController {
      * @return List of Group
      */
     public List<GroupBook> getByAuthor(Author author) {
-        QueryBuilder<GroupBook, Integer> qb = dao.queryBuilder();
+        QueryBuilder<GroupBook, Integer> qb = mGroupDao.queryBuilder();
         qb.orderBy(SQLController.COL_GROUP_NEW_NUMBER, false);
         qb.orderBy(SQLController.COL_GROUP_IS_HIDDEN, true);
         try {
             qb.where().eq(SQLController.COL_BOOK_AUTHOR_ID, author);
-            return dao.query(qb.prepare());
+            return mGroupDao.query(qb.prepare());
         } catch (SQLException e) {
             Log.e(DEBUG_TAG, "getByAuthor error ", e);
             return null;
@@ -142,12 +142,12 @@ public class GroupBookController {
 
     public GroupBook getByAuthorAndName(Author author, String name) {
 
-        QueryBuilder<GroupBook, Integer> qb = dao.queryBuilder();
+        QueryBuilder<GroupBook, Integer> qb = mGroupDao.queryBuilder();
         List<GroupBook> res;
         try {
             qb.where().eq(SQLController.COL_BOOK_AUTHOR_ID, author)
                     .and().eq(SQLController.COL_NAME, name);
-            res = dao.query(qb.prepare());
+            res = mGroupDao.query(qb.prepare());
         } catch (SQLException e) {
             Log.e(DEBUG_TAG, "getByAuthorAndName: query error", e);
             return null;

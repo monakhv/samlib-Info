@@ -262,29 +262,38 @@ public class BookFragment extends MyBaseAbstractFragment implements
             //TODO: should move out of main thread
             if (guiUpdateObject.isBook()) {
                 Book b = (Book) guiUpdateObject.getObject();
-                GroupBook groupBook = sql.getGroupBookController().getByBook(b);
+                GroupBook groupBook = b.getGroupBook();
 
                 adapter.updateData(b, groupBook, guiUpdateObject.getSortOrder());
             }
-            if (guiUpdateObject.isGroup()) {
+            if (guiUpdateObject.isGroup()) {//begin group
                 Log.d(DEBUG_TAG,"onNext: get Group");
                 GroupListItem groupListItem;
-                if (guiUpdateObject.getObjectId() == -1) {
+                if (guiUpdateObject.getObjectId() == -1) {//Author has no group
                     Log.d(DEBUG_TAG,"onNext: id = -1");
                     groupListItem = new GroupListItem();
-                    List<Book> childList = sql.getBookController().getAll(sql.getById(author_id), order.getOrder());
-                    Log.d(DEBUG_TAG,"onNext: childList: "+childList.size());
-                    groupListItem.setChildItemList(childList);
-                } else {
+                    Object o = guiUpdateObject.getObject();
+                    if (o != null){
+                        groupListItem.setChildItemList((List<Book>) o);
+                    }else {
+                        groupListItem.setChildItemList(sql.getBookController().getAll(sql.getById(author_id), order.getOrder()));
+                    }
+
+                    Log.d(DEBUG_TAG,"onNext: childList: "+groupListItem.getChildItemList().size());
+
+                } else {//Author have group
                     GroupBook groupBook = (GroupBook) guiUpdateObject.getObject();
-                    List<Book> childList = sql.getBookController().getBookForGroup(groupBook, order.getOrder());
-                    groupListItem = new GroupListItem(groupBook, childList);
+                    if (groupBook.getBooks() == null){
+                        sql.getBookController().getBookForGroup(groupBook,order.getOrder());
+                    }
+
+                    groupListItem = new GroupListItem(groupBook);
                     Log.d(DEBUG_TAG,"onNext: get Group: "+groupBook.getName()+"  id: "+groupBook.getId());
                 }
 
 
                 adapter.updateData(groupListItem, guiUpdateObject.getSortOrder());
-            }
+            }//end group
         }
     };
 
