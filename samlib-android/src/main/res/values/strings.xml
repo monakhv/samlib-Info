@@ -320,6 +320,7 @@ limitations under the License.
 
     <string name="fa_pencil">&#xf040;</string>
     <string name="fa_user">&#xf007;</string>
+    <string name="fa_user_plus">&#xf234;</string>
     <string name="fa_caret_down">&#xf0d7;</string>
 
     <string name="icon_heart">&#xf004;</string>

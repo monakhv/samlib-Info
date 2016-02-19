@@ -21,4 +21,5 @@
     
     <dimen name="text_size_head">22sp</dimen>
     <dimen name="text_size_small">14sp</dimen>
+
 </resources>

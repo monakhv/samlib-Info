@@ -9,12 +9,14 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 
 import android.view.*;
+import android.widget.AbsListView;
 import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -217,6 +219,41 @@ public class AuthorFragment extends MyBaseAbstractFragment implements
         authorRV.setItemAnimator(new AuthorAnimator());
         return view;
 
+    }
+
+    private boolean mFabDisable = false;
+    private FloatingActionButton mFloatingActionButton;
+
+    public void setScrollFab(final FloatingActionButton floatingActionButton) {
+        mFloatingActionButton = floatingActionButton;
+        authorRV.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+                super.onScrollStateChanged(recyclerView, newState);
+                if (newState == AbsListView.OnScrollListener.SCROLL_STATE_IDLE && mAppBarOffset == 0 && !mFabDisable) {
+                    floatingActionButton.show();
+                }
+                if (newState == AbsListView.OnScrollListener.SCROLL_STATE_FLING) {
+                    floatingActionButton.hide();
+                }
+            }
+
+            @Override
+            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                super.onScrolled(recyclerView, dx, dy);
+
+            }
+        });
+        floatingActionButton.setOnClickListener(v -> {
+            mFabDisable = true;
+            floatingActionButton.hide();
+            searchOrAdd();
+        });
+    }
+
+    public void enableFab() {
+        mFabDisable = false;
+        mFloatingActionButton.show();
     }
 
     /**

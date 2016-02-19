@@ -10,6 +10,7 @@ import android.content.*;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.AppBarLayout;
+import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
@@ -27,6 +28,8 @@ import android.view.Window;
 import android.widget.*;
 
 
+import monakhv.android.samlib.awesome.FontManager;
+import monakhv.android.samlib.awesome.TextDrawable;
 import monakhv.android.samlib.search.SearchAuthorActivity;
 import monakhv.android.samlib.search.SearchAuthorsFragment;
 import monakhv.android.samlib.service.CleanNotificationData;
@@ -195,6 +198,12 @@ public class MainActivity extends MyBaseAbstractActivity implements
                     .subscribe(bookFragment.mSubscriber);
             addSubscription(bookSubscription);
         }
+        final FloatingActionButton floatingActionButton = (FloatingActionButton) findViewById(R.id.fabAuthor);
+        final TextDrawable td = new TextDrawable(this);
+        td.setTypeface(FontManager.getFontAwesome(this));
+        td.setText(getText(R.string.fa_user_plus));
+        floatingActionButton.setImageDrawable(td);
+        authorFragment.setScrollFab(floatingActionButton);
 
     }
 
@@ -485,20 +494,19 @@ public class MainActivity extends MyBaseAbstractActivity implements
 
 
     public void addAuthorFromText() {
-        EditText editText = (EditText) findViewById(R.id.addUrlText);
+        final EditText editText = (EditText) findViewById(R.id.addUrlText);
 
-        if (editText == null) {
+        if (editText == null || editText.getText() ==null ) {
             return;
         }
-        if (editText.getText() == null) {
-            return;
-        }
+
         String text = editText.getText().toString();
         editText.setText("");
 
 
         View v = findViewById(R.id.add_author_panel);
         v.setVisibility(View.GONE);
+        authorFragment.enableFab();
 
         String url = SamLibConfig.getParsedUrl(text);
         if (url != null) {//add  Author by URL
