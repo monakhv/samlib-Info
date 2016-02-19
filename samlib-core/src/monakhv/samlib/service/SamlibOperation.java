@@ -38,6 +38,9 @@ import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
 /**
+ * Data base Operations like Add or remove Authors
+ *  Make book read or unread
+ *
  * Subject bus using java -rx
  * Created by monakhv on 12.02.16.
  */
@@ -126,6 +129,18 @@ public class SamlibOperation {
             public void run() {
                 super.run();
                 runUpdateTags(state);
+            }
+        };
+        mThread.start();
+    }
+
+    public void makeGroupReload(final GroupBook groupBook, final BookGuiState state){
+
+        mThread =new Thread(){
+            @Override
+            public void run() {
+                super.run();
+                runGroupReload(groupBook,state);
             }
         };
         mThread.start();
@@ -254,6 +269,20 @@ public class SamlibOperation {
 
         makeGuiUpdate(new GuiUpdateObject(book, books.indexOf(book)));
 
+    }
+
+    private void runGroupReload(GroupBook groupBook, BookGuiState bState){
+        Author author = mAuthorController.getById(bState.mAuthorId);
+        if (groupBook == null){//Author has no group that means all book are in the single default group
+
+            List<Book> books = mAuthorController.getBookController().getAll(author, bState.mSortOrder);
+            makeGuiUpdate(new GuiUpdateObject(GuiUpdateObject.ObjectType.GROUP,books));
+        }else {
+            GroupBook g = mAuthorController.getGroupBookController().getById(groupBook.getId());
+            mAuthorController.getBookController().getBookForGroup(g,bState.mSortOrder);
+            List<GroupBook> gg = mAuthorController.getGroupBookController().getByAuthor(author);
+            makeGuiUpdate(new GuiUpdateObject(g,gg.indexOf(g)));
+        }
     }
 
     /**

@@ -16,7 +16,6 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 
 import android.view.*;
-import android.widget.AbsListView;
 import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -227,21 +226,37 @@ public class AuthorFragment extends MyBaseAbstractFragment implements
     public void setScrollFab(final FloatingActionButton floatingActionButton) {
         mFloatingActionButton = floatingActionButton;
         authorRV.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            private static final int HIDE_THRESHOLD = 20;
+            private int scrolledDistance = 0;
+            private boolean controlsVisible = true;
+
             @Override
             public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
                 super.onScrollStateChanged(recyclerView, newState);
-                if (newState == AbsListView.OnScrollListener.SCROLL_STATE_IDLE && mAppBarOffset == 0 && !mFabDisable) {
-                    floatingActionButton.show();
-                }
-                if (newState == AbsListView.OnScrollListener.SCROLL_STATE_FLING) {
-                    floatingActionButton.hide();
-                }
+//                if (newState == AbsListView.OnScrollListener.SCROLL_STATE_IDLE && mAppBarOffset == 0 && !mFabDisable) {
+//                    floatingActionButton.show();
+//                }
+//                if (newState == AbsListView.OnScrollListener.SCROLL_STATE_FLING) {
+//                    floatingActionButton.hide();
+//                }
             }
 
             @Override
             public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
                 super.onScrolled(recyclerView, dx, dy);
+                if((controlsVisible && dy>0) || (!controlsVisible && dy<0)) {
+                    scrolledDistance += dy;
+                }
 
+                if (scrolledDistance > HIDE_THRESHOLD && controlsVisible) {
+                    floatingActionButton.hide();
+                    controlsVisible = false;
+                    scrolledDistance = 0;
+                } else if (scrolledDistance < -HIDE_THRESHOLD && !controlsVisible && !mFabDisable) {
+                    floatingActionButton.show();
+                    controlsVisible = true;
+                    scrolledDistance = 0;
+                }
             }
         });
         floatingActionButton.setOnClickListener(v -> {
@@ -652,9 +667,11 @@ public class AuthorFragment extends MyBaseAbstractFragment implements
                 GuiUpdateObject.UpdateType updateType = guiUpdateObject.getUpdateType();
                 switch (updateType) {
                     case DELETE:
+                        adapter.cleanSelection();
                         adapter.remove(sort);
                         break;
                     case ADD:
+                        adapter.cleanSelection();
                         adapter.add(author, sort);
                         break;
                     default:

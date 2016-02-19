@@ -259,7 +259,6 @@ public class BookFragment extends MyBaseAbstractFragment implements
 
         @Override
         public void onNext(GuiUpdateObject guiUpdateObject) {
-            //TODO: should move out of main thread
             if (guiUpdateObject.isBook()) {
                 Book b = (Book) guiUpdateObject.getObject();
                 GroupBook groupBook = b.getGroupBook();
@@ -276,7 +275,10 @@ public class BookFragment extends MyBaseAbstractFragment implements
                     if (o != null){
                         groupListItem.setChildItemList((List<Book>) o);
                     }else {
-                        groupListItem.setChildItemList(sql.getBookController().getAll(sql.getById(author_id), order.getOrder()));
+                        Log.d(DEBUG_TAG,"onNext: make group reload1 ");
+                        getSamlibOperation().makeGroupReload(null,new BookGuiState((int)author_id,order.getOrder()));
+                        return;
+
                     }
 
                     Log.d(DEBUG_TAG,"onNext: childList: "+groupListItem.getChildItemList().size());
@@ -284,7 +286,9 @@ public class BookFragment extends MyBaseAbstractFragment implements
                 } else {//Author have group
                     GroupBook groupBook = (GroupBook) guiUpdateObject.getObject();
                     if (groupBook.getBooks() == null){
-                        sql.getBookController().getBookForGroup(groupBook,order.getOrder());
+                        Log.d(DEBUG_TAG,"onNext: make group reload: "+groupBook.getName());
+                        getSamlibOperation().makeGroupReload(groupBook,new BookGuiState((int)author_id,order.getOrder()));
+                        return;
                     }
 
                     groupListItem = new GroupListItem(groupBook);
@@ -446,8 +450,7 @@ public class BookFragment extends MyBaseAbstractFragment implements
 
             if (book.isPreserve()) {
                 Log.i(DEBUG_TAG, "remove preserved mark for book " + book.getUri());
-                //TODO: alert Dialogs
-                //TODO: clean all copies and reload
+
                 book.setPreserve(false);
             } else {
                 Log.i(DEBUG_TAG, "making book preserved " + book.getUri());
@@ -462,7 +465,7 @@ public class BookFragment extends MyBaseAbstractFragment implements
             final String[] files = getSettingsHelper().getBookFileVersions(book);
             if (files.length == 0L) {
                 Log.i(DEBUG_TAG, "file is NULL");
-                //TODO: alarm no version is found
+
                 return;
             }
             dialog = SingleChoiceSelectDialog.getInstance(files, (parent, view, position, id) -> {
