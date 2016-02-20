@@ -542,6 +542,7 @@ public class BookFragment extends MyBaseAbstractFragment implements
             //DownloadBookService.start(getActivity(), book.getId(), false);
 
             final Subscription subscription=getBookDownloadService().downloadBook(book)
+                    .distinctUntilChanged()
                     .onBackpressureBuffer()
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe(getBookDownloadProgress());
