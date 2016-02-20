@@ -27,14 +27,13 @@ import in.srain.cube.views.ptr.util.PrefsUtil;
 
 
 import monakhv.android.samlib.data.SettingsHelper;
-import monakhv.android.samlib.sortorder.AuthorSortOrder;
 import monakhv.samlib.db.entity.Author;
 import monakhv.samlib.service.*;
 import rx.Subscription;
 
 
 import java.util.Calendar;
-import java.util.List;
+
 
 /**
  * Bind Service to checkout Authors Updates
@@ -52,11 +51,7 @@ public class UpdateLocalService extends MyService {
     private static final String EXTRA_ARGUMENT = "UpdateLocalService.EXTRA_ARGUMENT";
 
 
-
-
     private final IBinder mBinder = new LocalBinder();
-
-    //private DataExportImport dataExportImport;
 
     private SharedPreferences mSharedPreferences;
     private MessageConstructor mMessageConstructor;
@@ -66,7 +61,6 @@ public class UpdateLocalService extends MyService {
     private boolean isReceiver = false;
     private static PowerManager.WakeLock wl;
     private static Thread mThread;
-
 
 
     public UpdateLocalService() {
@@ -89,7 +83,9 @@ public class UpdateLocalService extends MyService {
             Log.i(DEBUG_TAG, "OnStart: making update");
 
             ArgumentData arg = intent.getExtras().getParcelable(EXTRA_ARGUMENT);
-            isReceiver = arg.isReceiver==1;
+            if (arg != null){
+                isReceiver = arg.isReceiver == 1;
+            }
             runService(arg);
 
         }
@@ -105,27 +101,15 @@ public class UpdateLocalService extends MyService {
     }
 
 
-    /**
-     * Start service - use for receiver Calls
-     *
-     * @param ctx - Context
-     */
-    public static void makeUpdate(Context ctx) {
-        Intent service = new Intent(ctx, UpdateLocalService.class);
-        service.setAction(UpdateLocalService.ACTION_UPDATE);
-        service.putExtra(UpdateLocalService.EXTRA_ARGUMENT, new ArgumentData());
-        ctx.startService(service);
-    }
-
-    public static void makeUpdate(Context context,Author author, AuthorGuiState state){
+    public static void makeUpdate(Context context, Author author, AuthorGuiState state) {
         Intent service = new Intent(context, UpdateLocalService.class);
         service.setAction(UpdateLocalService.ACTION_UPDATE);
         ArgumentData argumentData;
 
-        if (author==null){
-            argumentData=new ArgumentData(state);
-        }else {
-            argumentData=new ArgumentData(author,state);
+        if (author == null) {
+            argumentData = new ArgumentData(state);
+        } else {
+            argumentData = new ArgumentData(author, state);
         }
 
 
@@ -134,7 +118,7 @@ public class UpdateLocalService extends MyService {
     }
 
 
-    private void runService(ArgumentData argDaya) {
+    private void runService(ArgumentData argData) {
 
 
         if (isRun && !isReceiver) {
@@ -161,11 +145,11 @@ public class UpdateLocalService extends MyService {
         wl = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, DEBUG_TAG);
         wl.acquire();
 
-        SpecialAuthorService service=getSpecialSamlibService();
+        SpecialAuthorService service = getSpecialSamlibService();
         service.setCallerIsReceiver(isReceiver);
-        mThread = new SamlibUpdateTread(service, argDaya);
+        mThread = new SamlibUpdateTread(service, argData);
 
-        final Subscription subscription=getBus().getObservable()
+        final Subscription subscription = getBus().getObservable()
                 .subscribe(guiUpdateObject -> {
                     if (guiUpdateObject.isProgress()) {
                         if (mMessageConstructor == null) {
@@ -202,7 +186,7 @@ public class UpdateLocalService extends MyService {
             mThread.interrupt();
             getHttpClientController().cancelAll();
 
-   //         UpdateLocalService.this.mSamlibApplication.releaseServiceComponent();
+            //         UpdateLocalService.this.mSamlibApplication.releaseServiceComponent();
             releaseLock();
         }
     }
@@ -224,7 +208,7 @@ public class UpdateLocalService extends MyService {
 
         public SamlibUpdateTread(AuthorUpdateService authorUpdateService, ArgumentData data) {
             mAuthorUpdateService = authorUpdateService;
-            mData=data;
+            mData = data;
         }
 
         @Override
@@ -232,21 +216,14 @@ public class UpdateLocalService extends MyService {
             super.run();
             isRun = true;
             boolean result;
-            if (isReceiver) {
-                String sTag = getSettingsHelper().getUpdateTag();
-                int iSelected = Integer.parseInt(sTag);
-                String order = AuthorSortOrder.valueOf(getSettingsHelper().getAuthorSortOrderString()).getOrder();
-                List<Author> authors = getAuthorController().getAll(iSelected, order);
-                result = mAuthorUpdateService.runUpdateService(authors, new AuthorGuiState(iSelected, order));
 
+            if (mData.author_id == -1) {
+                result = mAuthorUpdateService.runUpdateService(mData.getState());
             } else {
-                if (mData.author_id == -1) {
-                    result = mAuthorUpdateService.runUpdateService(mData.getState());
-                } else {
-                    Author author=getAuthorController().getById(mData.author_id);
-                    result = mAuthorUpdateService.runUpdateService(author, mData.getState());
-                }
+                Author author = getAuthorController().getById(mData.author_id);
+                result = mAuthorUpdateService.runUpdateService(author, mData.getState());
             }
+
             if (result) {
                 if (getSettingsHelper().getLimitBookLifeTimeFlag() && isReceiver) {
                     CleanBookServiceIntent.start(UpdateLocalService.this);
@@ -272,34 +249,37 @@ public class UpdateLocalService extends MyService {
         }
     }
 
-    private static class ArgumentData implements Parcelable{
+    private static class ArgumentData implements Parcelable {
         int state_id;
         String order;
-        int author_id=-1;
+        int author_id = -1;
         int isReceiver;
 
-        public ArgumentData(){
-            isReceiver=1;
+        public ArgumentData(AuthorGuiState state) {
+            state_id = state.getSelectedTagId();
+            order = state.getSorOrder();
+            if (order == null) {
+                isReceiver = 1;
+            } else {
+                isReceiver = 0;
+            }
+
         }
 
-        public ArgumentData(AuthorGuiState state){
-            state_id=state.getSelectedTagId();
-            order=state.getSorOrder();
-            isReceiver=0;
-        }
-        public ArgumentData(Author author,AuthorGuiState state){
+        public ArgumentData(Author author, AuthorGuiState state) {
             this(state);
-            author_id=author.getId();
+            author_id = author.getId();
         }
 
-        public AuthorGuiState getState(){
-            return new AuthorGuiState(state_id,order);
+        public AuthorGuiState getState() {
+            return new AuthorGuiState(state_id, order);
         }
+
         protected ArgumentData(Parcel in) {
             state_id = in.readInt();
             order = in.readString();
             author_id = in.readInt();
-            isReceiver=in.readInt();
+            isReceiver = in.readInt();
         }
 
         public static final Creator<ArgumentData> CREATOR = new Creator<ArgumentData>() {

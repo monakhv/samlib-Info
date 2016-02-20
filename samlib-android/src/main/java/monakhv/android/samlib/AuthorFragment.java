@@ -661,8 +661,8 @@ public class AuthorFragment extends MyBaseAbstractFragment implements
                 Author author = (Author) guiUpdateObject.getObject();
                 int sort = guiUpdateObject.getSortOrder();
                 if (sort == -1) {
-                    List<Author> aa = getAuthorController().getAll(selectedTag, order.getOrder());
-                    sort = aa.indexOf(author);
+                    getSamlibOperation().makeAuthorReload(author,getGuiState());
+                    return;
                 }
                 GuiUpdateObject.UpdateType updateType = guiUpdateObject.getUpdateType();
                 switch (updateType) {

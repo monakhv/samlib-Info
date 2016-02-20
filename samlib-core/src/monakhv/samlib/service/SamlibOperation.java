@@ -145,6 +145,24 @@ public class SamlibOperation {
         };
         mThread.start();
     }
+
+    public void makeAuthorReload(final Author author,final  AuthorGuiState state){
+        mThread=new Thread(){
+            @Override
+            public void run() {
+                super.run();
+                runAuthorReload(author,state);
+            }
+        };
+        mThread.start();
+    }
+
+    private void runAuthorReload(Author author, AuthorGuiState state) {
+        Author a = mAuthorController.getById(author.getId());
+        int idx = getAuthorIndex(a,state);
+        makeGuiUpdate(new GuiUpdateObject(a, idx));
+    }
+
     /**
      * Special method to make Author read, also make sure that all book re read either
      *
@@ -167,13 +185,12 @@ public class SamlibOperation {
         int i = mAuthorController.markRead(a);
 
 
-        List<Author> authors = mAuthorController.getAll(state.mSelectedTagId, state.mSorOrder);
-        int sort = authors.indexOf(a);
-        makeGuiUpdate(new GuiUpdateObject(a, sort));
+        int idx = getAuthorIndex(a,state);
+        makeGuiUpdate(new GuiUpdateObject(a, idx));
 
 
         List<GroupBook> groupBooks = mAuthorController.getGroupBookController().getByAuthor(a);
-        Log.d(DEBUG_TAG, "Update author status: " + i + "   sort " + sort+" groups: "+groupBooks.size());
+        Log.d(DEBUG_TAG, "Update author status: " + i + "   sort " + idx+" groups: "+groupBooks.size());
         for (GroupBook groupBook : groupBooks) {
             //groupBook.setBooks(mAuthorController.getBookController().getBookForGroup(groupBook,b));
             makeGuiUpdate(new GuiUpdateObject(groupBook, groupBooks.indexOf(groupBook)));

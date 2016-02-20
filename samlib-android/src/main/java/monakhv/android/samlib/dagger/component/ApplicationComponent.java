@@ -28,6 +28,7 @@ import monakhv.android.samlib.dagger.module.ApiModule;
 import monakhv.android.samlib.dagger.module.ApplicationModule;
 import monakhv.android.samlib.dagger.module.DatabaseModule;
 import monakhv.android.samlib.receiver.AutoStartUp;
+import monakhv.android.samlib.receiver.UpdateReceiver;
 import monakhv.samlib.http.HttpClientController;
 import monakhv.samlib.service.GuiEventBus;
 import monakhv.samlib.service.AuthorSearchService;
@@ -46,6 +47,7 @@ public interface ApplicationComponent {
     void inject(SamlibApplication application);
 
     void inject (AutoStartUp receiver);
+    void inject (UpdateReceiver receiver);
 
     GuiEventBus getGuiEventBus();
 
