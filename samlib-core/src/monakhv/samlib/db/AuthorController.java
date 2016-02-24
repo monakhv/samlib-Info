@@ -387,6 +387,7 @@ public class AuthorController implements AbstractController<Author> {
         a.setIsNew(rr);
         a.setBookLoaded(false);
         update(a);
+        author.setIsNew(a.isIsNew());
         return true;
     }
 

@@ -658,7 +658,9 @@ public class AuthorFragment extends MyBaseAbstractFragment implements
         @Override
         public void onNext(GuiUpdateObject guiUpdateObject) {
             if (guiUpdateObject.isAuthor()) {
+                adapter.cleanSelection();
                 Author author = (Author) guiUpdateObject.getObject();
+                Log.d(DEBUG_TAG,"onNext: get Author: "+author.getName()+" new: "+author.isIsNew());
                 int sort = guiUpdateObject.getSortOrder();
                 if (sort == -1) {
                     getSamlibOperation().makeAuthorReload(author,getGuiState());
@@ -667,11 +669,9 @@ public class AuthorFragment extends MyBaseAbstractFragment implements
                 GuiUpdateObject.UpdateType updateType = guiUpdateObject.getUpdateType();
                 switch (updateType) {
                     case DELETE:
-                        adapter.cleanSelection();
                         adapter.remove(sort);
                         break;
                     case ADD:
-                        adapter.cleanSelection();
                         adapter.add(author, sort);
                         break;
                     default:
