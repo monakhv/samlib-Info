@@ -195,6 +195,7 @@ public class SamlibOperation {
             return false;
         }
 
+        List<GroupBook> newGroups = mAuthorController.getGroupBookController().getByAuthorNew(a);
 
         int i = mAuthorController.markRead(a);
 
@@ -205,7 +206,7 @@ public class SamlibOperation {
 
         List<GroupBook> groupBooks = mAuthorController.getGroupBookController().getByAuthor(a);
         Log.d(DEBUG_TAG, "Update author status: " + i + "   sort " + idx + " groups: " + groupBooks.size());
-        for (GroupBook groupBook : groupBooks) {
+        for (GroupBook groupBook : newGroups) {
             //groupBook.setBooks(mAuthorController.getBookController().getBookForGroup(groupBook,b));
             makeGuiUpdate(new GuiUpdateObject(groupBook, groupBooks.indexOf(groupBook)));
         }

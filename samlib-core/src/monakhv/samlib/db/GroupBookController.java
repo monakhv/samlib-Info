@@ -157,6 +157,30 @@ public class GroupBookController {
         }
 
     }
+    /**
+     * get List of Group for given Author where there are new books
+     *
+     * @param author Author object
+     * @return List of Group
+     */
+    public List<GroupBook> getByAuthorNew(Author author) {
+        QueryBuilder<GroupBook, Integer> qb = mGroupDao.queryBuilder();
+        qb.orderBy(SQLController.COL_GROUP_NEW_NUMBER, false);
+        qb.orderBy(SQLController.COL_GROUP_IS_HIDDEN, true);
+        try {
+            qb.where()
+                    .eq(SQLController.COL_BOOK_AUTHOR_ID, author)
+                    .and()
+                    .gt(SQLController.COL_GROUP_NEW_NUMBER,0);
+
+
+            return mGroupDao.query(qb.prepare());
+        } catch (SQLException e) {
+            Log.e(DEBUG_TAG, "getByAuthor error ", e);
+            return null;
+        }
+
+    }
 
     public GroupBook getByAuthorAndName(Author author, String name) {
 
