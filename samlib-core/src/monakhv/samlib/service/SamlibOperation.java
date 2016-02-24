@@ -39,8 +39,8 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * Data base Operations like Add or remove Authors
- *  Make book read or unread
- *
+ * Make book read or unread
+ * <p>
  * Subject bus using java -rx
  * Created by monakhv on 12.02.16.
  */
@@ -57,36 +57,35 @@ public class SamlibOperation {
     private final HttpClientController mHttpClientController;
     private final GuiEventBus mGuiEventBus;
 
-    private  Thread mThread;
+    private Thread mThread;
 
-    public SamlibOperation(AuthorController sql, AbstractSettings settingsHelper, HttpClientController httpClientController,GuiEventBus guiEventBus) {
+    public SamlibOperation(AuthorController sql, AbstractSettings settingsHelper, HttpClientController httpClientController, GuiEventBus guiEventBus) {
         mAuthorController = sql;
         mSettingsHelper = settingsHelper;
         mHttpClientController = httpClientController;
-        mGuiEventBus=guiEventBus;
+        mGuiEventBus = guiEventBus;
 
     }
 
 
-
-
     public void makeBookReadFlip(final Book book, final BookGuiState bState, final AuthorGuiState aState) {
-         mThread=new Thread(){
+        mThread = new Thread() {
             @Override
             public void run() {
                 super.run();
-                runBookReadFlip(book,bState,aState);
+                runBookReadFlip(book, bState, aState);
             }
 
         };
         mThread.start();
     }
+
     public void makeGroupReadFlip(final GroupBook groupBook, final BookGuiState bState, final AuthorGuiState aState) {
-        mThread=new Thread(){
+        mThread = new Thread() {
             @Override
             public void run() {
                 super.run();
-                runGroupReadFlip(groupBook,bState,aState);
+                runGroupReadFlip(groupBook, bState, aState);
             }
         };
         mThread.start();
@@ -94,37 +93,40 @@ public class SamlibOperation {
     }
 
     public void makeAuthorRead(final Author author, final AuthorGuiState state) {
-        mThread=new Thread(){
+        mThread = new Thread() {
             @Override
             public void run() {
                 super.run();
-                runAuthorRead(author,state);
+                runAuthorRead(author, state);
             }
         };
         mThread.start();
     }
+
     public void makeAuthorDel(final Author author, final AuthorGuiState state) {
-        mThread =new Thread(){
+        mThread = new Thread() {
             @Override
             public void run() {
                 super.run();
-                runAuthorDel(author,state);
+                runAuthorDel(author, state);
             }
         };
         mThread.start();
     }
+
     public void makeAuthorAdd(final ArrayList<String> urls, final AuthorGuiState state) {
-        mThread =new Thread(){
+        mThread = new Thread() {
             @Override
             public void run() {
                 super.run();
-                runAuthorAdd(urls,state);
+                runAuthorAdd(urls, state);
             }
         };
         mThread.start();
     }
+
     public void makeUpdateTags(final AuthorGuiState state) {
-        mThread =new Thread(){
+        mThread = new Thread() {
             @Override
             public void run() {
                 super.run();
@@ -134,24 +136,36 @@ public class SamlibOperation {
         mThread.start();
     }
 
-    public void makeGroupReload(final GroupBook groupBook, final BookGuiState state){
+    public void makeGroupReload(final GroupBook groupBook, final BookGuiState state) {
 
-        mThread =new Thread(){
+        mThread = new Thread() {
             @Override
             public void run() {
                 super.run();
-                runGroupReload(groupBook,state);
+                runGroupReload(groupBook, state);
             }
         };
         mThread.start();
     }
 
-    public void makeAuthorReload(final Author author,final  AuthorGuiState state){
-        mThread=new Thread(){
+    public void makeBookReload(final Book book, final BookGuiState state) {
+
+        mThread = new Thread() {
             @Override
             public void run() {
                 super.run();
-                runAuthorReload(author,state);
+                runBookReload(book, state);
+            }
+        };
+        mThread.start();
+    }
+
+    public void makeAuthorReload(final Author author, final AuthorGuiState state) {
+        mThread = new Thread() {
+            @Override
+            public void run() {
+                super.run();
+                runAuthorReload(author, state);
             }
         };
         mThread.start();
@@ -159,7 +173,7 @@ public class SamlibOperation {
 
     private void runAuthorReload(Author author, AuthorGuiState state) {
         Author a = mAuthorController.getById(author.getId());
-        int idx = getAuthorIndex(a,state);
+        int idx = getAuthorIndex(a, state);
         makeGuiUpdate(new GuiUpdateObject(a, idx));
     }
 
@@ -185,18 +199,18 @@ public class SamlibOperation {
         int i = mAuthorController.markRead(a);
 
 
-        int idx = getAuthorIndex(a,state);
+        int idx = getAuthorIndex(a, state);
         makeGuiUpdate(new GuiUpdateObject(a, idx));
 
 
         List<GroupBook> groupBooks = mAuthorController.getGroupBookController().getByAuthor(a);
-        Log.d(DEBUG_TAG, "Update author status: " + i + "   sort " + idx+" groups: "+groupBooks.size());
+        Log.d(DEBUG_TAG, "Update author status: " + i + "   sort " + idx + " groups: " + groupBooks.size());
         for (GroupBook groupBook : groupBooks) {
             //groupBook.setBooks(mAuthorController.getBookController().getBookForGroup(groupBook,b));
             makeGuiUpdate(new GuiUpdateObject(groupBook, groupBooks.indexOf(groupBook)));
         }
-        if (groupBooks.size()==0){//special case when Author has no groups
-            makeGuiUpdate(new GuiUpdateObject(GuiUpdateObject.ObjectType.GROUP,null));
+        if (groupBooks.size() == 0) {//special case when Author has no groups
+            makeGuiUpdate(new GuiUpdateObject(GuiUpdateObject.ObjectType.GROUP, null));
         }
         return true;
 
@@ -204,37 +218,39 @@ public class SamlibOperation {
 
     @SuppressWarnings("ConstantConditions")
     private void runGroupReadFlip(GroupBook groupBook, BookGuiState bState, AuthorGuiState aState) {
-        List<Book> books;
+        Log.d(DEBUG_TAG,"runGroupReadFlip: id "+groupBook.getId());
 
-        if (groupBook == null) {//Author has no group
-            Author author = mAuthorController.getById(bState.mAuthorId);
-            books = mAuthorController.getBookController().getAll(author, bState.mSortOrder);
-        } else {//Author has groups
-            mAuthorController.getBookController().getBookForGroup(groupBook, bState.mSortOrder);
-            books = groupBook.getBooks();
-        }
+        List<Book> books=groupBook.getBooks();
 
 
         for (Book book : books) {
             if (book.isIsNew()) {
                 mAuthorController.getBookController().markRead(book);
             }
-        }
-
-
-        Author author = mAuthorController.getById(bState.mAuthorId);
-        if (mAuthorController.testMarkRead(author)) {
-            if (aState != null){
-                makeGuiUpdate(new GuiUpdateObject(author, getAuthorIndex(author, aState)));
+            Author author = book.getAuthor();
+            if (mAuthorController.testMarkRead(author)) {
+                if (aState != null) {
+                    makeGuiUpdate(new GuiUpdateObject(author, getAuthorIndex(author, aState)));
+                }
             }
         }
 
-        if (groupBook == null) {
-            makeGuiUpdate(new GuiUpdateObject(GuiUpdateObject.ObjectType.GROUP,mAuthorController.getBookController().getAll(author,bState.mSortOrder)));
+        if (groupBook.getId() <0) {
+            if (groupBook.getId() ==-2){//selected books
+                GroupBook g = mAuthorController.getBookController().getSelectedGroup(bState.mSortOrder);
+                makeGuiUpdate(new GuiUpdateObject(g, 0));
+                return;
+            }else if (groupBook.getId() ==-1){
+                mAuthorController.getBookController().getBookForGroup(groupBook, bState.mSortOrder);
+                makeGuiUpdate(new GuiUpdateObject(groupBook, 0));
+                return;
+            }
+
+
         } else {
-            List<GroupBook> rr = mAuthorController.getGroupBookController().getByAuthor(author);
+            List<GroupBook> rr = mAuthorController.getGroupBookController().getByAuthor(groupBook.getAuthor());
             GroupBook g = mAuthorController.getGroupBookController().getById(groupBook.getId());
-            mAuthorController.getBookController().getBookForGroup(g,bState.mSortOrder);
+            mAuthorController.getBookController().getBookForGroup(g, bState.mSortOrder);
 
             makeGuiUpdate(new GuiUpdateObject(g, rr.indexOf(groupBook)));
 
@@ -247,7 +263,7 @@ public class SamlibOperation {
      * Invert read book flag
      * Adjust author flag either
      *
-     * @param  book Book
+     * @param book Book
      */
     private void runBookReadFlip(Book book, BookGuiState bState, AuthorGuiState aState) {
 
@@ -274,32 +290,28 @@ public class SamlibOperation {
                 makeGuiUpdate(new GuiUpdateObject(a, getAuthorIndex(a, aState)));
             }
         }
-        GroupBook groupBook = mAuthorController.getGroupBookController().getByBook(book);
-        List<Book> books;
-        if (groupBook == null) {
-            books = mAuthorController.getBookController().getAll(a, bState.mSortOrder);
-        } else {
-            mAuthorController.getBookController().getBookForGroup(groupBook, bState.mSortOrder);
-            books = groupBook.getBooks();
-        }
-        book.setGroupBook(groupBook);
 
-        makeGuiUpdate(new GuiUpdateObject(book, books.indexOf(book)));
+        makeGuiUpdate(new GuiUpdateObject(book, loadBooks(book, bState).indexOf(book)));
 
     }
 
-    private void runGroupReload(GroupBook groupBook, BookGuiState bState){
+    private void runGroupReload(GroupBook groupBook, BookGuiState bState) {
         Author author = mAuthorController.getById(bState.mAuthorId);
-        if (groupBook == null){//Author has no group that means all book are in the single default group
+        if (groupBook == null) {//Author has no group that means all book are in the single default group
 
             List<Book> books = mAuthorController.getBookController().getAll(author, bState.mSortOrder);
-            makeGuiUpdate(new GuiUpdateObject(GuiUpdateObject.ObjectType.GROUP,books));
-        }else {
+            makeGuiUpdate(new GuiUpdateObject(GuiUpdateObject.ObjectType.GROUP, books));
+        } else {
             GroupBook g = mAuthorController.getGroupBookController().getById(groupBook.getId());
-            mAuthorController.getBookController().getBookForGroup(g,bState.mSortOrder);
+            mAuthorController.getBookController().getBookForGroup(g, bState.mSortOrder);
             List<GroupBook> gg = mAuthorController.getGroupBookController().getByAuthor(author);
-            makeGuiUpdate(new GuiUpdateObject(g,gg.indexOf(g)));
+            makeGuiUpdate(new GuiUpdateObject(g, gg.indexOf(g)));
         }
+    }
+
+    private void runBookReload(Book book, BookGuiState state) {
+        List<Book> books = loadBooks(book, state);
+        makeGuiUpdate(new GuiUpdateObject(book, books.indexOf(book)));
     }
 
     /**
@@ -335,7 +347,7 @@ public class SamlibOperation {
         Result result = new Result(true);
         Random rnd = new Random(Calendar.getInstance().getTimeInMillis());
 
-        result.totalToAdd=urls.size();
+        result.totalToAdd = urls.size();
         for (String url : urls) {
             Author a = loadAuthor(result, url);
             if (a != null) {
@@ -382,7 +394,7 @@ public class SamlibOperation {
 
             }
         }
-        makeGuiUpdate(new GuiUpdateObject(GuiUpdateObject.ObjectType.TAG,null));
+        makeGuiUpdate(new GuiUpdateObject(GuiUpdateObject.ObjectType.TAG, null));
 
     }
 
@@ -400,6 +412,33 @@ public class SamlibOperation {
         Author author = mAuthorController.getById(id);
         final List<Author> authors = mAuthorController.getAll(state.mSelectedTagId, state.mSorOrder);
         return authors.indexOf(author);
+    }
+
+    /**
+     * Return list of books of group for given book
+     *
+     * @param book   the Book to determine the Group
+     * @param bState Book Gui state
+     * @return List of book
+     */
+    private List<Book> loadBooks(Book book, BookGuiState bState) {
+        GroupBook groupBook;
+        List<Book> books;
+        if (bState.mAuthorId == SamLibConfig.SELECTED_BOOK_ID) {//Selected book search
+            groupBook = mAuthorController.getBookController().getSelectedGroup(bState.mSortOrder);
+
+        } else {
+            groupBook = mAuthorController.getGroupBookController().getByBook(book);
+            Log.d(DEBUG_TAG,"groupBook id: "+groupBook.getId());
+            mAuthorController.getBookController().getBookForGroup(groupBook, bState.mSortOrder);
+        }
+
+        books = groupBook.getBooks();
+
+
+        book.setGroupBook(groupBook);
+        return books;
+
     }
 
     private Author loadAuthor(Result res, String url) {

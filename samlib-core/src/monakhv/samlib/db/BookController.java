@@ -4,10 +4,7 @@ package monakhv.samlib.db;
 import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.stmt.PreparedQuery;
 import com.j256.ormlite.stmt.QueryBuilder;
-import monakhv.samlib.db.entity.Author;
-import monakhv.samlib.db.entity.Book;
-import monakhv.samlib.db.entity.GroupBook;
-import monakhv.samlib.db.entity.SelectedBook;
+import monakhv.samlib.db.entity.*;
 import monakhv.samlib.log.Log;
 
 
@@ -245,13 +242,30 @@ public class BookController {
     }
 
 
+    public GroupBook getSelectedGroup(String order){
+        GroupBook groupBook = new GroupBook();
+        groupBook.setId(SamLibConfig.GROUP_ID_SELECTED);
+
+        List<Book> books = getSelected(order);
+        groupBook.setBooks(books);
+        int newNumber = 0;
+        for (Book book:books){
+            if (book.isIsNew()){
+                ++newNumber;
+            }
+        }
+        groupBook.setNewNumber(newNumber);
+        return groupBook;
+
+    }
+
     /**
      * Get Selected Book
      *
      * @param order Sort order if not null
      * @return List of selected books
      */
-    public List<Book> getSelected(String order) {
+    List<Book> getSelected(String order) {
         QueryBuilder<Book, Integer> qbBooks = dao.queryBuilder();
         QueryBuilder<SelectedBook, Integer> qbSelected = selectedDao.queryBuilder();
 
@@ -277,7 +291,19 @@ public class BookController {
 
     }
 
+    /**
+     * Find all books for the group and put them into the group object
+     * @param groupBook Group object to search books for
+     * @param order book sort order
+     */
     public void getBookForGroup(GroupBook groupBook,String order) {
+        if (groupBook.getId() == -1){//All books for the author
+            groupBook.setBooks(getAll(groupBook.getAuthor(),order));
+            groupBook.setNewNumber(getAllNew(groupBook.getAuthor(),order).size());
+            return;
+        }
+
+
         QueryBuilder<Book, Integer> qbBooks = dao.queryBuilder();
         if (order != null) {
             qbBooks.orderByRaw(order);

@@ -23,6 +23,7 @@ import com.j256.ormlite.stmt.QueryBuilder;
 import monakhv.samlib.db.entity.Author;
 import monakhv.samlib.db.entity.Book;
 import monakhv.samlib.db.entity.GroupBook;
+import monakhv.samlib.db.entity.SamLibConfig;
 import monakhv.samlib.log.Log;
 
 import java.sql.SQLException;
@@ -95,13 +96,30 @@ public class GroupBookController {
         }
     }
 
+    /**
+     * Get virtual group which contains all books of the Author
+     * @param author the Author
+     * @return
+     */
+    public GroupBook getAllGroup(Author author){
+        GroupBook groupBook=new GroupBook();
+        groupBook.setAuthor(author);
+        groupBook.setId(SamLibConfig.GROUP_ID_ALL);
+        return groupBook;
+    }
     public GroupBook getByBook(Book book){
         GroupBook groupBook;
+        if (book.getGroupBook() == null){
+            return getAllGroup(book.getAuthor());
+        }
         try {
             groupBook = mGroupDao.queryForId(book.getGroupBook().getId());
         } catch (SQLException e) {
             Log.e(DEBUG_TAG,"getByBook: not found uri: "+book.getUri(),e);
             return null;
+        }
+        if (groupBook == null){
+            return getAllGroup(book.getAuthor());
         }
         return groupBook;
     }

@@ -238,11 +238,8 @@ public class BookFragment extends MyBaseAbstractFragment implements
         getLoaderManager().restartLoader(BOOK_LOADER_ID, null, this);
     }
 
-    public void updateAdapter(Book book) {
-
-        GroupBook groupBook = sql.getGroupBookController().getByBook(book);
-
-        adapter.updateData(book, groupBook, -1);
+    private void updateAdapter(Book book) {
+        getSamlibOperation().makeBookReload(book, getBookGuiState());
     }
 
 
@@ -262,44 +259,33 @@ public class BookFragment extends MyBaseAbstractFragment implements
             if (guiUpdateObject.isBook()) {
                 Book b = (Book) guiUpdateObject.getObject();
                 GroupBook groupBook = b.getGroupBook();
+                Log.d(DEBUG_TAG, "onNext: get Book: "+b.getUri()+" groupId: "+groupBook.getId()+" sort: "+guiUpdateObject.getSortOrder());
 
                 adapter.updateData(b, groupBook, guiUpdateObject.getSortOrder());
             }
             if (guiUpdateObject.isGroup()) {//begin group
-                Log.d(DEBUG_TAG,"onNext: get Group");
+                Log.d(DEBUG_TAG, "onNext: get Group");
                 GroupListItem groupListItem;
-                if (guiUpdateObject.getObjectId() == -1) {//Author has no group
-                    Log.d(DEBUG_TAG,"onNext: id = -1");
-                    groupListItem = new GroupListItem();
-                    Object o = guiUpdateObject.getObject();
-                    if (o != null){
-                        groupListItem.setChildItemList((List<Book>) o);
-                    }else {
-                        Log.d(DEBUG_TAG,"onNext: make group reload1 ");
-                        getSamlibOperation().makeGroupReload(null,new BookGuiState((int)author_id,order.getOrder()));
-                        return;
 
-                    }
-
-                    Log.d(DEBUG_TAG,"onNext: childList: "+groupListItem.getChildItemList().size());
-
-                } else {//Author have group
-                    GroupBook groupBook = (GroupBook) guiUpdateObject.getObject();
-                    if (groupBook.getBooks() == null){
-                        Log.d(DEBUG_TAG,"onNext: make group reload: "+groupBook.getName());
-                        getSamlibOperation().makeGroupReload(groupBook,new BookGuiState((int)author_id,order.getOrder()));
-                        return;
-                    }
-
-                    groupListItem = new GroupListItem(groupBook);
-                    Log.d(DEBUG_TAG,"onNext: get Group: "+groupBook.getName()+"  id: "+groupBook.getId());
+                GroupBook groupBook = (GroupBook) guiUpdateObject.getObject();
+                if (groupBook.getBooks() == null) {
+                    Log.d(DEBUG_TAG, "onNext: make group reload: " + groupBook.getName());
+                    getSamlibOperation().makeGroupReload(groupBook, getBookGuiState());
+                    return;
                 }
+
+                groupListItem = new GroupListItem(groupBook);
+                Log.d(DEBUG_TAG, "onNext: get Group: " + groupBook.getName() + "  id: " + groupBook.getId());
 
 
                 adapter.updateData(groupListItem, guiUpdateObject.getSortOrder());
             }//end group
         }
     };
+
+    private BookGuiState getBookGuiState() {
+        return new BookGuiState((int) author_id, order.getOrder());
+    }
 
     /**
      * Set new author_id and update selection,adapter and empty view
@@ -541,7 +527,7 @@ public class BookFragment extends MyBaseAbstractFragment implements
             progress.show();
             //DownloadBookService.start(getActivity(), book.getId(), false);
 
-            final Subscription subscription=getBookDownloadService().downloadBook(book)
+            final Subscription subscription = getBookDownloadService().downloadBook(book)
                     .distinctUntilChanged()
                     .onBackpressureBuffer()
                     .observeOn(AndroidSchedulers.mainThread())
@@ -554,7 +540,7 @@ public class BookFragment extends MyBaseAbstractFragment implements
 
     }
 
-    private Subscriber<Integer> getBookDownloadProgress(){
+    private Subscriber<Integer> getBookDownloadProgress() {
         return new Subscriber<Integer>() {
             @Override
             public void onCompleted() {
@@ -565,7 +551,7 @@ public class BookFragment extends MyBaseAbstractFragment implements
             @Override
             public void onError(Throwable e) {
                 progress.dismiss();
-                Log.e(DEBUG_TAG,"onError",e);
+                Log.e(DEBUG_TAG, "onError", e);
                 Toast toast = Toast.makeText(getActivity(), getActivity().getText(R.string.download_book_error), Toast.LENGTH_SHORT);
                 toast.show();
             }
@@ -609,8 +595,8 @@ public class BookFragment extends MyBaseAbstractFragment implements
         launchBrowser.setAction(android.content.Intent.ACTION_VIEW);
         launchBrowser.setDataAndType(Uri.parse(url), book.getFileMime());
 
-        if (launchBrowser.resolveActivity(getActivity().getPackageManager())==null){
-            Toast toast=Toast.makeText(getContext(),getString(R.string.no_such_application_to_view),Toast.LENGTH_SHORT);
+        if (launchBrowser.resolveActivity(getActivity().getPackageManager()) == null) {
+            Toast toast = Toast.makeText(getContext(), getString(R.string.no_such_application_to_view), Toast.LENGTH_SHORT);
             toast.show();
             return;
         }
