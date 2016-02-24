@@ -108,7 +108,7 @@ public class MessageConstructor {
      */
     public void updateNotification(Author author) {
         if (mProgressNotification == null) {
-            mProgressNotification = new ProgressNotification(mSettingsHelper, "text");
+           return;
         }
         mProgressNotification.update(author);
     }

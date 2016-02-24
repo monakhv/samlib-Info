@@ -161,7 +161,7 @@ public class UpdateLocalService extends MyService {
                         mMessageConstructor.cancelProgress();
                         mMessageConstructor.showUpdateNotification((Result) guiUpdateObject.getObject());
                     }
-                    if (guiUpdateObject.isAuthor()) {
+                    if (guiUpdateObject.isAuthor() && guiUpdateObject.getUpdateType()== GuiUpdateObject.UpdateType.UPDATE_UPDATE) {
                         mMessageConstructor.updateNotification((Author) guiUpdateObject.getObject());
                     }
                 });
