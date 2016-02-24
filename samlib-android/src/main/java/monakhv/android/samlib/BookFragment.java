@@ -523,7 +523,7 @@ public class BookFragment extends MyBaseAbstractFragment implements
             progress.setCancelable(true);
             //progress.setIndeterminate(true);
             progress.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
-            progress.setMax(100);
+            progress.setMax((int)book.getSize());
             progress.show();
             //DownloadBookService.start(getActivity(), book.getId(), false);
 
@@ -544,6 +544,7 @@ public class BookFragment extends MyBaseAbstractFragment implements
         return new Subscriber<Integer>() {
             @Override
             public void onCompleted() {
+                progress.setProgress(progress.getMax());
                 progress.dismiss();
                 launchReader(book);
             }

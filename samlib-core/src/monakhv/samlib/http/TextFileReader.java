@@ -61,7 +61,7 @@ public class TextFileReader implements HttpClientController.PageReader {
         double report;
         while (inputLine != null) {
             size+=inputLine.getBytes("UTF-8").length;
-            report=100*(0.55*size/1024+4.59)/mSize;
+            report=(0.55*size/1024+4.59);
             mSubject.onNext((int) report);
             bw.write(inputLine);
             bw.newLine();
@@ -69,7 +69,7 @@ public class TextFileReader implements HttpClientController.PageReader {
         }
         size=size/1024.;
         Log.d("TextFileReader","size: "+size);
-        Log.d("TextFileReader","size: "+((double ) (0.55*size+4.59))+"   book size "+mSize);
+        Log.d("TextFileReader","size: "+ 0.55*size+4.59 +"   book size "+mSize);
         bw.flush();
         bw.close();
         return null;

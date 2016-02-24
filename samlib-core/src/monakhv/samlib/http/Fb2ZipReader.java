@@ -61,29 +61,29 @@ public class Fb2ZipReader implements HttpClientController.PageReader {
             Log.v(DEBUG_TAG, "Unzipping " + ze.getName() + " into " + file.getParent());
 
             if (!ze.isDirectory()) {
-                FileOutputStream fout = new FileOutputStream(file.getParent() + "/" + ze.getName());
+                FileOutputStream fOut = new FileOutputStream(file.getParent() + "/" + ze.getName());
                 final int BUFFER_SIZE = 2048;
-                BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(fout, BUFFER_SIZE);
+                BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(fOut, BUFFER_SIZE);
                 int count ;
 
                 byte[] buffer = new byte[BUFFER_SIZE];
                 while ((count = zipInp.read(buffer, 0, BUFFER_SIZE)) != -1) {
                     bufferedOutputStream.write(buffer, 0, count);
                     size+=count;
-                    report=100*(0.56*size/1024.+4.55)/mSize;
+                    report=(0.56*size/1024.+4.55);
                     mSubject.onNext((int) report);
                 }
                 bufferedOutputStream.flush();
                 bufferedOutputStream.close();
 
                 zipInp.closeEntry();
-                fout.close();
+                fOut.close();
             }
         }
         zipInp.close();
         size=size/1024.;
         Log.d(DEBUG_TAG,"total size: "+size);
-        Log.d(DEBUG_TAG,"size: "+((double ) (0.56*size+4.55))+"   book size "+mSize);
+        Log.d(DEBUG_TAG,"size: "+ 0.56*size+4.55 +"   book size "+mSize);
         return null;
     }
 }
