@@ -231,8 +231,8 @@ public class BookExpandableAdapter extends ExpandableRecyclerAdapter<GroupViewHo
 
     /**
      * update whole Book group
-     * @param groupListItem
-     * @param sort
+     * @param groupListItem parentItem
+     * @param sort sort order currently not used
      */
     public void updateData(GroupListItem groupListItem, int sort) {
 
