@@ -275,7 +275,7 @@ public class BookFragment extends MyBaseAbstractFragment implements
                 }
 
                 groupListItem = new GroupListItem(groupBook);
-                Log.d(DEBUG_TAG, "onNext: get Group: " + groupBook.getName() + "  id: " + groupBook.getId());
+                Log.d(DEBUG_TAG, "onNext: get Group: " + groupBook.getName() + "  id: " + groupBook.getId()+"  NewNumber: "+groupBook.getNewNumber());
 
 
                 adapter.updateData(groupListItem, guiUpdateObject.getSortOrder());

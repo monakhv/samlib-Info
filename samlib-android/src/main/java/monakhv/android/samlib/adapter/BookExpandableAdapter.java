@@ -287,6 +287,7 @@ public class BookExpandableAdapter extends ExpandableRecyclerAdapter<GroupViewHo
 
 
                 gi.newNumber=group.getNewNumber();
+                gi.setGroupBook(group);
                 int idx = gi.getChildItemList().indexOf(book);
                 Log.d(DEBUG_TAG, "updateData2: parent item found at " +i+  " id: " + iParent+"  book index: "+idx+"   child list size: "+gi.getChildItemList().size());
                 if (idx != -1) {

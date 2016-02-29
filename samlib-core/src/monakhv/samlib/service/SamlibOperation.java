@@ -219,20 +219,22 @@ public class SamlibOperation {
 
     @SuppressWarnings("ConstantConditions")
     private void runGroupReadFlip(GroupBook groupBook, BookGuiState bState, AuthorGuiState aState) {
-        Log.d(DEBUG_TAG,"runGroupReadFlip: id "+groupBook.getId());
+
 
         List<Book> books=groupBook.getBooks();
+        Log.d(DEBUG_TAG,"runGroupReadFlip: id "+groupBook.getId()+" book number: "+books.size());
 
 
         for (Book book : books) {
             if (book.isIsNew()) {
+                Log.d(DEBUG_TAG,"runGroupReadFlip: clean new mark for the book: "+book.getTitle());
                 mAuthorController.getBookController().markRead(book);
             }
-            Author author = book.getAuthor();
-            if (mAuthorController.testMarkRead(author)) {
-                if (aState != null) {
-                    makeGuiUpdate(new GuiUpdateObject(author, getAuthorIndex(author, aState)));
-                }
+        }
+        Author author = groupBook.getAuthor();
+        if (mAuthorController.testMarkRead(author)) {
+            if (aState != null) {
+                makeGuiUpdate(new GuiUpdateObject(author, getAuthorIndex(author, aState)));
             }
         }
 
@@ -240,11 +242,11 @@ public class SamlibOperation {
             if (groupBook.getId() ==-2){//selected books
                 GroupBook g = mAuthorController.getBookController().getSelectedGroup(bState.mSortOrder);
                 makeGuiUpdate(new GuiUpdateObject(g, 0));
-                return;
+
             }else if (groupBook.getId() ==-1){
                 mAuthorController.getBookController().getBookForGroup(groupBook, bState.mSortOrder);
                 makeGuiUpdate(new GuiUpdateObject(groupBook, 0));
-                return;
+
             }
 
 
