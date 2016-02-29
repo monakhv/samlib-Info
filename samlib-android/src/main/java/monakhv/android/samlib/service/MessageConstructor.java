@@ -28,6 +28,9 @@ import monakhv.samlib.service.GuiUpdateObject;
 import monakhv.samlib.service.Result;
 import monakhv.samlib.service.AuthorUpdateProgress;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Make display messages and notifications
  * for update data
@@ -37,10 +40,12 @@ public class MessageConstructor {
     private Context mContext;
     private ProgressNotification mProgressNotification;
     private SettingsHelper mSettingsHelper;
+    private List<Author> mAuthorList;
 
     public MessageConstructor(Context context, SettingsHelper settingsHelper) {
         mContext = context;
         mSettingsHelper = settingsHelper;
+        mAuthorList = new ArrayList<>();
     }
 
     public String makeMessage(GuiUpdateObject guiUpdateObject) {
@@ -110,7 +115,11 @@ public class MessageConstructor {
         if (mProgressNotification == null) {
            return;
         }
+        if (mAuthorList.contains(author)){
+            return;
+        }
         mProgressNotification.update(author);
+        mAuthorList.add(author);
     }
 
 

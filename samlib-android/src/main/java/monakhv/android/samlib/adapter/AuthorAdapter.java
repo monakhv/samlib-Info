@@ -209,6 +209,8 @@ public class AuthorAdapter extends RecyclerAdapter<Author, AuthorAdapter.AuthorV
                     .textColor(context.getResources().getColor(R.color.green_dark))
                     .endConfig()
                     .buildRound(context.getString(R.string.fa_user), Color.GRAY);
+            //default image will be old one
+            flipIcon.setImageDrawable(oldAuthorImage);
 
 
         }

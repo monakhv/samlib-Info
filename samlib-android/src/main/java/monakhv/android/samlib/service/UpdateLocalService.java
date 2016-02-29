@@ -22,12 +22,13 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.*;
 import android.support.annotation.Nullable;
-import android.util.Log;
+
 import in.srain.cube.views.ptr.util.PrefsUtil;
 
 
 import monakhv.android.samlib.data.SettingsHelper;
 import monakhv.samlib.db.entity.Author;
+import monakhv.samlib.log.Log;
 import monakhv.samlib.service.*;
 import rx.Subscription;
 
@@ -150,19 +151,24 @@ public class UpdateLocalService extends MyService {
         mThread = new SamlibUpdateTread(service, argData);
 
         final Subscription subscription = getBus().getObservable()
+                .distinctUntilChanged()
                 .subscribe(guiUpdateObject -> {
                     if (guiUpdateObject.isProgress()) {
                         if (mMessageConstructor == null) {
                             mMessageConstructor = new MessageConstructor(this, getSettingsHelper());
                         }
                         mMessageConstructor.updateNotification((AuthorUpdateProgress) guiUpdateObject.getObject());
+                        Log.d(DEBUG_TAG,"runService: progressUpdate");
                     }
                     if (guiUpdateObject.isResult()) {
                         mMessageConstructor.cancelProgress();
                         mMessageConstructor.showUpdateNotification((Result) guiUpdateObject.getObject());
+                        Log.d(DEBUG_TAG,"runService: Result");
                     }
                     if (guiUpdateObject.isAuthor() && guiUpdateObject.getUpdateType()== GuiUpdateObject.UpdateType.UPDATE_UPDATE) {
-                        mMessageConstructor.updateNotification((Author) guiUpdateObject.getObject());
+                        Author author = (Author) guiUpdateObject.getObject();
+                        mMessageConstructor.updateNotification(author);
+                        Log.d(DEBUG_TAG,"runService: AuthorUpdate: "+author.getName());
                     }
                 });
         addSubscription(subscription);

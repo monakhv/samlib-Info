@@ -155,13 +155,17 @@ public class AuthorFragment extends MyBaseAbstractFragment implements
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Log.d(DEBUG_TAG, "onCreate");
+        if (savedInstanceState != null) {
+            Log.d(DEBUG_TAG,"onCreate: Have not NULL Statel ");
+        }
 
         order = AuthorSortOrder.valueOf(getSettingsHelper().getAuthorSortOrderString());
         detector = new GestureDetector(getActivity(), new ListSwipeListener(this));
         Intent service = new Intent(getActivity(), UpdateLocalService.class);
         getActivity().bindService(service, mConnection, Context.BIND_AUTO_CREATE);
         mMessageConstructor = new MessageConstructor(getActivity(), getSettingsHelper());
-        Log.d(DEBUG_TAG, "onCreate");
+
     }
 
     @Override
