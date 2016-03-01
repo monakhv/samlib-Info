@@ -26,6 +26,11 @@ public class Log {
     public static void  forceInit(AbstractLogger log){
        logger=log;
     }
+    public static void checkInit(AbstractLogger log){
+        if (logger==null){
+            logger=log;
+        }
+    }
     public static void v (String tag, String msg) {
         logger.verbose(tag,msg);
 

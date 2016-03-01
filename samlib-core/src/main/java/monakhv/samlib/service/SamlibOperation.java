@@ -222,6 +222,10 @@ public class SamlibOperation {
 
 
         List<Book> books=groupBook.getBooks();
+        if (books == null){
+            mAuthorController.getBookController().getBookForGroup(groupBook, bState.mSortOrder);
+            books=groupBook.getBooks();
+        }
         Log.d(DEBUG_TAG,"runGroupReadFlip: id "+groupBook.getId()+" book number: "+books.size());
 
 
@@ -346,7 +350,7 @@ public class SamlibOperation {
      *
      * @param urls list of author urls
      */
-    private void runAuthorAdd(ArrayList<String> urls, AuthorGuiState state) {
+    void runAuthorAdd(ArrayList<String> urls, AuthorGuiState state) {
         Result result = new Result(true);
         Random rnd = new Random(Calendar.getInstance().getTimeInMillis());
 

@@ -189,9 +189,11 @@ public class SQLController {
         st.execute(DB_CREATE_TAGS);
         st.execute(DB_CREATE_TAG_TO_AUTHOR);
         st.execute(DB_CREATE_STATE);
-
+        st.execute(DB_CREATE_GROUP_BOOK);
         st.execute(DB_IDX3);
         st.execute(DB_IDX4);
+        st.execute(DB_IDX51);
+        st.execute(DB_IDX52);
 
         st.close();
 

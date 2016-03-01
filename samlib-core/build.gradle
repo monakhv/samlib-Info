@@ -6,15 +6,22 @@ compileJava {
     targetCompatibility = 1.8
 }
 
+retrolambda {
+    jdk System.getenv("JAVAHOME")
+     oldJdk "/opt/java/jdk1.7.0_75"
+}
 
-
-
-sourceSets.main.java.srcDirs = ["src/"]
 
 
 version = '1.0'
 dependencies {
-    testCompile group: 'junit', name: 'junit', version: '4.11'
+    testCompile group: 'junit', name: 'junit', version: '4.12'
+    testCompile group: 'org.xerial', name: 'sqlite-jdbc', version: '3.7.2'
+    testCompile 'com.j256.ormlite:ormlite-jdbc:4.48'
+    testCompile group: 'org.apache.logging.log4j', name: 'log4j-api', version: '2.1'
+    testCompile group: 'org.apache.logging.log4j', name: 'log4j-core', version: '2.1'
+
+
     compile 'com.squareup.okhttp3:okhttp:3.1.2'
     compile 'com.j256.ormlite:ormlite-core:4.48'
     compile 'javax.inject:javax.inject:1'
