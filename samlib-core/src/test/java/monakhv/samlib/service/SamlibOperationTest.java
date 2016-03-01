@@ -29,6 +29,7 @@ import monakhv.samlib.http.HttpClientController;
 import monakhv.samlib.impl.DaoController;
 import monakhv.samlib.impl.SettingsImpl;
 import monakhv.samlib.log.Log;
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -69,8 +70,12 @@ public class SamlibOperationTest {
         mSamlibOperation = new SamlibOperation(authorController, settings, httpClientController, guiEventBus);
     }
 
+    @Before
+    public void setUp()  throws Exception{
+        cleanDataBase();
+    }
     @BeforeClass
-    public static void setUp() {
+    public static void globalSetUp() {
         settings = new SettingsImpl();
         guiEventBus = new GuiEventBus();
         httpClientController = new HttpClientController(new SettingsImpl());
@@ -88,14 +93,9 @@ public class SamlibOperationTest {
         }
     }
 
-//    @Before
-//    public void setUp() throws Exception {
-//
-//    }
 
     @Test
     public void testMakeBookReadFlip() throws Exception {
-        cleanDataBase();
         ArrayList<String> urls = new ArrayList<>();
         urls.add(AUTHOR_URL);
         mSamlibOperation.runAuthorAdd(urls,authorGuiState);
@@ -125,7 +125,9 @@ public class SamlibOperationTest {
             }
         }
 
+        author=authorController.getById(author.getId());
         assertTrue(mBook.isIsNew());
+        assertTrue(author.isIsNew());
         assertEquals(1,mBook.getGroupBook().getNewNumber());
 
         guiEventBus.getObservable().subscribe( guiUpdateObject -> {
@@ -146,7 +148,9 @@ public class SamlibOperationTest {
             }
         }
 
+        author=authorController.getById(author.getId());
         assertFalse(mBook.isIsNew());
+        assertFalse(author.isIsNew());
         assertEquals(0,mBook.getGroupBook().getNewNumber());
 
 
@@ -154,7 +158,7 @@ public class SamlibOperationTest {
 
     @Test
     public void testMakeGroupReadFlip() throws Exception {
-        cleanDataBase();
+
         ArrayList<String> urls = new ArrayList<>();
         urls.add(AUTHOR_URL);
         mSamlibOperation.runAuthorAdd(urls,authorGuiState);
@@ -167,6 +171,7 @@ public class SamlibOperationTest {
         Log.i(DEBUG_TAG,"testMakeGroupReadFlip: test gor book "+book.getTitle()+"   -    "+book.getUri());
 
         authorController.getBookController().markUnRead(book);
+        authorController.testMarkRead(author);
         book=authorController.getBookController().getById(book.getId());
         GroupBook groupBook=authorController.getGroupBookController().getByBook(book);
 
@@ -198,7 +203,6 @@ public class SamlibOperationTest {
 
     @Test
     public void testMakeAuthorRead() throws Exception {
-        cleanDataBase();
         ArrayList<String> urls = new ArrayList<>();
         urls.add(AUTHOR_URL);
         mSamlibOperation.runAuthorAdd(urls,authorGuiState);
@@ -245,7 +249,7 @@ public class SamlibOperationTest {
 
     @Test
     public void testMakeAuthorDel() throws Exception {
-        cleanDataBase();
+
         ArrayList<String> urls = new ArrayList<>();
         urls.add(AUTHOR_URL);
         mSamlibOperation.runAuthorAdd(urls,authorGuiState);
@@ -272,11 +276,11 @@ public class SamlibOperationTest {
         }
 
         assertEquals(1, mResult.numberOfDeleted);
-
+        assertEquals(0, authorController.getAll().size());
     }
 
     @Test
-    synchronized public void testMakeAuthorAdd() throws Exception {
+    public void testMakeAuthorAdd() throws Exception {
 
         guiEventBus.getObservable().subscribe(guiUpdateObject -> {
             if (guiUpdateObject.isResult()){
@@ -287,7 +291,7 @@ public class SamlibOperationTest {
             }
         });
 
-        cleanDataBase();
+
         ArrayList<String> urls = new ArrayList<>();
         urls.add(AUTHOR_URL);
 
@@ -301,7 +305,7 @@ public class SamlibOperationTest {
         }
         assertEquals(0, mResult.doubleAdd);
         assertEquals(1, mResult.numberOfAdded);
-
+        assertEquals(1, authorController.getAll().size());
 
     }
 

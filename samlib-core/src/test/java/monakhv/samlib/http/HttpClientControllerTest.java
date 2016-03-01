@@ -19,43 +19,46 @@
 
 package monakhv.samlib.http;
 
+import monakhv.samlib.db.entity.Author;
 import monakhv.samlib.impl.SettingsImpl;
-import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import static org.junit.Assert.assertTrue;
+
 /**
+ * Class to test HttpController main methods
  * Created by monakhv on 01.03.16.
  */
 public class HttpClientControllerTest {
+    public static final String AUTHOR_URI= "/d/demchenko_aw/";
     private static HttpClientController httpClientController;
-    private static SettingsImpl settings;
+
 
     @BeforeClass
     static public void setUp() throws Exception {
-        settings=new SettingsImpl();
+        final SettingsImpl settings = new SettingsImpl();
         httpClientController=new HttpClientController(settings);
         httpClientController.setProxyData(SettingsImpl.proxyData);
     }
 
     @Test
     public void testGetAuthorByURL() throws Exception {
-
+        Author author= new Author();
+        author=httpClientController.getAuthorByURL(AUTHOR_URI,author);
+        assertTrue(author.getBooks().size()>0);
+        assertTrue(author.getGroupBooks().size()>0);
 
     }
 
     @Test
     public void testAddAuthor() throws Exception {
-
+        Author author= new Author();
+        author=httpClientController.addAuthor(AUTHOR_URI,author);
+        assertTrue(author.getBooks().size()>0);
+        assertTrue(author.getGroupBooks().size()>0);
+        assertTrue(author.getName() != null);
     }
 
-    @Test
-    public void testDownloadBook() throws Exception {
 
-    }
-
-    @Test
-    public void testSearchAuthors() throws Exception {
-
-    }
 }
