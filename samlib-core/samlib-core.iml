@@ -7,7 +7,7 @@
       </configuration>
     </facet>
   </component>
-  <component name="NewModuleRootManager" LANGUAGE_LEVEL="JDK_1_8" inherit-compiler-output="false">
+  <component name="NewModuleRootManager" LANGUAGE_LEVEL="JDK_1_7" inherit-compiler-output="false">
     <output url="file://$MODULE_DIR$/build/classes/main" />
     <output-test url="file://$MODULE_DIR$/build/classes/test" />
     <exclude-output />
@@ -36,5 +36,6 @@
     <orderEntry type="library" exported="" scope="TEST" name="log4j-api-2.1" level="project" />
     <orderEntry type="library" exported="" scope="TEST" name="log4j-core-2.1" level="project" />
     <orderEntry type="library" exported="" scope="TEST" name="hamcrest-core-1.3" level="project" />
+    <orderEntry type="library" exported="" name="samlib-core.samlib-core-1.0" level="project" />
   </component>
 </module>
