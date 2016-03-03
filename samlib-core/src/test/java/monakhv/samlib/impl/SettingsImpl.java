@@ -20,12 +20,14 @@
 package monakhv.samlib.impl;
 
 import monakhv.samlib.data.AbstractSettings;
+import monakhv.samlib.db.entity.SamLibConfig;
 import monakhv.samlib.http.ProxyData;
 import monakhv.samlib.log.Log;
 
 import java.io.File;
 
 /**
+ * Simple implementation to make tests
  * Created by monakhv on 01.03.16.
  */
 public class SettingsImpl extends AbstractSettings{
@@ -56,7 +58,7 @@ public class SettingsImpl extends AbstractSettings{
 
     @Override
     public String getCollationRule() {
-        return null;
+        return SamLibConfig.COLLATION_RULES_OLD;
     }
 
     @Override

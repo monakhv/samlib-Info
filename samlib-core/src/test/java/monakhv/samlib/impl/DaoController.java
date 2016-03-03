@@ -30,6 +30,7 @@ import monakhv.samlib.log.Log;
 import java.sql.SQLException;
 
 /**
+ * SQLite Dao
  * Created by monakhv on 01.03.16.
  */
 public class DaoController implements DaoBuilder {

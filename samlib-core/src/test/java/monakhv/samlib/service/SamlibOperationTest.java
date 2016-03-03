@@ -46,11 +46,12 @@ import static org.junit.Assert.*;
  */
 @SuppressWarnings("Duplicates")
 public class SamlibOperationTest {
-    private static final String DEBUG_TAG="SamlibOperationTest";
+    private static final String DEBUG_TAG = "SamlibOperationTest";
+    private static final long TIMEOUT=3000;
 
     public static final String AUTHOR_URL = "http://samlib.ru/d/demchenko_aw/";
     public static final AuthorGuiState authorGuiState = new AuthorGuiState(SamLibConfig.TAG_AUTHOR_ALL, SQLController.COL_isnew + " DESC, " + SQLController.COL_NAME);
-    public static String bookOrder=SQLController.COL_BOOK_ISNEW + " DESC, " + SQLController.COL_BOOK_DATE + " DESC";
+    public static String bookOrder = SQLController.COL_BOOK_ISNEW + " DESC, " + SQLController.COL_BOOK_DATE + " DESC";
     static AuthorController authorController;
     static SettingsImpl settings;
     static GuiEventBus guiEventBus;
@@ -64,16 +65,16 @@ public class SamlibOperationTest {
     private Author mAuthor;
 
 
-
     public SamlibOperationTest() {
 
         mSamlibOperation = new SamlibOperation(authorController, settings, httpClientController, guiEventBus);
     }
 
     @Before
-    public void setUp()  throws Exception{
+    public void setUp() throws Exception {
         cleanDataBase();
     }
+
     @BeforeClass
     public static void globalSetUp() {
         settings = new SettingsImpl();
@@ -86,192 +87,202 @@ public class SamlibOperationTest {
             DaoController daoController = DaoController.getInstance(SQLController.getInstance(settings.getDataDirectoryPath()));
             authorController = new AuthorController(daoController);
         } catch (ClassNotFoundException e) {
-            Log.e(DEBUG_TAG,"setUp: class not found",e);
+            Log.e(DEBUG_TAG, "setUp: class not found", e);
         } catch (SQLException e) {
-            Log.e(DEBUG_TAG,"setUp: SQL error",e);
+            Log.e(DEBUG_TAG, "setUp: SQL error", e);
 
         }
     }
 
 
-    @Test
+    @Test(timeout = TIMEOUT)
     public void testMakeBookReadFlip() throws Exception {
         ArrayList<String> urls = new ArrayList<>();
         urls.add(AUTHOR_URL);
-        mSamlibOperation.runAuthorAdd(urls,authorGuiState);
-        List<Author>aa=authorController.getAll();
-        assertEquals(1,aa.size());
+        mSamlibOperation.runAuthorAdd(urls, authorGuiState);
+        List<Author> aa = authorController.getAll();
+        assertEquals(1, aa.size());
         Author author = aa.get(0);
 
-        Book book=authorController.getBookController().getAll(author,bookOrder).get(10);
+        Book book = authorController.getBookController().getAll(author, bookOrder).get(10);
 
-        Log.i(DEBUG_TAG,"testMakeBookReadFlip: test gor book "+book.getTitle()+"   -    "+book.getUri());
+        Log.i(DEBUG_TAG, "testMakeBookReadFlip: test gor book " + book.getTitle() + "   -    " + book.getUri());
 
         guiEventBus.getObservable().subscribe(guiUpdateObject -> {
-            if (guiUpdateObject.isBook()){
-                mBook= (Book) guiUpdateObject.getObject();
-                synchronized (monitor){
+            if (guiUpdateObject.isBook()) {
+                mBook = (Book) guiUpdateObject.getObject();
+                synchronized (monitor) {
                     monitor.notifyAll();
                 }
             }
         });
-        mSamlibOperation.makeBookReadFlip(book,new BookGuiState(author.getId(),bookOrder),authorGuiState);
+        mSamlibOperation.makeBookReadFlip(book, new BookGuiState(author.getId(), bookOrder), authorGuiState);
 
         synchronized (monitor) {
             try {
                 monitor.wait();
             } catch (InterruptedException e) {
-                Log.e(DEBUG_TAG,"testMakeBookReadFlip: interrupted",e);
+                Log.e(DEBUG_TAG, "testMakeBookReadFlip: interrupted", e);
             }
         }
 
-        author=authorController.getById(author.getId());
+        author = authorController.getById(author.getId());
         assertTrue(mBook.isIsNew());
         assertTrue(author.isIsNew());
-        assertEquals(1,mBook.getGroupBook().getNewNumber());
+        assertEquals(1, mBook.getGroupBook().getNewNumber());
 
-        guiEventBus.getObservable().subscribe( guiUpdateObject -> {
-            if (guiUpdateObject.isBook()){
-                mBook= (Book) guiUpdateObject.getObject();
-                synchronized (monitor){
+        guiEventBus.getObservable().subscribe(guiUpdateObject -> {
+            if (guiUpdateObject.isBook()) {
+                mBook = (Book) guiUpdateObject.getObject();
+                synchronized (monitor) {
                     monitor.notifyAll();
                 }
             }
         });
-        mSamlibOperation.makeBookReadFlip(book,new BookGuiState(author.getId(),bookOrder),authorGuiState);
+        mSamlibOperation.makeBookReadFlip(book, new BookGuiState(author.getId(), bookOrder), authorGuiState);
 
         synchronized (monitor) {
             try {
                 monitor.wait();
             } catch (InterruptedException e) {
-                Log.e(DEBUG_TAG,"testMakeBookReadFlip: interrupted",e);
+                Log.e(DEBUG_TAG, "testMakeBookReadFlip: interrupted", e);
             }
         }
 
-        author=authorController.getById(author.getId());
+        author = authorController.getById(author.getId());
         assertFalse(mBook.isIsNew());
         assertFalse(author.isIsNew());
-        assertEquals(0,mBook.getGroupBook().getNewNumber());
+        assertEquals(0, mBook.getGroupBook().getNewNumber());
 
 
     }
 
-    @Test
+    @Test(timeout = TIMEOUT)
     public void testMakeGroupReadFlip() throws Exception {
 
         ArrayList<String> urls = new ArrayList<>();
         urls.add(AUTHOR_URL);
-        mSamlibOperation.runAuthorAdd(urls,authorGuiState);
-        List<Author>aa=authorController.getAll();
-        assertEquals(1,aa.size());
+        mSamlibOperation.runAuthorAdd(urls, authorGuiState);
+        List<Author> aa = authorController.getAll();
+        assertEquals(1, aa.size());
         Author author = aa.get(0);
 
-        Book book=authorController.getBookController().getAll(author,bookOrder).get(10);
+        Book book = authorController.getBookController().getAll(author, bookOrder).get(10);
 
-        Log.i(DEBUG_TAG,"testMakeGroupReadFlip: test gor book "+book.getTitle()+"   -    "+book.getUri());
+        Log.i(DEBUG_TAG, "testMakeGroupReadFlip: test gor book " + book.getTitle() + "   -    " + book.getUri());
 
         authorController.getBookController().markUnRead(book);
         authorController.testMarkRead(author);
-        book=authorController.getBookController().getById(book.getId());
-        GroupBook groupBook=authorController.getGroupBookController().getByBook(book);
+        book = authorController.getBookController().getById(book.getId());
+        GroupBook groupBook = authorController.getGroupBookController().getByBook(book);
 
         assertTrue(book.isIsNew());
-        assertEquals(1,groupBook.getNewNumber());
+        assertEquals(1, groupBook.getNewNumber());
 
-        guiEventBus.getObservable().subscribe(guiUpdateObject -> {
-            if (guiUpdateObject.isGroup()){
-                mGroupBook= (GroupBook) guiUpdateObject.getObject();
-                synchronized (monitor){
-                    monitor.notifyAll();
+        guiEventBus.getObservable().subscribe(
+                guiUpdateObject -> {
+                    if (guiUpdateObject.isGroup()) {
+                        mGroupBook = (GroupBook) guiUpdateObject.getObject();
+                        myNotify();
+                    }
+                },
+                throwable -> {
+                    Log.e(DEBUG_TAG, "testMakeGroupReadFlip: error", throwable);
+                    myNotify();
                 }
-            }
-        });
+        );
 
-        mSamlibOperation.makeGroupReadFlip(groupBook,new BookGuiState(author.getId(),bookOrder),null);
+        mSamlibOperation.makeGroupReadFlip(groupBook, new BookGuiState(author.getId(), bookOrder), null);
 
         synchronized (monitor) {
             try {
                 monitor.wait();
             } catch (InterruptedException e) {
-                Log.e(DEBUG_TAG,"testMakeBookReadFlip: interrupted",e);
+                Log.e(DEBUG_TAG, "testMakeBookReadFlip: interrupted", e);
             }
         }
 
-        assertEquals(0,mGroupBook.getNewNumber());
+        assertEquals(0, mGroupBook.getNewNumber());
 
     }
 
-    @Test
+    @Test(timeout = TIMEOUT)
     public void testMakeAuthorRead() throws Exception {
         ArrayList<String> urls = new ArrayList<>();
         urls.add(AUTHOR_URL);
-        mSamlibOperation.runAuthorAdd(urls,authorGuiState);
-        List<Author>aa=authorController.getAll();
-        assertEquals(1,aa.size());
+        mSamlibOperation.runAuthorAdd(urls, authorGuiState);
+        List<Author> aa = authorController.getAll();
+        assertEquals(1, aa.size());
         Author author = aa.get(0);
 
-        Book book=authorController.getBookController().getAll(author,bookOrder).get(10);
+        Book book = authorController.getBookController().getAll(author, bookOrder).get(10);
 
-        Log.i(DEBUG_TAG,"testMakeAuthorRead: test gor book "+book.getTitle()+"   -    "+book.getUri());
+        Log.i(DEBUG_TAG, "testMakeAuthorRead: test gor book " + book.getTitle() + "   -    " + book.getUri());
 
         authorController.getBookController().markUnRead(book);
         authorController.testMarkRead(author);
-        book=authorController.getBookController().getById(book.getId());
-        GroupBook groupBook=authorController.getGroupBookController().getByBook(book);
+        book = authorController.getBookController().getById(book.getId());
+        GroupBook groupBook = authorController.getGroupBookController().getByBook(book);
 
         assertTrue(book.isIsNew());
-        assertEquals(1,groupBook.getNewNumber());
-        guiEventBus.getObservable().subscribe(guiUpdateObject -> {
-           if (guiUpdateObject.isAuthor()){
-               mAuthor= (Author) guiUpdateObject.getObject();
-               synchronized (monitor){
-                   monitor.notifyAll();
-               }
-           }
-        });
-        mSamlibOperation.makeAuthorRead(author,authorGuiState);
+        assertEquals(1, groupBook.getNewNumber());
+        guiEventBus.getObservable().subscribe(
+                guiUpdateObject -> {
+                    if (guiUpdateObject.isAuthor()) {
+                        mAuthor = (Author) guiUpdateObject.getObject();
+                        myNotify();
+                    }
+                },
+                throwable -> {
+                    Log.e(DEBUG_TAG, "testMakeAuthorRead: onError ", throwable);
+                    myNotify();
+                });
+        mSamlibOperation.makeAuthorRead(author, authorGuiState);
         synchronized (monitor) {
             try {
                 monitor.wait();
             } catch (InterruptedException e) {
-                Log.e(DEBUG_TAG,"testMakeAuthorRead: interrupted",e);
+                Log.e(DEBUG_TAG, "testMakeAuthorRead: interrupted", e);
             }
         }
         author = authorController.getById(author.getId());
-        book=authorController.getBookController().getById(book.getId());
-        groupBook=authorController.getGroupBookController().getByBook(book);
+        book = authorController.getBookController().getById(book.getId());
+        groupBook = authorController.getGroupBookController().getByBook(book);
 
         assertFalse(author.isIsNew());
         assertFalse(book.isIsNew());
-        assertEquals(author.getId(),mAuthor.getId());
-        assertEquals(0,groupBook.getNewNumber());
+        assertEquals(author.getId(), mAuthor.getId());
+        assertEquals(0, groupBook.getNewNumber());
     }
 
-    @Test
+    @Test(timeout = TIMEOUT)
     public void testMakeAuthorDel() throws Exception {
 
         ArrayList<String> urls = new ArrayList<>();
         urls.add(AUTHOR_URL);
-        mSamlibOperation.runAuthorAdd(urls,authorGuiState);
-        List<Author>aa=authorController.getAll();
-        assertEquals(1,aa.size());
+        mSamlibOperation.runAuthorAdd(urls, authorGuiState);
+        List<Author> aa = authorController.getAll();
+        assertEquals(1, aa.size());
         Author author = aa.get(0);
 
-        guiEventBus.getObservable().subscribe(guiUpdateObject -> {
-            if (guiUpdateObject.isResult()){
-                mResult= (Result) guiUpdateObject.getObject();
-                synchronized (monitor){
-                    monitor.notifyAll();
-                }
-            }
-        });
-        mSamlibOperation.makeAuthorDel(author,authorGuiState);
+        guiEventBus.getObservable().subscribe(
+                guiUpdateObject -> {
+                    if (guiUpdateObject.isResult()) {
+                        mResult = (Result) guiUpdateObject.getObject();
+                        myNotify();
+                    }
+                },
+                throwable -> {
+                    Log.e(DEBUG_TAG, "testMakeAuthorDel: error", throwable);
+                    myNotify();
+                });
+        mSamlibOperation.makeAuthorDel(author, authorGuiState);
 
         synchronized (monitor) {
             try {
                 monitor.wait();
             } catch (InterruptedException e) {
-                Log.e(DEBUG_TAG,"testMakeAuthorDel: interrupted",e);
+                Log.e(DEBUG_TAG, "testMakeAuthorDel: interrupted", e);
             }
         }
 
@@ -279,17 +290,20 @@ public class SamlibOperationTest {
         assertEquals(0, authorController.getAll().size());
     }
 
-    @Test
+    @Test(timeout = TIMEOUT)
     public void testMakeAuthorAdd() throws Exception {
 
-        guiEventBus.getObservable().subscribe(guiUpdateObject -> {
-            if (guiUpdateObject.isResult()){
-                mResult= (Result) guiUpdateObject.getObject();
-                synchronized (monitor){
-                    monitor.notifyAll();
-                }
-            }
-        });
+        guiEventBus.getObservable().subscribe(
+                guiUpdateObject -> {
+                    if (guiUpdateObject.isResult()) {
+                        mResult = (Result) guiUpdateObject.getObject();
+                        myNotify();
+                    }
+                },
+                throwable -> {
+                    Log.e(DEBUG_TAG,"testMakeAuthorAdd: error",throwable);
+                    myNotify();
+                });
 
 
         ArrayList<String> urls = new ArrayList<>();
@@ -300,7 +314,7 @@ public class SamlibOperationTest {
             try {
                 monitor.wait();
             } catch (InterruptedException e) {
-                Log.e(DEBUG_TAG,"testMakeAuthorAdd: interrupted",e);
+                Log.e(DEBUG_TAG, "testMakeAuthorAdd: interrupted", e);
             }
         }
         assertEquals(0, mResult.doubleAdd);
@@ -316,44 +330,11 @@ public class SamlibOperationTest {
         }
     }
 
-//
-//    private Subscriber<GuiUpdateObject> getSubscriberForResult(){
-//        return new Subscriber<GuiUpdateObject>() {
-//            @Override
-//            public void onCompleted() {
-//
-//
-//            }
-//
-//            @Override
-//            public void onError(Throwable e) {
-//
-//
-//            }
-//
-//            @Override
-//            public void onNext(GuiUpdateObject guiUpdateObject) {
-//                if (guiUpdateObject.isBook()){
-//                    mBook= (Book) guiUpdateObject.getObject();
-//                }
-//
-//
-//                if (guiUpdateObject.isResult()) {
-//                    mResult = (Result) guiUpdateObject.getObject();
-//                }
-//
-//                if (guiUpdateObject.isGroup()) {
-//                    mGroupBook = (GroupBook) guiUpdateObject.getObject();
-//                }
-//
-//                if (guiUpdateObject.isAuthor()) {
-//                    mAuthor = (Author) guiUpdateObject.getObject();
-//                }
-//
-//                synchronized (monitor) {
-//                    monitor.notifyAll();
-//                }
-//            }
-//        };
-//    }
+    private void myNotify() {
+        synchronized (monitor) {
+            monitor.notifyAll();
+        }
+    }
+
+
 }

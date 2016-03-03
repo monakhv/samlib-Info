@@ -25,6 +25,7 @@ import org.apache.logging.log4j.LogManager;
 import java.util.HashMap;
 
 /**
+ * Simple implementation to Log during tests
  * Created by monakhv on 01.03.16.
  */
 public class Logger implements AbstractLogger {

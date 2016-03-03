@@ -25,7 +25,7 @@
         </Console>
     </Appenders>
     <Loggers>
-        <Logger name="com.foo.Bar" level="trace">
+        <Logger name="com.j256.ormlite" level="error">
             <AppenderRef ref="Console"/>
         </Logger>
         <Root level="trace">
