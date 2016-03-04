@@ -61,14 +61,14 @@ public class BookAnimator extends DefaultItemAnimator {
             final GroupViewHolder groupPostHolder = (GroupViewHolder) newHolder;
             groupAnimator(newHolder, groupPostHolder.bookNumber, groupPostHolder.newIcon, preInfo, postInfo);
             //newHolder.setIsRecyclable(false);
-            return false;
+            //return false;
         }
 
         if (oldHolder instanceof BookViewHolder && newHolder instanceof BookViewHolder) {
             final BookViewHolder bookPostHolder = (BookViewHolder) newHolder;
             groupAnimator(newHolder, bookPostHolder.bookSize, bookPostHolder.flipIcon, preInfo, postInfo);
             //newHolder.setIsRecyclable(false);
-            return false;
+           // return false;
         }
 //        BookItemHolderInfo preBiInfo = (BookItemHolderInfo) preInfo;
 //        BookItemHolderInfo postBiInfo = (BookItemHolderInfo) postInfo;

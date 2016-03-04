@@ -677,6 +677,7 @@ public class AuthorFragment extends MyBaseAbstractFragment implements
                         break;
                     case ADD:
                         adapter.add(author, sort);
+                        authorRV.scrollToPosition(sort);
                         break;
                     default:
                         adapter.notifyChange(author, sort);
@@ -684,8 +685,8 @@ public class AuthorFragment extends MyBaseAbstractFragment implements
 
 
                 //adapter.toggleSelection(sort);
-                authorRV.scrollToPosition(sort);
-                Log.d(DEBUG_TAG, "updateAdapter: scroll to position: " + sort);
+                //authorRV.scrollToPosition(sort);
+                //Log.d(DEBUG_TAG, "updateAdapter: scroll to position: " + sort);
             }
             if (guiUpdateObject.isResult()) {
                 mMessageConstructor.showMessage(guiUpdateObject);

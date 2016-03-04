@@ -111,7 +111,8 @@ public class AuthorAnimator extends DefaultItemAnimator {
             animator.start();
 
         }
-        return false;
+        return super.animateChange(oldHolder, newHolder, preInfo, postInfo);
+        //return false;
     }
 
     class AuthorHolderInfo extends ItemHolderInfo {
