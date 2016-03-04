@@ -67,24 +67,6 @@ public class AuthorGuiTest {
 
     }
 
-    public static Matcher<RecyclerView.ViewHolder> withHolderBookTitle(final String title){
-        return new BoundedMatcher<RecyclerView.ViewHolder, BookViewHolder>(BookViewHolder.class) {
 
-            @Override
-            public void describeTo(Description description) {
-                description.appendText("No ViewHolder found with text: " + title);
-            }
-
-            @Override
-            protected boolean matchesSafely(BookViewHolder bookViewHolder) {
-                TextView tv= (TextView) bookViewHolder.itemView.findViewById(R.id.bookTitle);
-                if (tv == null){
-                    return false;
-                }
-
-                return tv.getText().toString().contains(title);
-            }
-        };
-    }
 
 }

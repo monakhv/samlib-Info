@@ -150,6 +150,7 @@ public class BookExpandableAdapter extends ExpandableRecyclerAdapter<GroupViewHo
 
         final Book book = (Book) o;
         holder.bookTitle.setText(Html.fromHtml(book.getTitle()));
+        holder.bookTitle.setTag(book.getId());
 
         try {
             holder.bookDesc.setText(Html.fromHtml(book.getDescription()));
@@ -164,6 +165,7 @@ public class BookExpandableAdapter extends ExpandableRecyclerAdapter<GroupViewHo
 
         } else {
             holder.bookAuthorName.setVisibility(View.VISIBLE);
+            holder.bookAuthorName.setTag(book.getAuthorId());
         }
 
         if (book.isIsNew() && book.getDelta() != 0) {
