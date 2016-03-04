@@ -680,7 +680,10 @@ public class AuthorFragment extends MyBaseAbstractFragment implements
                         authorRV.scrollToPosition(sort);
                         break;
                     default:
+                        LinearLayoutManager llm = (LinearLayoutManager) authorRV.getLayoutManager();
+                        int firstPosition = llm.findFirstVisibleItemPosition();
                         adapter.notifyChange(author, sort);
+                        authorRV.scrollToPosition(firstPosition);
                 }
 
 

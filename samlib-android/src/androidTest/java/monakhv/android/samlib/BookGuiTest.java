@@ -45,13 +45,14 @@ import static android.support.test.espresso.matcher.ViewMatchers.withId;
 public class BookGuiTest {
     public static final int AUTHOR_ID=13;
     public static final int []  books={28154,1247,1409,1461};
+    public static final long SLEEP_TIME=1000;
 
 
     @Rule
     public BookActivityTestRule mBookActivityTestRule=new BookActivityTestRule(BooksActivity.class,AUTHOR_ID);
 
     @Test
-    public void testRecycleClick() {
+    public void testMarkReadSetClean() {
         //open first group of the books
         onView(withId(R.id.bookRV))
                 .perform(RecyclerViewActions.actionOnItemAtPosition(0, click()));
@@ -66,7 +67,7 @@ public class BookGuiTest {
 
                 onView(withId(R.id.bookRV))
                         .perform(RecyclerViewActions.actionOnHolderItem(withHolderBookId(id),MyViewAction.clickChildViewWithId(R.id.FlipContainer)));
-                sleep(500);
+                sleep(SLEEP_TIME);
 
 
             }
@@ -75,7 +76,7 @@ public class BookGuiTest {
                     .perform(RecyclerViewActions.scrollToPosition(0));
             onView(withId(R.id.bookRV))
                     .perform(RecyclerViewActions.actionOnItemAtPosition(0, swipeRight()));
-            sleep(500);
+            sleep(SLEEP_TIME);
             --i;
 
         }
@@ -90,7 +91,7 @@ public class BookGuiTest {
         try {
             Thread.sleep(tt);
         } catch (InterruptedException e) {
-            // TODO Auto-generated catch block
+
             e.printStackTrace();
         }
     }

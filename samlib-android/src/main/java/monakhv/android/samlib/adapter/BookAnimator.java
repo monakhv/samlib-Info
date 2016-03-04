@@ -38,6 +38,8 @@ import java.util.HashMap;
 
 /**
  * Based on https://github.com/kibao/recycler-view-animations-android-dev-summit-2015
+ *
+ * This is the special case where CAN NOT reuse holders
  * Created by monakhv on 04.02.16.
  */
 public class BookAnimator extends DefaultItemAnimator {
@@ -47,7 +49,7 @@ public class BookAnimator extends DefaultItemAnimator {
 
     @Override
     public boolean canReuseUpdatedViewHolder(RecyclerView.ViewHolder viewHolder) {
-        return true;
+        return false;
     }
 
     @Override
@@ -60,14 +62,14 @@ public class BookAnimator extends DefaultItemAnimator {
         if (oldHolder instanceof GroupViewHolder && newHolder instanceof GroupViewHolder) {
             final GroupViewHolder groupPostHolder = (GroupViewHolder) newHolder;
             groupAnimator(newHolder, groupPostHolder.bookNumber, groupPostHolder.newIcon, preInfo, postInfo);
-            //newHolder.setIsRecyclable(false);
+            newHolder.setIsRecyclable(false);
             //return false;
         }
 
         if (oldHolder instanceof BookViewHolder && newHolder instanceof BookViewHolder) {
             final BookViewHolder bookPostHolder = (BookViewHolder) newHolder;
             groupAnimator(newHolder, bookPostHolder.bookSize, bookPostHolder.flipIcon, preInfo, postInfo);
-            //newHolder.setIsRecyclable(false);
+            newHolder.setIsRecyclable(false);
            // return false;
         }
 //        BookItemHolderInfo preBiInfo = (BookItemHolderInfo) preInfo;

@@ -62,6 +62,7 @@ public class AuthorAdapter extends RecyclerAdapter<Author, AuthorAdapter.AuthorV
 
         boolean isNew = author.isIsNew();
         holder.authorName.setText(author.getName());
+        holder.authorName.setTag(author.getId());
         holder.authorURL.setText(author.getUrl());
 
         long dd = author.getUpdateDate();
