@@ -61,7 +61,7 @@ public class AuthorGuiTest {
 
 
         onView(withId(R.id.bookRV))
-                .perform(RecyclerViewActions.actionOnHolderItem(withHolderBookTitle(""),click()));
+                .perform(RecyclerViewActions.actionOnItemAtPosition(1,MyViewAction.clickChildViewWithId(R.id.FlipContainer)));
 
 
 

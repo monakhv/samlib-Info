@@ -72,12 +72,9 @@ public class BookViewHolder extends ChildViewHolder {
                 .endConfig()
                 .buildRound(context.getString(R.string.fa_book), Color.GRAY);
 
-        flipContainer.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
+        flipContainer.setOnClickListener(v -> {
 //                Log.d("BookViewHolder","Position: "+adapter.getBook(getAdapterPosition()).getTitle());
-                adapter.makeRead(getAdapterPosition());
-            }
+            adapter.makeRead(getAdapterPosition());
         });
 
 
