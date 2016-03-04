@@ -199,7 +199,7 @@ public class BookExpandableAdapter extends ExpandableRecyclerAdapter<GroupViewHo
             holder.starIcon.setVisibility(View.VISIBLE);
         } else {
             holder.starIcon.setImageResource(R.drawable.rating_not_important);
-            holder.starIcon.setVisibility(View.GONE);
+            holder.starIcon.setVisibility(View.INVISIBLE);
         }
 
         if (book.isPreserve()) {
@@ -207,7 +207,7 @@ public class BookExpandableAdapter extends ExpandableRecyclerAdapter<GroupViewHo
             holder.lockIcon.setVisibility(View.VISIBLE);
         } else {
             holder.lockIcon.setImageResource(R.drawable.rating_not_important);
-            holder.lockIcon.setVisibility(View.GONE);
+            holder.lockIcon.setVisibility(View.INVISIBLE);
         }
 
     }

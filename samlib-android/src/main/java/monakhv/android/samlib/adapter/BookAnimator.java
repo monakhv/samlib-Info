@@ -47,7 +47,7 @@ public class BookAnimator extends DefaultItemAnimator {
 
     @Override
     public boolean canReuseUpdatedViewHolder(RecyclerView.ViewHolder viewHolder) {
-        return false;
+        return true;
     }
 
     @Override
@@ -60,15 +60,15 @@ public class BookAnimator extends DefaultItemAnimator {
         if (oldHolder instanceof GroupViewHolder && newHolder instanceof GroupViewHolder) {
             final GroupViewHolder groupPostHolder = (GroupViewHolder) newHolder;
             groupAnimator(newHolder, groupPostHolder.bookNumber, groupPostHolder.newIcon, preInfo, postInfo);
-            newHolder.setIsRecyclable(false);
-          //  return false;
+            //newHolder.setIsRecyclable(false);
+            return false;
         }
 
         if (oldHolder instanceof BookViewHolder && newHolder instanceof BookViewHolder) {
             final BookViewHolder bookPostHolder = (BookViewHolder) newHolder;
             groupAnimator(newHolder, bookPostHolder.bookSize, bookPostHolder.flipIcon, preInfo, postInfo);
-            newHolder.setIsRecyclable(false);
-            //return false;
+            //newHolder.setIsRecyclable(false);
+            return false;
         }
 //        BookItemHolderInfo preBiInfo = (BookItemHolderInfo) preInfo;
 //        BookItemHolderInfo postBiInfo = (BookItemHolderInfo) postInfo;
