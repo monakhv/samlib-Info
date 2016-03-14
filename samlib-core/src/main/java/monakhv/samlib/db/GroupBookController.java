@@ -32,7 +32,7 @@ import java.util.List;
 
 /**
  * Class to deal with GroupBook entity class
- * <p/>
+ * <p>
  * Created by Dmitry Monakhov on 24.12.15.
  */
 public class GroupBookController {
@@ -98,27 +98,29 @@ public class GroupBookController {
 
     /**
      * Get virtual group which contains all books of the Author
+     *
      * @param author the Author
-     * @return
+     * @return GroupBook object
      */
-    public GroupBook getAllGroup(Author author){
-        GroupBook groupBook=new GroupBook();
+    public GroupBook getAllGroup(Author author) {
+        GroupBook groupBook = new GroupBook();
         groupBook.setAuthor(author);
         groupBook.setId(SamLibConfig.GROUP_ID_ALL);
         return groupBook;
     }
-    public GroupBook getByBook(Book book){
+
+    public GroupBook getByBook(Book book) {
         GroupBook groupBook;
-        if (book.getGroupBook() == null){
+        if (book.getGroupBook() == null) {
             return getAllGroup(book.getAuthor());
         }
         try {
             groupBook = mGroupDao.queryForId(book.getGroupBook().getId());
         } catch (SQLException e) {
-            Log.e(DEBUG_TAG,"getByBook: not found uri: "+book.getUri(),e);
+            Log.e(DEBUG_TAG, "getByBook: not found uri: " + book.getUri(), e);
             return null;
         }
-        if (groupBook == null){
+        if (groupBook == null) {
             return getAllGroup(book.getAuthor());
         }
         return groupBook;
@@ -157,6 +159,7 @@ public class GroupBookController {
         }
 
     }
+
     /**
      * get List of Group for given Author where there are new books
      *
@@ -171,7 +174,7 @@ public class GroupBookController {
             qb.where()
                     .eq(SQLController.COL_BOOK_AUTHOR_ID, author)
                     .and()
-                    .gt(SQLController.COL_GROUP_NEW_NUMBER,0);
+                    .gt(SQLController.COL_GROUP_NEW_NUMBER, 0);
 
 
             return mGroupDao.query(qb.prepare());
@@ -202,4 +205,6 @@ public class GroupBookController {
         return res.get(0);
 
     }
+
+
 }

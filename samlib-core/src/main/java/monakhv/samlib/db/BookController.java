@@ -70,7 +70,7 @@ public class BookController {
             Log.i(DEBUG_TAG, "Book: " + book.getUri() + " - " + book.isIsNew() + " Operation: " + book.getSqlOperation().name());
             switch (book.getSqlOperation()) {
                 case DELETE:
-                    if (! book.isPreserve()){
+                    if (!book.isPreserve()) {
 
                         delete(book);
                     }
@@ -205,8 +205,9 @@ public class BookController {
 
     /**
      * Return list of new book for given author
+     *
      * @param author Author
-     * @param order sort order
+     * @param order  sort order
      * @return List of author
      */
     public List<Book> getAllNew(Author author, String order) {
@@ -219,12 +220,11 @@ public class BookController {
 
         try {
             qb.where()
-                    .eq(SQLController.COL_BOOK_AUTHOR_ID,author)
+                    .eq(SQLController.COL_BOOK_AUTHOR_ID, author)
                     .and()
-                    .eq(SQLController.COL_BOOK_ISNEW,true);
-            res=dao.query(qb.prepare());
-        }
-        catch (SQLException e){
+                    .eq(SQLController.COL_BOOK_ISNEW, true);
+            res = dao.query(qb.prepare());
+        } catch (SQLException e) {
             Log.e(DEBUG_TAG, "getAllNew: Query error: ", e);
             return null;
         }
@@ -242,15 +242,15 @@ public class BookController {
     }
 
 
-    public GroupBook getSelectedGroup(String order){
+    public GroupBook getSelectedGroup(String order) {
         GroupBook groupBook = new GroupBook();
         groupBook.setId(SamLibConfig.GROUP_ID_SELECTED);
 
         List<Book> books = getSelected(order);
         groupBook.setBooks(books);
         int newNumber = 0;
-        for (Book book:books){
-            if (book.isIsNew()){
+        for (Book book : books) {
+            if (book.isIsNew()) {
                 ++newNumber;
             }
         }
@@ -293,13 +293,14 @@ public class BookController {
 
     /**
      * Find all books for the group and put them into the group object
+     *
      * @param groupBook Group object to search books for
-     * @param order book sort order
+     * @param order     book sort order
      */
-    public void getBookForGroup(GroupBook groupBook,String order) {
-        if (groupBook.getId() == -1){//All books for the author
-            groupBook.setBooks(getAll(groupBook.getAuthor(),order));
-            groupBook.setNewNumber(getAllNew(groupBook.getAuthor(),order).size());
+    public void getBookForGroup(GroupBook groupBook, String order) {
+        if (groupBook.getId() == -1) {//All books for the author
+            groupBook.setBooks(getAll(groupBook.getAuthor(), order));
+            groupBook.setNewNumber(getAllNew(groupBook.getAuthor(), order).size());
             return;
         }
 
@@ -314,7 +315,7 @@ public class BookController {
 
             groupBook.setBooks(dao.query(qbBooks.prepare()));
         } catch (SQLException e) {
-            Log.e(DEBUG_TAG,"getBookForGroup: query error",e);
+            Log.e(DEBUG_TAG, "getBookForGroup: query error", e);
 
         }
 
@@ -335,6 +336,11 @@ public class BookController {
         return getAll(a, null);
     }
 
+    /**
+     * Clean unread mark for book
+     *
+     * @param book the book to clean flag
+     */
     public void markRead(Book book) {
         book.setIsNew(false);
         update(book);
@@ -342,6 +348,11 @@ public class BookController {
         updateNewNumber(book);
     }
 
+    /**
+     * set Unread mark for book
+     *
+     * @param book the book to set flag
+     */
     public void markUnRead(Book book) {
         book.setIsNew(true);
         update(book);
@@ -349,22 +360,31 @@ public class BookController {
         updateNewNumber(book);
     }
 
-    private void updateNewNumber(Book book){
+    private void updateNewNumber(Book book) {
 
-        GroupBook groupBook=grpCtl.getByBook(book);
+        GroupBook groupBook = grpCtl.getByBook(book);
 
-        if (groupBook != null){
-            getBookForGroup(groupBook,null);
-
-            int newNumber=0;
-            for (Book b:groupBook.getBooks()){
-                if (b.isIsNew()){
-                    ++newNumber;
-                }
-            }
-            groupBook.setNewNumber(newNumber);
-            grpCtl.update(groupBook);
+        if (groupBook != null) {
+            updateGroupNewNumber(groupBook);
         }
+
+    }
+
+    /**
+     * Calculate the num,ber for new books into group
+     *
+     * @param groupBook group to make calculation for
+     */
+    void updateGroupNewNumber(GroupBook groupBook) {
+        getBookForGroup(groupBook, null);
+        int newNumber = 0;
+        for (Book b : groupBook.getBooks()) {
+            if (b.isIsNew()) {
+                ++newNumber;
+            }
+        }
+        groupBook.setNewNumber(newNumber);
+        grpCtl.update(groupBook);
 
     }
 

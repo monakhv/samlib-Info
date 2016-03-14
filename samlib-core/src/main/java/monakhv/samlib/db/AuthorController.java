@@ -31,7 +31,6 @@ import java.sql.SQLException;
 import java.util.List;
 
 
-
 /**
  * COL_ID+"  integer primary key autoincrement, "+
  * COL_NAME+" text, "+
@@ -58,7 +57,7 @@ public class AuthorController implements AbstractController<Author> {
         this.bookCtl = new BookController(sql);
         this.t2aCtl = new Tag2AuthorController(sql);
         this.tagCtl = new TagController(sql);
-        grpCtl=new GroupBookController(sql);
+        grpCtl = new GroupBookController(sql);
 
 
     }
@@ -105,13 +104,16 @@ public class AuthorController implements AbstractController<Author> {
             return -1;
         }
         if (!author.isBookLoaded()) {//books are not loaded since update the author only without books
-            Log.i(DEBUG_TAG,"Books are not loaded exiting");
-            return res ;
+            Log.i(DEBUG_TAG, "Books are not loaded exiting");
+            return res;
         }
 
         grpCtl.operate(author);
         bookCtl.operate(author);
 
+        for (GroupBook groupBook : grpCtl.getByAuthor(author)) {
+            bookCtl.updateGroupNewNumber(groupBook);
+        }
 
         return res;
     }
@@ -261,12 +263,12 @@ public class AuthorController implements AbstractController<Author> {
 
     public void updateTags(Author author) {
 
-        String allTagString=getAllTagString(author);
+        String allTagString = getAllTagString(author);
         author.setAll_tags_name(allTagString);
         update(author);
     }
 
-    public String getAllTagString(Author author){
+    public String getAllTagString(Author author) {
         if (author.getTag2Authors() == null) {
             Log.e(DEBUG_TAG, "getAllTagString: T2A Collection is NULL for Author " + author.getName());
             return null;
@@ -287,7 +289,7 @@ public class AuthorController implements AbstractController<Author> {
 
     /**
      * the main method to query authors
-     * <p/>
+     * <p>
      * SamLibConfig.TAG_AUTHOR_ALL - all authors
      * SamLibConfig.TAG_AUTHOR_NEW - authors with new books
      *
@@ -299,7 +301,7 @@ public class AuthorController implements AbstractController<Author> {
         PreparedQuery<Author> prep = getPrepared(iSelectTag, rowSort);
 
         if (prep == null) {
-            Log.e(DEBUG_TAG, "getAll: prepare error for tag Id: "+iSelectTag);
+            Log.e(DEBUG_TAG, "getAll: prepare error for tag Id: " + iSelectTag);
             return null;
         }
 
@@ -357,11 +359,11 @@ public class AuthorController implements AbstractController<Author> {
         return bookCtl;
     }
 
-    public TagController getTagController(){
+    public TagController getTagController() {
         return tagCtl;
     }
 
-    public GroupBookController getGroupBookController(){
+    public GroupBookController getGroupBookController() {
         return grpCtl;
     }
 
@@ -375,11 +377,11 @@ public class AuthorController implements AbstractController<Author> {
     public boolean testMarkRead(Author author) {
         Author a = getById(author.getId());
         boolean rr = getReadStatus(a);
-        if (a.isIsNew() && rr){
+        if (a.isIsNew() && rr) {
             return false;
         }
 
-        if (!a.isIsNew() && !rr){
+        if (!a.isIsNew() && !rr) {
             return false;
         }
 
@@ -429,6 +431,7 @@ public class AuthorController implements AbstractController<Author> {
 
     /**
      * Find books of the author and load them into object
+     *
      * @param a Author object to load books for
      */
     public void loadBooks(Author a) {
@@ -436,7 +439,7 @@ public class AuthorController implements AbstractController<Author> {
         a.setBookLoaded(true);
     }
 
-    public void loadGroupBooks(Author a){
+    public void loadGroupBooks(Author a) {
         a.setGroupBooks(grpCtl.getByAuthor(a));
     }
 
@@ -444,11 +447,11 @@ public class AuthorController implements AbstractController<Author> {
      * Ugly hack to cleanup database
      * DELETE from Book where author_id=0
      */
-    public void cleanBooks(){
+    public void cleanBooks() {
         try {
-            dao.executeRawNoArgs("DELETE from "+SQLController.TABLE_BOOKS+"  where " + SQLController.COL_BOOK_AUTHOR_ID+" = 0");
+            dao.executeRawNoArgs("DELETE from " + SQLController.TABLE_BOOKS + "  where " + SQLController.COL_BOOK_AUTHOR_ID + " = 0");
         } catch (SQLException e) {
-            Log.e(DEBUG_TAG,"Delete clean books: ",e);
+            Log.e(DEBUG_TAG, "Delete clean books: ", e);
         }
     }
 }
