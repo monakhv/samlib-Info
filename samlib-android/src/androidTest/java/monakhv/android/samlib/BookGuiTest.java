@@ -38,6 +38,7 @@ import static android.support.test.espresso.action.ViewActions.swipeRight;
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
 
 /**
+ * GUI test for Book fragment
  * Created by monakhv on 04.03.16.
  */
 @RunWith(AndroidJUnit4.class)
@@ -51,6 +52,9 @@ public class BookGuiTest {
     @Rule
     public BookActivityTestRule mBookActivityTestRule=new BookActivityTestRule(BooksActivity.class,AUTHOR_ID);
 
+    /**
+     * Test set/clean mark read for Books and groups
+     */
     @Test
     public void testMarkReadSetClean() {
         //open first group of the books
@@ -60,6 +64,7 @@ public class BookGuiTest {
 
         int i =10;
 
+        //Scroll to book and make it unread
         while (i>0){
             for (int id : books){
                 onView(withId(R.id.bookRV))
@@ -73,9 +78,9 @@ public class BookGuiTest {
             }
 
             onView(withId(R.id.bookRV))
-                    .perform(RecyclerViewActions.scrollToPosition(0));
+                    .perform(RecyclerViewActions.scrollToPosition(0));//scroll to group again
             onView(withId(R.id.bookRV))
-                    .perform(RecyclerViewActions.actionOnItemAtPosition(0, swipeRight()));
+                    .perform(RecyclerViewActions.actionOnItemAtPosition(0, swipeRight()));//make group read by right swipe
             sleep(SLEEP_TIME);
             --i;
 

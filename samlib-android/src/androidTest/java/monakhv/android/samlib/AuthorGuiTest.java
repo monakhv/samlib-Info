@@ -49,6 +49,7 @@ import static android.support.test.espresso.matcher.ViewMatchers.withId;
 
 
 /**
+ * GUI tests for Author Fragment
  * Created by monakhv on 03.03.16.
  */
 @RunWith(AndroidJUnit4.class)
@@ -63,12 +64,18 @@ public class AuthorGuiTest {
     public ActivityTestRule<MainActivity> mActivityTestRule = new ActivityTestRule<>(MainActivity.class);
 
 
+    /**
+     * Test clean mark read for the authors by right swipe
+     */
     @Test
     public void testMarkRead() {
 
         final SamlibOperation samlibOperation=mActivityTestRule.getActivity().getSamlibOperation();
         final AuthorController sql = mActivityTestRule.getActivity().getAuthorController();
 
+        /**
+         * Set unread mark
+         */
         for (int id: AUTHOR_ID){
             Author author =sql.getById(id);
             Book book=sql.getBookController().getAll(author,null).get(0);
@@ -78,6 +85,9 @@ public class AuthorGuiTest {
 
         sleep(SLEEP_TIME);
 
+        /**
+         * Clean mark unread by right swipe
+         */
         for (int id: AUTHOR_ID){
             onView(withId(R.id.authorRV))
                     .perform(RecyclerViewActions.actionOnHolderItem(withHolderAuthorId(id),swipeRight()));
