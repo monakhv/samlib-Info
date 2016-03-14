@@ -259,8 +259,16 @@ public class SamlibService {
                 ++numberOfAdded;
                 guiUpdate.makeUpdate(false);
             }
-        }
+            try {
+                Log.d(DEBUG_TAG, "makeAuthorAdd: sleep " + SLEEP_INTERVAL_SECONDS + " seconds");
 
+                TimeUnit.SECONDS.sleep(SLEEP_INTERVAL_SECONDS);
+            } catch (InterruptedException e) {
+                Log.i(DEBUG_TAG, "makeAuthorAdd: Sleep interrupted exiting", e);
+            }
+
+        }
+        Log.i(DEBUG_TAG, "makeAuthorAdd: Finish add");
         guiUpdate.sendResult(ACTION_ADD, numberOfAdded, numberOfDeleted, doubleAdd, urls.size(), author_id);
     }
 
