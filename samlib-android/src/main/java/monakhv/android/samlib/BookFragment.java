@@ -243,45 +243,47 @@ public class BookFragment extends MyBaseAbstractFragment implements
     }
 
 
-    Subscriber<GuiUpdateObject> mSubscriber = new Subscriber<GuiUpdateObject>() {
-        @Override
-        public void onCompleted() {
-            Log.i(DEBUG_TAG, "onCompleted");
-        }
-
-        @Override
-        public void onError(Throwable e) {
-            Log.e(DEBUG_TAG, "onError", e);
-        }
-
-        @Override
-        public void onNext(GuiUpdateObject guiUpdateObject) {
-            if (guiUpdateObject.isBook()) {
-                Book b = (Book) guiUpdateObject.getObject();
-                GroupBook groupBook = b.getGroupBook();
-                Log.d(DEBUG_TAG, "onNext: get Book: "+b.getUri()+" groupId: "+groupBook.getId()+" sort: "+guiUpdateObject.getSortOrder());
-
-                adapter.updateData(b, groupBook, guiUpdateObject.getSortOrder());
+    Subscriber<GuiUpdateObject> getSubscriber() {
+        return new Subscriber<GuiUpdateObject>() {
+            @Override
+            public void onCompleted() {
+                Log.i(DEBUG_TAG, "onCompleted");
             }
-            if (guiUpdateObject.isGroup()) {//begin group
-                Log.d(DEBUG_TAG, "onNext: get Group");
-                GroupListItem groupListItem;
 
-                GroupBook groupBook = (GroupBook) guiUpdateObject.getObject();
-                if (groupBook.getBooks() == null) {
-                    Log.d(DEBUG_TAG, "onNext: make group reload: " + groupBook.getName());
-                    getSamlibOperation().makeGroupReload(groupBook, getBookGuiState());
-                    return;
+            @Override
+            public void onError(Throwable e) {
+                Log.e(DEBUG_TAG, "onError", e);
+            }
+
+            @Override
+            public void onNext(GuiUpdateObject guiUpdateObject) {
+                if (guiUpdateObject.isBook()) {
+                    Book b = (Book) guiUpdateObject.getObject();
+                    GroupBook groupBook = b.getGroupBook();
+                    Log.d(DEBUG_TAG, "onNext: get Book: " + b.getUri() + " groupId: " + groupBook.getId() + " sort: " + guiUpdateObject.getSortOrder());
+
+                    adapter.updateData(b, groupBook, guiUpdateObject.getSortOrder());
                 }
+                if (guiUpdateObject.isGroup()) {//begin group
+                    Log.d(DEBUG_TAG, "onNext: get Group");
+                    GroupListItem groupListItem;
 
-                groupListItem = new GroupListItem(groupBook);
-                Log.d(DEBUG_TAG, "onNext: get Group: " + groupBook.getName() + "  id: " + groupBook.getId()+"  NewNumber: "+groupBook.getNewNumber());
+                    GroupBook groupBook = (GroupBook) guiUpdateObject.getObject();
+                    if (groupBook.getBooks() == null) {
+                        Log.d(DEBUG_TAG, "onNext: make group reload: " + groupBook.getName());
+                        getSamlibOperation().makeGroupReload(groupBook, getBookGuiState());
+                        return;
+                    }
+
+                    groupListItem = new GroupListItem(groupBook);
+                    Log.d(DEBUG_TAG, "onNext: get Group: " + groupBook.getName() + "  id: " + groupBook.getId() + "  NewNumber: " + groupBook.getNewNumber());
 
 
-                adapter.updateData(groupListItem, guiUpdateObject.getSortOrder());
-            }//end group
-        }
-    };
+                    adapter.updateData(groupListItem, guiUpdateObject.getSortOrder());
+                }//end group
+            }
+        };
+    }
 
     private BookGuiState getBookGuiState() {
         return new BookGuiState((int) author_id, order.getOrder());
@@ -523,7 +525,7 @@ public class BookFragment extends MyBaseAbstractFragment implements
             progress.setCancelable(true);
             //progress.setIndeterminate(true);
             progress.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
-            progress.setMax((int)book.getSize());
+            progress.setMax((int) book.getSize());
             progress.show();
             //DownloadBookService.start(getActivity(), book.getId(), false);
 

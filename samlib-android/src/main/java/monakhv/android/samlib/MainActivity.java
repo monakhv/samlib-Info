@@ -382,7 +382,7 @@ public class MainActivity extends MyBaseAbstractActivity implements
 
             mBookSubscription = mBus
                     .filter(o -> o.isBook() || o.isGroup())
-                    .subscribe(bookFragment.mSubscriber);
+                    .subscribe(bookFragment.getSubscriber());
             addSubscription(mBookSubscription);
         }
 

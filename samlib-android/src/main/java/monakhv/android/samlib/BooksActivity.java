@@ -142,7 +142,7 @@ public class BooksActivity extends MyAbstractAnimActivity implements BookFragmen
         mBookSubscription = getBus().getObservable()
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.newThread())
-                .subscribe(mBookFragment.mSubscriber);
+                .subscribe(mBookFragment.getSubscriber());
         addSubscription(mBookSubscription);
 
     }
