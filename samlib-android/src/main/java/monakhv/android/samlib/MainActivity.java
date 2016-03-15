@@ -100,6 +100,8 @@ public class MainActivity extends MyBaseAbstractActivity implements
     private ArrayAdapter<UITag> tagAdapter;
     private Spinner tagFilter;
     private Observable<GuiUpdateObject> mBus;
+    private Subscription mAuthorSubscription;
+    private Subscription mBookSubscription;
 
 
     @Override
@@ -187,17 +189,7 @@ public class MainActivity extends MyBaseAbstractActivity implements
             final SaveFragment fr1 = (SaveFragment) getSupportFragmentManager().findFragmentByTag(SaveFragment.TAG);
             mBus = fr1.getObjectObservable();
         }
-        final Subscription authorSubscription = mBus
-                .filter(o -> o.isResult() || o.isAuthor())
-                .subscribe(authorFragment.mSubscriber);
-        addSubscription(authorSubscription);
 
-        if (twoPain) {
-            final Subscription bookSubscription = mBus
-                    .filter(o -> o.isBook() || o.isGroup())
-                    .subscribe(bookFragment.mSubscriber);
-            addSubscription(bookSubscription);
-        }
         final FloatingActionButton floatingActionButton = (FloatingActionButton) findViewById(R.id.fabAuthor);
         final TextDrawable td = new TextDrawable(this);
         td.setTypeface(FontManager.getFontAwesome(this));
@@ -369,28 +361,38 @@ public class MainActivity extends MyBaseAbstractActivity implements
     protected void onResume() {
         Log.d(DEBUG_TAG, "onResume");
         super.onResume();
-
-
-        if (twoPain) {
-
-            if (bookFragment == null) {
-                Log.e(DEBUG_TAG, "Fragment is NULL for two pane layout!!");
-            }
-
-            Subscription bookSubscription = mBus
-                    .filter(o -> o.isBook() || o.isGroup())
-                    .subscribe(bookFragment.mSubscriber);
-            addSubscription(bookSubscription);
-
-
-        }
-
-
-        if (mAppBarLayout != null) {
+        makeSubscription();
+         if (mAppBarLayout != null) {
             mAppBarLayout.addOnOffsetChangedListener(this);
         }
         refreshTags();
 
+    }
+
+    private void makeSubscription(){
+
+        mAuthorSubscription = mBus
+                .filter(o -> o.isResult() || o.isAuthor())
+                .subscribe(authorFragment.getSubscriber());
+        addSubscription(mAuthorSubscription);
+        if (twoPain) {
+            if (bookFragment == null) {
+                Log.e(DEBUG_TAG, "Fragment is NULL for two pane layout!!");
+            }
+
+            mBookSubscription = mBus
+                    .filter(o -> o.isBook() || o.isGroup())
+                    .subscribe(bookFragment.mSubscriber);
+            addSubscription(mBookSubscription);
+        }
+
+    }
+
+    private void unMakeSubscribe(){
+        mAuthorSubscription.unsubscribe();
+        if (mBookSubscription!=null && ! mBookSubscription.isUnsubscribed()){
+            mBookSubscription.unsubscribe();
+        }
     }
 
 
@@ -403,6 +405,7 @@ public class MainActivity extends MyBaseAbstractActivity implements
     protected void onPause() {
         super.onPause();
         Log.d(DEBUG_TAG, "onPause");
+        unMakeSubscribe();
 
 
         if (mAppBarLayout != null) {

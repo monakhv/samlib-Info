@@ -646,57 +646,60 @@ public class AuthorFragment extends MyBaseAbstractFragment implements
     }
 
 
-    Subscriber<GuiUpdateObject> mSubscriber = new Subscriber<GuiUpdateObject>() {
+    Subscriber<GuiUpdateObject> getSubscriber(){
+        return
+        new Subscriber<GuiUpdateObject>() {
 
-        @Override
-        public void onCompleted() {
-            Log.i(DEBUG_TAG, "onCompleted");
-            onRefreshComplete();
-        }
-
-        @Override
-        public void onError(Throwable e) {
-            Log.e(DEBUG_TAG, "onError", e);
-        }
-
-        @Override
-        public void onNext(GuiUpdateObject guiUpdateObject) {
-            if (guiUpdateObject.isAuthor()) {
-                adapter.cleanSelection();
-                Author author = (Author) guiUpdateObject.getObject();
-                Log.d(DEBUG_TAG,"onNext: get Author: "+author.getName()+" new: "+author.isIsNew());
-                int sort = guiUpdateObject.getSortOrder();
-                if (sort == -1) {
-                    getSamlibOperation().makeAuthorReload(author,getGuiState());
-                    return;
-                }
-                GuiUpdateObject.UpdateType updateType = guiUpdateObject.getUpdateType();
-                switch (updateType) {
-                    case DELETE:
-                        adapter.remove(sort);
-                        break;
-                    case ADD:
-                        adapter.add(author, sort);
-                        authorRV.scrollToPosition(sort);
-                        break;
-                    default:
-                        LinearLayoutManager llm = (LinearLayoutManager) authorRV.getLayoutManager();
-                        int firstPosition = llm.findFirstVisibleItemPosition();
-                        adapter.notifyChange(author, sort);
-                        authorRV.scrollToPosition(firstPosition);
-                }
-
-
-                //adapter.toggleSelection(sort);
-                //authorRV.scrollToPosition(sort);
-                //Log.d(DEBUG_TAG, "updateAdapter: scroll to position: " + sort);
-            }
-            if (guiUpdateObject.isResult()) {
-                mMessageConstructor.showMessage(guiUpdateObject);
+            @Override
+            public void onCompleted() {
+                Log.i(DEBUG_TAG, "onCompleted");
                 onRefreshComplete();
             }
-        }
-    };
+
+            @Override
+            public void onError(Throwable e) {
+                Log.e(DEBUG_TAG, "onError", e);
+            }
+
+            @Override
+            public void onNext(GuiUpdateObject guiUpdateObject) {
+                if (guiUpdateObject.isAuthor()) {
+                    adapter.cleanSelection();
+                    Author author = (Author) guiUpdateObject.getObject();
+                    Log.d(DEBUG_TAG,"onNext: get Author: "+author.getName()+" new: "+author.isIsNew());
+                    int sort = guiUpdateObject.getSortOrder();
+                    if (sort == -1) {
+                        getSamlibOperation().makeAuthorReload(author,getGuiState());
+                        return;
+                    }
+                    GuiUpdateObject.UpdateType updateType = guiUpdateObject.getUpdateType();
+                    switch (updateType) {
+                        case DELETE:
+                            adapter.remove(sort);
+                            break;
+                        case ADD:
+                            adapter.add(author, sort);
+                            authorRV.scrollToPosition(sort);
+                            break;
+                        default:
+                            LinearLayoutManager llm = (LinearLayoutManager) authorRV.getLayoutManager();
+                            int firstPosition = llm.findFirstVisibleItemPosition();
+                            adapter.notifyChange(author, sort);
+                            authorRV.scrollToPosition(firstPosition);
+                    }
+
+
+                    //adapter.toggleSelection(sort);
+                    //authorRV.scrollToPosition(sort);
+                    //Log.d(DEBUG_TAG, "updateAdapter: scroll to position: " + sort);
+                }
+                if (guiUpdateObject.isResult()) {
+                    mMessageConstructor.showMessage(guiUpdateObject);
+                    onRefreshComplete();
+                }
+            }
+        };
+    }
 
     @Override
     public void refresh() {

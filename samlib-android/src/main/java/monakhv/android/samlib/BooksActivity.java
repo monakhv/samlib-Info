@@ -41,6 +41,7 @@ public class BooksActivity extends MyAbstractAnimActivity implements BookFragmen
     private static final int TAGS_ACTIVITY = 21;
     private long author_id = 0;
     private BookFragment mBookFragment;
+    private Subscription mBookSubscription;
 
 
     @Override
@@ -76,11 +77,6 @@ public class BooksActivity extends MyAbstractAnimActivity implements BookFragmen
         mBookFragment = (BookFragment) getSupportFragmentManager().findFragmentById(R.id.listBooksFragment);
         mBookFragment.setHasOptionsMenu(true);
 
-        Subscription bookSubscription = getBus().getObservable()
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribeOn(Schedulers.newThread())
-                .subscribe(mBookFragment.mSubscriber);
-        addSubscription(bookSubscription);
 
     }
 
@@ -143,14 +139,18 @@ public class BooksActivity extends MyAbstractAnimActivity implements BookFragmen
             setTitle(getText(R.string.menu_selected_go));
         }
 
-
-
+        mBookSubscription = getBus().getObservable()
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeOn(Schedulers.newThread())
+                .subscribe(mBookFragment.mSubscriber);
+        addSubscription(mBookSubscription);
 
     }
 
     @Override
     protected void onPause() {
         super.onPause();
+        mBookSubscription.unsubscribe();
     }
 
 
