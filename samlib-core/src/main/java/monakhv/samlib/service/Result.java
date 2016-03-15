@@ -21,9 +21,11 @@ package monakhv.samlib.service;
 
 import monakhv.samlib.db.entity.Author;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
+ * Accumulation of result statistic of SamlibOperation
  * Created by monakhv on 12.02.16.
  */
 public class Result {
@@ -38,6 +40,7 @@ public class Result {
 
     public Result(boolean res){
         mRes=res;
+        mUpdatedAuthors=new ArrayList<>();
     }
     public Result(boolean res,List<Author> authors){
         mRes=res;

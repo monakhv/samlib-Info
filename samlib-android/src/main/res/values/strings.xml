@@ -90,7 +90,7 @@ limitations under the License.
     <string name="add_error_double">Этот автор уже есть в базе!</string>
     <string name="add_author_title">Добавить URL автора</string>
     <string name="add_success_double">Повторов авторов:</string>
-    <string name="import_author_result">Результат иморта авторов</string>
+    <string name="import_author_result">Результат импорта авторов</string>
 
 
     <string name="del_success">Автор удалён</string>

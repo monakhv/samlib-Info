@@ -17,6 +17,7 @@ package monakhv.android.samlib;
 
 
 
+import android.support.v7.app.ActionBar;
 import android.support.v7.widget.Toolbar;
 import android.widget.*;
 import monakhv.android.samlib.data.GoogleDiskOperation;
@@ -43,6 +44,8 @@ import monakhv.samlib.service.GuiUpdateObject;
 
 import rx.Subscriber;
 import rx.Subscription;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.schedulers.Schedulers;
 
 import java.util.ArrayList;
 
@@ -67,11 +70,15 @@ public class ArchiveActivity extends MyBaseAbstractActivity {
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        final ActionBar actionBar=getSupportActionBar();
+        if (actionBar != null){
+            actionBar.setDisplayHomeAsUpEnabled(true);
+        }
+
 
         cb = (CheckBox) findViewById(R.id.cbGoogleAuto);
         cb.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            Log.d(DEBUG_TAG, "set Googe Auto to: " + isChecked);
+            Log.d(DEBUG_TAG, "set Google Auto to: " + isChecked);
             getSettingsHelper().setGoogleAuto(isChecked);
         });
         cb.setChecked(getSettingsHelper().isGoogleAuto());
@@ -268,6 +275,8 @@ public class ArchiveActivity extends MyBaseAbstractActivity {
 
         mResultSubscription=getBus()
                 .getObservable()
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeOn(Schedulers.newThread())
                 .filter(GuiUpdateObject::isResult)
                 .subscribe(mSubscriber);
         addSubscription(mResultSubscription);
@@ -344,7 +353,7 @@ public class ArchiveActivity extends MyBaseAbstractActivity {
             AlertDialog.Builder builder = new AlertDialog.Builder(ArchiveActivity.this);
             MessageConstructor mc = new MessageConstructor(ArchiveActivity.this,getSettingsHelper());
             TextView tvMsg = new TextView(ArchiveActivity.this);
-            tvMsg.setText(Html.fromHtml(mc.makeMessage(guiUpdateObject).toString()));
+            tvMsg.setText(Html.fromHtml(mc.makeMessage(guiUpdateObject)));
             builder.setTitle(R.string.import_author_result)
                     .setView(tvMsg)
                     .setCancelable(false)
