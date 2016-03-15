@@ -34,6 +34,7 @@ import monakhv.samlib.db.SQLController;
 import monakhv.samlib.db.entity.Author;
 import monakhv.samlib.db.entity.Book;
 import monakhv.samlib.db.entity.SamLibConfig;
+import monakhv.samlib.log.Log;
 import monakhv.samlib.service.AuthorGuiState;
 import monakhv.samlib.service.BookGuiState;
 import monakhv.samlib.service.SamlibOperation;
@@ -42,6 +43,7 @@ import org.hamcrest.Matcher;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
 
 import static android.support.test.espresso.Espresso.onView;
 import static android.support.test.espresso.action.ViewActions.swipeRight;
@@ -55,7 +57,7 @@ import static android.support.test.espresso.matcher.ViewMatchers.withId;
 @RunWith(AndroidJUnit4.class)
 @LargeTest
 public class AuthorGuiTest {
-    public static final int [] AUTHOR_ID={13,141,36};
+    public static final String [] AUTHOR_ID={"/a/ab/","/d/demchenko_aw/","/a/abwow_a_s/"};
     public static final long SLEEP_TIME=3000;
     public static final AuthorGuiState authorGuiState = new AuthorGuiState(SamLibConfig.TAG_AUTHOR_ALL, SQLController.COL_isnew + " DESC, " + SQLController.COL_NAME);
     public static String bookOrder = SQLController.COL_BOOK_ISNEW + " DESC, " + SQLController.COL_BOOK_DATE + " DESC";
@@ -76,10 +78,11 @@ public class AuthorGuiTest {
         /**
          * Set unread mark
          */
-        for (int id: AUTHOR_ID){
-            Author author =sql.getById(id);
+        for (String url: AUTHOR_ID){
+            Author author =sql.getByUrl(url);
+            Log.d("GUITest","find Author: "+url+" name: "+author.getName());
             Book book=sql.getBookController().getAll(author,null).get(0);
-            samlibOperation.makeBookReadFlip(book,new BookGuiState(id,bookOrder),authorGuiState);
+            samlibOperation.makeBookReadFlip(book,new BookGuiState(author.getId(),bookOrder),authorGuiState);
 
         }
 
@@ -88,9 +91,9 @@ public class AuthorGuiTest {
         /**
          * Clean mark unread by right swipe
          */
-        for (int id: AUTHOR_ID){
+        for (String url: AUTHOR_ID){
             onView(withId(R.id.authorRV))
-                    .perform(RecyclerViewActions.actionOnHolderItem(withHolderAuthorId(id),swipeRight()));
+                    .perform(RecyclerViewActions.actionOnHolderItem(withHolderAuthorUrl(url),swipeRight()));
             sleep(SLEEP_TIME);
         }
 
@@ -98,23 +101,20 @@ public class AuthorGuiTest {
 
 
 
-    public static Matcher<RecyclerView.ViewHolder> withHolderAuthorId(final int id){
+    public static Matcher<RecyclerView.ViewHolder> withHolderAuthorUrl(final String url){
         return new BoundedMatcher<RecyclerView.ViewHolder, AuthorAdapter.AuthorViewHolder>(AuthorAdapter.AuthorViewHolder.class) {
 
             @Override
             public void describeTo(Description description) {
-                description.appendText("No ViewHolder found for id " + id);
+                description.appendText("No ViewHolder found for id " + url);
             }
 
             @Override
             protected boolean matchesSafely(AuthorAdapter.AuthorViewHolder holder) {
-                TextView tv= (TextView) holder.itemView.findViewById(R.id.authorName);
-                if (tv == null){
-                    return false;
-                }
+                TextView tv = (TextView) holder.itemView.findViewById(R.id.authorURL);
+                return tv != null && url.equals(tv.getText());
 
-                int book_id = (int) tv.getTag();
-                return book_id == id ;
+
             }
         };
     }

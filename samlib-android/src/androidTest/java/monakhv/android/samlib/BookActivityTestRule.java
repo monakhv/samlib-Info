@@ -20,29 +20,25 @@
 package monakhv.android.samlib;
 
 import android.content.Intent;
-import android.support.test.espresso.matcher.BoundedMatcher;
 import android.support.test.rule.ActivityTestRule;
-import android.support.v7.widget.RecyclerView;
-import android.widget.TextView;
-import monakhv.android.samlib.adapter.BookViewHolder;
-import org.hamcrest.Description;
-import org.hamcrest.Matcher;
+import monakhv.samlib.db.entity.SamLibConfig;
 
 /**
+ * Test Rule for Book activity
  * Created by monakhv on 04.03.16.
  */
 public class BookActivityTestRule extends ActivityTestRule<BooksActivity> {
-    private long author_id;
-    public BookActivityTestRule(Class<BooksActivity> activityClass,int id) {
+
+    public BookActivityTestRule(Class<BooksActivity> activityClass) {
         super(activityClass);
-        author_id=id;
+
+
     }
 
     @Override
     protected Intent getActivityIntent() {
-
         Intent intent= super.getActivityIntent();
-        intent.putExtra(BookFragment.AUTHOR_ID, author_id);
+        intent.putExtra(BookFragment.AUTHOR_ID, SamLibConfig.SELECTED_BOOK_ID);
         return intent;
     }
 

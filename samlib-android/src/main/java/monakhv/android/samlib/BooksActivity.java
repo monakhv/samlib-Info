@@ -40,7 +40,7 @@ public class BooksActivity extends MyAbstractAnimActivity implements BookFragmen
     private static final String DEBUG_TAG = "BooksActivity";
     private static final int TAGS_ACTIVITY = 21;
     private long author_id = 0;
-    private BookFragment mBookFragment;
+    BookFragment mBookFragment;
     private Subscription mBookSubscription;
 
 

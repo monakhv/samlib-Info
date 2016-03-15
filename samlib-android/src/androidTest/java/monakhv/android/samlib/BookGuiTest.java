@@ -26,11 +26,18 @@ import android.support.v7.widget.RecyclerView;
 import android.test.suitebuilder.annotation.LargeTest;
 import android.widget.TextView;
 import monakhv.android.samlib.adapter.BookViewHolder;
+import monakhv.android.samlib.sortorder.BookSortOrder;
+import monakhv.samlib.db.AuthorController;
+import monakhv.samlib.db.entity.Author;
+import monakhv.samlib.db.entity.GroupBook;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static android.support.test.espresso.Espresso.onView;
 import static android.support.test.espresso.action.ViewActions.click;
@@ -44,25 +51,44 @@ import static android.support.test.espresso.matcher.ViewMatchers.withId;
 @RunWith(AndroidJUnit4.class)
 @LargeTest
 public class BookGuiTest {
-    public static final int AUTHOR_ID=13;
-    public static final int []  books={28154,1247,1409,1461};
+    public static final String AUTHOR_URL="/a/abwow_a_s/";
+
     public static final long SLEEP_TIME=1000;
 
 
     @Rule
-    public BookActivityTestRule mBookActivityTestRule=new BookActivityTestRule(BooksActivity.class,AUTHOR_ID);
+    public BookActivityTestRule mBookActivityTestRule=new BookActivityTestRule(BooksActivity.class);
 
     /**
      * Test set/clean mark read for Books and groups
      */
     @Test
     public void testMarkReadSetClean() {
+
+        AuthorController sql=mBookActivityTestRule.getActivity().getAuthorController();
+        Author author=sql.getByUrl(AUTHOR_URL);
+
+
+        mBookActivityTestRule.getActivity().runOnUiThread(() -> mBookActivityTestRule.getActivity().mBookFragment.setAuthorId(author.getId()));
+
+        sleep(SLEEP_TIME);
+        int i =10;
+
+        GroupBook groupBook=sql.getGroupBookController().getByAuthor(author).get(0);
+
+        sql.getBookController().getBookForGroup(groupBook, BookSortOrder.valueOf(mBookActivityTestRule.getActivity().getSettingsHelper().getBookSortOrderString()).getOrder());
+
+        int size =groupBook.getBooks().size();
+
+        List<Integer> books = new ArrayList<>();
+        books.add(groupBook.getBooks().get(size-1).getId());
+        books.add(groupBook.getBooks().get(size-2).getId());
+        books.add(groupBook.getBooks().get(size-3).getId());
+        books.add(groupBook.getBooks().get(size-4).getId());
+
         //open first group of the books
         onView(withId(R.id.bookRV))
                 .perform(RecyclerViewActions.actionOnItemAtPosition(0, click()));
-
-
-        int i =10;
 
         //Scroll to book and make it unread
         while (i>0){
