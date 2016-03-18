@@ -29,4 +29,5 @@ limitations under the License.
     <bool name="pref_key_flag_anim">false</bool>
     <bool name="pref_key_flag_update_ticker">true</bool>
     <bool name="pref_key_flag_update_delay">false</bool>
+    <bool name="pref_key_use_google_proxy_flag">false</bool>
 </resources>

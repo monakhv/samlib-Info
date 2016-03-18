@@ -47,7 +47,7 @@ import monakhv.samlib.db.entity.Book;
 import monakhv.samlib.db.entity.SamLibConfig;
 import monakhv.samlib.http.ProxyData;
 import monakhv.samlib.log.Log;
-import rx.Subscription;
+
 
 
 /**
@@ -376,6 +376,9 @@ public class SettingsHelper extends AbstractSettings implements SharedPreference
         boolean wifiProxyFlag = prefs.getBoolean(mContext.getString(R.string.pref_key_use_proxy_wifi_flag), false);
         if (wifiProxyFlag && !isWiFi()){
             return null;//we have active flag but have not wifi, so do not use proxy
+        }
+        if (prefs.getBoolean(mContext.getString(R.string.pref_key_use_google_proxy_flag),false)){
+            return ProxyData.GOOGLE_HTTP;
         }
         String user = prefs.getString(mContext.getString(R.string.pref_key_proxy_user), "");
         String password = prefs.getString(mContext.getString(R.string.pref_key_proxy_password), "");

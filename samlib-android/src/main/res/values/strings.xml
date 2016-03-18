@@ -176,8 +176,8 @@ limitations under the License.
     <string name="pref_title_use_proxy_wifi">Только для WIFI</string>
 
     <string name="pref_key_use_proxy_flag">pref_key_use_proxy_flag</string>
-    <string name="pref_title_proxy">Настройки прокси</string>
-    <string name="pref_title_use_proxy">Использовать Proxy</string>
+    <string name="pref_title_proxy">Настройки маршрутизации</string>
+    <string name="pref_title_use_proxy">Использовать прокси</string>
     <string name="pref_key_proxy_user">pref_key_proxy_user</string>
     <string name="pref_key_proxy_password">pref_key_proxy_password</string>
     <string name="pref_key_proxy_host">pref_key_proxy_host</string>
@@ -240,6 +240,11 @@ limitations under the License.
     <string name="pref_key_mirror">pref_key_mirror</string>
     <string name="pref_title_mirror">Первое зеркало</string>
     <string name="pref_default_mirror">SamLib</string>
+
+
+    <string name="pref_key_use_google_proxy_flag">pref_key_use_google_proxy_flag</string>
+    <string name="pref_title_use_google_proxy">Google proxy</string>
+    <string name="pref_summary_use_google_proxy">Эксперментальное использование http серверов google</string>
 
     <string name="change_theme_alert">Смена темы произойдет после перезапуска. Перезапустить приложения сейчас?</string>
 

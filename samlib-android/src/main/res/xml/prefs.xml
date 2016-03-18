@@ -174,16 +174,27 @@ limitations under the License.
 
     <PreferenceCategory
             android:title="@string/pref_title_proxy">
+
         <CheckBoxPreference
                 android:title="@string/pref_title_use_proxy"
                 android:key="@string/pref_key_use_proxy_flag"
-                android:defaultValue="@bool/pref_key_use_proxy_flag"/>
+                android:defaultValue="@bool/pref_key_use_proxy_flag"
+
+        />
         <CheckBoxPreference
                 android:title="@string/pref_title_use_proxy_wifi"
                 android:key="@string/pref_key_use_proxy_wifi_flag"
                 android:defaultValue="@bool/pref_key_use_proxy_wifi_flag"
                 android:dependency="pref_key_use_proxy_flag"
         />
+        <CheckBoxPreference
+                android:dependency="pref_key_use_proxy_flag"
+                android:title="@string/pref_title_use_google_proxy"
+                android:key="@string/pref_key_use_google_proxy_flag"
+                android:defaultValue="@bool/pref_key_use_google_proxy_flag"
+                android:summary="@string/pref_summary_use_google_proxy"
+                />
+
         <EditTextPreference
                 android:dependency="pref_key_use_proxy_flag"
                 android:key="@string/pref_key_proxy_user"

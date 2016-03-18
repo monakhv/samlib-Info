@@ -30,16 +30,11 @@ import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Bundle;
 
-import android.preference.EditTextPreference;
-import android.preference.ListPreference;
-import android.preference.Preference;
-import android.preference.PreferenceFragment;
-import android.preference.RingtonePreference;
+import android.preference.*;
 import android.support.v4.app.NavUtils;
 
 import android.util.Log;
 import android.view.MenuItem;
-
 
 
 import com.google.android.gms.auth.GoogleAuthUtil;
@@ -55,7 +50,6 @@ import monakhv.samlib.db.entity.SamLibConfig;
 import monakhv.samlib.db.entity.Tag;
 
 
-
 /**
  * @author monakhv
  */
@@ -68,11 +62,11 @@ public class SamlibPreferencesFragment extends PreferenceFragment
 
     private final String[] autoSummaryFields = {"pref_key_update_Period", "pref_key_proxy_host",
             "pref_key_proxy_port", "pref_key_proxy_user", "pref_key_update_autoload_limit", "pref_key_book_lifetime",
-            "pref_key_author_order", "pref_key_book_order", "pref_key_file_format","pref_key_theme",
-    "pref_key_mirror","pref_key_directory","pref_key_update_tag"};
+            "pref_key_author_order", "pref_key_book_order", "pref_key_file_format", "pref_key_theme",
+            "pref_key_mirror", "pref_key_directory", "pref_key_update_tag"};
     private List<String> autoSumKeys;
     private RingtonePreference ringtonePref;
-     Preference googlePrefs;
+    Preference googlePrefs;
     private EditTextPreference storageDir;
     private MyBaseAbstractFragment.DaggerCaller mCallbacks;
 
@@ -94,11 +88,10 @@ public class SamlibPreferencesFragment extends PreferenceFragment
         addPreferencesFromResource(R.xml.prefs);
 
 
-
         autoSumKeys = Arrays.asList(autoSummaryFields);
         ringtonePref = (RingtonePreference) findPreference(getString(R.string.pref_key_notification_ringtone));
         googlePrefs = findPreference(getString(R.string.pref_key_google_account));
-        storageDir= (EditTextPreference) findPreference(getString(R.string.pref_key_directory));
+        storageDir = (EditTextPreference) findPreference(getString(R.string.pref_key_directory));
 //        storageDir.setOnPreferenceChangeListener( new Preference.OnPreferenceChangeListener() {
 //            @Override
 //            public boolean onPreferenceChange(Preference preference, Object newValue) {
@@ -106,17 +99,14 @@ public class SamlibPreferencesFragment extends PreferenceFragment
 //            }
 //        });
         googlePrefs.setSummary(mCallbacks.getSettingsHelper().getGoogleAccount());
-        googlePrefs.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-            @Override
-            public boolean onPreferenceClick(Preference preference) {
-                String email = mCallbacks.getSettingsHelper().getGoogleAccount();
-                Account curAccount = (email == null) ? null : new Account(email, GoogleAuthUtil.GOOGLE_ACCOUNT_TYPE);
-                Intent intent = AccountPicker.newChooseAccountIntent(curAccount, null,
-                        new String[]{GoogleAuthUtil.GOOGLE_ACCOUNT_TYPE}, false, null, null, null, null);
-                startActivityForResult(intent, REQ_AUTH);
-                return true;
+        googlePrefs.setOnPreferenceClickListener(preference -> {
+            String email = mCallbacks.getSettingsHelper().getGoogleAccount();
+            Account curAccount = (email == null) ? null : new Account(email, GoogleAuthUtil.GOOGLE_ACCOUNT_TYPE);
+            Intent intent = AccountPicker.newChooseAccountIntent(curAccount, null,
+                    new String[]{GoogleAuthUtil.GOOGLE_ACCOUNT_TYPE}, false, null, null, null, null);
+            startActivityForResult(intent, REQ_AUTH);
+            return true;
 
-            }
         });
 
         ListPreference updateTagPref = (ListPreference) findPreference(getString(R.string.pref_key_update_tag));
@@ -124,15 +114,15 @@ public class SamlibPreferencesFragment extends PreferenceFragment
         TagController tagCtl = mCallbacks.getAuthorController().getTagController();
         List<Tag> tags = tagCtl.getAll();
 
-        CharSequence [] entries = new CharSequence[1+tags.size()];
-        CharSequence [] entryValues= new CharSequence[1+tags.size()];
+        CharSequence[] entries = new CharSequence[1 + tags.size()];
+        CharSequence[] entryValues = new CharSequence[1 + tags.size()];
 
-        entryValues[0]=Integer.toString(SamLibConfig.TAG_AUTHOR_ALL);
-        entries[0]=getActivity().getString(R.string.pref_update_all_title);
-        int i=1;
-        for (Tag tag:tags){
-            entryValues[i]=Integer.toString(tag.getId());
-            entries[i]=tag.getName();
+        entryValues[0] = Integer.toString(SamLibConfig.TAG_AUTHOR_ALL);
+        entries[0] = getActivity().getString(R.string.pref_update_all_title);
+        int i = 1;
+        for (Tag tag : tags) {
+            entryValues[i] = Integer.toString(tag.getId());
+            entries[i] = tag.getName();
             ++i;
         }
 
@@ -144,6 +134,7 @@ public class SamlibPreferencesFragment extends PreferenceFragment
         updateTagPref.setValue(mCallbacks.getSettingsHelper().getUpdateTag());
 
     }
+
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
@@ -184,6 +175,7 @@ public class SamlibPreferencesFragment extends PreferenceFragment
         ringtonePref.setOnPreferenceChangeListener(this);
         updateRingtoneSummary(ringtonePref, mCallbacks.getSettingsHelper().getNotificationRingToneURI());
         storageDir.setOnPreferenceChangeListener(this);
+        applyGoogleProxyDependencies();
 
     }
 
@@ -193,7 +185,7 @@ public class SamlibPreferencesFragment extends PreferenceFragment
         mCallbacks.getSettingsHelper().updateService();
         mCallbacks.getSettingsHelper().unRegisterListener();
         //if http instance already exist make sure we have right proxy settings
-        final SamlibApplication samlibApplication= (SamlibApplication) getActivity().getApplication();
+        final SamlibApplication samlibApplication = (SamlibApplication) getActivity().getApplication();
 
         samlibApplication.getApplicationComponent().getHttpClientController().setProxyData(mCallbacks.getSettingsHelper().getProxy());
         Log.d(DEBUG_TAG, "onPause");
@@ -203,7 +195,7 @@ public class SamlibPreferencesFragment extends PreferenceFragment
 
     private void updateSummary(String key) {
 
-        if (key.equals(getString(R.string.pref_key_directory))){
+        if (key.equals(getString(R.string.pref_key_directory))) {
 
             EditTextPreference pr = (EditTextPreference) getPreferenceScreen().findPreference(key);
             pr.setSummary(mCallbacks.getSettingsHelper().getDataDirectoryPath());
@@ -237,7 +229,7 @@ public class SamlibPreferencesFragment extends PreferenceFragment
 
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
         updateSummary(key);
-        if (key.equals(getString(R.string.pref_key_theme))){
+        if (key.equals(getString(R.string.pref_key_theme))) {
             AlertDialog.Builder adb = new AlertDialog.Builder(getActivity());
             adb.setTitle(R.string.Attention);
 
@@ -250,29 +242,42 @@ public class SamlibPreferencesFragment extends PreferenceFragment
             adb.create();
             adb.show();
         }
-    }
-    private final DialogInterface.OnClickListener changeThemeListener = new DialogInterface.OnClickListener() {
-        @Override
-        public void onClick(DialogInterface dialog, int which) {
-            switch (which) {
-                case Dialog.BUTTON_POSITIVE:
-                  // moveTaskToBack(true);
-                    Intent intent = new Intent();
-                    getActivity();
-                    getActivity().setResult(Activity.RESULT_OK, intent);
-                    getActivity().finish();
-                    break;
-                case Dialog.BUTTON_NEGATIVE:
-                    break;
-            }
-
+        if (key.equals(getString(R.string.pref_key_use_google_proxy_flag))) {
+            applyGoogleProxyDependencies();
         }
+    }
+
+
+    private void applyGoogleProxyDependencies() {
+        CheckBoxPreference cbp1 = (CheckBoxPreference) getPreferenceScreen().findPreference(getString(R.string.pref_key_use_google_proxy_flag));
+        boolean status = !cbp1.isChecked();
+        final String[] keys = {getString(R.string.pref_key_proxy_host), getString(R.string.pref_key_proxy_port), getString(R.string.pref_key_proxy_user), getString(R.string.pref_key_proxy_password)};
+        for (String k : keys) {
+            EditTextPreference etp = (EditTextPreference) getPreferenceScreen().findPreference(k);
+            etp.setEnabled(status);
+        }
+    }
+
+    private final DialogInterface.OnClickListener changeThemeListener = (dialog, which) -> {
+        switch (which) {
+            case Dialog.BUTTON_POSITIVE:
+                // moveTaskToBack(true);
+                Intent intent = new Intent();
+                getActivity();
+                getActivity().setResult(Activity.RESULT_OK, intent);
+                getActivity().finish();
+                break;
+            case Dialog.BUTTON_NEGATIVE:
+                break;
+        }
+
     };
+
     public boolean onPreferenceChange(Preference preference, Object newValue) {
         Log.d(DEBUG_TAG, "onPreferenceChange: " + preference.getKey());
-        if (preference.getKey().equals(getString(R.string.pref_key_directory))){
-            Log.d(DEBUG_TAG,"DIR - new "+newValue);
-            Log.d(DEBUG_TAG,"DIR - old "+mCallbacks.getSettingsHelper().getDataDirectoryPath());
+        if (preference.getKey().equals(getString(R.string.pref_key_directory))) {
+            Log.d(DEBUG_TAG, "DIR - new " + newValue);
+            Log.d(DEBUG_TAG, "DIR - old " + mCallbacks.getSettingsHelper().getDataDirectoryPath());
             return mCallbacks.getSettingsHelper().isDirectoryWritable((String) newValue);
         }
         if (preference.getKey().equalsIgnoreCase(getString(R.string.pref_key_notification_ringtone))) {

@@ -139,17 +139,17 @@ public class HttpClientController {
      * @throws IOException          connection problem occurred
      * @throws SamlibParseException remote host return status other then 200
      */
-    public void downloadBook(Book book,Subject<Integer, Integer> subject) throws IOException, SamlibParseException, SamlibInterruptException {
+    public void downloadBook(Book book, Subject<Integer, Integer> subject) throws IOException, SamlibParseException, SamlibInterruptException {
         File f = mSettingsHelper.getBookFile(book, book.getFileType());
         PageReader reader;
         switch (book.getFileType()) {
             case HTML:
-                reader = new TextFileReader(f,book.getSize(),subject);
+                reader = new TextFileReader(f, book.getSize(), subject);
                 getURL(mSamLibConfig.getBookUrl(book), reader);
                 SamLibConfig.transformBook(f);
                 break;
             case FB2:
-                reader = new Fb2ZipReader(f,book.getSize(),subject);
+                reader = new Fb2ZipReader(f, book.getSize(), subject);
                 getURL(mSamLibConfig.getBookUrl(book), reader);
                 break;
             default:
@@ -307,18 +307,19 @@ public class HttpClientController {
                 .connectTimeout(CONNECTION_TIMEOUT, TimeUnit.MILLISECONDS)
                 .readTimeout(READ_TIMEOUT, TimeUnit.MILLISECONDS);
 
-        if (mProxyData != null) {
-            mProxyData.applyProxy(builder);
-        }
-        client = builder.build();
-
-        Request request = new Request.Builder()
+        Request.Builder requestBuilder = new Request.Builder()
                 .url(url)
                 .header("User-Agent", USER_AGENT)
                 .header("Accept-Charset", ENCODING)
                 .header("Connection", "close")
-                .tag(DEBUG_TAG)
-                .build();
+                .tag(DEBUG_TAG);
+
+        if (mProxyData != null) {
+            mProxyData.applyProxy(builder, requestBuilder);
+        }
+        client = builder.build();
+
+        Request request = requestBuilder.build();
 
 
         mCall = client.newCall(request);
