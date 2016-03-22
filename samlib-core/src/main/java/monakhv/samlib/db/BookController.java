@@ -63,11 +63,11 @@ public class BookController {
 
     }
 
-    public void operate(Author author) {
+    void operate(Author author) {
         HashMap<String, GroupBook> groupBookHashMap = new HashMap<>();//cache for GroupBook lookup
 
         for (Book book : author.getBooks()) {
-            Log.i(DEBUG_TAG, "Book: " + book.getUri() + " - " + book.isIsNew() + " Operation: " + book.getSqlOperation().name());
+            //Log.i(DEBUG_TAG, "Book: " + book.getUri() + " - " + book.isIsNew() + " Operation: " + book.getSqlOperation().name());
             switch (book.getSqlOperation()) {
                 case DELETE:
                     if (!book.isPreserve()) {
@@ -210,7 +210,7 @@ public class BookController {
      * @param order  sort order
      * @return List of author
      */
-    public List<Book> getAllNew(Author author, String order) {
+    private List<Book> getAllNew(Author author, String order) {
         List<Book> res;
         QueryBuilder<Book, Integer> qb = dao.queryBuilder();
 
@@ -265,7 +265,7 @@ public class BookController {
      * @param order Sort order if not null
      * @return List of selected books
      */
-    List<Book> getSelected(String order) {
+    private List<Book> getSelected(String order) {
         QueryBuilder<Book, Integer> qbBooks = dao.queryBuilder();
         QueryBuilder<SelectedBook, Integer> qbSelected = selectedDao.queryBuilder();
 

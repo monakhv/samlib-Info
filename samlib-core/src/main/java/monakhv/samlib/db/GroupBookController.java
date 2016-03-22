@@ -43,10 +43,10 @@ public class GroupBookController {
         mGroupDao = sql.getGroupBookDao();
     }
 
-    public void operate(Author author) {
+    void operate(Author author) {
 
         for (GroupBook groupBook : author.getGroupBooks()) {
-            Log.i(DEBUG_TAG, "Group: >" + groupBook.getName() + "< Operation: " + groupBook.getSqlOperation().name());
+            //Log.i(DEBUG_TAG, "Group: >" + groupBook.getName() + "< Operation: " + groupBook.getSqlOperation().name());
             switch (groupBook.getSqlOperation()) {
                 case DELETE:
                     delete(groupBook);
@@ -185,7 +185,7 @@ public class GroupBookController {
 
     }
 
-    public GroupBook getByAuthorAndName(Author author, String name) {
+    GroupBook getByAuthorAndName(Author author, String name) {
 
         QueryBuilder<GroupBook, Integer> qb = mGroupDao.queryBuilder();
         List<GroupBook> res;

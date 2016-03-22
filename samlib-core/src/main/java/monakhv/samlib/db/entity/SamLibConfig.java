@@ -43,16 +43,17 @@ import java.util.regex.Pattern;
  * @author monakhv
  */
 public class SamLibConfig {
-    public static final   String SPLIT = "\\|";//Use  To parse Book and author Card object data
-    public static final   String SLASH = "/";
+    static final   String SPLIT = "\\|";//Use  To parse Book and author Card object data
+    static final   String SLASH = "/";
     public static final   int      SEARCH_LIMIT=100;//maximum number of results can be returned by the search procedure
     public static final   int      SELECTED_BOOK_ID=-1;//Special id for selected book
     public static final   int       GROUP_ID_ALL=-1;//Group for all books of the author
     public static final   int       GROUP_ID_SELECTED=-2;//Group for selected books
     public static final   int       TAG_AUTHOR_ALL     =-1;
     public static final   int       TAG_AUTHOR_NEW  =-2;
-    public static final   int       TAG_AUTHOR_ID = -10;
-    public   static final Pattern  BOOK_PATTERN = Pattern.compile("^<DL><DT><li>.*HREF=(.*)><b>(.*)</b>.*<b>(\\d+)k</b>.*\\s+\"(.*)\"\\s+(.*\\b|\\S*)\\s*<.*?<br>(<DD><font\\scolor=\"#555555\">(.*)</font>|)(</DL>|<DD>)");
+    //public static final   int       TAG_AUTHOR_ID = -10;
+    // for test parsing use http://samlib.ru/s/seryj_d_m/indexdate.shtml     use shtml inside base file name into URL
+    public   static final Pattern  BOOK_PATTERN = Pattern.compile("^<DL><DT><li>.*HREF=(.*)\\.shtml><b>(.*)</b>.*<b>(\\d+)k</b>.*\\s+\"(.*)\"\\s+(.*\\b|\\S*)\\s*<.*?<br>(<DD><font\\scolor=\"#555555\">(.*)</font>|)(</DL>|<DD>)");
     public   static final Pattern  AUTHOR_NAME_PATTERN =Pattern.compile("<h3>(.*):<br>");
     
     public static final String COLLATION_RULES_NEW = "&' '<'-'<'_'<','<';'<':'<'!'<'?'<'/'<'.'<0<1<2<3<4<5<6<7<8<9<a,A<b,B<c,C<d,D<ð,Ð<e,E<f,F<g,G<h,H<i,I<j,J<k,K<l,L<m,M<n,N<o,O"
@@ -269,7 +270,7 @@ public class SamLibConfig {
          * @param book the Book object to open
          * @return  URL to open the book in browser
          */
-        public  String getBookUrlForBrowser(Book book){
+        String getBookUrlForBrowser(Book book){
 
             return getDefaultURL() + SLASH + book.getUri() + ".shtml";
         }
@@ -279,7 +280,7 @@ public class SamLibConfig {
          * @param author Author object
          * @return URL to open author page in browser
          */
-        public  String getAuthorUrlForBrowser(Author author){
+        String getAuthorUrlForBrowser(Author author){
 
             return getDefaultURL() +  author.getUrl() ;
         }

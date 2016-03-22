@@ -39,16 +39,16 @@ import java.util.List;
 @DatabaseTable(tableName = SQLController.TABLE_AUTHOR)
 public class Author  implements Serializable{
 
-    protected List<GroupBook> mGroupBooks;
+    private List<GroupBook> mGroupBooks;
     protected List<Book> books;//there is special method AuthorController.loadBooks(a)
     @DatabaseField(columnName = SQLController.COL_NAME)
     protected String name;
     @DatabaseField(columnName = SQLController.COL_mtime)
-    protected long updateDate;
+    private long updateDate;
     @DatabaseField(columnName = SQLController.COL_URL)
     protected String url;
     @DatabaseField(columnName = SQLController.COL_isnew)
-    protected boolean isNew = false;
+    private boolean isNew = false;
     @DatabaseField(columnName = SQLController.COL_ID, generatedId = true)
     protected int id;
     @ForeignCollectionField
@@ -104,7 +104,7 @@ public class Author  implements Serializable{
         return updateDate;
     }
 
-    public void setUpdateDate(long updateDate) {
+    private void setUpdateDate(long updateDate) {
         this.updateDate = updateDate;
     }
 
@@ -249,9 +249,12 @@ public class Author  implements Serializable{
             else {//old book
                 Book ob =books.get(idx);
                 ob.mSqlOperation = SqlOperation.NONE;// do nothing by default
-                Log.d("AUTHOR","testing book:   "+ob.uri+"  "+ob.id);
+                //Log.d("AUTHOR","testing book:   "+ob.uri+"  "+ob.id);
 
                 if (! ob.isNeedUpdate(b)){//Author update the book
+                    Log.i("AUTHOR","UPDATE:   "+ob.uri+"  "+ob.id);
+                    Log.i("AUTHOR","UPDATE:   "+ob.size+"||"+b.size);
+                    Log.i("AUTHOR","UPDATE:   "+ob.description+"||"+b.description);
                     ob.isNew = true;
                     ob.mSqlOperation=SqlOperation.UPDATE;//need update
                     ob.description = b.description;
@@ -259,7 +262,6 @@ public class Author  implements Serializable{
                     ob.size = b.size;
                     ob.modifyTime=b.modifyTime;
                     setIsNew(true);
-                    Log.i("AUTHOR","UPDATE:   "+ob.uri+"  "+ob.id);
                     res = true;
                     //addNEw for Group in end
                 }

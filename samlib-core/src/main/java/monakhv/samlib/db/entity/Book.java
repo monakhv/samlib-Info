@@ -84,7 +84,7 @@ public class Book implements Serializable {
         mSqlOperation=SqlOperation.INSERT;
         author=a;
         uri = a.getUrl() + bookMatcher.group(1);
-        uri = uri.replaceFirst("/", "").replaceFirst(".shtml", "");
+        uri = uri.replaceFirst("/", "");
 
         title = bookMatcher.group(2);
         try {
