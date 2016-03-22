@@ -234,7 +234,7 @@ limitations under the License.
 
     <string name="pref_key_flag_update_ticker">pref_key_flag_update_ticker</string>
     <string name="pref_interface_update_ticker_title">Заголовок Уведомления</string>
-    <string name="pref_interface_update_ticker_desc">Включить заголовок уведомления при проверки обновлений</string>
+    <string name="pref_interface_update_ticker_desc">Включить заголовок уведомления при проверке обновлений</string>
 
 
     <string name="pref_key_mirror">pref_key_mirror</string>
