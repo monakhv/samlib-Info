@@ -57,7 +57,7 @@ public class MessageConstructor {
 
             if (result.getTotalToAdd() == 1) {//add single author
                 if (result.getNumberOfAdded() == 1) {
-                     sb.append(mContext.getString(R.string.add_success));
+                    sb.append(mContext.getString(R.string.add_success));
                 } else if (result.getDoubleAdd() == 1) {
                     sb.append(mContext.getString(R.string.add_error_double));
                 } else {
@@ -81,7 +81,7 @@ public class MessageConstructor {
             }
         }
 
-        if (guiUpdateObject.getUpdateType()==GuiUpdateObject.UpdateType.UPDATE_UPDATE){
+        if (guiUpdateObject.getUpdateType() == GuiUpdateObject.UpdateType.UPDATE_UPDATE) {
             if (result.isRes()) {
                 if (result.getNumberOfUpdated() == 0) {
                     sb.append(mContext.getString(R.string.toast_update_good_empty));
@@ -98,24 +98,26 @@ public class MessageConstructor {
 
     /**
      * Show Progress update Notification
+     *
      * @param progress current progress state
      */
-    public void updateNotification(AuthorUpdateProgress progress) {
+    void updateNotification(AuthorUpdateProgress progress, String title) {
         if (mProgressNotification == null) {
-            mProgressNotification = new ProgressNotification(mSettingsHelper, "text");
+            mProgressNotification = new ProgressNotification(mSettingsHelper, title);
         }
         mProgressNotification.updateProgress(progress.getTotal(), progress.getCurrent(), progress.getName());
     }
 
     /**
      * Modify Progress Notification and put Update for the Author
+     *
      * @param author The Author who has update
      */
-    public void updateNotification(Author author) {
+    void updateNotification(Author author) {
         if (mProgressNotification == null) {
-           return;
+            return;
         }
-        if (mAuthorList.contains(author)){
+        if (mAuthorList.contains(author)) {
             return;
         }
         mProgressNotification.update(author);
@@ -139,7 +141,7 @@ public class MessageConstructor {
      *
      * @param res Result status
      */
-    public void showUpdateNotification(Result res){
+    void showUpdateNotification(Result res) {
         if (res.isRes() && res.getUpdatedAuthors().isEmpty() && !mSettingsHelper.getDebugFlag()) {
             return;//no errors and no updates - no notification
         }
@@ -165,7 +167,7 @@ public class MessageConstructor {
         }
     }
 
-    public void cancelProgress() {
+    void cancelProgress() {
         if (mProgressNotification != null) {
             mProgressNotification.cancel();
             mProgressNotification = null;

@@ -26,6 +26,7 @@ import android.support.annotation.Nullable;
 import in.srain.cube.views.ptr.util.PrefsUtil;
 
 
+import monakhv.android.samlib.R;
 import monakhv.android.samlib.data.SettingsHelper;
 import monakhv.samlib.db.entity.Author;
 import monakhv.samlib.log.Log;
@@ -45,9 +46,9 @@ public class UpdateLocalService extends MyService {
 
     public static final String PREF_NAME = "monakhv.android.samlib.service.UpdateLocalService";
     public static final String PREF_KEY_LAST_UPDATE = PREF_NAME + ".LAST_UPDATE";
-    public static final String PREF_KEY_CALLER = PREF_NAME + ".CALLER";
+    private static final String PREF_KEY_CALLER = PREF_NAME + ".CALLER";
 
-    public static final String ACTION_STOP = "UpdateLocalService.ACTION_STOP";
+    static final String ACTION_STOP = "UpdateLocalService.ACTION_STOP";
     private static final String ACTION_UPDATE = "UpdateLocalService.ACTION_UPDATE";
     private static final String EXTRA_ARGUMENT = "UpdateLocalService.EXTRA_ARGUMENT";
 
@@ -84,7 +85,7 @@ public class UpdateLocalService extends MyService {
             Log.i(DEBUG_TAG, "OnStart: making update");
 
             ArgumentData arg = intent.getExtras().getParcelable(EXTRA_ARGUMENT);
-            if (arg != null){
+            if (arg != null) {
                 isReceiver = arg.isReceiver == 1;
             }
             runService(arg);
@@ -102,6 +103,13 @@ public class UpdateLocalService extends MyService {
     }
 
 
+    /**
+     * Method to start update process
+     *
+     * @param context Context
+     * @param author  Author can be null, if not null - check the author for updates
+     * @param state   Author GUI state to make gui update, contains tagId to update authors by the tag
+     */
     public static void makeUpdate(Context context, Author author, AuthorGuiState state) {
         Intent service = new Intent(context, UpdateLocalService.class);
         service.setAction(UpdateLocalService.ACTION_UPDATE);
@@ -122,7 +130,7 @@ public class UpdateLocalService extends MyService {
     private void runService(ArgumentData argData) {
 
 
-        if (isRun && !isReceiver) {
+        if (isRun) {
             Log.i(DEBUG_TAG, "runService: Update already running exiting");
             return;
         }
@@ -141,6 +149,12 @@ public class UpdateLocalService extends MyService {
 
             return;
         }
+        String title;
+        if (argData.author_id == -1) {
+            title = getString(R.string.notification_title_TAG) + " " + getAuthorController().getTagController().getById(argData.state_id).getName();
+        } else {
+            title = getString(R.string.notification_title_TAG) + " " + getAuthorController().getById(argData.author_id).getName();
+        }
 
         PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
         wl = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, DEBUG_TAG);
@@ -157,18 +171,18 @@ public class UpdateLocalService extends MyService {
                         if (mMessageConstructor == null) {
                             mMessageConstructor = new MessageConstructor(this, getSettingsHelper());
                         }
-                        mMessageConstructor.updateNotification((AuthorUpdateProgress) guiUpdateObject.getObject());
-                        Log.d(DEBUG_TAG,"runService: progressUpdate");
+                        mMessageConstructor.updateNotification((AuthorUpdateProgress) guiUpdateObject.getObject(), title);
+                        Log.d(DEBUG_TAG, "runService: progressUpdate");
                     }
                     if (guiUpdateObject.isResult()) {
                         mMessageConstructor.cancelProgress();
                         mMessageConstructor.showUpdateNotification((Result) guiUpdateObject.getObject());
-                        Log.d(DEBUG_TAG,"runService: Result");
+                        Log.d(DEBUG_TAG, "runService: Result");
                     }
-                    if (guiUpdateObject.isAuthor() && guiUpdateObject.getUpdateType()== GuiUpdateObject.UpdateType.UPDATE_UPDATE) {
+                    if (guiUpdateObject.isAuthor() && guiUpdateObject.getUpdateType() == GuiUpdateObject.UpdateType.UPDATE_UPDATE) {
                         Author author = (Author) guiUpdateObject.getObject();
                         mMessageConstructor.updateNotification(author);
-                        Log.d(DEBUG_TAG,"runService: AuthorUpdate: "+author.getName());
+                        Log.d(DEBUG_TAG, "runService: AuthorUpdate: " + author.getName());
                     }
                 });
         addSubscription(subscription);
@@ -212,7 +226,7 @@ public class UpdateLocalService extends MyService {
         final private AuthorUpdateService mAuthorUpdateService;
         final private ArgumentData mData;
 
-        public SamlibUpdateTread(AuthorUpdateService authorUpdateService, ArgumentData data) {
+        SamlibUpdateTread(AuthorUpdateService authorUpdateService, ArgumentData data) {
             mAuthorUpdateService = authorUpdateService;
             mData = data;
         }
@@ -261,7 +275,12 @@ public class UpdateLocalService extends MyService {
         int author_id = -1;
         int isReceiver;
 
-        public ArgumentData(AuthorGuiState state) {
+        /**
+         * For update all authors by the tag
+         *
+         * @param state Gui state contains tag id
+         */
+        ArgumentData(AuthorGuiState state) {
             state_id = state.getSelectedTagId();
             order = state.getSorOrder();
             if (order == null) {
@@ -272,16 +291,24 @@ public class UpdateLocalService extends MyService {
 
         }
 
-        public ArgumentData(Author author, AuthorGuiState state) {
+        /**
+         * The constructor is used for check update for the single author
+         * Call only from Activity
+         *
+         * @param author Author to update
+         * @param state  GUI state
+         */
+        ArgumentData(Author author, AuthorGuiState state) {
             this(state);
             author_id = author.getId();
+            isReceiver = 0;
         }
 
-        public AuthorGuiState getState() {
+        AuthorGuiState getState() {
             return new AuthorGuiState(state_id, order);
         }
 
-        protected ArgumentData(Parcel in) {
+        ArgumentData(Parcel in) {
             state_id = in.readInt();
             order = in.readString();
             author_id = in.readInt();
