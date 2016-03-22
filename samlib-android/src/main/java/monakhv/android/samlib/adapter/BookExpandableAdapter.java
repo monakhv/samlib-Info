@@ -55,7 +55,7 @@ public class BookExpandableAdapter extends ExpandableRecyclerAdapter<GroupViewHo
     }
 
     private static final String DEBUG_TAG = "BookExpandableAdapter";
-    public static final int NOT_SELECTED = -1;
+    private static final int NOT_SELECTED = -1;
     private int selected = NOT_SELECTED;
     public static final int TYPE_PARENT = 0;
     private static final int TYPE_CHILD = 1;
@@ -66,7 +66,7 @@ public class BookExpandableAdapter extends ExpandableRecyclerAdapter<GroupViewHo
     private final int maxGroupId;
     private long author_id;
     private Context mContext;
-    protected CallBack mCallBack;
+    private CallBack mCallBack;
 
     public BookExpandableAdapter(@NonNull List<? extends ParentListItem> parentItemList, int maxGroupId, Activity context, CallBack callBack, SettingsHelper settingsHelper) {
         super(parentItemList);
@@ -360,7 +360,7 @@ public class BookExpandableAdapter extends ExpandableRecyclerAdapter<GroupViewHo
     }
 
 
-    public int getSelectedPosition() {
+    private int getSelectedPosition() {
         return selected;
     }
 
