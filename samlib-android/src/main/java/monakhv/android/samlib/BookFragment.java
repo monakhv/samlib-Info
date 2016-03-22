@@ -61,7 +61,7 @@ import java.util.List;
 public class BookFragment extends MyBaseAbstractFragment implements
         ListSwipeListener.SwipeCallBack, LoaderManager.LoaderCallbacks<List<GroupListItem>>,
         BookExpandableAdapter.CallBack {
-    public interface Callbacks {
+    interface Callbacks {
         AuthorGuiState getAuthorGuiState();
 
         void showTags(long author_id);
@@ -80,8 +80,8 @@ public class BookFragment extends MyBaseAbstractFragment implements
 
 
     private static final String DEBUG_TAG = "BookFragment";
-    public static final String AUTHOR_ID = "AUTHOR_ID";
-    public static final String ADAPTER_STATE_EXTRA = "BookFragment.ADAPTER_STATE_EXTRA";
+    static final String AUTHOR_ID = "AUTHOR_ID";
+    static final String ADAPTER_STATE_EXTRA = "BookFragment.ADAPTER_STATE_EXTRA";
     private static final int BOOK_LOADER_ID = 190;
     private RecyclerView bookRV;
     private long author_id;
@@ -91,9 +91,9 @@ public class BookFragment extends MyBaseAbstractFragment implements
     private BookSortOrder order;
     private GestureDetector detector;
 
-    ProgressDialog progress;
+    private ProgressDialog progress;
     private ProgressBar mProgressBar;
-    ContextMenuDialog contextMenuDialog;
+    private ContextMenuDialog contextMenuDialog;
 
     private TextView emptyText;
     private DataExportImport dataExportImport;
@@ -224,7 +224,7 @@ public class BookFragment extends MyBaseAbstractFragment implements
         }
     }
 
-    void updateAdapter() {
+    private void updateAdapter() {
         Log.d(DEBUG_TAG, "updateAdapter call");
         //very ugly hack
         if (order == null) {
@@ -294,7 +294,7 @@ public class BookFragment extends MyBaseAbstractFragment implements
      *
      * @param id Author id or special parameters
      */
-    public void setAuthorId(long id) {
+    void setAuthorId(long id) {
         emptyText.setVisibility(View.GONE);
         bookRV.setVisibility(View.GONE);
         mProgressBar.setVisibility(View.VISIBLE);
@@ -481,7 +481,7 @@ public class BookFragment extends MyBaseAbstractFragment implements
         Uri uri = Uri.parse(sUrl);
         Intent launchBrowser = new Intent(Intent.ACTION_VIEW, uri);
 
-        if (getSettingsHelper().getAutoMarkFlag()) {
+        if (getSettingsHelper().getAutoMarkFlag() && book.isIsNew()) {
 
             adapter.makeRead(selected_position);
         }
@@ -496,7 +496,7 @@ public class BookFragment extends MyBaseAbstractFragment implements
     /**
      * Show Dialog to select sort order for Book list
      */
-    public void selectSortOrder() {
+    private void selectSortOrder() {
         AdapterView.OnItemClickListener listener = (parent, view, position, id) -> {
             BookSortOrder so = BookSortOrder.values()[position];
             setSortOrder(so);
@@ -507,12 +507,12 @@ public class BookFragment extends MyBaseAbstractFragment implements
         sortDialog.show(getActivity().getSupportFragmentManager(), "DoBookSortDialog");
     }
 
-    void setSortOrder(BookSortOrder so) {
+    private void setSortOrder(BookSortOrder so) {
         order = so;
         updateAdapter();
     }
 
-    BookSortOrder getSortOrder() {
+    private BookSortOrder getSortOrder() {
         return order;
     }
 
@@ -574,7 +574,7 @@ public class BookFragment extends MyBaseAbstractFragment implements
      *
      * @param book the book to read
      */
-    void launchReader(Book book) {
+    private void launchReader(Book book) {
         launchReader(book, null);
     }
 
@@ -585,7 +585,7 @@ public class BookFragment extends MyBaseAbstractFragment implements
      * @param book the book to read
      * @param file version file name
      */
-    void launchReader(Book book, String file) {
+    private void launchReader(Book book, String file) {
         String url;
         if (file == null) {
             url = getSettingsHelper().getBookFileURL(book);
@@ -604,7 +604,7 @@ public class BookFragment extends MyBaseAbstractFragment implements
             return;
         }
 
-        if (getSettingsHelper().getAutoMarkFlag()) {
+        if (getSettingsHelper().getAutoMarkFlag() && book.isIsNew()) {
             adapter.makeRead(selected_position);
         }
         startActivity(launchBrowser);
@@ -654,11 +654,11 @@ public class BookFragment extends MyBaseAbstractFragment implements
         adapter.onSaveInstanceState(adapterState);
     }
 
-    public Bundle getAdapterState() {
+    Bundle getAdapterState() {
         return adapterState;
     }
 
-    public void setAdapterState(Bundle adapterState) {
+    void setAdapterState(Bundle adapterState) {
         this.adapterState = adapterState;
     }
 }
