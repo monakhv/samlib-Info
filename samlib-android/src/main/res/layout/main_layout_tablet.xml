@@ -63,16 +63,7 @@
 
         </LinearLayout>
     </LinearLayout>
-        <android.support.design.widget.FloatingActionButton
-                android:id="@+id/fabAuthor"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="top"
-                android:layout_margin="20dp"
-                app:fabSize="mini"
-                app:layout_anchor="@id/authorFragment"
-                app:layout_anchorGravity="top|right|end"
-        />
+
     </android.support.design.widget.CoordinatorLayout>
 
     <android.support.design.widget.NavigationView

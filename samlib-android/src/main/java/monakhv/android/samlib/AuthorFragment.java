@@ -9,7 +9,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
-import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
 import android.support.v7.widget.LinearLayoutManager;
@@ -76,11 +75,11 @@ public class AuthorFragment extends MyBaseAbstractFragment implements
         ListSwipeListener.SwipeCallBack,
         RecyclerAdapter.CallBack,
         LoaderManager.LoaderCallbacks<List<Author>> {
-    public AuthorGuiState getGuiState() {
+    AuthorGuiState getGuiState() {
         return new AuthorGuiState(selectedTag, order.getOrder());
     }
 
-    public interface Callbacks {
+    interface Callbacks {
 
         void onAuthorSelected(long id);
 
@@ -132,7 +131,7 @@ public class AuthorFragment extends MyBaseAbstractFragment implements
         }
     };
 
-    public void setAppBarOffset(int appBarOffset) {
+    void setAppBarOffset(int appBarOffset) {
         mAppBarOffset = appBarOffset;
     }
 
@@ -224,61 +223,11 @@ public class AuthorFragment extends MyBaseAbstractFragment implements
 
     }
 
-    private boolean mFabDisable = false;
-    private FloatingActionButton mFloatingActionButton;
-
-    public void setScrollFab(final FloatingActionButton floatingActionButton) {
-        mFloatingActionButton = floatingActionButton;
-        authorRV.addOnScrollListener(new RecyclerView.OnScrollListener() {
-            private static final int HIDE_THRESHOLD = 20;
-            private int scrolledDistance = 0;
-            private boolean controlsVisible = true;
-
-            @Override
-            public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
-                super.onScrollStateChanged(recyclerView, newState);
-//                if (newState == AbsListView.OnScrollListener.SCROLL_STATE_IDLE && mAppBarOffset == 0 && !mFabDisable) {
-//                    floatingActionButton.show();
-//                }
-//                if (newState == AbsListView.OnScrollListener.SCROLL_STATE_FLING) {
-//                    floatingActionButton.hide();
-//                }
-            }
-
-            @Override
-            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
-                super.onScrolled(recyclerView, dx, dy);
-                if((controlsVisible && dy>0) || (!controlsVisible && dy<0)) {
-                    scrolledDistance += dy;
-                }
-
-                if (scrolledDistance > HIDE_THRESHOLD && controlsVisible) {
-                    floatingActionButton.hide();
-                    controlsVisible = false;
-                    scrolledDistance = 0;
-                } else if (scrolledDistance < -HIDE_THRESHOLD && !controlsVisible && !mFabDisable) {
-                    floatingActionButton.show();
-                    controlsVisible = true;
-                    scrolledDistance = 0;
-                }
-            }
-        });
-        floatingActionButton.setOnClickListener(v -> {
-            mFabDisable = true;
-            floatingActionButton.hide();
-            searchOrAdd();
-        });
-    }
-
-    public void enableFab() {
-        mFabDisable = false;
-        mFloatingActionButton.show();
-    }
 
     /**
      * Create initialization for pull to Refresh interface
      */
-    public void makePulToRefresh() {
+    private void makePulToRefresh() {
         mPtrFrame = (PtrClassicFrameLayout) view.findViewById(R.id.ptr_frame);
         mPtrFrame.setPtrHandler(this);
         mPtrFrame.setLastUpdateTimeKey(UpdateLocalService.PREF_NAME, UpdateLocalService.PREF_KEY_LAST_UPDATE);
@@ -365,7 +314,7 @@ public class AuthorFragment extends MyBaseAbstractFragment implements
      * Call - from on pause
      * call - from Main activity as a result for broadcast
      */
-    void onRefreshComplete() {
+    private void onRefreshComplete() {
         Log.d(DEBUG_TAG, "onRefreshComplete: Stop updating state");
         mPtrFrame.refreshComplete();
         canUpdate = true;
@@ -519,7 +468,7 @@ public class AuthorFragment extends MyBaseAbstractFragment implements
     }
 
 
-    void startRefresh() {
+    private void startRefresh() {
         if (canUpdate) {
             mPtrFrame.performRefresh();
         }
@@ -531,7 +480,7 @@ public class AuthorFragment extends MyBaseAbstractFragment implements
      *
      * @param a Author object
      */
-    public void launchBrowser(Author a) {
+    private void launchBrowser(Author a) {
         Uri uri = Uri.parse(a.getUrlForBrowser(getSettingsHelper()));
         Intent launchBrowser = new Intent(Intent.ACTION_VIEW, uri);
         getActivity().startActivity(launchBrowser);
@@ -575,7 +524,7 @@ public class AuthorFragment extends MyBaseAbstractFragment implements
         }
     };
 
-    public void searchOrAdd() {
+    void searchOrAdd() {
 
 
         empty.setVisibility(View.VISIBLE);
@@ -602,7 +551,7 @@ public class AuthorFragment extends MyBaseAbstractFragment implements
      *
      * @return Selected ag
      */
-    public int getSelection() {
+    int getSelection() {
         return selectedTag;
     }
 
@@ -612,7 +561,7 @@ public class AuthorFragment extends MyBaseAbstractFragment implements
      *
      * @param id id of Author to make selected
      */
-    public void selectAuthor(long id) {
+    private void selectAuthor(long id) {
         Log.d(DEBUG_TAG, "selectAuthor: id = " + id);
 
         int pos = adapter.findAndSelect(id);
@@ -633,7 +582,7 @@ public class AuthorFragment extends MyBaseAbstractFragment implements
      * @param selectedTag selection tag id
      * @param so          sort order string
      */
-    public void selectTag(int selectedTag, AuthorSortOrder so) {
+    void selectTag(int selectedTag, AuthorSortOrder so) {
         Log.d(DEBUG_TAG, "selectTag: set Selection: " + selectedTag);
         cleanSelection();
         this.selectedTag = selectedTag;
@@ -713,13 +662,13 @@ public class AuthorFragment extends MyBaseAbstractFragment implements
      *
      * @param so new sort order
      */
-    public void setSortOrder(AuthorSortOrder so) {
+    void setSortOrder(AuthorSortOrder so) {
         cleanSelection();
         order = so;
         updateAdapter();
     }
 
-    public AuthorSortOrder getSortOrder() {
+    AuthorSortOrder getSortOrder() {
         return order;
     }
 

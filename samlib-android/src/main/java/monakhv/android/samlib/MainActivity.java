@@ -10,7 +10,6 @@ import android.content.*;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.AppBarLayout;
-import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
@@ -28,8 +27,6 @@ import android.view.Window;
 import android.widget.*;
 
 
-import monakhv.android.samlib.awesome.FontManager;
-import monakhv.android.samlib.awesome.TextDrawable;
 import monakhv.android.samlib.search.SearchAuthorActivity;
 import monakhv.android.samlib.search.SearchAuthorsFragment;
 import monakhv.android.samlib.service.CleanNotificationData;
@@ -77,12 +74,12 @@ public class MainActivity extends MyBaseAbstractActivity implements
 
     private static final String DEBUG_TAG = "MainActivity";
 
-    public static final int ARCHIVE_ACTIVITY = 1;
-    public static final int SEARCH_ACTIVITY = 2;
-    public static final int PREFS_ACTIVITY = 3;
+    private static final int ARCHIVE_ACTIVITY = 1;
+    private static final int SEARCH_ACTIVITY = 2;
+    private static final int PREFS_ACTIVITY = 3;
     public static final String ACTION_CLEAN = "MainActivity.ACTION_CLEAN";
-    public static final String SELECTED_TAG_ID = "SELECTED_TAG_ID";
-    public static final String PROGRESS_TIME = "PROGRESS_TIME";
+    private static final String SELECTED_TAG_ID = "SELECTED_TAG_ID";
+    private static final String PROGRESS_TIME = "PROGRESS_TIME";
     private AuthorFragment authorFragment;
     private BookFragment bookFragment;
     private AuthorTagFragment tagFragment;
@@ -190,12 +187,6 @@ public class MainActivity extends MyBaseAbstractActivity implements
             mBus = fr1.getObjectObservable();
         }
 
-        final FloatingActionButton floatingActionButton = (FloatingActionButton) findViewById(R.id.fabAuthor);
-        final TextDrawable td = new TextDrawable(this);
-        td.setTypeface(FontManager.getFontAwesome(this));
-        td.setText(getText(R.string.fa_user_plus));
-        floatingActionButton.setImageDrawable(td);
-        authorFragment.setScrollFab(floatingActionButton);
 
     }
 
@@ -496,7 +487,7 @@ public class MainActivity extends MyBaseAbstractActivity implements
     }
 
 
-    public void addAuthorFromText() {
+    private void addAuthorFromText() {
         final EditText editText = (EditText) findViewById(R.id.addUrlText);
 
         if (editText == null || editText.getText() ==null ) {
@@ -509,7 +500,6 @@ public class MainActivity extends MyBaseAbstractActivity implements
 
         View v = findViewById(R.id.add_author_panel);
         v.setVisibility(View.GONE);
-        authorFragment.enableFab();
 
         String url = SamLibConfig.getParsedUrl(text);
         if (url != null) {//add  Author by URL
@@ -578,16 +568,16 @@ public class MainActivity extends MyBaseAbstractActivity implements
     }
 
 
-    public static class UITag implements Serializable {
+    private static class UITag implements Serializable {
         int id;
         String title;
 
-        public UITag(int id, String title) {
+        UITag(int id, String title) {
             this.id = id;
             this.title = title;
         }
 
-        public UITag(Tag tag) {
+        UITag(Tag tag) {
             this.id = tag.getId();
             this.title = tag.getName();
         }
@@ -613,7 +603,7 @@ public class MainActivity extends MyBaseAbstractActivity implements
             return id;
         }
 
-        public static ArrayList<UITag> getPreList(Context ctx) {
+        static ArrayList<UITag> getPreList(Context ctx) {
             ArrayList<UITag> tags = new ArrayList<>();
             //tags.add(new UITag(SamLibConfig.TAG_AUTHOR_ALL,ctx.getString(R.string.filter_all)));
             tags.add(new UITag(SamLibConfig.TAG_AUTHOR_ALL, ctx.getString(R.string.app_name)));
