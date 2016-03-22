@@ -73,7 +73,8 @@ limitations under the License.
             android:layout_height="40sp"
             android:layout_marginLeft="4sp"
             android:layout_marginRight="@dimen/right_margin_author"
-            android:layout_marginTop="16sp"
+            android:layout_gravity="center_vertical"
+
 
     >
     </ImageView>

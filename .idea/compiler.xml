@@ -14,11 +14,15 @@
       <entry name="!?*.aj" />
     </wildcardResourcePatterns>
     <annotationProcessing>
-      <profile default="true" name="Default" enabled="true">
-        <processorPath useClasspath="true">
-          <entry name="$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.google.dagger/dagger-compiler/2.0.2/1170f75c1ce293f80755bbc9fcd60e0765022bd0/dagger-compiler-2.0.2.jar" />
-        </processorPath>
+      <profile default="true" name="Default" enabled="false">
+        <processorPath useClasspath="true" />
       </profile>
     </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="samlib-core_main" target="1.8" />
+      <module name="samlib-core_test" target="1.8" />
+      <module name="samlib-desk_main" target="1.7" />
+      <module name="samlib-desk_test" target="1.7" />
+    </bytecodeTargetLevel>
   </component>
 </project>
