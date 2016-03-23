@@ -51,9 +51,9 @@ import static android.support.test.espresso.matcher.ViewMatchers.withId;
 @RunWith(AndroidJUnit4.class)
 @LargeTest
 public class BookGuiTest {
-    public static final String AUTHOR_URL="/a/abwow_a_s/";
+    private static final String AUTHOR_URL="/a/abwow_a_s/";
 
-    public static final long SLEEP_TIME=1000;
+    private static final long SLEEP_TIME=1000;
 
 
     @Rule

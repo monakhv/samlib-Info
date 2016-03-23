@@ -27,9 +27,9 @@ import monakhv.samlib.db.entity.SamLibConfig;
  * Test Rule for Book activity
  * Created by monakhv on 04.03.16.
  */
-public class BookActivityTestRule extends ActivityTestRule<BooksActivity> {
+class BookActivityTestRule extends ActivityTestRule<BooksActivity> {
 
-    public BookActivityTestRule(Class<BooksActivity> activityClass) {
+    BookActivityTestRule(Class<BooksActivity> activityClass) {
         super(activityClass);
 
 

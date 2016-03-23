@@ -57,10 +57,10 @@ import static android.support.test.espresso.matcher.ViewMatchers.withId;
 @RunWith(AndroidJUnit4.class)
 @LargeTest
 public class AuthorGuiTest {
-    public static final String [] AUTHOR_ID={"/a/ab/","/d/demchenko_aw/","/a/abwow_a_s/"};
-    public static final long SLEEP_TIME=3000;
-    public static final AuthorGuiState authorGuiState = new AuthorGuiState(SamLibConfig.TAG_AUTHOR_ALL, SQLController.COL_isnew + " DESC, " + SQLController.COL_NAME);
-    public static String bookOrder = SQLController.COL_BOOK_ISNEW + " DESC, " + SQLController.COL_BOOK_DATE + " DESC";
+    private static final String [] AUTHOR_ID={"/a/ab/","/d/demchenko_aw/","/a/abwow_a_s/"};
+    private static final long SLEEP_TIME=3000;
+    private static final AuthorGuiState authorGuiState = new AuthorGuiState(SamLibConfig.TAG_AUTHOR_ALL, SQLController.COL_isnew + " DESC, " + SQLController.COL_NAME);
+    private static String bookOrder = SQLController.COL_BOOK_ISNEW + " DESC, " + SQLController.COL_BOOK_DATE + " DESC";
 
     @Rule
     public ActivityTestRule<MainActivity> mActivityTestRule = new ActivityTestRule<>(MainActivity.class);

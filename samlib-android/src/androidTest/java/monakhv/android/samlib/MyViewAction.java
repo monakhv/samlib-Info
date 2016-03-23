@@ -26,11 +26,12 @@ import monakhv.samlib.log.Log;
 import org.hamcrest.Matcher;
 
 /**
+ * Action on View inside RecycleView item
  * Created by monakhv on 03.03.16.
  */
-public class MyViewAction {
+class MyViewAction {
 
-    public static ViewAction clickChildViewWithId(final int id) {
+    static ViewAction clickChildViewWithId(final int id) {
         return new ViewAction() {
 
             @Override
