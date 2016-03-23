@@ -19,8 +19,8 @@ android {
         applicationId "monakhv.android.samlib"
         minSdkVersion 11
         targetSdkVersion 22
-        versionCode 103332
-        versionName "3.3.2"
+        versionCode 103333
+        versionName "3.3.3"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
 
