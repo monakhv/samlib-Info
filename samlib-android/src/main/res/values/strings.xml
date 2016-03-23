@@ -117,6 +117,8 @@ limitations under the License.
 
     <string name="notification_title_author">Проверка автора:</string>
     <string name="notification_title_TAG">Проверка авторов:</string>
+    <string name="notification_title_TAG_ALL">Проверка всех авторов</string>
+    <string name="notification_title_TAG_NEW">Проверка новых авторов</string>
     <string name="notification_summary">Количество обновлений:</string>
     
     <string name="author_update">Обновление у автора: </string>

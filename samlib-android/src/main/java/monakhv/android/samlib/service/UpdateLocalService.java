@@ -29,6 +29,7 @@ import in.srain.cube.views.ptr.util.PrefsUtil;
 import monakhv.android.samlib.R;
 import monakhv.android.samlib.data.SettingsHelper;
 import monakhv.samlib.db.entity.Author;
+import monakhv.samlib.db.entity.SamLibConfig;
 import monakhv.samlib.log.Log;
 import monakhv.samlib.service.*;
 import rx.Subscription;
@@ -151,9 +152,19 @@ public class UpdateLocalService extends MyService {
         }
         String title;
         if (argData.author_id == -1) {
-            title = getString(R.string.notification_title_TAG) + " " + getAuthorController().getTagController().getById(argData.state_id).getName();
+            switch (argData.state_id){
+                case SamLibConfig.TAG_AUTHOR_ALL:
+                    title = getString(R.string.notification_title_TAG_ALL) ;
+                    break;
+                case SamLibConfig.TAG_AUTHOR_NEW:
+                    title = getString(R.string.notification_title_TAG_NEW);
+                    break;
+                default:
+                    title = getString(R.string.notification_title_TAG) + " " + getAuthorController().getTagController().getById(argData.state_id).getName();
+            }
+
         } else {
-            title = getString(R.string.notification_title_TAG) + " " + getAuthorController().getById(argData.author_id).getName();
+            title = getAuthorController().getById(argData.author_id).getName();
         }
 
         PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
