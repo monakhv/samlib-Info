@@ -87,6 +87,7 @@ public class BookFragment extends MyBaseAbstractFragment implements
     private long author_id;
     private BookExpandableAdapter adapter;
     private Bundle adapterState;
+    private int mScrollPosition;
     private Book book = null;//for context menu
     private BookSortOrder order;
     private GestureDetector detector;
@@ -192,6 +193,8 @@ public class BookFragment extends MyBaseAbstractFragment implements
             Log.d(DEBUG_TAG, "onLoadFinished: load adapter data");
             adapter.onRestoreInstanceState(adapterState);
             adapterState.clear();
+            LinearLayoutManager lm = (LinearLayoutManager) bookRV.getLayoutManager();
+            lm.scrollToPosition(mScrollPosition);
         }
     }
 
@@ -652,6 +655,8 @@ public class BookFragment extends MyBaseAbstractFragment implements
         }
 
         adapter.onSaveInstanceState(adapterState);
+        LinearLayoutManager lm = (LinearLayoutManager) bookRV.getLayoutManager();
+        mScrollPosition=lm.findFirstVisibleItemPosition();
     }
 
     Bundle getAdapterState() {
