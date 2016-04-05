@@ -23,7 +23,7 @@ limitations under the License.
     <string name="author_add_desc">Для добавления автора введите его фамилию или полный URL его страницы самиздата</string>
     
     <string name="update_update">Обновление</string>
-    <string name="group_book_number">Колличество книг:</string>
+    <string name="group_book_number">Книг:</string>
     <string name="group_book_number_new">из них новых:</string>
     <string name="group_book_new">Новые</string>
     <string name="group_book_all">Все</string>
