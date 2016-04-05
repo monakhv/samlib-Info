@@ -305,7 +305,7 @@ public class BookController {
         }
 
 
-        QueryBuilder<Book, Integer> qbBooks = dao.queryBuilder();
+        final QueryBuilder<Book, Integer> qbBooks = dao.queryBuilder();
         if (order != null) {
             qbBooks.orderByRaw(order);
         }

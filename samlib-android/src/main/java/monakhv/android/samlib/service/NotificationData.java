@@ -41,7 +41,7 @@ import monakhv.samlib.db.entity.Author;
  *
  * @author monakhv
  */
-public class NotificationData implements Serializable {
+class NotificationData implements Serializable {
 
     private static final String VAR_NAME = "NotificationData";
     private static final String DEBUG_TAG = "NotificationData";
@@ -50,8 +50,8 @@ public class NotificationData implements Serializable {
     //private static final String WHERE=SQLController.COL_STATE_VAR_NAME + "=\"" + VAR_NAME + "\"";
     private static final String DATE_FORMAT = "dd.MM.yyyy HH:mm:ss";
     
-    public static final int LIST_UPDATE_NOTIFICATION = 120;
-    public static final int LIST_UPDATE_ERROR = 121;
+    private static final int LIST_UPDATE_NOTIFICATION = 120;
+    private static final int LIST_UPDATE_ERROR = 121;
     private List<Author> authors;
     private List<String>  lines;
     //private NotificationCompat.InboxStyle inboxStyle; //Not serializable !!!
@@ -158,7 +158,7 @@ public class NotificationData implements Serializable {
      * @param settingsHelper Settings
      * @param updatedAuthors List of updated Authors
      */
-    public void notifyUpdate(SettingsHelper settingsHelper, List<Author> updatedAuthors) {
+    void notifyUpdate(SettingsHelper settingsHelper, List<Author> updatedAuthors) {
         NotificationManager notificationManager = (NotificationManager) settingsHelper.getContext()
                 .getSystemService(NOTIFICATION_SERVICE);
         NotificationCompat.Builder mBuilder = makeUpdateNotification(settingsHelper);
@@ -188,7 +188,7 @@ public class NotificationData implements Serializable {
      *
      * @param settingsHelper Settings
      */
-    public void notifyUpdateDebug(SettingsHelper settingsHelper) {
+    void notifyUpdateDebug(SettingsHelper settingsHelper) {
         notifyUpdate(settingsHelper, null);
     }
 
@@ -197,7 +197,7 @@ public class NotificationData implements Serializable {
      *
      * @param settingsHelper Settings
      */
-    public void notifyUpdateError(SettingsHelper settingsHelper) {
+    void notifyUpdateError(SettingsHelper settingsHelper) {
         NotificationManager notificationManager = (NotificationManager) settingsHelper.getContext()
                 .getSystemService(NOTIFICATION_SERVICE);
         NotificationCompat.Builder mBuilder = makeNotification(settingsHelper);

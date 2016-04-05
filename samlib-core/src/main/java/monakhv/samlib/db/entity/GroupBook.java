@@ -113,22 +113,22 @@ public class GroupBook  implements Serializable{
         mBooks = books;
     }
 
-    public void addNew(){
-        ++mNewNumber;
-        if (mSqlOperation==SqlOperation.NONE || mSqlOperation==SqlOperation.DELETE){
-            mSqlOperation=SqlOperation.UPDATE;
-        }
-    }
-
-    public void delNew(){
-        if (mNewNumber == 0){
-            return;
-        }
-        --mNewNumber;
-        if (mSqlOperation==SqlOperation.NONE || mSqlOperation==SqlOperation.DELETE){
-            mSqlOperation=SqlOperation.UPDATE;
-        }
-    }
+//    public void addNew(){
+//        ++mNewNumber;
+//        if (mSqlOperation==SqlOperation.NONE || mSqlOperation==SqlOperation.DELETE){
+//            mSqlOperation=SqlOperation.UPDATE;
+//        }
+//    }
+//
+//    public void delNew(){
+//        if (mNewNumber == 0){
+//            return;
+//        }
+//        --mNewNumber;
+//        if (mSqlOperation==SqlOperation.NONE || mSqlOperation==SqlOperation.DELETE){
+//            mSqlOperation=SqlOperation.UPDATE;
+//        }
+//    }
 
     public String getDisplayName() {
         return displayName;

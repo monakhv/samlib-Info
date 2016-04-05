@@ -38,13 +38,13 @@ import java.util.zip.ZipInputStream;
  *  A =0.56
  *  B=4.55
  */
-public class Fb2ZipReader implements HttpClientController.PageReader {
+class Fb2ZipReader implements HttpClientController.PageReader {
     private static final String DEBUG_TAG="Fb2ZipReader";
     private File file;
     final private Subject<Integer, Integer> mSubject;
-    final long mSize;
+    private final long mSize;
 
-    public Fb2ZipReader(File file,long size,Subject<Integer, Integer> subject) {
+    Fb2ZipReader(File file, long size, Subject<Integer, Integer> subject) {
         this.file = file;
         mSize=size;
         mSubject=subject;
@@ -58,10 +58,10 @@ public class Fb2ZipReader implements HttpClientController.PageReader {
         double size=0.;
         double report;
         while ((ze = zipInp.getNextEntry()) != null) {
-            Log.v(DEBUG_TAG, "Unzipping " + ze.getName() + " into " + file.getParent());
+            Log.d(DEBUG_TAG, "Unzipping " + ze.getName() + " into " + file.getAbsolutePath());
 
             if (!ze.isDirectory()) {
-                FileOutputStream fOut = new FileOutputStream(file.getParent() + "/" + ze.getName());
+                FileOutputStream fOut = new FileOutputStream(file);
                 final int BUFFER_SIZE = 2048;
                 BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(fOut, BUFFER_SIZE);
                 int count ;

@@ -91,7 +91,7 @@ public abstract class AbstractSettings {
         String ff;
         if (book.isPreserve()){
             SimpleDateFormat df = new SimpleDateFormat(DATE_FORMAT_BOOK_FILE);
-            ff=  BOOKS_DIR +sep+    book.getUri()    + "/" +   df.format(Calendar.getInstance().getTime())+ fileType.ext;
+            ff=  BOOKS_DIR +sep+    book.getUri()    + sep+   df.format(Calendar.getInstance().getTime())+ fileType.ext;
         }
         else {
             ff=  BOOKS_DIR +sep+    book.getUri()    +      fileType.ext;
@@ -102,6 +102,7 @@ public abstract class AbstractSettings {
         File pp = ss.getParentFile();
         boolean res =pp.mkdirs();
         Log.d(DEBUG_TAG, "getBookFile: parent directory Path: >" + pp.getAbsolutePath() + "< result is: " + res);
+        Log.d(DEBUG_TAG,"getBookFile: book file - "+ss.getAbsolutePath());
         return ss;
 
     }
@@ -148,9 +149,12 @@ public abstract class AbstractSettings {
      */
     public  String[] getBookFileVersions(Book book){
         File dir =  new File(getDataDirectory(), BOOKS_DIR +sep+    book.getUri()    );
+        Log.d(DEBUG_TAG,"getBookFileVersions: looking in directory: "+dir.getAbsolutePath());
+        Log.d(DEBUG_TAG,"getBookFileVersions: file ext: "+book.getFileType().ext);
         List<String> files = new ArrayList<>();
         for (String fn : dir.list()){
             if (fn.endsWith(book.getFileType().ext)){
+                Log.d(DEBUG_TAG,"getBookFileVersions: add file - "+fn);
                 files.add(fn);
             }
         }

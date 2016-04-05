@@ -186,7 +186,7 @@ public class BookFragment extends MyBaseAbstractFragment implements
         adapter = new BookExpandableAdapter(data, bookLoader.getMaxGroupId(), getActivity(), this, getSettingsHelper());
         adapter.setAuthor_id(author_id);
         bookRV.setAdapter(adapter);
-        Log.d(DEBUG_TAG, "onLoadFinished: adapter size = " + adapter.getItemCount());
+        Log.d(DEBUG_TAG, "onLoadFinished: adapter size = " + adapter.getItemCount()+" Order: "+bookLoader.getOrder());
         mProgressBar.setVisibility(View.GONE);
         makeEmpty();
         if (adapterState != null && !adapterState.isEmpty()) {
@@ -453,6 +453,7 @@ public class BookFragment extends MyBaseAbstractFragment implements
 
         }
         if (item == menu_choose_version) {
+            book.setFileType(getSettingsHelper().getFileType());
             final String[] files = getSettingsHelper().getBookFileVersions(book);
             if (files.length == 0L) {
                 Log.i(DEBUG_TAG, "file is NULL");

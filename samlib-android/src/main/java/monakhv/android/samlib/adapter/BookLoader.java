@@ -1,11 +1,11 @@
 package monakhv.android.samlib.adapter;
 
 import android.content.Context;
-import android.util.Log;
 import monakhv.samlib.db.AuthorController;
 import monakhv.samlib.db.entity.Author;
 import monakhv.samlib.db.entity.GroupBook;
 import monakhv.samlib.db.entity.SamLibConfig;
+import monakhv.samlib.log.Log;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -39,6 +39,7 @@ public class BookLoader extends AbstractLoader<GroupListItem> {
 
     public BookLoader(final Context context, final AuthorController authorController, long id, String order) {
         super(context);
+        Log.d(DEBUG_TAG,"BookLoader: Create  order: "+order);
         this.id = id;
         this.order = order;
         mAuthorController = authorController;
@@ -82,6 +83,10 @@ public class BookLoader extends AbstractLoader<GroupListItem> {
             }
             return res;
         }
+    }
+
+    public String getOrder() {
+        return order;
     }
 
     public int getMaxGroupId() {
