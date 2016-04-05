@@ -172,7 +172,7 @@ public class UpdateLocalService extends MyService {
         wl.acquire();
 
         SpecialAuthorService service = getSpecialSamlibService();
-        service.setCallerIsReceiver(isReceiver);
+
         mThread = new SamlibUpdateTread(service, argData);
 
         final Subscription subscription = getBus().getObservable()

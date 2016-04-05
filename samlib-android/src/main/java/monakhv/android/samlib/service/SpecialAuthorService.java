@@ -41,7 +41,7 @@ public class SpecialAuthorService extends AuthorUpdateService {
     private final SettingsHelper mSettingsHelper;
     private final AuthorController mAuthorController;
     private final DataExportImport mDataExportImport;
-    private boolean callerIsReceiver=true;
+
 
     @Inject
     public SpecialAuthorService(AuthorController authorController, SettingsHelper settings, HttpClientController httpClientController, GuiEventBus guiEventBus, DataExportImport exportImport){
@@ -51,14 +51,12 @@ public class SpecialAuthorService extends AuthorUpdateService {
         mDataExportImport=exportImport;
     }
 
-    public void setCallerIsReceiver(boolean callerIsReceiver) {
-        this.callerIsReceiver = callerIsReceiver;
-    }
+
 
     @Override
     public void loadBook(Author a) {
 
-        if (callerIsReceiver) {
+
             for (Book book : mAuthorController.getBookController().getBooksByAuthor(a)) {//book cycle for the author to update
                 if (book.isIsNew() && mSettingsHelper.testAutoLoadLimit(book) && mDataExportImport.needUpdateFile(book)) {
                     monakhv.samlib.log.Log.i(DEBUG_TAG, "loadBook: Auto Load book: " + book.getId());
@@ -68,7 +66,7 @@ public class SpecialAuthorService extends AuthorUpdateService {
                 }
             }
 
-        }
+
 
 
     }
