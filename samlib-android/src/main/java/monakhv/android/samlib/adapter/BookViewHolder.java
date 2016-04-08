@@ -39,7 +39,7 @@ import monakhv.android.samlib.awesome.TextLabel;
 public class BookViewHolder extends ChildViewHolder {
     // {R.id.bookTitle, R.id.bookUpdate, R.id.bookDesc, R.id.Bookicon,R.id.Staricon,R.id.bookAuthorName,R.id.bookForm};
 
-    TextView bookTitle, bookSize, bookDesc, bookAuthorName, bookForm;
+    TextView bookTitle, bookSize, bookDesc, bookAuthorName, bookForm,bookMTime;
     ImageView starIcon, lockIcon;
     ImageView flipIcon;
     Drawable openBook, closeBook;
@@ -49,11 +49,12 @@ public class BookViewHolder extends ChildViewHolder {
     public BookViewHolder(View itemView, final BookExpandableAdapter adapter) {
         super(itemView);
         bookTitle = (TextView) itemView.findViewById(R.id.bookTitle);
-        bookSize = (TextView) itemView.findViewById(R.id.bookUpdate);
+        bookSize = (TextView) itemView.findViewById(R.id.bookSize);
         bookDesc = (TextView) itemView.findViewById(R.id.bookDesc);
         bookAuthorName = (TextView) itemView.findViewById(R.id.bookAuthorName);
         bookForm = (TextView) itemView.findViewById(R.id.bookForm);
         flipContainer = (LinearLayout) itemView.findViewById(R.id.FlipContainer);
+        bookMTime = (TextView) itemView.findViewById(R.id.bookMTime);
 
         flipIcon = (ImageView) itemView.findViewById(R.id.FlipIcon);
         starIcon = (ImageView) itemView.findViewById(R.id.Staricon);

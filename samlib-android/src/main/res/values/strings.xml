@@ -146,6 +146,10 @@ limitations under the License.
      <string name="pref_title_update_autoload_limit">Ограничить загрузку</string>
      <string name="pref_default_update_atutoload_limit">40</string>
 
+    <string name="pref_key_book_date">pref_key_book_date</string>
+    <string name="pref_title_book_date">Время обновления книги</string>
+    <string name="pref_summary_book_date">Показываем дату и время последнего изменения книги в базе</string>
+
 
     <string name="pref_key_update_delay">pref_key_update_delay</string>
     <string name="pref_title_update_delay">Задержка проверки авторов</string>

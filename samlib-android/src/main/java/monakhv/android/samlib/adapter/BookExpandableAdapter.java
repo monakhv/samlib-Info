@@ -37,7 +37,12 @@ import monakhv.samlib.db.entity.SamLibConfig;
 import monakhv.samlib.log.Log;
 
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
+
+import static monakhv.android.samlib.adapter.AuthorAdapter.DATE_FORMAT;
 
 /**
  * Base on this
@@ -67,6 +72,7 @@ public class BookExpandableAdapter extends ExpandableRecyclerAdapter<GroupViewHo
     private long author_id;
     private Context mContext;
     private CallBack mCallBack;
+    private SimpleDateFormat df;
 
     public BookExpandableAdapter(@NonNull List<? extends ParentListItem> parentItemList, int maxGroupId, Activity context, CallBack callBack, SettingsHelper settingsHelper) {
         super(parentItemList);
@@ -76,6 +82,7 @@ public class BookExpandableAdapter extends ExpandableRecyclerAdapter<GroupViewHo
         mContext = context;
         mSettingsHelper = settingsHelper;
         setHasStableIds(true);
+        df = new SimpleDateFormat(DATE_FORMAT, Locale.FRANCE);
     }
 
     public void setAuthor_id(long author_id) {
@@ -166,6 +173,16 @@ public class BookExpandableAdapter extends ExpandableRecyclerAdapter<GroupViewHo
         } else {
             holder.bookAuthorName.setVisibility(View.VISIBLE);
             holder.bookAuthorName.setTag(book.getAuthorId());
+        }
+        if (mSettingsHelper.isShowBookDate()){
+            holder.bookMTime.setVisibility(View.VISIBLE);
+            long dd = book.getModifyTime();
+            Date update = new Date(dd);
+            holder.bookMTime.setText(df.format(update));
+
+        }
+        else {
+            holder.bookMTime.setVisibility(View.GONE);
         }
 
         if (book.isIsNew() && book.getDelta() != 0) {

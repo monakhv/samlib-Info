@@ -679,4 +679,8 @@ public class SettingsHelper extends AbstractSettings implements SharedPreference
     public boolean isUpdateDelay(){
         return prefs.getBoolean(mContext.getString(R.string.pref_key_update_delay), false);
     }
+
+    public boolean isShowBookDate(){
+        return prefs.getBoolean(mContext.getString(R.string.pref_key_book_date),false);
+    }
 }
