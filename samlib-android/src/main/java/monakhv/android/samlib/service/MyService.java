@@ -21,7 +21,17 @@ package monakhv.android.samlib.service;
 import android.app.Service;
 import android.content.Context;
 import com.j256.ormlite.android.apptools.OpenHelperManager;
+import monakhv.android.samlib.SamlibApplication;
+import monakhv.android.samlib.data.SettingsHelper;
 import monakhv.android.samlib.sql.DatabaseHelper;
+import monakhv.samlib.db.AuthorController;
+import monakhv.samlib.http.HttpClientController;
+import monakhv.samlib.log.Log;
+import monakhv.samlib.service.BookDownloadService;
+import monakhv.samlib.service.GuiEventBus;
+import rx.Subscription;
+import rx.subscriptions.CompositeSubscription;
+
 
 /**
  * General Service which contains ORMLite DBHelper methods
@@ -31,6 +41,9 @@ public abstract class MyService extends Service {
     private volatile DatabaseHelper helper;
     private volatile boolean created = false;
     private volatile boolean destroyed = false;
+    private CompositeSubscription mCompositeSubscription;
+
+    private SamlibApplication mSamlibApplication;
 
 
     @Override
@@ -40,13 +53,50 @@ public abstract class MyService extends Service {
             created = true;
         }
         super.onCreate();
+
+        mSamlibApplication = (SamlibApplication) getApplication();
+        mCompositeSubscription = new CompositeSubscription();
+
     }
 
+    protected void addSubscription(Subscription subscription){
+        mCompositeSubscription.add(subscription);
+    }
+
+    protected SettingsHelper getSettingsHelper(){
+        return mSamlibApplication.getSettingsHelper();
+    }
+
+    protected GuiEventBus getBus(){
+        return mSamlibApplication.getApplicationComponent().getGuiEventBus();
+    }
+
+    protected HttpClientController getHttpClientController(){
+        return mSamlibApplication.getApplicationComponent().getHttpClientController();
+    }
+
+    protected BookDownloadService getBookDownloadService(){
+        return mSamlibApplication.getApplicationComponent().getBookDownloadService();
+    }
+
+    protected SpecialAuthorService getSpecialSamlibService(){
+        return mSamlibApplication.getDatabaseComponent(getHelper()).getSpecialSamlibService();
+    }
+
+    protected AuthorController getAuthorController(){
+        return mSamlibApplication.getDatabaseComponent(getHelper()).getAuthorController();
+    }
     @Override
     public void onDestroy() {
         super.onDestroy();
+        Log.d("MyService","onDestroy");
         releaseHelper();
         destroyed = true;
+        mSamlibApplication.releaseDatabaseComponent();
+        mSamlibApplication.releaseServiceComponent();
+        if (mCompositeSubscription != null){
+            mCompositeSubscription.unsubscribe();
+        }
     }
 
     public DatabaseHelper getHelper() {

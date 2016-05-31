@@ -13,7 +13,6 @@ import monakhv.samlib.db.entity.Author;
 import monakhv.samlib.db.entity.Tag;
 import monakhv.samlib.db.entity.Tag2Author;
 import monakhv.samlib.log.Log;
-import monakhv.samlib.service.GuiUpdate;
 
 import java.awt.*;
 import java.util.*;

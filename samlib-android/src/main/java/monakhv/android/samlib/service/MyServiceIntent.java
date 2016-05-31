@@ -3,8 +3,12 @@ package monakhv.android.samlib.service;
 import android.app.IntentService;
 import android.content.Context;
 import com.j256.ormlite.android.apptools.OpenHelperManager;
-import com.j256.ormlite.support.ConnectionSource;
+import monakhv.android.samlib.SamlibApplication;
+import monakhv.android.samlib.data.DataExportImport;
+import monakhv.android.samlib.data.SettingsHelper;
 import monakhv.android.samlib.sql.DatabaseHelper;
+import monakhv.samlib.db.AuthorController;
+
 
 /*
  * Copyright 2015  Dmitry Monakhov
@@ -28,6 +32,7 @@ public abstract class MyServiceIntent extends IntentService {
     private volatile boolean created = false;
     private volatile boolean destroyed = false;
 
+    private SamlibApplication mSamlibApplication;
     /**
      * Creates an IntentService.  Invoked by your subclass's constructor.
      *
@@ -59,6 +64,19 @@ public abstract class MyServiceIntent extends IntentService {
 			created = true;
 		}
         super.onCreate();
+        mSamlibApplication= (SamlibApplication) getApplication();
+    }
+
+    public SettingsHelper getSettingsHelper(){
+        return mSamlibApplication.getSettingsHelper();
+    }
+
+    public DataExportImport getDataExportImport(){
+        return mSamlibApplication.getDataExportImport();
+    }
+
+    public AuthorController getAuthorController(){
+        return mSamlibApplication.getDatabaseComponent(getHelper()).getAuthorController();
     }
 
     @Override
@@ -66,6 +84,8 @@ public abstract class MyServiceIntent extends IntentService {
         super.onDestroy();
         releaseHelper(helper);
 		destroyed = true;
+        mSamlibApplication.releaseDatabaseComponent();
+        mSamlibApplication.releaseServiceComponent();
     }
 
 /**

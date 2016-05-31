@@ -9,15 +9,12 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
-import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
+
 import android.view.*;
-import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -30,24 +27,26 @@ import in.srain.cube.views.ptr.PtrHandler;
 import monakhv.android.samlib.adapter.AuthorAdapter;
 
 
+import monakhv.android.samlib.adapter.AuthorAnimator;
 import monakhv.android.samlib.adapter.AuthorLoader;
 import monakhv.android.samlib.adapter.RecyclerAdapter;
-import monakhv.android.samlib.data.SettingsHelper;
 import monakhv.android.samlib.dialogs.ContextMenuDialog;
 import monakhv.android.samlib.dialogs.EnterStringDialog;
 
 import monakhv.android.samlib.dialogs.MyMenuData;
 
 import monakhv.android.samlib.recyclerview.DividerItemDecoration;
-import monakhv.android.samlib.service.AuthorEditorServiceIntent;
+import monakhv.android.samlib.service.MessageConstructor;
+import monakhv.samlib.service.AuthorGuiState;
+import monakhv.samlib.service.GuiUpdateObject;
 import monakhv.android.samlib.service.UpdateLocalService;
-import monakhv.android.samlib.service.UpdateServiceIntent;
 import monakhv.android.samlib.sortorder.AuthorSortOrder;
 
-import monakhv.android.samlib.sql.DatabaseHelper;
-import monakhv.samlib.db.AuthorController;
+
 import monakhv.samlib.db.entity.Author;
 import monakhv.samlib.db.entity.SamLibConfig;
+import monakhv.samlib.log.Log;
+import rx.Subscriber;
 
 
 import java.util.List;
@@ -71,11 +70,26 @@ import static monakhv.android.samlib.ActivityUtils.getClipboardText;
  *
  * 12/5/14.
  */
-public class AuthorFragment extends Fragment implements
+public class AuthorFragment extends MyBaseAbstractFragment implements
         PtrHandler,
         ListSwipeListener.SwipeCallBack,
         RecyclerAdapter.CallBack,
         LoaderManager.LoaderCallbacks<List<Author>> {
+    AuthorGuiState getGuiState() {
+        return new AuthorGuiState(selectedTag, order.getOrder());
+    }
+
+    interface Callbacks {
+
+        void onAuthorSelected(long id);
+
+        void cleanBookSelection();
+
+        void drawerToggle();
+
+
+    }
+
     private static final String DEBUG_TAG = "AuthorFragment";
     private static final int AUTHOR_LOADER_ID = 201;
 
@@ -94,7 +108,7 @@ public class AuthorFragment extends Fragment implements
 
     private View empty;
     private boolean canUpdate;
-    private SettingsHelper settingsHelper;
+    //private SettingsHelper settingsHelper;
     private int selectedTag = SamLibConfig.TAG_AUTHOR_ALL;
     private int aId = -1;//preserve selection
 
@@ -102,6 +116,7 @@ public class AuthorFragment extends Fragment implements
     private int mAppBarOffset;
     private UpdateLocalService mUpdateService;
     private Menu mMenu;
+    private MessageConstructor mMessageConstructor;
     private ServiceConnection mConnection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
@@ -116,7 +131,7 @@ public class AuthorFragment extends Fragment implements
         }
     };
 
-    public void setAppBarOffset(int appBarOffset) {
+    void setAppBarOffset(int appBarOffset) {
         mAppBarOffset = appBarOffset;
     }
 
@@ -133,30 +148,23 @@ public class AuthorFragment extends Fragment implements
     }
 
 
-    public interface Callbacks {
-        DatabaseHelper getDatabaseHelper();
-
-        void onAuthorSelected(long id);
-
-        void cleanBookSelection();
-
-        void drawerToggle();
-
-
-    }
-
     private Callbacks mCallbacks;
 
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        settingsHelper = new SettingsHelper(getActivity().getApplicationContext());
-        order = AuthorSortOrder.valueOf(settingsHelper.getAuthorSortOrderString());
+        Log.d(DEBUG_TAG, "onCreate");
+        if (savedInstanceState != null) {
+            Log.d(DEBUG_TAG,"onCreate: Have not NULL Statel ");
+        }
+
+        order = AuthorSortOrder.valueOf(getSettingsHelper().getAuthorSortOrderString());
         detector = new GestureDetector(getActivity(), new ListSwipeListener(this));
         Intent service = new Intent(getActivity(), UpdateLocalService.class);
         getActivity().bindService(service, mConnection, Context.BIND_AUTO_CREATE);
-        Log.d(DEBUG_TAG, "onCreate");
+        mMessageConstructor = new MessageConstructor(getActivity(), getSettingsHelper());
+
     }
 
     @Override
@@ -195,11 +203,9 @@ public class AuthorFragment extends Fragment implements
         makePulToRefresh();
 
 
-        authorRV.setOnTouchListener(new View.OnTouchListener() {
-            public boolean onTouch(View v, MotionEvent event) {
-                detector.onTouchEvent(event);
-                return false;
-            }
+        authorRV.setOnTouchListener((v, event) -> {
+            detector.onTouchEvent(event);
+            return false;
         });
         adapter = new AuthorAdapter(this);
 
@@ -212,30 +218,32 @@ public class AuthorFragment extends Fragment implements
         emptyTagAuthor.setVisibility(View.GONE);
         getLoaderManager().initLoader(AUTHOR_LOADER_ID, null, this);
 
-        authorRV.setItemAnimator(new DefaultItemAnimator());
+        authorRV.setItemAnimator(new AuthorAnimator());
         return view;
 
     }
 
+
     /**
      * Create initialization for pull to Refresh interface
      */
-    public void makePulToRefresh() {
+    private void makePulToRefresh() {
         mPtrFrame = (PtrClassicFrameLayout) view.findViewById(R.id.ptr_frame);
         mPtrFrame.setPtrHandler(this);
-        mPtrFrame.setLastUpdateTimeKey(UpdateServiceIntent.PREF_NAME, UpdateServiceIntent.PREF_KEY_LAST_UPDATE);
+        mPtrFrame.setLastUpdateTimeKey(UpdateLocalService.PREF_NAME, UpdateLocalService.PREF_KEY_LAST_UPDATE);
 
     }
 
 
     @Override
-    public void makeNewFlip(int id) {
-        AuthorEditorServiceIntent.markAuthorRead(getActivity(), id);
+    public void makeNewFlip(Author a) {
+        getSamlibOperation().makeAuthorRead(a, getGuiState());
+
     }
 
     @Override
     public Loader<List<Author>> onCreateLoader(int id, Bundle args) {
-        return new AuthorLoader(getActivity(), mCallbacks.getDatabaseHelper(), selectedTag, order.getOrder());
+        return new AuthorLoader(getActivity(), getAuthorController(), selectedTag, order.getOrder());
     }
 
     @Override
@@ -280,17 +288,6 @@ public class AuthorFragment extends Fragment implements
 
     }
 
-    /**
-     * Update Author list and make Author selection
-     *
-     * @param id Author id to select
-     */
-    private void updateAdapter(int id) {
-        aId = id;
-        getLoaderManager().restartLoader(AUTHOR_LOADER_ID, null, this);
-
-    }
-
     @Override
     public void onRefreshBegin(PtrFrameLayout view) {
         Log.d(DEBUG_TAG, "onRefreshBegin: Start update service");
@@ -302,11 +299,11 @@ public class AuthorFragment extends Fragment implements
         }
 
         if (updateAuthor) {
-            updateAuthor(author.getId());
+            updateAuthor(author);
             //UpdateServiceIntent.makeUpdateAuthor(getActivity(), author.getId());
 
         } else {
-            updateTag(selectedTag);
+            updateTag();
             //UpdateServiceIntent.makeUpdate(getActivity(), selectedTag);
 
         }
@@ -317,7 +314,7 @@ public class AuthorFragment extends Fragment implements
      * Call - from on pause
      * call - from Main activity as a result for broadcast
      */
-    void onRefreshComplete() {
+    private void onRefreshComplete() {
         Log.d(DEBUG_TAG, "onRefreshComplete: Stop updating state");
         mPtrFrame.refreshComplete();
         canUpdate = true;
@@ -410,7 +407,7 @@ public class AuthorFragment extends Fragment implements
 
     @Override
     public void longPress(MotionEvent e) {
-        int position = authorRV.getChildAdapterPosition(authorRV.findChildViewUnder(e.getX(), e.getY()));
+        final int position = authorRV.getChildAdapterPosition(authorRV.findChildViewUnder(e.getX(), e.getY()));
         adapter.toggleSelection(position);
 
         author = adapter.getSelected();
@@ -429,20 +426,17 @@ public class AuthorFragment extends Fragment implements
         menu.add(delete_option_item, getString(R.string.menu_delete));
         menu.add(update_option_item, getString(R.string.menu_refresh));
 
-        contextMenu = ContextMenuDialog.getInstance(menu, new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                int item = menu.getIdByPosition(position);
-                contextSelector(item);
-                contextMenu.dismiss();
-            }
+        contextMenu = ContextMenuDialog.getInstance(menu, (parent, view1, position1, id) -> {
+            int item = menu.getIdByPosition(position1);
+            contextSelector(item, position);
+            contextMenu.dismiss();
         }, author.getName());
 
         contextMenu.show(getActivity().getSupportFragmentManager(), "authorContext");
 
     }
 
-    private void contextSelector(int item) {
+    private void contextSelector(int item, int position) {
 
 
         if (item == delete_option_item) {
@@ -462,11 +456,10 @@ public class AuthorFragment extends Fragment implements
             startRefresh();
         }
         if (item == edit_author_option_item) {
-            EnterStringDialog dDialog = new EnterStringDialog(getActivity(), new EnterStringDialog.ClickListener() {
-                public void okClick(String txt) {
-                    author.setName(txt);
-                    updateAuthor(author);
-                }
+            EnterStringDialog dDialog = new EnterStringDialog(getActivity(), txt -> {
+                author.setName(txt);
+                getAuthorController().update(author);
+                adapter.notifyChange(author, position);
             }, getText(R.string.dialog_title_edit_author).toString(), author.getName());
 
             dDialog.show();
@@ -474,14 +467,8 @@ public class AuthorFragment extends Fragment implements
 
     }
 
-    private void updateAuthor(Author author) {
-        AuthorController sql = new AuthorController(mCallbacks.getDatabaseHelper());
-        sql.update(author);
-        updateAdapter();
-    }
 
-
-    void startRefresh() {
+    private void startRefresh() {
         if (canUpdate) {
             mPtrFrame.performRefresh();
         }
@@ -493,8 +480,8 @@ public class AuthorFragment extends Fragment implements
      *
      * @param a Author object
      */
-    public void launchBrowser(Author a) {
-        Uri uri = Uri.parse(a.getUrlForBrowser(settingsHelper));
+    private void launchBrowser(Author a) {
+        Uri uri = Uri.parse(a.getUrlForBrowser(getSettingsHelper()));
         Intent launchBrowser = new Intent(Intent.ACTION_VIEW, uri);
         getActivity().startActivity(launchBrowser);
 
@@ -526,7 +513,7 @@ public class AuthorFragment extends Fragment implements
             switch (which) {
                 case Dialog.BUTTON_POSITIVE:
                     if (author != null) {
-                        AuthorEditorServiceIntent.delAuthor(getActivity().getApplicationContext(), author.getId());
+                        getSamlibOperation().makeAuthorDel(author, getGuiState());
                         mCallbacks.cleanBookSelection();
                     }
                     break;
@@ -537,7 +524,7 @@ public class AuthorFragment extends Fragment implements
         }
     };
 
-    public void searchOrAdd() {
+    void searchOrAdd() {
 
 
         empty.setVisibility(View.VISIBLE);
@@ -564,7 +551,7 @@ public class AuthorFragment extends Fragment implements
      *
      * @return Selected ag
      */
-    public int getSelection() {
+    int getSelection() {
         return selectedTag;
     }
 
@@ -574,7 +561,7 @@ public class AuthorFragment extends Fragment implements
      *
      * @param id id of Author to make selected
      */
-    public void selectAuthor(long id) {
+    private void selectAuthor(long id) {
         Log.d(DEBUG_TAG, "selectAuthor: id = " + id);
 
         int pos = adapter.findAndSelect(id);
@@ -595,7 +582,7 @@ public class AuthorFragment extends Fragment implements
      * @param selectedTag selection tag id
      * @param so          sort order string
      */
-    public void selectTag(int selectedTag, AuthorSortOrder so) {
+    void selectTag(int selectedTag, AuthorSortOrder so) {
         Log.d(DEBUG_TAG, "selectTag: set Selection: " + selectedTag);
         cleanSelection();
         this.selectedTag = selectedTag;
@@ -607,15 +594,66 @@ public class AuthorFragment extends Fragment implements
         updateAdapter();
     }
 
+
+    Subscriber<GuiUpdateObject> getSubscriber(){
+        return
+        new Subscriber<GuiUpdateObject>() {
+
+            @Override
+            public void onCompleted() {
+                Log.i(DEBUG_TAG, "onCompleted");
+                onRefreshComplete();
+            }
+
+            @Override
+            public void onError(Throwable e) {
+                Log.e(DEBUG_TAG, "onError", e);
+            }
+
+            @Override
+            public void onNext(GuiUpdateObject guiUpdateObject) {
+                if (guiUpdateObject.isAuthor()) {
+                    adapter.cleanSelection();
+                    Author author = (Author) guiUpdateObject.getObject();
+                    Log.d(DEBUG_TAG,"onNext: get Author: "+author.getName()+" new: "+author.isIsNew());
+                    int sort = guiUpdateObject.getSortOrder();
+                    if (sort == -1) {
+                        getSamlibOperation().makeAuthorReload(author,getGuiState());
+                        return;
+                    }
+                    GuiUpdateObject.UpdateType updateType = guiUpdateObject.getUpdateType();
+                    switch (updateType) {
+                        case DELETE:
+                            adapter.remove(sort);
+                            break;
+                        case ADD:
+                            adapter.add(author, sort);
+                            authorRV.scrollToPosition(sort);
+                            break;
+                        default:
+                            LinearLayoutManager llm = (LinearLayoutManager) authorRV.getLayoutManager();
+                            int firstPosition = llm.findFirstVisibleItemPosition();
+                            adapter.notifyChange(author, sort);
+                            authorRV.scrollToPosition(firstPosition);
+                    }
+
+
+                    //adapter.toggleSelection(sort);
+                    //authorRV.scrollToPosition(sort);
+                    //Log.d(DEBUG_TAG, "updateAdapter: scroll to position: " + sort);
+                }
+                if (guiUpdateObject.isResult()) {
+                    mMessageConstructor.showMessage(guiUpdateObject);
+                    onRefreshComplete();
+                }
+            }
+        };
+    }
+
     @Override
     public void refresh() {
         Log.d(DEBUG_TAG, "refresh: call ");
         updateAdapter();
-    }
-
-    public void refresh(long id) {
-        Log.d(DEBUG_TAG, "refresh: call for add ");
-        updateAdapter((int) id);
     }
 
 
@@ -624,18 +662,19 @@ public class AuthorFragment extends Fragment implements
      *
      * @param so new sort order
      */
-    public void setSortOrder(AuthorSortOrder so) {
+    void setSortOrder(AuthorSortOrder so) {
         cleanSelection();
         order = so;
         updateAdapter();
     }
 
-    public AuthorSortOrder getSortOrder() {
+    AuthorSortOrder getSortOrder() {
         return order;
     }
 
     @Override
     public void onDestroy() {
+        Log.d(DEBUG_TAG, "onDestroy call");
         if (mBound) {
             getActivity().unbindService(mConnection);
             mBound = false;
@@ -648,29 +687,26 @@ public class AuthorFragment extends Fragment implements
     @Override
     public void onResume() {
         super.onResume();
+        Log.d(DEBUG_TAG, "onResume call");
         canUpdate = true;
         if (mBound) {
             isProgressShow(mUpdateService.isRunning());
-            if (! mUpdateService.isRunning()){
+            if (!mUpdateService.isRunning()) {
                 mPtrFrame.refreshComplete();
             }
         }
     }
 
-//    @Override
-//    public void onPause() {
-//        onRefreshComplete();
-//        super.onPause();
-//
-//    }
 
-    private void updateTag(int tag) {
-        UpdateLocalService.updateTag(getActivity(), tag);
+    private void updateTag() {
+
+        UpdateLocalService.makeUpdate(getActivity(), null, getGuiState());
     }
 
 
-    private void updateAuthor(int id) {
-        UpdateLocalService.updateAuthor(getActivity(), id);
+    private void updateAuthor(Author author) {
+
+        UpdateLocalService.makeUpdate(getContext(), author, getGuiState());
     }
 
 

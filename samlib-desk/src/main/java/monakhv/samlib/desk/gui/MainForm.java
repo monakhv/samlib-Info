@@ -22,7 +22,6 @@ import com.jgoodies.forms.layout.*;
 import monakhv.samlib.data.AbstractSettings;
 import monakhv.samlib.db.SQLController;
 import monakhv.samlib.db.entity.Author;
-import monakhv.samlib.db.entity.AuthorCard;
 import monakhv.samlib.db.entity.Book;
 import monakhv.samlib.db.entity.Tag;
 import monakhv.samlib.desk.Main;
@@ -36,11 +35,8 @@ import monakhv.samlib.desk.workers.AddAuthorWorker;
 import monakhv.samlib.desk.workers.CheckUpdateWorker;
 import monakhv.samlib.desk.workers.LoadBookWorker;
 import monakhv.samlib.desk.workers.ReadAuthorWorker;
-import monakhv.samlib.exception.SamlibParseException;
-import monakhv.samlib.http.HttpClientController;
 import monakhv.samlib.log.Log;
-import monakhv.samlib.service.SamlibService;
-import monakhv.samlib.service.GuiUpdate;
+import monakhv.samlib.service.BookDownloadService;
 
 /**
  * @author Dmitry Monakhov
@@ -49,7 +45,7 @@ public class MainForm extends JFrame implements GuiUpdate {
     private static final String DEBUG_TAG = "MainForm";
     private ResourceBundle bndl = ResourceBundle.getBundle("samlibDesk");
     private final AuthorListModel authorsModel;
-    private final SamlibService service;
+    private final BookDownloadService service;
 
     private final SQLController sql;
     private final Settings settings;
@@ -132,7 +128,7 @@ public class MainForm extends JFrame implements GuiUpdate {
             }
         });
 
-        service = new SamlibService(DaoController.getInstance(sql), this, settings);
+        service = new BookDownloadService(DaoController.getInstance(sql), this, settings);
 
     }
 

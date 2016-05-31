@@ -20,31 +20,33 @@ import android.content.Context;
 import android.content.Intent;
 
 
+import monakhv.android.samlib.dagger.component.DaggerApplicationComponent;
+import monakhv.android.samlib.dagger.module.ApplicationModule;
 import monakhv.android.samlib.data.SettingsHelper;
 import monakhv.android.samlib.service.UpdateLocalService;
-import monakhv.android.samlib.service.UpdateServiceIntent;
 import monakhv.samlib.log.Log;
+import monakhv.samlib.service.AuthorGuiState;
+
+import javax.inject.Inject;
 
 /**
- *
  * @author monakhv
  */
 public class UpdateReceiver extends BroadcastReceiver {
-
     private static final String DEBUG_TAG = "UpdateReceiver";
+    @Inject
+    SettingsHelper mSettingsHelper;
 
     @Override
     public void onReceive(Context context, Intent intent) {
-
-
-        SettingsHelper settings = new SettingsHelper(context);
         Log.d(DEBUG_TAG, "Recurring alarm; requesting update service.");
+        DaggerApplicationComponent.builder()
+                .applicationModule(new ApplicationModule(context.getApplicationContext()))
+                .build().inject(this);
+        String sTag = mSettingsHelper.getUpdateTag();
+        int iSelected = Integer.parseInt(sTag);
 
-//        Intent updater = new Intent(context, UpdaterService.class);
-//        context.startService(updater);
-
-
-        UpdateLocalService.makeUpdate(context);
+        UpdateLocalService.makeUpdate(context, null, new AuthorGuiState(iSelected, null));
 
     }
 

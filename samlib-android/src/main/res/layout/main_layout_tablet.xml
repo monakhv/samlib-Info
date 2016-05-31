@@ -7,6 +7,12 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
 >
+    <android.support.design.widget.CoordinatorLayout
+
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            tools:context=".MainActivity"
+    >
     <LinearLayout
 
             android:orientation="vertical"
@@ -46,6 +52,7 @@
                     android:layout_height="match_parent"/>
 
 
+
             <FrameLayout
                     android:id="@+id/listBooksFragment"
 
@@ -56,6 +63,9 @@
 
         </LinearLayout>
     </LinearLayout>
+
+    </android.support.design.widget.CoordinatorLayout>
+
     <android.support.design.widget.NavigationView
             android:id="@+id/navigationView"
             android:layout_width="wrap_content"
@@ -63,6 +73,7 @@
             android:layout_gravity="start"
             app:headerLayout="@layout/drawer_header"
             app:menu="@menu/drawer"
+            app:itemTextColor="?attr/colorText"
             app:itemBackground="@drawable/author_item_bg"
 
     />

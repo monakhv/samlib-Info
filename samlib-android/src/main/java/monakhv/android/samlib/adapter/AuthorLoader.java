@@ -1,7 +1,6 @@
 package monakhv.android.samlib.adapter;
 
 import android.content.Context;
-import monakhv.android.samlib.sql.DatabaseHelper;
 import monakhv.samlib.db.AuthorController;
 import monakhv.samlib.db.entity.Author;
 
@@ -25,21 +24,21 @@ import java.util.List;
  * 23.07.15.
  */
 public class AuthorLoader extends AbstractLoader<Author> {
-    private final AuthorController authorController;
+    private final AuthorController mAuthorController;
     private int mTagId;
     private String mOrder;
 
-    public AuthorLoader(final Context context,final DatabaseHelper databaseHelper,int tagId, String order) {
+    public AuthorLoader(final Context context,final  AuthorController authorController,int tagId, String order) {
 
         super(context);
         mTagId = tagId;
         mOrder = order;
-        authorController = new AuthorController(databaseHelper);
+        mAuthorController=authorController;
     }
 
     @Override
     public List<Author> loadInBackground() {
-        return authorController.getAll(mTagId,mOrder);
+        return mAuthorController.getAll(mTagId,mOrder);
     }
 
 }

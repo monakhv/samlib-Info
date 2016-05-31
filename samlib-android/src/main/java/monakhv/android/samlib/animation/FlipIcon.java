@@ -2,6 +2,7 @@ package monakhv.android.samlib.animation;
 
 import android.content.Context;
 import android.content.res.TypedArray;
+import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -72,9 +73,10 @@ public class FlipIcon extends FrameLayout implements View.OnClickListener {
         typedArray.recycle();
     }
 
-    public void setData(int imageFirstResource,int imageSecondResource , Flip3D.animationFlip3DListener end,boolean clickable){
-        imageFirst.setImageResource(imageFirstResource);
-        imageSecond.setImageResource(imageSecondResource);
+
+    public void setData(Drawable imageFirstResource, Drawable imageSecondResource , Flip3D.animationFlip3DListener end, boolean clickable){
+        imageFirst.setImageDrawable(imageFirstResource);
+        imageSecond.setImageDrawable(imageSecondResource);
         flip3D = new Flip3D(imageFirst,imageSecond,end);
         setClickable(clickable);
         if (clickable){

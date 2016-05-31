@@ -1,6 +1,9 @@
 package monakhv.android.samlib;
 
 
+import android.annotation.SuppressLint;
+import android.app.AlarmManager;
+import android.app.PendingIntent;
 import android.content.*;
 
 
@@ -15,7 +18,7 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
-import android.util.Log;
+
 
 import android.view.Gravity;
 import android.view.MenuItem;
@@ -24,18 +27,19 @@ import android.view.Window;
 import android.widget.*;
 
 
-import monakhv.android.samlib.data.SettingsHelper;
 import monakhv.android.samlib.search.SearchAuthorActivity;
-import monakhv.android.samlib.search.SearchAuthorsListFragment;
-import monakhv.android.samlib.service.AndroidGuiUpdater;
-import monakhv.android.samlib.service.AuthorEditorServiceIntent;
+import monakhv.android.samlib.search.SearchAuthorsFragment;
 import monakhv.android.samlib.service.CleanNotificationData;
+import monakhv.samlib.service.AuthorGuiState;
 import monakhv.android.samlib.sortorder.AuthorSortOrder;
 
 import monakhv.samlib.db.TagController;
 import monakhv.samlib.db.entity.SamLibConfig;
 import monakhv.samlib.db.entity.Tag;
-import monakhv.samlib.service.SamlibService;
+import monakhv.samlib.log.Log;
+import monakhv.samlib.service.GuiUpdateObject;
+import rx.Observable;
+import rx.Subscription;
 
 
 import java.io.Serializable;
@@ -70,17 +74,16 @@ public class MainActivity extends MyBaseAbstractActivity implements
 
     private static final String DEBUG_TAG = "MainActivity";
 
-    public static final int ARCHIVE_ACTIVITY = 1;
-    public static final int SEARCH_ACTIVITY = 2;
-    public static final int PREFS_ACTIVITY = 3;
+    private static final int ARCHIVE_ACTIVITY = 1;
+    private static final int SEARCH_ACTIVITY = 2;
+    private static final int PREFS_ACTIVITY = 3;
     public static final String ACTION_CLEAN = "MainActivity.ACTION_CLEAN";
-    public static final String SELECTED_TAG_ID = "SELECTED_TAG_ID";
-    public static final String PROGRESS_TIME = "PROGRESS_TIME";
-    private UpdateActivityReceiver updateReceiver;
+    private static final String SELECTED_TAG_ID = "SELECTED_TAG_ID";
+    private static final String PROGRESS_TIME = "PROGRESS_TIME";
     private AuthorFragment authorFragment;
     private BookFragment bookFragment;
     private AuthorTagFragment tagFragment;
-    private DownloadReceiver downloadReceiver;
+
 
     private boolean twoPain;
     private boolean isTagShow = false;
@@ -93,14 +96,16 @@ public class MainActivity extends MyBaseAbstractActivity implements
     private DrawerLayout mDrawerLayout;
     private ArrayAdapter<UITag> tagAdapter;
     private Spinner tagFilter;
+    private Observable<GuiUpdateObject> mBus;
+    private Subscription mAuthorSubscription;
+    private Subscription mBookSubscription;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         Log.d(DEBUG_TAG, "onCreate");
-        final SettingsHelper settingsHelper = new SettingsHelper(this);
+
         getWindow().requestFeature(Window.FEATURE_ACTION_BAR_OVERLAY);
-        setTheme(settingsHelper.getTheme());
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main_layout);
         final String action = getIntent().getAction();
@@ -125,7 +130,6 @@ public class MainActivity extends MyBaseAbstractActivity implements
             actionBar.setHomeButtonEnabled(true);
             actionBar.setDisplayShowTitleEnabled(false);
         }
-
 
 
         twoPain = findViewById(R.id.two_pain) != null;
@@ -164,20 +168,36 @@ public class MainActivity extends MyBaseAbstractActivity implements
             Log.i(DEBUG_TAG, "onCreate: one pane");
         }
 
-        tagSQL = new TagController(getDatabaseHelper());
+        tagSQL = getAuthorController().getTagController();
         mAppBarLayout = (AppBarLayout) findViewById(R.id.appBarLayout);
         createDrawer();
+
+        //find Save fragment
+        final SaveFragment saveFragment = (SaveFragment) getSupportFragmentManager().findFragmentByTag(SaveFragment.TAG);
+
+        if (saveFragment != null) {//fragment is found
+            mBus = saveFragment.getObjectObservable();
+        } else {//fragment not found we need create it and put under Fragment manager
+            final SaveFragment fragment = new SaveFragment();
+            getSupportFragmentManager().beginTransaction()
+                    .add(fragment, SaveFragment.TAG)
+                    .commit();
+            getSupportFragmentManager().executePendingTransactions();
+            final SaveFragment fr1 = (SaveFragment) getSupportFragmentManager().findFragmentByTag(SaveFragment.TAG);
+            mBus = fr1.getObjectObservable();
+        }
 
 
     }
 
     @Override
     protected void onDestroy() {
-
+        Log.d(DEBUG_TAG, "onDestroy");
         super.onDestroy();
 
     }
 
+    @SuppressLint("RtlHardcoded")
     @Override
     public void drawerToggle() {
         mDrawerLayout.openDrawer(Gravity.LEFT);
@@ -208,6 +228,7 @@ public class MainActivity extends MyBaseAbstractActivity implements
 
         navigationView.setCheckedItem(authorFragment.getSortOrder().getMenuId());
         navigationView.setNavigationItemSelectedListener(this);
+
 
         tagFilter = (Spinner) findViewById(R.id.tagList);
 
@@ -298,8 +319,6 @@ public class MainActivity extends MyBaseAbstractActivity implements
         Log.d(DEBUG_TAG, "onSaveInstanceState");
         super.onSaveInstanceState(outState);
         outState.putInt(SELECTED_TAG_ID, selectedTagId);
-
-
         outState.putLong(PROGRESS_TIME, Calendar.getInstance().getTimeInMillis());
     }
 
@@ -308,8 +327,6 @@ public class MainActivity extends MyBaseAbstractActivity implements
         Log.d(DEBUG_TAG, "onRestoreInstanceState");
         super.onRestoreInstanceState(savedInstanceState);
         selectedTagId = savedInstanceState.getInt(SELECTED_TAG_ID, SamLibConfig.TAG_AUTHOR_ALL);
-
-
         Tag tag = tagSQL.getById(selectedTagId);
         if (tag != null) {
             authorFragment.selectTag(selectedTagId, null);
@@ -335,44 +352,52 @@ public class MainActivity extends MyBaseAbstractActivity implements
     protected void onResume() {
         Log.d(DEBUG_TAG, "onResume");
         super.onResume();
-
-        IntentFilter updateFilter = new IntentFilter(AndroidGuiUpdater.ACTION_RESP);
-        updateFilter.addCategory(Intent.CATEGORY_DEFAULT);
-        updateReceiver = new UpdateActivityReceiver();
-
-
-        registerReceiver(updateReceiver, updateFilter);
-
-
-        if (twoPain) {
-
-            if (bookFragment == null) {
-                Log.e(DEBUG_TAG, "Fragment is NULL for two pane layout!!");
-            }
-            downloadReceiver = new DownloadReceiver(bookFragment, getDatabaseHelper());
-            IntentFilter filter = new IntentFilter(DownloadReceiver.ACTION_RESP);
-            filter.addCategory(Intent.CATEGORY_DEFAULT);
-            registerReceiver(downloadReceiver, filter);
-
-
-        }
-
-
-        if (mAppBarLayout != null) {
+        makeSubscription();
+         if (mAppBarLayout != null) {
             mAppBarLayout.addOnOffsetChangedListener(this);
         }
         refreshTags();
 
     }
 
+    private void makeSubscription(){
+
+        mAuthorSubscription = mBus
+                .filter(o -> o.isResult() || o.isAuthor())
+                .subscribe(authorFragment.getSubscriber());
+        addSubscription(mAuthorSubscription);
+        if (twoPain) {
+            if (bookFragment == null) {
+                Log.e(DEBUG_TAG, "Fragment is NULL for two pane layout!!");
+            }
+
+            mBookSubscription = mBus
+                    .filter(o -> o.isBook() || o.isGroup())
+                    .subscribe(bookFragment.getSubscriber());
+            addSubscription(mBookSubscription);
+        }
+
+    }
+
+    private void unMakeSubscribe(){
+        mAuthorSubscription.unsubscribe();
+        if (mBookSubscription!=null && ! mBookSubscription.isUnsubscribed()){
+            mBookSubscription.unsubscribe();
+        }
+    }
+
+
+    @Override
+    public AuthorGuiState getAuthorGuiState() {
+        return authorFragment.getGuiState();
+    }
+
     @Override
     protected void onPause() {
         super.onPause();
-        unregisterReceiver(updateReceiver);
+        Log.d(DEBUG_TAG, "onPause");
+        unMakeSubscribe();
 
-        if (twoPain) {
-            unregisterReceiver(downloadReceiver);
-        }
 
         if (mAppBarLayout != null) {
             mAppBarLayout.removeOnOffsetChangedListener(this);
@@ -408,7 +433,11 @@ public class MainActivity extends MyBaseAbstractActivity implements
         if (requestCode == SEARCH_ACTIVITY) {
             Log.v(DEBUG_TAG, "Start add Author");
 
-            AuthorEditorServiceIntent.addAuthor(getApplicationContext(), data.getStringExtra(SearchAuthorsListFragment.AUTHOR_URL));
+            String url = data.getStringExtra(SearchAuthorsFragment.AUTHOR_URL);
+            ArrayList<String> urls = new ArrayList<>();
+            urls.add(url);
+            getSamlibOperation().makeAuthorAdd(urls, getAuthorGuiState());
+
         }
         if (requestCode == PREFS_ACTIVITY) {
             restartApp();
@@ -458,15 +487,13 @@ public class MainActivity extends MyBaseAbstractActivity implements
     }
 
 
-    public void addAuthorFromText() {
-        EditText editText = (EditText) findViewById(R.id.addUrlText);
+    private void addAuthorFromText() {
+        final EditText editText = (EditText) findViewById(R.id.addUrlText);
 
-        if (editText == null) {
+        if (editText == null || editText.getText() ==null ) {
             return;
         }
-        if (editText.getText() == null) {
-            return;
-        }
+
         String text = editText.getText().toString();
         editText.setText("");
 
@@ -476,7 +503,9 @@ public class MainActivity extends MyBaseAbstractActivity implements
 
         String url = SamLibConfig.getParsedUrl(text);
         if (url != null) {//add  Author by URL
-            AuthorEditorServiceIntent.addAuthor(getApplicationContext(), url);
+            ArrayList<String> urls = new ArrayList<>();
+            urls.add(url);
+            getSamlibOperation().makeAuthorAdd(urls, getAuthorGuiState());
 
         } else {
             if (TextUtils.isEmpty(text)) {
@@ -529,6 +558,7 @@ public class MainActivity extends MyBaseAbstractActivity implements
         if (uitag == null) {
             return;
         }
+        selectedTagId = uitag.id;
         authorFragment.selectTag(uitag.id, null);
     }
 
@@ -538,78 +568,16 @@ public class MainActivity extends MyBaseAbstractActivity implements
     }
 
 
-    /**
-     * Receive updates from  Services
-     */
-    public class UpdateActivityReceiver extends BroadcastReceiver {
-
-
-        @Override
-        public void onReceive(Context context, Intent intent) {
-
-            String action = intent.getStringExtra(AndroidGuiUpdater.ACTION);
-            if (action != null) {
-                if (action.equalsIgnoreCase(AndroidGuiUpdater.ACTION_TOAST)) {
-                    int duration = Toast.LENGTH_SHORT;
-                    Toast toast = Toast.makeText(context, intent.getCharSequenceExtra(AndroidGuiUpdater.TOAST_STRING), duration);
-                    toast.show();
-
-
-                    authorFragment.onRefreshComplete();
-
-                }//
-
-                if (action.equalsIgnoreCase(AndroidGuiUpdater.ACTION_REFRESH)) {
-
-                    int iObject = intent.getIntExtra(AndroidGuiUpdater.ACTION_REFRESH_OBJECT, AndroidGuiUpdater.ACTION_REFRESH_AUTHORS);
-                    if ((iObject == AndroidGuiUpdater.ACTION_REFRESH_AUTHORS) ||
-                            (iObject == AndroidGuiUpdater.ACTION_REFRESH_BOTH)) {
-                        authorFragment.refresh();
-                    }
-
-                    if (twoPain && !isTagShow && (iObject == AndroidGuiUpdater.ACTION_REFRESH_BOTH)) {
-                        bookFragment.refresh();
-                    }
-                    if (twoPain && (iObject == AndroidGuiUpdater.ACTION_REFRESH_TAGS)) {
-                        refreshTags();
-                    }
-
-                }
-                if (action.equals(SamlibService.ACTION_ADD)) {
-
-                    long id = intent.getLongExtra(AndroidGuiUpdater.RESULT_AUTHOR_ID, 0);
-                    Log.d(DEBUG_TAG, "onReceive: author add, id = " + id);
-                    int duration = Toast.LENGTH_SHORT;
-                    CharSequence msg = intent.getCharSequenceExtra(AndroidGuiUpdater.TOAST_STRING);
-                    Toast toast = Toast.makeText(context, msg, duration);
-
-                    authorFragment.refresh(id);
-
-                    toast.show();
-                    onAuthorSelected(id);
-
-                }
-                if (action.equals(SamlibService.ACTION_DELETE)) {
-                    int duration = Toast.LENGTH_SHORT;
-                    CharSequence msg = intent.getCharSequenceExtra(AndroidGuiUpdater.TOAST_STRING);
-                    Toast toast = Toast.makeText(context, msg, duration);
-                    Log.d(DEBUG_TAG, "onReceive: author del");
-                    toast.show();
-                }
-            }
-        }
-    }
-
-    public static class UITag implements Serializable {
+    private static class UITag implements Serializable {
         int id;
         String title;
 
-        public UITag(int id, String title) {
+        UITag(int id, String title) {
             this.id = id;
             this.title = title;
         }
 
-        public UITag(Tag tag) {
+        UITag(Tag tag) {
             this.id = tag.getId();
             this.title = tag.getName();
         }
@@ -635,7 +603,7 @@ public class MainActivity extends MyBaseAbstractActivity implements
             return id;
         }
 
-        public static ArrayList<UITag> getPreList(Context ctx) {
+        static ArrayList<UITag> getPreList(Context ctx) {
             ArrayList<UITag> tags = new ArrayList<>();
             //tags.add(new UITag(SamLibConfig.TAG_AUTHOR_ALL,ctx.getString(R.string.filter_all)));
             tags.add(new UITag(SamLibConfig.TAG_AUTHOR_ALL, ctx.getString(R.string.app_name)));
@@ -656,11 +624,14 @@ public class MainActivity extends MyBaseAbstractActivity implements
     }
 
     private void restartApp() {
-        Intent i = getBaseContext().getPackageManager()
-                .getLaunchIntentForPackage(getBaseContext().getPackageName());
-
-        i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        finish();
-        startActivity(i);
+        restart(100);
     }
+
+    private void restart(int delay) {
+        PendingIntent intent = PendingIntent.getActivity(this.getBaseContext(), 0, new Intent(getIntent()), PendingIntent.FLAG_ONE_SHOT);
+        AlarmManager manager = (AlarmManager) this.getSystemService(Context.ALARM_SERVICE);
+        manager.set(AlarmManager.RTC, System.currentTimeMillis() + delay, intent);
+        System.exit(2);
+    }
+
 }

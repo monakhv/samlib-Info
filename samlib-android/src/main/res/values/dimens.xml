@@ -21,4 +21,6 @@
     
     <dimen name="text_size_head">20sp</dimen>
     <dimen name="text_size_small">12sp</dimen>
+    <dimen name="right_margin_author">16dp</dimen>
+    <dimen name="fab_margin">0dp</dimen>
 </resources>

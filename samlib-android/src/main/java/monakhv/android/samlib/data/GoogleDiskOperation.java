@@ -60,18 +60,20 @@ public class GoogleDiskOperation extends ApiClientAsyncTask<Void, Void, Boolean>
     }
 
 
-    private final Activity context;
+    private final Activity mActivity;
     private final OperationType operation;
     private final File dataBase;
+    private final SettingsHelper mSettingsHelper;
 
 
 
-    public GoogleDiskOperation(Activity ctx, String account, OperationType operationType) {
-        super(ctx, account);
-        this.context = ctx;
+    public GoogleDiskOperation(Activity activity, SettingsHelper settingsHelper, OperationType operationType) {
+        super(activity, settingsHelper.getGoogleAccount());
+        this.mActivity = activity;
+        mSettingsHelper=settingsHelper;
 
         this.operation = operationType;
-        DataExportImport dei = new DataExportImport(ctx);
+        DataExportImport dei = new DataExportImport(settingsHelper);
         dataBase = dei.getDataBase();
 
     }
@@ -85,8 +87,8 @@ public class GoogleDiskOperation extends ApiClientAsyncTask<Void, Void, Boolean>
             return;
         }
         if (aBoolean) {
-            final SettingsHelper settingsHelper = new SettingsHelper(context);
-            settingsHelper.setGoogleAutoEnable(true);
+
+            mSettingsHelper.setGoogleAutoEnable(true);
             sendResult(true);
         } else {
             sendResult(false);
@@ -140,14 +142,14 @@ public class GoogleDiskOperation extends ApiClientAsyncTask<Void, Void, Boolean>
         if (connectionResult.hasResolution()) {
             Log.d(DEBUG_TAG, "ConnectionFailed - has resolution");
             try {
-                connectionResult.startResolutionForResult(context, RESOLVE_CONNECTION_REQUEST_CODE);
+                connectionResult.startResolutionForResult(mActivity, RESOLVE_CONNECTION_REQUEST_CODE);
             } catch (IntentSender.SendIntentException e) {
                 sendResult(false);
                 // Unable to resolve, message user appropriately
             }
         } else {
             Log.d(DEBUG_TAG, "ConnectionFailed - has NOT  resolution");
-            GooglePlayServicesUtil.getErrorDialog(connectionResult.getErrorCode(), context, 0).show();
+            GooglePlayServicesUtil.getErrorDialog(connectionResult.getErrorCode(), mActivity, 0).show();
         }
 
     }
@@ -160,7 +162,7 @@ public class GoogleDiskOperation extends ApiClientAsyncTask<Void, Void, Boolean>
         broadcastIntent.putExtra(ArchiveActivity.GoogleReceiver.EXTRA_RESULT, res);
         broadcastIntent.putExtra(ArchiveActivity.GoogleReceiver.EXTRA_OPERATION, operation.toString());
         broadcastIntent.putExtra(ArchiveActivity.GoogleReceiver.EXTRA_ERROR, getErrorMsg());
-        context.sendBroadcast(broadcastIntent);
+        mActivity.sendBroadcast(broadcastIntent);
 
     }
 

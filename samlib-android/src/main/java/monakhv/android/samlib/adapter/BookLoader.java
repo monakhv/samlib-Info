@@ -1,13 +1,13 @@
 package monakhv.android.samlib.adapter;
 
 import android.content.Context;
-import android.util.Log;
-import monakhv.android.samlib.sql.DatabaseHelper;
 import monakhv.samlib.db.AuthorController;
 import monakhv.samlib.db.entity.Author;
-import monakhv.samlib.db.entity.Book;
+import monakhv.samlib.db.entity.GroupBook;
 import monakhv.samlib.db.entity.SamLibConfig;
+import monakhv.samlib.log.Log;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /*
@@ -27,35 +27,69 @@ import java.util.List;
  *
  * 23.07.15.
  */
-public class BookLoader extends AbstractLoader<Book> {
-    private final String DEBUG_TAG="BookLoader";
+@SuppressWarnings("FieldCanBeLocal")
+public class BookLoader extends AbstractLoader<GroupListItem> {
+    private final String DEBUG_TAG = "BookLoader";
 
-    private final AuthorController authorController;
-    private long id;
-    private String order;
+    private final AuthorController mAuthorController;
+    private final long id;
+    private final String order;
 
-    public BookLoader(final Context context,final DatabaseHelper databaseHelper,long id, String order) {
+    private int maxGroupId = -1;
+
+    public BookLoader(final Context context, final AuthorController authorController, long id, String order) {
         super(context);
+        Log.d(DEBUG_TAG,"BookLoader: Create  order: "+order);
         this.id = id;
         this.order = order;
-        authorController=new AuthorController(databaseHelper);
+        mAuthorController = authorController;
     }
 
     @Override
-    public List<Book> loadInBackground() {
-        if (id == SamLibConfig.SELECTED_BOOK_ID){
-            return authorController.getBookController().getSelected(order);
-        }
-        else {
-            Author a= authorController.getById(id);
+    public List<GroupListItem> loadInBackground() {
 
-            if (a == null){
+        List<GroupListItem> res = new ArrayList<>();
+        GroupListItem gr ;
+
+        if (id == SamLibConfig.SELECTED_BOOK_ID) {//load selected book
+
+            gr = new GroupListItem(mAuthorController.getBookController().getSelectedGroup(order));
+            res.add(gr);
+            return res;
+        } else {//load book for the author
+            Author a = mAuthorController.getById(id);
+
+            if (a == null) {//no author found display empty screen
                 Log.e(DEBUG_TAG, "loadInBackground: author is not defined");
-                return null;
+                return GroupListItem.EMPTY;
             }
-            return authorController.getBookController().getAll(a,order);
+
+            List<GroupBook> rr = mAuthorController.getGroupBookController().getByAuthor(a);
+
+            if (rr.isEmpty()) {//No groups found group all books into single group
+
+                GroupBook groupBook=mAuthorController.getGroupBookController().getAllGroup(a);
+                mAuthorController.getBookController().getBookForGroup(groupBook,order);
+                res.add(new GroupListItem(groupBook));
+            } else {
+                for (GroupBook groupBook : rr) {
+                    mAuthorController.getBookController().getBookForGroup(groupBook, order);
+                    GroupListItem grr = new GroupListItem(groupBook);
+                    res.add(grr);
+                    if (groupBook.getId() > maxGroupId) {
+                        maxGroupId = groupBook.getId();
+                    }
+                }
+            }
+            return res;
         }
     }
 
+    public String getOrder() {
+        return order;
+    }
 
+    public int getMaxGroupId() {
+        return maxGroupId;
+    }
 }

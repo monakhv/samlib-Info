@@ -15,18 +15,17 @@
  */
 package monakhv.android.samlib.service;
 
-import android.app.IntentService;
 import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
-import monakhv.android.samlib.data.DataExportImport;
+
 
 
 /**
  * Service To delete download book file at the end for life time
  * @author monakhv
  */
-public class CleanBookServiceIntent extends IntentService {
+public class CleanBookServiceIntent extends MyServiceIntent {
 
     private static final String DEBUG_TAG = "CleanBookServiceIntent";
 
@@ -39,14 +38,14 @@ public class CleanBookServiceIntent extends IntentService {
     @Override
     protected void onHandleIntent(Intent intent) {
         Log.d(DEBUG_TAG, "Got intent");
-        DataExportImport data = new DataExportImport(this);
-        data.findDeleteBookFile();
+
+        getDataExportImport().findDeleteBookFile();
 
     }
 
     public static void start(Context ctx) {
         Intent service = new Intent(ctx, CleanBookServiceIntent.class);
-        //service.putExtra(DownloadBookServiceIntent.BOOK_ID, book_id);
+        //service.putExtra(DownloadBookService.BOOK_ID, book_id);
         ctx.startService(service);
     }
 }

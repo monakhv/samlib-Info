@@ -2,6 +2,7 @@ package monakhv.android.samlib.sql;
 
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
+import android.util.Log;
 import com.j256.ormlite.android.apptools.OrmLiteSqliteOpenHelper;
 import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.stmt.QueryBuilder;
@@ -10,17 +11,13 @@ import com.j256.ormlite.table.TableUtils;
 import monakhv.android.samlib.R;
 import monakhv.samlib.db.DaoBuilder;
 import monakhv.samlib.db.SQLController;
-import monakhv.samlib.db.entity.Author;
-import monakhv.samlib.db.entity.Book;
-import monakhv.samlib.db.entity.Tag;
-import monakhv.samlib.db.entity.Tag2Author;
-import monakhv.samlib.log.Log;
+import monakhv.samlib.db.entity.*;
+
 
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+
 
 /*
  * Copyright 2015  Dmitry Monakhov
@@ -39,16 +36,21 @@ import java.util.Map;
  *
  * 02.07.15.
  */
-public class DatabaseHelper extends OrmLiteSqliteOpenHelper implements DaoBuilder{
-    private static final String DEBUG_TAG="DatabaseHelper";
-    private Dao<Author,Integer> authorDao;
-    private Dao<Book,Integer>   bookDao;
-    private Dao<Tag,Integer>     tagDao;
-    private Dao<Tag2Author, Integer>        t2aDao;
-    public DatabaseHelper(Context context){
+public class DatabaseHelper extends OrmLiteSqliteOpenHelper implements DaoBuilder {
+    private static final String DEBUG_TAG = "DatabaseHelper";
+    private Dao<Author, Integer> authorDao;
+    private Dao<Book, Integer> bookDao;
+    private Dao<Tag, Integer> tagDao;
+    private Dao<Tag2Author, Integer> t2aDao;
+    private Dao<SelectedBook, Integer> selectedBookDao;
+    private Dao<GroupBook, Integer> groupBookDao;
+
+    public DatabaseHelper(Context context) {
         super(context, SQLController.DB_NAME, null, SQLController.DB_VERSION, R.raw.ormlite_config);
+        //monakhv.android.samlib.utils.DatabaseConfigUtil -- to reconfigure
 
     }
+
     @Override
     public void onCreate(SQLiteDatabase db, ConnectionSource connectionSource) {
         try {
@@ -57,58 +59,109 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper implements DaoBuilde
             TableUtils.createTable(connectionSource, Tag.class);
             TableUtils.createTable(connectionSource, Tag2Author.class);
 
+            TableUtils.createTable(connectionSource, GroupBook.class);
+            TableUtils.createTable(connectionSource, SelectedBook.class);
+
             getAuthorDao();
             authorDao.executeRawNoArgs(SQLController.DB_IDX1);
             authorDao.executeRawNoArgs(SQLController.DB_IDX2);
             authorDao.executeRawNoArgs(SQLController.DB_IDX3);
             authorDao.executeRawNoArgs(SQLController.DB_IDX4);
-
+            authorDao.executeRawNoArgs(SQLController.DB_IDX51);
+            authorDao.executeRawNoArgs(SQLController.DB_IDX52);
 
         } catch (SQLException e) {
-            Log.e(DEBUG_TAG,"Can not create the Schema");
-        }
-
-
-    }
-
-    @Override
-    public void onUpgrade(SQLiteDatabase db, ConnectionSource connectionSource, int oldVersion, int newVersion) {
-        getAuthorDao();
-
-        try {
-            if (oldVersion == 4 && newVersion == 7) {
-                upgradeSchema4To5(db);
-                upgradeSchema5To6(db);
-                upgradeSchema6To7(db);
-            }
-            if (oldVersion == 5 && newVersion == 7) {
-                upgradeSchema5To6(db);
-                upgradeSchema6To7(db);
-            }
-            if (oldVersion == 6 && newVersion == 7) {
-                upgradeSchema6To7(db);
-            }
-
-        }catch (SQLException e) {
-            Log.e(DEBUG_TAG,"Can not UPGRADE the Schema");
+            Log.e(DEBUG_TAG, "Can not create the Schema",e);
         }
 
 
     }
 
     /**
+     * monakhv.android.samlib.utils.DatabaseConfigUtil -- to reconfigure
+     *
+     * @param db               Database object
+     * @param connectionSource Connection source
+     * @param oldVersion       new version number
+     * @param newVersion       old version number
+     */
+    @Override
+    public void onUpgrade(SQLiteDatabase db, ConnectionSource connectionSource, int oldVersion, int newVersion) {
+        getAuthorDao();
+
+        try {
+            if (oldVersion == 4 && newVersion == 8) {
+                upgradeSchema4To5();
+                upgradeSchema5To6();
+                upgradeSchema6To7();
+                upgradeSchema7To8(connectionSource);
+            }
+            if (oldVersion == 5 && newVersion == 8) {
+                upgradeSchema5To6();
+                upgradeSchema6To7();
+                upgradeSchema7To8(connectionSource);
+            }
+            if (oldVersion == 6 && newVersion == 8) {
+                upgradeSchema6To7();
+                upgradeSchema7To8(connectionSource);
+            }
+            if (oldVersion == 7 && newVersion == 8) {
+                upgradeSchema7To8(connectionSource);
+            }
+
+        } catch (SQLException e) {
+            Log.e(DEBUG_TAG, "Can not UPGRADE the Schema",e);
+        }
+
+
+    }
+
+    /**
+     *  Upgrade schema from version 7 to version 8
+     *
+     * @param connectionSource connection Source
+     * @throws SQLException
+     */
+    private void upgradeSchema7To8(ConnectionSource connectionSource) throws SQLException {
+        Log.d("upgradeSchema7To8", "Begin upgrade schema 7-8");
+        TableUtils.createTable(connectionSource, GroupBook.class);//create additional table
+        TableUtils.createTable(connectionSource, SelectedBook.class);//create additional table
+        getAuthorDao();
+        authorDao.executeRawNoArgs(SQLController.DB_IDX51);//create additional index
+        authorDao.executeRawNoArgs(SQLController.DB_IDX52);//create additional index
+        authorDao.executeRawNoArgs(SQLController.ALTER8_1);
+
+
+        QueryBuilder<Book, Integer> qb = getBookDao().queryBuilder();
+        int SELECTED_GROUP_ID = 1;
+        qb.where().eq(SQLController.COL_BOOK_GROUP_ID, SELECTED_GROUP_ID);
+        List<Book> selectedBook = bookDao.query(qb.prepare());
+
+        for (Book book : selectedBook) {
+            book.setGroupBook(null);
+            book.setSelected(true);
+            bookDao.update(book);
+            SelectedBook sb = new SelectedBook();
+            sb.setBook(book);
+            getSelectedBookDao().create(sb);
+        }
+
+        authorDao.executeRawNoArgs(SQLController.UPDATE8_2);
+        authorDao.executeRawNoArgs(SQLController.UPDATE8_3);
+
+    }
+
+    /**
      * Schema update to version 5
      * Remove samlib URL
-     *
-     * @param db
      */
-    private void upgradeSchema4To5(SQLiteDatabase db) throws SQLException {
+    private void upgradeSchema4To5() throws SQLException {
 
-        android.util.Log.d("upgradeSchema4To5", "Begin upgrade schema 4->5");
-        String[] columns = {SQLController.COL_ID, SQLController.COL_URL};
-        QueryBuilder<Author,Integer> qb = authorDao.queryBuilder();
+        Log.d("upgradeSchema4To5", "Begin upgrade schema 4->5");
+
+        QueryBuilder<Author, Integer> qb = authorDao.queryBuilder();
         List<Author> aa = authorDao.query(qb.prepare());
-        for (Author a : aa){
+        for (Author a : aa) {
 
             String url = a.getUrl();
             android.util.Log.d("upgradeSchema4To5", "Change url: " + url);
@@ -122,20 +175,22 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper implements DaoBuilde
 
         android.util.Log.d("upgradeSchema4To5", "End upgrade schema 4->5");
     }
-    private void upgradeSchema5To6(SQLiteDatabase db) throws SQLException {
+
+    private void upgradeSchema5To6() throws SQLException {
 
         authorDao.executeRawNoArgs(SQLController.ALTER6_1);
     }
-    private void upgradeSchema6To7(SQLiteDatabase db) throws SQLException {
+
+    private void upgradeSchema6To7() throws SQLException {
         authorDao.executeRawNoArgs(SQLController.ALTER7_1);
-        QueryBuilder<Author,Integer> qb = authorDao.queryBuilder();
+        QueryBuilder<Author, Integer> qb = authorDao.queryBuilder();
         List<Author> aa = authorDao.query(qb.prepare());
-        for (Author a: aa){
+        for (Author a : aa) {
             List<Integer> tagIds = a.getTagIds();
             List<String> tagNames = new ArrayList<>();
-            for (Integer tagId : tagIds){
-                Tag tag=tagDao.queryForId(tagId);
-                if (tag != null){
+            for (Integer tagId : tagIds) {
+                Tag tag = tagDao.queryForId(tagId);
+                if (tag != null) {
                     tagNames.add(tag.getName());
                 }
             }
@@ -144,29 +199,51 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper implements DaoBuilde
         }
     }
 
-    public  Dao<Author,Integer> getAuthorDao() {
-        if (authorDao == null){
+    public Dao<Author, Integer> getAuthorDao() {
+        if (authorDao == null) {
             try {
                 authorDao = getDao(Author.class);
             } catch (SQLException e) {
-                Log.e(DEBUG_TAG,"Author DAO Error",e);
+                Log.e(DEBUG_TAG, "Author DAO Error", e);
             }
         }
         return authorDao;
     }
 
     public Dao<Book, Integer> getBookDao() {
-        if (bookDao == null){
+        if (bookDao == null) {
             try {
-                bookDao=getDao(Book.class);
+                bookDao = getDao(Book.class);
             } catch (SQLException e) {
-                Log.e(DEBUG_TAG,"Book DAO Error",e);
+                Log.e(DEBUG_TAG, "Book DAO Error", e);
             }
         }
         return bookDao;
     }
 
-    public Dao<Tag, Integer> getTagDao()  {
+    public Dao<SelectedBook, Integer> getSelectedBookDao() {
+        if (selectedBookDao == null) {
+            try {
+                selectedBookDao = getDao(SelectedBook.class);
+            } catch (SQLException e) {
+                Log.e(DEBUG_TAG, "SelectedBook DAO Error", e);
+            }
+        }
+        return selectedBookDao;
+    }
+
+    public Dao<GroupBook, Integer> getGroupBookDao() {
+        if (groupBookDao == null) {
+            try {
+                groupBookDao = getDao(GroupBook.class);
+            } catch (SQLException e) {
+                Log.e(DEBUG_TAG, "GroupBook DAO Error", e);
+            }
+        }
+        return groupBookDao;
+    }
+
+    public Dao<Tag, Integer> getTagDao() {
         if (tagDao == null) {
             try {
                 tagDao = getDao(Tag.class);
@@ -176,17 +253,17 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper implements DaoBuilde
         }
         return tagDao;
     }
+
     public Dao<Tag2Author, Integer> getT2aDao() {
-        if (t2aDao == null){
+        if (t2aDao == null) {
             try {
-                t2aDao=getDao(Tag2Author.class);
+                t2aDao = getDao(Tag2Author.class);
             } catch (SQLException e) {
                 Log.e(DEBUG_TAG, "Tag2Author DAO Error", e);
             }
         }
         return t2aDao;
     }
-
 
 
     @Override

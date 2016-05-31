@@ -3,11 +3,6 @@ package monakhv.android.samlib;
 import android.os.Bundle;
 
 
-
-import monakhv.android.samlib.data.SettingsHelper;
-
-
-
 /*
  * Copyright 2014  Dmitry Monakhov
  *
@@ -26,15 +21,12 @@ import monakhv.android.samlib.data.SettingsHelper;
  * 12/11/14.
  */
 public class MyAbstractAnimActivity extends MyBaseAbstractActivity {
-    protected SettingsHelper settingsHelper;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        settingsHelper = new SettingsHelper(this);
-        setTheme(settingsHelper.getTheme());
         super.onCreate(savedInstanceState);
-        if (settingsHelper.isAnimation()){
+        if (getSettingsHelper().isAnimation()) {
             overridePendingTransition(R.anim.pull_in_from_right, R.anim.hold);
         }
 
@@ -42,8 +34,8 @@ public class MyAbstractAnimActivity extends MyBaseAbstractActivity {
 
     @Override
     protected void onPause() {
-        if (settingsHelper.isAnimation()){
-            overridePendingTransition( R.anim.hold,R.anim.pull_out_to_right);
+        if (getSettingsHelper().isAnimation()) {
+            overridePendingTransition(R.anim.hold, R.anim.pull_out_to_right);
         }
         super.onPause();
     }

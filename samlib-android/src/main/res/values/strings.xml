@@ -22,7 +22,11 @@ limitations under the License.
     <string name="author_tag">Новый тэг</string>
     <string name="author_add_desc">Для добавления автора введите его фамилию или полный URL его страницы самиздата</string>
     
-    <string name="update_update">Обновление</string>    
+    <string name="update_update">Обновление</string>
+    <string name="group_book_number">Книг:</string>
+    <string name="group_book_number_new">из них новых:</string>
+    <string name="group_book_new">Новые</string>
+    <string name="group_book_all">Все</string>
     
     <string name="dialog_title_filtr">Категория авторов</string>    
     <string name="dialog_title_file">Выбор файла</string>
@@ -86,12 +90,12 @@ limitations under the License.
     <string name="add_error_double">Этот автор уже есть в базе!</string>
     <string name="add_author_title">Добавить URL автора</string>
     <string name="add_success_double">Повторов авторов:</string>
-    <string name="import_author_result">Результат иморта авторов</string>
+    <string name="import_author_result">Результат импорта авторов</string>
 
 
     <string name="del_success">Автор удалён</string>
     <string name="del_error">Ошибка удаления автора</string>
-
+    <string name="no_such_application_to_view">У Вас нет приложения для просмотра данного типа файлов!</string>
     
     <string name="author_search_error">Ошибка поиска</string>
     <string name="author_search_empty">Ничего не найдено</string>
@@ -113,6 +117,8 @@ limitations under the License.
 
     <string name="notification_title_author">Проверка автора:</string>
     <string name="notification_title_TAG">Проверка авторов:</string>
+    <string name="notification_title_TAG_ALL">Проверка всех авторов</string>
+    <string name="notification_title_TAG_NEW">Проверка новых авторов</string>
     <string name="notification_summary">Количество обновлений:</string>
     
     <string name="author_update">Обновление у автора: </string>
@@ -140,6 +146,10 @@ limitations under the License.
      <string name="pref_title_update_autoload_limit">Ограничить загрузку</string>
      <string name="pref_default_update_atutoload_limit">40</string>
 
+    <string name="pref_key_book_date">pref_key_book_date</string>
+    <string name="pref_title_book_date">Время обновления книги</string>
+    <string name="pref_summary_book_date">Показываем дату и время последнего изменения книги в базе</string>
+
 
     <string name="pref_key_update_delay">pref_key_update_delay</string>
     <string name="pref_title_update_delay">Задержка проверки авторов</string>
@@ -150,7 +160,7 @@ limitations under the License.
     <string name="pref_title_wihi_only">Только по Wifi</string>
 
     <string name="pref_key_update_tag">pref_key_update_tag</string>
-    <string name="pref_title_update_tag">Проверяем авторов с тэгом ...</string>
+    <string name="pref_title_update_tag">Проверяем авторов с тэгом …</string>
 
 
     <string name="pref_update_all_title">Всё</string>
@@ -172,8 +182,8 @@ limitations under the License.
     <string name="pref_title_use_proxy_wifi">Только для WIFI</string>
 
     <string name="pref_key_use_proxy_flag">pref_key_use_proxy_flag</string>
-    <string name="pref_title_proxy">Настройки прокси</string>
-    <string name="pref_title_use_proxy">Использовать Proxy</string>
+    <string name="pref_title_proxy">Настройки маршрутизации</string>
+    <string name="pref_title_use_proxy">Использовать прокси</string>
     <string name="pref_key_proxy_user">pref_key_proxy_user</string>
     <string name="pref_key_proxy_password">pref_key_proxy_password</string>
     <string name="pref_key_proxy_host">pref_key_proxy_host</string>
@@ -230,12 +240,17 @@ limitations under the License.
 
     <string name="pref_key_flag_update_ticker">pref_key_flag_update_ticker</string>
     <string name="pref_interface_update_ticker_title">Заголовок Уведомления</string>
-    <string name="pref_interface_update_ticker_desc">Включить заголовок уведомления при проверки обновлений</string>
+    <string name="pref_interface_update_ticker_desc">Включить заголовок уведомления при проверке обновлений</string>
 
 
     <string name="pref_key_mirror">pref_key_mirror</string>
     <string name="pref_title_mirror">Первое зеркало</string>
     <string name="pref_default_mirror">SamLib</string>
+
+
+    <string name="pref_key_use_google_proxy_flag">pref_key_use_google_proxy_flag</string>
+    <string name="pref_title_use_google_proxy">Google proxy</string>
+    <string name="pref_summary_use_google_proxy">Эксперментальное использование http серверов google</string>
 
     <string name="change_theme_alert">Смена темы произойдет после перезапуска. Перезапустить приложения сейчас?</string>
 
@@ -307,4 +322,19 @@ limitations under the License.
     <string name="cb_auto_backup">автобэкап</string>
 
 
+    <string name="fa_book">&#xf02d;</string>
+    <string name="fa_file_text">&#xf15c;</string>
+
+    <string name="fa_pencil_square">&#xf14b;</string>
+    <string name="fa_pencil_square_o">&#xf044;</string>
+    <string name="fa_folder">&#xf07b;</string>
+
+    <string name="fa_pencil">&#xf040;</string>
+    <string name="fa_user">&#xf007;</string>
+    <string name="fa_user_plus">&#xf234;</string>
+    <string name="fa_caret_down">&#xf0d7;</string>
+
+    <string name="icon_heart">&#xf004;</string>
+    <string name="icon_search">&#xf002;</string>
+    <string name="icon_star">&#xf005;</string>
 </resources>

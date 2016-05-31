@@ -8,7 +8,7 @@ package monakhv.samlib.desk.gui;
 import monakhv.samlib.db.entity.AuthorCard;
 import monakhv.samlib.desk.data.Settings;
 import monakhv.samlib.log.Log;
-import monakhv.samlib.service.SamlibService;
+import monakhv.samlib.service.BookDownloadService;
 
 import java.awt.*;
 import java.awt.event.*;
@@ -210,7 +210,7 @@ public class AuthorSearch extends JDialog {
 
         @Override
         protected Void doInBackground() throws Exception {
-            authorCards=SamlibService.makeSearch(pattern, settings);
+            authorCards= BookDownloadService.makeSearch(pattern, settings);
             return null;
         }
 

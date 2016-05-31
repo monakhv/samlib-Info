@@ -1,5 +1,6 @@
 package monakhv.android.samlib.data;
 
+
 import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.android.LogcatAppender;
 import ch.qos.logback.classic.encoder.PatternLayoutEncoder;
@@ -34,14 +35,14 @@ public class Logger implements AbstractLogger  {
     private SettingsHelper mSettingsHelper;
 
 
-    Logger(SettingsHelper settingsHelper){
+    public Logger(SettingsHelper settingsHelper){
         mSettingsHelper=settingsHelper;
 
         logger = new HashMap<>();
         initLogger();
     }
 
-    private void initLogger() {
+    public final void initLogger() {
         LoggerContext lc = (LoggerContext) LoggerFactory.getILoggerFactory();
         lc.reset();
 
@@ -59,7 +60,6 @@ public class Logger implements AbstractLogger  {
             logcatAppender.setContext(lc);
             logcatAppender.setEncoder(logCatEncoder);
             logcatAppender.start();
-
             root.addAppender(logcatAppender);
         }
 

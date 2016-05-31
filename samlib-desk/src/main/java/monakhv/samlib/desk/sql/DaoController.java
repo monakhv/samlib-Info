@@ -5,10 +5,7 @@ import com.j256.ormlite.dao.DaoManager;
 import com.j256.ormlite.jdbc.JdbcConnectionSource;
 import monakhv.samlib.db.DaoBuilder;
 import monakhv.samlib.db.SQLController;
-import monakhv.samlib.db.entity.Author;
-import monakhv.samlib.db.entity.Book;
-import monakhv.samlib.db.entity.Tag;
-import monakhv.samlib.db.entity.Tag2Author;
+import monakhv.samlib.db.entity.*;
 import monakhv.samlib.log.Log;
 
 import java.sql.SQLException;
@@ -37,6 +34,8 @@ public class DaoController implements DaoBuilder{
 	private Dao<Book, Integer>      bookDao;
     private Dao<Tag, Integer>        tagDao;
     private Dao<Tag2Author, Integer>        t2aDao;
+    private Dao<SelectedBook, Integer> selectedBookDao;
+    private Dao<GroupBook, Integer> groupBookDao;
 
     private DaoController(SQLController sql)  {
 
@@ -48,6 +47,10 @@ public class DaoController implements DaoBuilder{
 
             tagDao   = DaoManager.createDao(jdbc,Tag.class);
             t2aDao     = DaoManager.createDao(jdbc,Tag2Author.class);
+
+            selectedBookDao   = DaoManager.createDao(jdbc,SelectedBook.class);
+            groupBookDao     = DaoManager.createDao(jdbc,GroupBook.class);
+
         } catch (SQLException e) {
             Log.e("DAOController:","SQL Error",e);
         }
@@ -69,6 +72,16 @@ public class DaoController implements DaoBuilder{
 
     public Dao<Tag2Author, Integer> getT2aDao() {
         return t2aDao;
+    }
+
+    @Override
+    public Dao<SelectedBook, Integer> getSelectedBookDao() {
+        return selectedBookDao;
+    }
+
+    @Override
+    public Dao<GroupBook, Integer> getGroupBookDao() {
+        return groupBookDao;
     }
 
     public static DaoController getInstance(SQLController sql)  {

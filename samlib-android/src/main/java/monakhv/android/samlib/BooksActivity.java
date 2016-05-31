@@ -16,19 +16,22 @@
 package monakhv.android.samlib;
 
 
-import android.content.BroadcastReceiver;
-import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.os.Bundle;
 
 
+import android.support.annotation.NonNull;
+import android.support.v7.app.ActionBar;
 import android.support.v7.widget.Toolbar;
-import monakhv.android.samlib.service.AndroidGuiUpdater;
+import monakhv.samlib.service.AuthorGuiState;
 import monakhv.samlib.db.AuthorController;
 import monakhv.samlib.db.entity.Author;
 import monakhv.samlib.db.entity.SamLibConfig;
 import monakhv.samlib.log.Log;
+import rx.Subscription;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.schedulers.Schedulers;
+
 
 /**
  * @author monakhv
@@ -37,18 +40,18 @@ public class BooksActivity extends MyAbstractAnimActivity implements BookFragmen
     private static final String DEBUG_TAG = "BooksActivity";
     private static final int TAGS_ACTIVITY = 21;
     private long author_id = 0;
-    private DownloadReceiver receiver;
-    private BookFragment listFragment;
-    private UpdateActivityReceiver mUpdateActivityReceiver;
+    BookFragment mBookFragment;
+    private Subscription mBookSubscription;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Log.i(DEBUG_TAG, "onCreate");
         if (savedInstanceState == null) {
-            Log.i(DEBUG_TAG, "have NO save data");
+            Log.i(DEBUG_TAG, "onCreate: have NO save data");
         } else {
-            Log.i(DEBUG_TAG, "We have saved data!!!");
+            Log.i(DEBUG_TAG, "onCreate: We have saved data!!!");
         }
 
 
@@ -56,7 +59,12 @@ public class BooksActivity extends MyAbstractAnimActivity implements BookFragmen
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        ActionBar actionBar = getSupportActionBar();
+
+        if(actionBar !=null){
+            actionBar.setDisplayHomeAsUpEnabled(true);
+        }
+        //getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         Bundle extra = getIntent().getExtras();
         if (extra != null) {
@@ -66,8 +74,9 @@ public class BooksActivity extends MyAbstractAnimActivity implements BookFragmen
             Log.i(DEBUG_TAG, "Have NO intent data");
         }
 
-        listFragment = (BookFragment) getSupportFragmentManager().findFragmentById(R.id.listBooksFragment);
-        listFragment.setHasOptionsMenu(true);
+        mBookFragment = (BookFragment) getSupportFragmentManager().findFragmentById(R.id.listBooksFragment);
+        mBookFragment.setHasOptionsMenu(true);
+
 
     }
 
@@ -85,9 +94,19 @@ public class BooksActivity extends MyAbstractAnimActivity implements BookFragmen
     public void onSaveInstanceState(Bundle bundle) {
         Log.d(DEBUG_TAG, "onSaveInstanceState call");
         bundle.putLong(BookFragment.AUTHOR_ID, author_id);
+        bundle.putBundle(BookFragment.ADAPTER_STATE_EXTRA, mBookFragment.getAdapterState());
         super.onSaveInstanceState(bundle);
     }
 
+    @Override
+    protected void onRestoreInstanceState(@NonNull Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+        Log.d(DEBUG_TAG, "onRestoreInstanceState call");
+        Bundle state = savedInstanceState.getBundle(BookFragment.ADAPTER_STATE_EXTRA);
+        if (state != null){
+            mBookFragment.setAdapterState(state);
+        }
+    }
 
     @Override
     public void showTags(long author_id) {
@@ -104,8 +123,13 @@ public class BooksActivity extends MyAbstractAnimActivity implements BookFragmen
         super.onResume();
 
 
+
+
+
+
+
         if (author_id != SamLibConfig.SELECTED_BOOK_ID) {
-            AuthorController sql = new AuthorController(getDatabaseHelper());
+            AuthorController sql = getAuthorController();
             Author a = sql.getById(author_id);
             if (a != null) {
                 setTitle(a.getName());
@@ -115,45 +139,24 @@ public class BooksActivity extends MyAbstractAnimActivity implements BookFragmen
             setTitle(getText(R.string.menu_selected_go));
         }
 
-
-        receiver = new DownloadReceiver(listFragment, getDatabaseHelper());
-        IntentFilter filter = new IntentFilter(DownloadReceiver.ACTION_RESP);
-        filter.addCategory(Intent.CATEGORY_DEFAULT);
-        registerReceiver(receiver, filter);
-
-        mUpdateActivityReceiver = new UpdateActivityReceiver();
-        IntentFilter updateFilter = new IntentFilter(AndroidGuiUpdater.ACTION_RESP);
-        updateFilter.addCategory(Intent.CATEGORY_DEFAULT);
-        registerReceiver(mUpdateActivityReceiver,updateFilter);
-
+        mBookSubscription = getBus().getObservable()
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeOn(Schedulers.newThread())
+                .subscribe(mBookFragment.getSubscriber());
+        addSubscription(mBookSubscription);
 
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        unregisterReceiver(receiver);
-        unregisterReceiver(mUpdateActivityReceiver);
-    }
-
-    /**
-     * Receive updates from  Services
-     */
-    public class UpdateActivityReceiver extends BroadcastReceiver {
-
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            String action = intent.getStringExtra(AndroidGuiUpdater.ACTION);
-            if (action != null) {
-                if (action.equalsIgnoreCase(AndroidGuiUpdater.ACTION_REFRESH)) {
-                    int iObject = intent.getIntExtra(AndroidGuiUpdater.ACTION_REFRESH_OBJECT, AndroidGuiUpdater.ACTION_REFRESH_AUTHORS);
-                    if (iObject == AndroidGuiUpdater.ACTION_REFRESH_BOTH) {
-                        listFragment.refresh();
-                    }
-                }
-            }
-        }
+        mBookSubscription.unsubscribe();
     }
 
 
+
+    @Override
+    public AuthorGuiState getAuthorGuiState() {
+        return null;
+    }
 }

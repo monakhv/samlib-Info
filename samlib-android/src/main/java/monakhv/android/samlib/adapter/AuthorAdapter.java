@@ -1,21 +1,24 @@
 package monakhv.android.samlib.adapter;
 
+import android.content.Context;
+import android.graphics.Color;
 import android.graphics.Typeface;
+import android.graphics.drawable.Drawable;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 import monakhv.android.samlib.R;
-import monakhv.android.samlib.animation.Flip3D;
-import monakhv.android.samlib.animation.FlipIcon;
+import monakhv.android.samlib.awesome.FontManager;
+import monakhv.android.samlib.awesome.TextLabel;
 import monakhv.samlib.db.entity.Author;
+import monakhv.samlib.log.Log;
 
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
 import java.util.Date;
-import java.util.HashMap;
+import java.util.Locale;
 
 /*
  * Copyright 2015  Dmitry Monakhov
@@ -34,34 +37,32 @@ import java.util.HashMap;
  *
  * 23.07.15.
  */
-public class AuthorAdapter extends RecyclerAdapter<Author, AuthorAdapter.ViewHolder> {
+public class AuthorAdapter extends RecyclerAdapter<Author, AuthorAdapter.AuthorViewHolder> {
     private static final String DEBUG_TAG = "AuthorAdapter";
-    private static long YEAR = 31556952000L;
+    //private static long YEAR = 31556952000L;
     public static final String DATE_FORMAT = "dd.MM.yyyy HH:mm:ss";
     private SimpleDateFormat df;
-    private Calendar now;
+   // private Calendar now;
 
 
-    //private final AuthorController authorController;
-
-    private final HashMap<Integer, FlipIcon> flips;
 
     public AuthorAdapter(RecyclerAdapter.CallBack callBack) {
         super(callBack);
 
-        flips = new HashMap<>();
-        df = new SimpleDateFormat(DATE_FORMAT);
-        now = Calendar.getInstance();
+        setHasStableIds(true);
+        df = new SimpleDateFormat(DATE_FORMAT, Locale.FRANCE);
+     //   now = Calendar.getInstance();
     }
 
 
     @Override
-    public void onBindViewHolder(ViewHolder holder, int position) {
+    public void onBindViewHolder(AuthorViewHolder holder, int position) {
 
         final Author author = mData.get(position);
 
         boolean isNew = author.isIsNew();
         holder.authorName.setText(author.getName());
+        holder.authorName.setTag(author.getId());
         holder.authorURL.setText(author.getUrl());
 
         long dd = author.getUpdateDate();
@@ -69,47 +70,18 @@ public class AuthorAdapter extends RecyclerAdapter<Author, AuthorAdapter.ViewHol
         holder.updatedData.setText(df.format(update));
 
 
-        int oldBookResource;
-        if ((now.getTimeInMillis() - dd) < YEAR) {
-            oldBookResource = (R.drawable.author_old);
-        } else {
-            oldBookResource = (R.drawable.author_very_old);
-        }
-        Flip3D.animationFlip3DListener listener;
+
         if (isNew) {
             holder.authorName.setTypeface(Typeface.DEFAULT_BOLD);
-            listener = new Flip3D.animationFlip3DListener() {
-                @Override
-                public void onStart() {
+            holder.flipIcon.setImageDrawable(holder.newAuthorImage);
+            holder.flipIcon.setTag(1);
 
-                }
-
-                @Override
-                public void onEnd() {
-                    Log.i(DEBUG_TAG, "Making Author read!");
-                    mCallBack.makeNewFlip(author.getId());
-                }
-            };
-            holder.flipIcon.setData(R.drawable.author_new, oldBookResource, listener, false);
         } else {
             holder.authorName.setTypeface(Typeface.DEFAULT);
-            listener = new Flip3D.animationFlip3DListener() {
-                @Override
-                public void onStart() {
-
-                }
-
-                @Override
-                public void onEnd() {
-                    Log.i(DEBUG_TAG, "Making Author new!!");
-//                    sql.getBookController().markUnRead(book);
-//                    Author a = sql.getByBook(book);
-//                    sql.testMarkRead(a);
-                }
-            };
-            holder.flipIcon.setData(oldBookResource, R.drawable.author_new, listener, false);
+            holder.flipIcon.setImageDrawable(holder.oldAuthorImage);
+            holder.flipIcon.setTag(0);
         }
-        flips.put(position, holder.flipIcon);
+
         holder.tgnames.setText(author.getAll_tags_name());
 
 
@@ -119,9 +91,9 @@ public class AuthorAdapter extends RecyclerAdapter<Author, AuthorAdapter.ViewHol
     }
 
     @Override
-    public ViewHolder onCreateViewHolder(ViewGroup viewGroup, int i) {
+    public AuthorViewHolder onCreateViewHolder(ViewGroup viewGroup, int i) {
         View v = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.author_row_anim, viewGroup, false);
-        return new ViewHolder(v);
+        return new AuthorViewHolder(v);
     }
 
 
@@ -131,17 +103,62 @@ public class AuthorAdapter extends RecyclerAdapter<Author, AuthorAdapter.ViewHol
             return;
         }
         if (author.isIsNew()) {
-            FlipIcon ff = flips.get(getSelectedPosition());
-            if (ff != null) {
-                ff.makeFlip();
-            } else {
-                mCallBack.makeNewFlip(author.getId());
-            }
+            mCallBack.makeNewFlip(author);
             toggleSelection(NOT_SELECTED,false);//clean selection
         }
 
 
     }
+
+    @Override
+    public long getItemId(int position) {
+        return mData.get(position).getId();
+    }
+
+
+    public void add(Author author,int sort){
+        mData.add(sort,author);
+        notifyItemInserted(sort);
+    }
+    public void remove(int idx){
+        mData.remove(idx);
+        notifyItemRemoved(idx);
+    }
+
+    /**
+     *  Change reflection of Item by the data of the Author
+     * @param author  Author
+     * @param sort position to change
+     */
+    public void notifyChange(Author author, int sort){
+        if (mData==null){
+            return;
+        }
+
+        int idx = mData.indexOf(author);
+
+        if (idx != -1 && sort != -1 && idx !=sort){
+            mData.remove(idx);
+            mData.add(sort,author);
+//            notifyItemRemoved(idx);
+//            notifyItemInserted(sort);
+            notifyItemMoved(idx,sort);
+            notifyItemChanged(sort);
+            Log.d(DEBUG_TAG,"notifyChange: make move: "+idx+" to: "+sort );
+            return;
+        }
+
+        if (idx != -1){
+            mData.set(idx,author);
+            notifyItemChanged(idx);
+            Log.d(DEBUG_TAG,"notifyChange: in-place update" );
+            return;
+        }
+
+        Log.e(DEBUG_TAG,"notifyChange: wrong index: "+idx );
+
+    }
+
 
     /**
      * Find item with given id and select it
@@ -160,13 +177,17 @@ public class AuthorAdapter extends RecyclerAdapter<Author, AuthorAdapter.ViewHol
         return NOT_SELECTED;
     }
 
-    public static class ViewHolder extends RecyclerView.ViewHolder {
+
+
+    public static class AuthorViewHolder extends RecyclerView.ViewHolder {
         //{R.id.authorName, R.id.updated, R.id.icon, R.id.tgnames, R.id.authorURL};
         public TextView authorName, updatedData, tgnames, authorURL;
-        public FlipIcon flipIcon;
+        public ImageView flipIcon;
+        public Drawable oldAuthorImage, newAuthorImage;
 
 
-        public ViewHolder(View itemView) {
+        @SuppressWarnings("deprecation")
+        public AuthorViewHolder(View itemView) {
             super(itemView);
 
             authorName = (TextView) itemView.findViewById(R.id.authorName);
@@ -174,7 +195,24 @@ public class AuthorAdapter extends RecyclerAdapter<Author, AuthorAdapter.ViewHol
             tgnames = (TextView) itemView.findViewById(R.id.tgnames);
             authorURL = (TextView) itemView.findViewById(R.id.authorURL);
 
-            flipIcon = (FlipIcon) itemView.findViewById(R.id.FlipIcon);
+            flipIcon = (ImageView) itemView.findViewById(R.id.FlipIcon);
+            final Context context=itemView.getContext();
+            newAuthorImage = TextLabel.builder()
+                    .beginConfig()
+                    .useFont(FontManager.getFontAwesome(itemView.getContext()))
+                    .textColor(Color.BLACK)
+                    .endConfig()
+                    .buildRound(context.getString(R.string.fa_pencil), Color.LTGRAY);
+
+            oldAuthorImage = TextLabel.builder()
+                    .beginConfig()
+                    .useFont(FontManager.getFontAwesome(itemView.getContext()))
+                    .textColor(context.getResources().getColor(R.color.green_dark))
+                    .endConfig()
+                    .buildRound(context.getString(R.string.fa_user), Color.GRAY);
+            //default image will be old one
+            flipIcon.setImageDrawable(oldAuthorImage);
+
 
         }
 

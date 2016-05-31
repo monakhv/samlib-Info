@@ -20,31 +20,23 @@ package monakhv.android.samlib.service;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.os.Binder;
-import android.os.IBinder;
-import android.os.PowerManager;
+import android.os.*;
 import android.support.annotation.Nullable;
-import in.srain.cube.views.ptr.util.PrefsUtil;
-import monakhv.android.samlib.R;
-import monakhv.android.samlib.data.DataExportImport;
-import monakhv.android.samlib.data.SettingsHelper;
-import monakhv.android.samlib.sortorder.AuthorSortOrder;
-import monakhv.samlib.data.AbstractSettings;
-import monakhv.samlib.db.AuthorController;
-import monakhv.samlib.db.DaoBuilder;
-import monakhv.samlib.db.TagController;
-import monakhv.samlib.db.entity.Author;
-import monakhv.samlib.db.entity.Book;
-import monakhv.samlib.db.entity.SamLibConfig;
-import monakhv.samlib.db.entity.Tag;
-import monakhv.samlib.http.HttpClientController;
-import monakhv.samlib.log.Log;
-import monakhv.samlib.service.GuiUpdate;
-import monakhv.samlib.service.SamlibService;
 
-import java.util.ArrayList;
+import in.srain.cube.views.ptr.util.PrefsUtil;
+
+
+import monakhv.android.samlib.R;
+import monakhv.android.samlib.data.SettingsHelper;
+import monakhv.samlib.db.entity.Author;
+import monakhv.samlib.db.entity.SamLibConfig;
+import monakhv.samlib.log.Log;
+import monakhv.samlib.service.*;
+import rx.Subscription;
+
+
 import java.util.Calendar;
-import java.util.List;
+
 
 /**
  * Bind Service to checkout Authors Updates
@@ -53,32 +45,30 @@ import java.util.List;
 public class UpdateLocalService extends MyService {
     private static final String DEBUG_TAG = "UpdateLocalService";
 
-    public static final String ACTION_STOP = "UpdateLocalService.ACTION_STOP";
-    public static final String ACTION_UPDATE = "UpdateLocalService.ACTION_UPDATE";
+    public static final String PREF_NAME = "monakhv.android.samlib.service.UpdateLocalService";
+    public static final String PREF_KEY_LAST_UPDATE = PREF_NAME + ".LAST_UPDATE";
+    private static final String PREF_KEY_CALLER = PREF_NAME + ".CALLER";
 
-    public static final String SELECTOR_TYPE = "UpdateLocalService.SELECTOR_TYPE";
-    public static final String SELECTOR_ID = "UpdateLocalService.SELECTOR_ID";
+    static final String ACTION_STOP = "UpdateLocalService.ACTION_STOP";
+    private static final String ACTION_UPDATE = "UpdateLocalService.ACTION_UPDATE";
+    private static final String EXTRA_ARGUMENT = "UpdateLocalService.EXTRA_ARGUMENT";
+
 
     private final IBinder mBinder = new LocalBinder();
 
-    //private DataExportImport dataExportImport;
-    private final List<Author> updatedAuthors;
     private SharedPreferences mSharedPreferences;
+    private MessageConstructor mMessageConstructor;
 
 
     private static boolean isRun = false;
+    private boolean isReceiver = false;
     private static PowerManager.WakeLock wl;
-    private static UpdateTread mThread;
-    private static HttpClientController http;
-    private int currentCaller = 0;
-    private SettingsHelper settings;
-    private DataExportImport dataExportImport;
-    private Context context;
+    private static Thread mThread;
 
 
     public UpdateLocalService() {
         super();
-        updatedAuthors = new ArrayList<>();
+
         // Log.d(DEBUG_TAG, "Constructor Call");
     }
 
@@ -94,11 +84,13 @@ public class UpdateLocalService extends MyService {
         }
         if (action.equalsIgnoreCase(ACTION_UPDATE)) {
             Log.i(DEBUG_TAG, "OnStart: making update");
-            int id = intent.getExtras().getInt(SELECTOR_ID);
-            String nn = intent.getExtras().getString(SELECTOR_TYPE);
-            currentCaller = intent.getExtras().getInt(AndroidGuiUpdater.CALLER_TYPE);
 
-            makeUpdate(SamlibService.UpdateObjectSelector.valueOf(nn), id);
+            ArgumentData arg = intent.getExtras().getParcelable(EXTRA_ARGUMENT);
+            if (arg != null) {
+                isReceiver = arg.isReceiver == 1;
+            }
+            runService(arg);
+
         }
 
 
@@ -113,142 +105,119 @@ public class UpdateLocalService extends MyService {
 
 
     /**
-     * Check for new update of givenAuthor
+     * Method to start update process
      *
-     * @param authorId -Author id
+     * @param context Context
+     * @param author  Author can be null, if not null - check the author for updates
+     * @param state   Author GUI state to make gui update, contains tagId to update authors by the tag
      */
-    public static void updateAuthor(Context ctx, int authorId) {
-        makeUpdate(ctx, SamlibService.UpdateObjectSelector.Author, authorId);
-    }
-
-    /**
-     * Chane for new updates of all authors with given tag
-     *
-     * @param tagId Tag id
-     */
-    public static void updateTag(Context ctx, int tagId) {
-        makeUpdate(ctx, SamlibService.UpdateObjectSelector.Tag, tagId);
-    }
-
-    /**
-     * Start service - use for receiver Calls
-     *
-     * @param ctx - Context
-     */
-    public static void makeUpdate(Context ctx) {
-        Intent service = new Intent(ctx, UpdateLocalService.class);
-        SettingsHelper settings = new SettingsHelper(ctx);
-        String stag = settings.getUpdateTag();
-        int idx = Integer.parseInt(stag);
+    public static void makeUpdate(Context context, Author author, AuthorGuiState state) {
+        Intent service = new Intent(context, UpdateLocalService.class);
         service.setAction(UpdateLocalService.ACTION_UPDATE);
-        service.putExtra(UpdateLocalService.SELECTOR_ID, idx);
-        service.putExtra(UpdateLocalService.SELECTOR_TYPE, SamlibService.UpdateObjectSelector.Tag.name());
-        service.putExtra(AndroidGuiUpdater.CALLER_TYPE, AndroidGuiUpdater.CALLER_IS_RECEIVER);
-        ctx.startService(service);
+        ArgumentData argumentData;
+
+        if (author == null) {
+            argumentData = new ArgumentData(state);
+        } else {
+            argumentData = new ArgumentData(author, state);
+        }
+
+
+        service.putExtra(UpdateLocalService.EXTRA_ARGUMENT, argumentData);
+        context.startService(service);
     }
 
 
-    private static void makeUpdate(Context ctx, SamlibService.UpdateObjectSelector selector, int id) {
-        Intent service = new Intent(ctx, UpdateLocalService.class);
-        service.setAction(UpdateLocalService.ACTION_UPDATE);
-        service.putExtra(UpdateLocalService.SELECTOR_ID, id);
-        service.putExtra(UpdateLocalService.SELECTOR_TYPE, selector.name());
-        service.putExtra(AndroidGuiUpdater.CALLER_TYPE, AndroidGuiUpdater.CALLER_IS_ACTIVITY);
-
-        ctx.startService(service);
-    }
+    private void runService(ArgumentData argData) {
 
 
-    private void makeUpdate(SamlibService.UpdateObjectSelector selector, int id) {
-
-        if (isRun && (currentCaller == AndroidGuiUpdater.CALLER_IS_ACTIVITY)) {
-            Log.i(DEBUG_TAG, "makeUpdate: Update already running exiting");
-            return;
-        }
-        context = this.getApplicationContext();
-        updatedAuthors.clear();
-        settings = new SettingsHelper(context);
-        Log.d(DEBUG_TAG, "makeUpdate");
-        dataExportImport = new DataExportImport(context);
-
-
-        mSharedPreferences = PrefsUtil.getSharedPreferences(context, UpdateServiceIntent.PREF_NAME);
-        settings.requestFirstBackup();
-
-        mSharedPreferences.edit().putInt(UpdateServiceIntent.PREF_KEY_CALLER, currentCaller).apply();
-        AuthorController ctl = new AuthorController(getHelper());
-        List<Author> authors;
-
-
-        String notificationTitle;
-
-        if ((currentCaller == AndroidGuiUpdater.CALLER_IS_RECEIVER) && !SettingsHelper.haveInternetWIFI(context)) {
-            Log.d(DEBUG_TAG, "makeUpdate: Ignore update task - we have no internet connection");
-
+        if (isRun) {
+            Log.i(DEBUG_TAG, "runService: Update already running exiting");
             return;
         }
 
-        if (selector == SamlibService.UpdateObjectSelector.Author) {//Check update for the only Author
+        mSharedPreferences = PrefsUtil.getSharedPreferences(this, PREF_NAME);
+        getSettingsHelper().requestFirstBackup();
 
-            //int id = intent.getIntExtra(SELECT_ID, 0);//author_id
-            Author author = ctl.getById(id);
-            if (author != null) {
-                authors = new ArrayList<>();
-                authors.add(author);
-                notificationTitle = context.getString(R.string.notification_title_author) + " " + author.getName();
-                Log.i(DEBUG_TAG, "makeUpdate: Check single Author: " + author.getName());
-            } else {
-                Log.e(DEBUG_TAG, "makeUpdate: Can not find Author: " + id);
-                return;
+        mSharedPreferences.edit().putBoolean(PREF_KEY_CALLER, isReceiver).apply();
+
+        if (isReceiver && !getSettingsHelper().haveInternetWIFI()) {
+            monakhv.samlib.log.Log.d(DEBUG_TAG, "runService: Ignore update task - we have no internet connection");
+            return;
+        }
+        if (!SettingsHelper.haveInternet(this)) {
+            Log.e(DEBUG_TAG, "runService: Ignore update - we have no internet connection");
+
+            return;
+        }
+        String title;
+        if (argData.author_id == -1) {
+            switch (argData.state_id){
+                case SamLibConfig.TAG_AUTHOR_ALL:
+                    title = getString(R.string.notification_title_TAG_ALL) ;
+                    break;
+                case SamLibConfig.TAG_AUTHOR_NEW:
+                    title = getString(R.string.notification_title_TAG_NEW);
+                    break;
+                default:
+                    title = getString(R.string.notification_title_TAG) + " " + getAuthorController().getTagController().getById(argData.state_id).getName();
             }
-        } else {//Check update for authors by TAG
-            authors = ctl.getAll(id, AuthorSortOrder.DateUpdate.getOrder());
-            notificationTitle = context.getString(R.string.notification_title_TAG);
-            if (id == SamLibConfig.TAG_AUTHOR_ALL) {
-                notificationTitle += " " + context.getString(R.string.filter_all);
-            } else if (id == SamLibConfig.TAG_AUTHOR_NEW) {
-                notificationTitle += " " + context.getString(R.string.filter_new);
-            } else {
-                TagController tagCtl = new TagController(getHelper());
-                Tag tag = tagCtl.getById(id);
-                if (tag != null) {
-                    notificationTitle += " " + tag.getName();
-                }
 
-            }
-            Log.i(DEBUG_TAG, "makeUpdate: selection index: " + id);
+        } else {
+            title = getAuthorController().getById(argData.author_id).getName();
         }
-        AndroidGuiUpdater guiUpdate = new AndroidGuiUpdater(context, currentCaller, notificationTitle);
-        if (!SettingsHelper.haveInternet(context)) {
-            Log.e(DEBUG_TAG, "makeUpdate: Ignore update - we have no internet connection");
-
-            guiUpdate.finishUpdate(false, updatedAuthors);
-            return;
-        }
-
-        http = HttpClientController.getInstance(settings);
-        SpecialSamlibService service = new SpecialSamlibService(getHelper(), guiUpdate, settings, http);
-
 
         PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
         wl = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, DEBUG_TAG);
         wl.acquire();
 
+        SpecialAuthorService service = getSpecialSamlibService();
 
-        mThread = new UpdateTread(service, authors);
+        mThread = new SamlibUpdateTread(service, argData);
+
+        final Subscription subscription = getBus().getObservable()
+                .distinctUntilChanged()
+                .subscribe(guiUpdateObject -> {
+                    if (guiUpdateObject.isProgress()) {
+                        if (mMessageConstructor == null) {
+                            mMessageConstructor = new MessageConstructor(this, getSettingsHelper());
+                        }
+                        mMessageConstructor.updateNotification((AuthorUpdateProgress) guiUpdateObject.getObject(), title);
+                        Log.d(DEBUG_TAG, "runService: progressUpdate");
+                    }
+                    if (guiUpdateObject.isResult()) {
+                        mMessageConstructor.cancelProgress();
+                        mMessageConstructor.showUpdateNotification((Result) guiUpdateObject.getObject());
+                        Log.d(DEBUG_TAG, "runService: Result");
+                    }
+                    if (guiUpdateObject.isAuthor() && guiUpdateObject.getUpdateType() == GuiUpdateObject.UpdateType.UPDATE_UPDATE) {
+                        Author author = (Author) guiUpdateObject.getObject();
+                        mMessageConstructor.updateNotification(author);
+                        Log.d(DEBUG_TAG, "runService: AuthorUpdate: " + author.getName());
+                    }
+                });
+        addSubscription(subscription);
         mThread.start();
 
+
     }
+
 
     /**
      * Interrupt the thread if running
      */
     private void interrupt() {
-        if (isRun && (currentCaller == AndroidGuiUpdater.CALLER_IS_ACTIVITY)) {
-            Log.d(DEBUG_TAG, "interrupt: Making STOP");
-            mThread.interrupt();
-            http.cancelAll();
 
+        if (mMessageConstructor != null) {
+            mMessageConstructor.cancelProgress();
+        }
+
+        if (isRun) {
+            Log.d(DEBUG_TAG, "Making STOP");
+            mThread.interrupt();
+            getHttpClientController().cancelAll();
+
+            //         UpdateLocalService.this.mSamlibApplication.releaseServiceComponent();
             releaseLock();
         }
     }
@@ -264,34 +233,43 @@ public class UpdateLocalService extends MyService {
         }
     }
 
-    private class UpdateTread extends Thread {
-        private SamlibService service;
-        private List<Author> authors;
+    private class SamlibUpdateTread extends Thread {
+        final private AuthorUpdateService mAuthorUpdateService;
+        final private ArgumentData mData;
 
-        public UpdateTread(SpecialSamlibService service, List<Author> authors) {
-            this.service = service;
-            this.authors = authors;
+        SamlibUpdateTread(AuthorUpdateService authorUpdateService, ArgumentData data) {
+            mAuthorUpdateService = authorUpdateService;
+            mData = data;
         }
 
         @Override
         public void run() {
             super.run();
             isRun = true;
-            boolean result = service.runUpdate(authors);
+            boolean result;
+
+            if (mData.author_id == -1) {
+                result = mAuthorUpdateService.runUpdateService(mData.getState());
+            } else {
+                Author author = getAuthorController().getById(mData.author_id);
+                result = mAuthorUpdateService.runUpdateService(author, mData.getState());
+            }
 
             if (result) {
-                if (settings.getLimitBookLifeTimeFlag() && (currentCaller == AndroidGuiUpdater.CALLER_IS_RECEIVER)) {
-                    CleanBookServiceIntent.start(context);
+                if (getSettingsHelper().getLimitBookLifeTimeFlag() && isReceiver) {
+                    CleanBookServiceIntent.start(UpdateLocalService.this);
                 }
 
-                mSharedPreferences.edit().putLong(UpdateServiceIntent.PREF_KEY_LAST_UPDATE, Calendar.getInstance().getTime().getTime()).apply();
+                mSharedPreferences.edit().putLong(PREF_KEY_LAST_UPDATE, Calendar.getInstance().getTime().getTime()).apply();
             }
+
 
             isRun = false;
             releaseLock();
             UpdateLocalService.this.stopSelf();
         }
     }
+
 
     /**
      * Release power lock
@@ -302,32 +280,76 @@ public class UpdateLocalService extends MyService {
         }
     }
 
+    private static class ArgumentData implements Parcelable {
+        int state_id;
+        String order;
+        int author_id = -1;
+        int isReceiver;
 
+        /**
+         * For update all authors by the tag
+         *
+         * @param state Gui state contains tag id
+         */
+        ArgumentData(AuthorGuiState state) {
+            state_id = state.getSelectedTagId();
+            order = state.getSorOrder();
+            if (order == null) {
+                isReceiver = 1;
+            } else {
+                isReceiver = 0;
+            }
 
+        }
 
-    /**
-     * Special Service with loadBook method
-     */
-    public class SpecialSamlibService extends SamlibService {
+        /**
+         * The constructor is used for check update for the single author
+         * Call only from Activity
+         *
+         * @param author Author to update
+         * @param state  GUI state
+         */
+        ArgumentData(Author author, AuthorGuiState state) {
+            this(state);
+            author_id = author.getId();
+            isReceiver = 0;
+        }
 
-        public SpecialSamlibService(DaoBuilder sql, GuiUpdate guiUpdate, AbstractSettings settingsHelper, HttpClientController http) {
-            super(sql, guiUpdate, settingsHelper, http);
+        AuthorGuiState getState() {
+            return new AuthorGuiState(state_id, order);
+        }
+
+        ArgumentData(Parcel in) {
+            state_id = in.readInt();
+            order = in.readString();
+            author_id = in.readInt();
+            isReceiver = in.readInt();
+        }
+
+        public static final Creator<ArgumentData> CREATOR = new Creator<ArgumentData>() {
+            @Override
+            public ArgumentData createFromParcel(Parcel in) {
+                return new ArgumentData(in);
+            }
+
+            @Override
+            public ArgumentData[] newArray(int size) {
+                return new ArgumentData[size];
+            }
+        };
+
+        @Override
+        public int describeContents() {
+            return 0;
         }
 
         @Override
-        public void loadBook(Author a) {
-
-            if (currentCaller == AndroidGuiUpdater.CALLER_IS_RECEIVER) {
-                for (Book book : authorController.getBookController().getBooksByAuthor(a)) {//book cycle for the author to update
-                    if (book.isIsNew() && settings.testAutoLoadLimit(book) && dataExportImport.needUpdateFile(book)) {
-                        Log.i(DEBUG_TAG, "loadBook: Auto Load book: " + book.getId());
-                        DownloadBookServiceIntent.start(context, book.getId(), AndroidGuiUpdater.CALLER_IS_RECEIVER);//we do not need GUI update
-                    }
-                }
-
-            }
-
-
+        public void writeToParcel(Parcel dest, int flags) {
+            dest.writeInt(state_id);
+            dest.writeString(order);
+            dest.writeInt(author_id);
+            dest.writeInt(isReceiver);
         }
     }
+
 }

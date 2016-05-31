@@ -27,6 +27,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
+import java.util.Locale;
 
 
 import monakhv.android.samlib.MainActivity;
@@ -40,7 +41,7 @@ import monakhv.samlib.db.entity.Author;
  *
  * @author monakhv
  */
-public class NotificationData implements Serializable {
+class NotificationData implements Serializable {
 
     private static final String VAR_NAME = "NotificationData";
     private static final String DEBUG_TAG = "NotificationData";
@@ -49,21 +50,20 @@ public class NotificationData implements Serializable {
     //private static final String WHERE=SQLController.COL_STATE_VAR_NAME + "=\"" + VAR_NAME + "\"";
     private static final String DATE_FORMAT = "dd.MM.yyyy HH:mm:ss";
     
-    public static final int LIST_UPDATE_NOTIFICATION = 120;
-    public static final int LIST_UPDATE_ERROR = 121;
-    private static NotificationData instance = null;
+    private static final int LIST_UPDATE_NOTIFICATION = 120;
+    private static final int LIST_UPDATE_ERROR = 121;
     private List<Author> authors;
     private List<String>  lines;
     //private NotificationCompat.InboxStyle inboxStyle; //Not serializable !!!
     private int num = 0;
 
     private NotificationData() {
-        authors = new ArrayList<Author>();
-        lines      =  new ArrayList<String>();
+        authors = new ArrayList<>();
+        lines      =  new ArrayList<>();
     }
 
     public static NotificationData getInstance(Context ctx) {
-        instance = loadData(ctx);
+        NotificationData instance = loadData(ctx);
         if (instance == null) {
             instance = new NotificationData();
         }
@@ -73,21 +73,21 @@ public class NotificationData implements Serializable {
     /**
      * Make default builder for all types of notification
      *
-     * @param context
+     * @param helper SettingsHelper
      * @return notification builder object
      */
-    private NotificationCompat.Builder makeNotification(Context context) {
-        Intent notificationIntent = new Intent(context, MainActivity.class);
+    private NotificationCompat.Builder makeNotification( SettingsHelper helper) {
+        Intent notificationIntent = new Intent(helper.getContext(), MainActivity.class);
         notificationIntent.setAction(MainActivity.ACTION_CLEAN);
-        PendingIntent contentIntent = PendingIntent.getActivity(context, 0,
+        PendingIntent contentIntent = PendingIntent.getActivity(helper.getContext(), 0,
                 notificationIntent, PendingIntent.FLAG_ONE_SHOT);//because of autoCancel one shot must be good
         
-        NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(context);
+        NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(helper.getContext());
         mBuilder.setContentIntent(contentIntent);
 
-        mBuilder.setContentTitle(context.getText(R.string.notification_updates).toString());
+        mBuilder.setContentTitle( helper.getContext().getText(R.string.notification_updates).toString());
 
-        SettingsHelper helper = new SettingsHelper(context);
+
         mBuilder.setSound(helper.getNotificationRingToneURI());//sound
         mBuilder.setLights(0xff00ff00, 300, 100);//Indicator
         mBuilder.setAutoCancel(true);
@@ -97,18 +97,18 @@ public class NotificationData implements Serializable {
     /**
      * Make notification for update successful all types
      *
-     * @param context
-     * @return
+     * @param settingsHelper Settings
+     * @return Notification Builder
      */
-    private NotificationCompat.Builder makeUpdateNotification(Context context) {
-        NotificationCompat.Builder mBuilder = makeNotification(context);
+    private NotificationCompat.Builder makeUpdateNotification( SettingsHelper settingsHelper) {
+        NotificationCompat.Builder mBuilder = makeNotification(settingsHelper);
 
         mBuilder.setDeleteIntent(
-                PendingIntent.getService(context, 0, CleanNotificationData.getIntent(context), PendingIntent.FLAG_ONE_SHOT)
+                PendingIntent.getService(settingsHelper.getContext(), 0, CleanNotificationData.getIntent(settingsHelper.getContext()), PendingIntent.FLAG_ONE_SHOT)
         );//because of autoCancel one shot must be good
         
         mBuilder.setSmallIcon(R.drawable.note_book);
-        mBuilder.setTicker(context.getText(R.string.notification_updates));
+         mBuilder.setTicker(settingsHelper.getContext().getText(R.string.notification_updates));
         return mBuilder;
     }
 
@@ -118,13 +118,12 @@ public class NotificationData implements Serializable {
      *
      * @param updatedAuthors list of authors could be null for debug output
      *
-     * @return
-     */
+     * */
     private void addData(List<Author> updatedAuthors) {
 
 
         if (updatedAuthors == null) {//DEBUG case
-            SimpleDateFormat df = new SimpleDateFormat(DATE_FORMAT);
+            SimpleDateFormat df = new SimpleDateFormat(DATE_FORMAT, Locale.FRENCH);
             
             lines.add(DEBUG_MESSAGE+": "+df.format(Calendar.getInstance().getTime()));
             ++num;
@@ -144,9 +143,9 @@ public class NotificationData implements Serializable {
 
     /**
      * load data from lines to inbox style object
-     * @return 
+     * @return Inbox Style
      */
-    private NotificationCompat.InboxStyle getinboxStyle(){
+    private NotificationCompat.InboxStyle getInboxStyle(){
        NotificationCompat.InboxStyle inbox = new NotificationCompat.InboxStyle();
        for (String line: lines){
            inbox.addLine(line);
@@ -156,22 +155,22 @@ public class NotificationData implements Serializable {
     /**
      * Make notification for successful update when we have really news
      *
-     * @param context
-     * @param updatedAuthors
+     * @param settingsHelper Settings
+     * @param updatedAuthors List of updated Authors
      */
-    public void notifyUpdate(Context context, List<Author> updatedAuthors) {
-        NotificationManager notificationManager = (NotificationManager) context
+    void notifyUpdate(SettingsHelper settingsHelper, List<Author> updatedAuthors) {
+        NotificationManager notificationManager = (NotificationManager) settingsHelper.getContext()
                 .getSystemService(NOTIFICATION_SERVICE);
-        NotificationCompat.Builder mBuilder = makeUpdateNotification(context);
+        NotificationCompat.Builder mBuilder = makeUpdateNotification(settingsHelper);
 
-        String contentText = context.getText(R.string.author_update_number).toString();
+        String contentText =  settingsHelper.getContext().getText(R.string.author_update_number).toString();
 
         addData(updatedAuthors);
         
-        NotificationCompat.InboxStyle inboxStyle  =getinboxStyle();
+        NotificationCompat.InboxStyle inboxStyle  = getInboxStyle();
         if (updatedAuthors != null) {
 
-            inboxStyle.setBigContentTitle(context.getText(R.string.notification_updates).toString());
+            inboxStyle.setBigContentTitle( settingsHelper.getContext().getText(R.string.notification_updates).toString());
             mBuilder.setContentText(contentText + " " + num);
             inboxStyle.setSummaryText(contentText + " " + num);
         } else {
@@ -180,31 +179,31 @@ public class NotificationData implements Serializable {
         }
 
         mBuilder.setStyle(inboxStyle);
-        saveData(context, this);
+        saveData(settingsHelper.getContext(), this);
         notificationManager.notify(LIST_UPDATE_NOTIFICATION, mBuilder.build());
     }
 
     /**
      * Debug updated
      *
-     * @param context
+     * @param settingsHelper Settings
      */
-    public void notifyUpdateDebug(Context context) {
-        notifyUpdate(context, null);
+    void notifyUpdateDebug(SettingsHelper settingsHelper) {
+        notifyUpdate(settingsHelper, null);
     }
 
     /**
      * Notification about error during update
      *
-     * @param context
+     * @param settingsHelper Settings
      */
-    public void notifyUpdateError(Context context) {
-        NotificationManager notificationManager = (NotificationManager) context
+    void notifyUpdateError(SettingsHelper settingsHelper) {
+        NotificationManager notificationManager = (NotificationManager) settingsHelper.getContext()
                 .getSystemService(NOTIFICATION_SERVICE);
-        NotificationCompat.Builder mBuilder = makeNotification(context);
+        NotificationCompat.Builder mBuilder = makeNotification(settingsHelper);
         mBuilder.setSmallIcon(android.R.drawable.stat_notify_error);
-        mBuilder.setTicker(context.getText(R.string.notification_error));
-        mBuilder.setContentText(context.getText(R.string.notification_update_error_detais).toString());
+        mBuilder.setTicker(settingsHelper.getContext().getText(R.string.notification_error));
+        mBuilder.setContentText(settingsHelper.getContext().getText(R.string.notification_update_error_detais).toString());
 
         notificationManager.notify(LIST_UPDATE_ERROR, mBuilder.build());
 
@@ -228,10 +227,9 @@ public class NotificationData implements Serializable {
 
     private static NotificationData loadData(Context ctx) {
         Log.i(DEBUG_TAG, "loadData data call");
-        NotificationData data = (NotificationData) getNO(ctx).get();
-        
-        
-        return data;
+
+
+        return (NotificationData) getNO(ctx).get();
     }
 
     

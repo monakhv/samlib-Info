@@ -23,7 +23,7 @@
                     android:layout_width="match_parent"
                     android:background="?attr/colorPrimary"
                     android:layout_height="?attr/actionBarSize"
-                    app:layout_scrollFlags="scroll|enterAlways"
+                    app:layout_scrollFlags="scroll|enterAlways|snap"
             >
                 <Spinner
                         android:id="@+id/tagList"
@@ -53,6 +53,7 @@
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:layout_gravity="start"
+            app:itemTextColor="?attr/colorText"
             app:itemBackground="@drawable/author_item_bg"
             app:headerLayout="@layout/drawer_header"
             app:menu="@menu/drawer"

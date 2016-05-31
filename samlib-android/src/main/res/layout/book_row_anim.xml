@@ -16,17 +16,19 @@ limitations under the License.
 -->
 
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              android:layout_width="match_parent"              
-              android:layout_height="match_parent"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
               android:orientation="horizontal"
-             android:padding="12dp"
-            android:background="@drawable/author_item_bg"
-   >
+              android:padding="12dp"
+              android:background="@drawable/author_item_bg"
+>
     <LinearLayout
-        android:orientation="vertical"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"  >
-        
+            android:id="@+id/FlipContainer"
+            android:orientation="vertical"
+            android:layout_width="wrap_content"
+            android:layout_height="80sp"
+            >
+
         <LinearLayout
                 android:orientation="horizontal"
                 android:layout_width="wrap_content"
@@ -34,89 +36,119 @@ limitations under the License.
 
             <ImageView
                     android:id="@+id/Staricon"
+                    android:layout_marginTop="4sp"
                     android:layout_width="16sp"
                     android:layout_height="16sp"
-                    android:src="?attr/iconSelected" >
+                    android:src="?attr/iconSelected"
+                    android:contentDescription="Star Icon">
             </ImageView>
             <ImageView
                     android:id="@+id/Lockicon"
+                    android:layout_marginTop="4sp"
                     android:layout_width="16sp"
                     android:layout_height="16sp"
-                    android:src="?attr/iconLock" >
+                    android:src="?attr/iconLock">
             </ImageView>
         </LinearLayout>
 
-        <monakhv.android.samlib.animation.FlipIcon
-                android:id="@+id/FlipIcon"
+        <RelativeLayout
+
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content">
-        </monakhv.android.samlib.animation.FlipIcon>
+            <ImageView
+                    android:id="@+id/FlipIcon"
+                    android:layout_width="40sp"
+                    android:layout_height="40sp"
+                    android:layout_marginLeft="4sp"
+                    android:layout_marginRight="10sp"
+                    android:layout_marginTop="4sp"
+
+            >
+            </ImageView>
+        </RelativeLayout>
 
 
 
     </LinearLayout>
-    
-    <LinearLayout  
-        
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" 
-        android:orientation="vertical">
-        <TextView
-            android:id="@+id/bookAuthorName"                     
-            android:layout_width="wrap_content"
+
+    <LinearLayout
+
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textSize="@dimen/text_size_head"
-            android:textColor="?attr/colorText"
+            android:orientation="vertical">
+        <TextView
+                android:id="@+id/bookAuthorName"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="@dimen/text_size_head"
+                android:textColor="?attr/colorText"
         >
         </TextView>
 
-        <LinearLayout  
-        
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" 
-            android:orientation="horizontal">
-        
-    
-            <TextView
-                android:id="@+id/bookTitle"
-                android:layout_weight="1"
-                android:width="0dp"           
-                android:layout_width="0dp"
+        <LinearLayout
+
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textColor="?attr/colorText"
-                android:textSize="@dimen/text_size_head" >
+                android:orientation="horizontal">
+
+
+            <TextView
+                    android:id="@+id/bookTitle"
+                    android:layout_weight="10"
+                    android:width="0dp"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:textColor="?attr/colorText"
+                    android:text="Some book title here"
+                    android:textSize="@dimen/text_size_head">
             </TextView>
 
 
             <LinearLayout
-
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="vertical">
-            <TextView
-                android:id="@+id/bookUpdate"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="right"
-                android:textSize="@dimen/text_size_small" >
-            </TextView>
-                <TextView
-                    android:id="@+id/bookForm"
-                    android:layout_width="wrap_content"
+                    android:layout_weight="5"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="right"
-                    android:textSize="@dimen/text_size_small" >
+                    android:orientation="vertical">
+                <TextView
+                        android:id="@+id/bookSize"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:singleLine="true"
+                        android:gravity="right"
+                        android:layout_gravity="right"
+                        android:text="size of book"
+                        android:textSize="@dimen/text_size_small">
+                </TextView>
+                <TextView
+                        android:id="@+id/bookMTime"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+
+                        android:gravity="right"
+                        android:layout_gravity="right"
+                        android:text="updated"
+                        android:textSize="@dimen/text_size_small">
+                </TextView>
+                <TextView
+                        android:id="@+id/bookForm"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:gravity="right"
+                        android:layout_gravity="right"
+                        android:text="Form of Book"
+                        android:textSize="@dimen/text_size_small">
                 </TextView>
 
             </LinearLayout>
-        </LinearLayout>  
-    
+        </LinearLayout>
+
         <TextView
-            android:id="@+id/bookDesc"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"        
-            android:textSize="@dimen/text_size_small" >
+                android:id="@+id/bookDesc"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Some book description is here"
+                android:textSize="@dimen/text_size_small">
         </TextView>
-    </LinearLayout>  
-    
+    </LinearLayout>
+
 </LinearLayout>

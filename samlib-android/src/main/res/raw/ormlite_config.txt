@@ -1,5 +1,5 @@
 #
-# generated on 2015/07/28 01:00:34
+# generated on 2016/01/04 04:19:19
 #
 # --table-start--
 dataClass=monakhv.samlib.db.entity.Author
@@ -66,6 +66,10 @@ fieldName=size
 columnName=SIZE
 # --field-end--
 # --field-start--
+fieldName=delta
+columnName=DELTA_SIZE
+# --field-end--
+# --field-start--
 fieldName=updateDate
 columnName=DATE
 # --field-end--
@@ -83,8 +87,9 @@ columnName=_id
 generatedId=true
 # --field-end--
 # --field-start--
-fieldName=group_id
+fieldName=mGroupBook
 columnName=GROUP_ID
+foreign=true
 # --field-end--
 # --field-start--
 fieldName=options
@@ -141,6 +146,60 @@ fieldName=tag
 columnName=TAG_ID
 canBeNull=false
 foreign=true
+# --field-end--
+# --table-fields-end--
+# --table-end--
+#################################
+# --table-start--
+dataClass=monakhv.samlib.db.entity.SelectedBook
+tableName=SelectedBook
+# --table-fields-start--
+# --field-start--
+fieldName=id
+columnName=_id
+generatedId=true
+# --field-end--
+# --field-start--
+fieldName=mBook
+columnName=BOOK_ID
+canBeNull=false
+foreign=true
+unique=true
+# --field-end--
+# --table-fields-end--
+# --table-end--
+#################################
+# --table-start--
+dataClass=monakhv.samlib.db.entity.GroupBook
+tableName=GroupBook
+# --table-fields-start--
+# --field-start--
+fieldName=id
+columnName=_id
+generatedId=true
+# --field-end--
+# --field-start--
+fieldName=author
+columnName=AUTHOR_ID
+canBeNull=false
+foreign=true
+# --field-end--
+# --field-start--
+fieldName=name
+columnName=NAME
+# --field-end--
+# --field-start--
+fieldName=displayName
+columnName=DISPLAY_NAME
+# --field-end--
+# --field-start--
+fieldName=mNewNumber
+columnName=NEW_NUMBER
+canBeNull=false
+# --field-end--
+# --field-start--
+fieldName=hidden
+columnName=IS_HIDDEN
 # --field-end--
 # --table-fields-end--
 # --table-end--
