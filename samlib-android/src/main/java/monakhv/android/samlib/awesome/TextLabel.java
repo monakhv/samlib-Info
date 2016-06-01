@@ -76,7 +76,11 @@ public class TextLabel  extends ShapeDrawable {
         // drawable paint color
         Paint paint = getPaint();
         paint.setColor(color);
-
+        //bug fix for: ava.lang.NullPointerException at android.graphics.Rect.<init>(Rect.java:72)
+        Rect rr = new Rect();
+        if (!getPadding(rr)){
+            setPadding(new Rect());
+        }
     }
 
     private int getDarkerShade(int color) {
