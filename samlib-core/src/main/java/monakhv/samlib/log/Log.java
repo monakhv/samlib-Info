@@ -36,6 +36,9 @@ public class Log {
 
     }
     public static void d (String tag, String msg) {
+        if (logger==null){//special care for early call getDataDirectory
+            return;
+        }
         logger.debug(tag, msg);
 
     }
