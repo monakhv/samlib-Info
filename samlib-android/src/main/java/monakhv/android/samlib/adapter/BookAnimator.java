@@ -155,7 +155,7 @@ public class BookAnimator extends DefaultItemAnimator {
                 super.setFrom(viewHolder, flags);
                 GroupViewHolder holder = (GroupViewHolder) viewHolder;
                 group = true;
-                bookNumberString = (String) holder.bookNumber.getText();
+                bookNumberString = "" + holder.bookNumber.getText();
                 newTag = holder.newIcon.getTag();
                 rotateImage = holder.newIcon.getDrawable();
                 return this;
@@ -164,7 +164,7 @@ public class BookAnimator extends DefaultItemAnimator {
             if (viewHolder instanceof BookViewHolder) {
                 super.setFrom(viewHolder, flags);
                 BookViewHolder holder = (BookViewHolder) viewHolder;
-                bookNumberString = (String) holder.bookSize.getText();
+                bookNumberString = "" + holder.bookSize.getText();
                 newTag = holder.flipIcon.getTag();
                 rotateImage = holder.flipIcon.getDrawable();
                 return this;

@@ -127,8 +127,8 @@ public class AuthorAnimator extends DefaultItemAnimator {
                 AuthorAdapter.AuthorViewHolder avh = (AuthorAdapter.AuthorViewHolder) viewHolder;
                 rotateImage=avh.flipIcon.getDrawable();
                 newTag=avh.flipIcon.getTag();
-                rotateText= (String) avh.updatedData.getText();
-                rotateText2= (String) avh.tgnames.getText();
+                rotateText= ""  + avh.updatedData.getText();
+                rotateText2= "" + avh.tgnames.getText();
                 return this;
             }
             return  super.setFrom(viewHolder, flags);
