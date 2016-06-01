@@ -250,6 +250,10 @@ public class AuthorFragment extends MyBaseAbstractFragment implements
     public void onLoadFinished(Loader<List<Author>> loader, List<Author> data) {
         adapter.setData(data);
         mProgressBar.setVisibility(View.GONE);
+        checkEmptyViewState();
+    }
+
+    private void checkEmptyViewState(){
         if (adapter.getItemCount() == 0) {
             authorRV.setVisibility(View.GONE);
             if (selectedTag == SamLibConfig.TAG_AUTHOR_ALL) {
@@ -269,7 +273,6 @@ public class AuthorFragment extends MyBaseAbstractFragment implements
             }
         }
     }
-
     @Override
     public void onLoaderReset(Loader<List<Author>> loader) {
         adapter.setData(null);
@@ -320,6 +323,7 @@ public class AuthorFragment extends MyBaseAbstractFragment implements
         canUpdate = true;
         updateAuthor = false;
         isProgressShow(false);
+        checkEmptyViewState();
     }
 
     /**
