@@ -38,13 +38,14 @@ import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
 /**
+ * Class perform update Author data base using SamLib web site
  * Created by monakhv on 12.02.16.
  */
 public class AuthorUpdateService {
     private static final String DEBUG_TAG = "AuthorUpdateService";
-    public static final long SLEEP_INTERVAL_SECONDS = 1L;
-    public static final int SLEEP_DELAY_MIN = 5;
-    public static final int SLEEP_DELAY_MAX = 15;
+    private static final long SLEEP_INTERVAL_SECONDS = 1L;
+    private static final int SLEEP_DELAY_MIN = 5;
+    private static final int SLEEP_DELAY_MAX = 15;
 
 
     private final AuthorController mAuthorController;

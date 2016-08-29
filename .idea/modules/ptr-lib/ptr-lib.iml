@@ -12,10 +12,7 @@
         <option name="SELECTED_TEST_ARTIFACT" value="_android_test_" />
         <option name="ASSEMBLE_TASK_NAME" value="assembleDebug" />
         <option name="COMPILE_JAVA_TASK_NAME" value="compileDebugSources" />
-        <option name="ASSEMBLE_TEST_TASK_NAME" value="assembleDebugAndroidTest" />
-        <option name="COMPILE_JAVA_TEST_TASK_NAME" value="compileDebugAndroidTestSources" />
         <afterSyncTasks>
-          <task>generateDebugAndroidTestSources</task>
           <task>generateDebugSources</task>
         </afterSyncTasks>
         <option name="ALLOW_USER_CONFIGURATION" value="false" />
@@ -29,7 +26,7 @@
   </component>
   <component name="NewModuleRootManager" LANGUAGE_LEVEL="JDK_1_7" inherit-compiler-output="false">
     <output url="file://$MODULE_DIR$/../../../ptr-lib/build/intermediates/classes/debug" />
-    <output-test url="file://$MODULE_DIR$/../../../ptr-lib/build/intermediates/classes/androidTest/debug" />
+    <output-test url="file://$MODULE_DIR$/../../../ptr-lib/build/intermediates/classes/test/debug" />
     <exclude-output />
     <content url="file://$MODULE_DIR$/../../../ptr-lib">
       <sourceFolder url="file://$MODULE_DIR$/../../../ptr-lib/build/generated/source/r/debug" isTestSource="false" generated="true" />
@@ -51,6 +48,13 @@
       <sourceFolder url="file://$MODULE_DIR$/../../../ptr-lib/src/debug/java" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/../../../ptr-lib/src/debug/jni" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/../../../ptr-lib/src/debug/rs" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/../../../ptr-lib/src/testDebug/res" type="java-test-resource" />
+      <sourceFolder url="file://$MODULE_DIR$/../../../ptr-lib/src/testDebug/resources" type="java-test-resource" />
+      <sourceFolder url="file://$MODULE_DIR$/../../../ptr-lib/src/testDebug/assets" type="java-test-resource" />
+      <sourceFolder url="file://$MODULE_DIR$/../../../ptr-lib/src/testDebug/aidl" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/../../../ptr-lib/src/testDebug/java" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/../../../ptr-lib/src/testDebug/jni" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/../../../ptr-lib/src/testDebug/rs" isTestSource="true" />
       <sourceFolder url="file://$MODULE_DIR$/../../../ptr-lib/src/main/res" type="java-resource" />
       <sourceFolder url="file://$MODULE_DIR$/../../../ptr-lib/src/main/resources" type="java-resource" />
       <sourceFolder url="file://$MODULE_DIR$/../../../ptr-lib/src/main/assets" type="java-resource" />
@@ -65,6 +69,13 @@
       <sourceFolder url="file://$MODULE_DIR$/../../../ptr-lib/src/androidTest/java" isTestSource="true" />
       <sourceFolder url="file://$MODULE_DIR$/../../../ptr-lib/src/androidTest/jni" isTestSource="true" />
       <sourceFolder url="file://$MODULE_DIR$/../../../ptr-lib/src/androidTest/rs" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/../../../ptr-lib/src/test/res" type="java-test-resource" />
+      <sourceFolder url="file://$MODULE_DIR$/../../../ptr-lib/src/test/resources" type="java-test-resource" />
+      <sourceFolder url="file://$MODULE_DIR$/../../../ptr-lib/src/test/assets" type="java-test-resource" />
+      <sourceFolder url="file://$MODULE_DIR$/../../../ptr-lib/src/test/aidl" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/../../../ptr-lib/src/test/java" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/../../../ptr-lib/src/test/jni" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/../../../ptr-lib/src/test/rs" isTestSource="true" />
       <excludeFolder url="file://$MODULE_DIR$/../../../ptr-lib/build/intermediates/assets" />
       <excludeFolder url="file://$MODULE_DIR$/../../../ptr-lib/build/intermediates/blame" />
       <excludeFolder url="file://$MODULE_DIR$/../../../ptr-lib/build/intermediates/bundles" />

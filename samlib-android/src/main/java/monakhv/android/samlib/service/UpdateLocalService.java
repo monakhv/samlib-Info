@@ -195,7 +195,8 @@ public class UpdateLocalService extends MyService {
                         mMessageConstructor.updateNotification(author);
                         Log.d(DEBUG_TAG, "runService: AuthorUpdate: " + author.getName());
                     }
-                });
+                },
+                        throwable -> {Log.e(DEBUG_TAG,"bus error:",throwable);});
         addSubscription(subscription);
         mThread.start();
 

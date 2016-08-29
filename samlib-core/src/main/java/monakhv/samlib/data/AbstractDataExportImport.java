@@ -35,8 +35,8 @@ import java.util.List;
 public abstract class AbstractDataExportImport {
     private static final String DEBUG_TAG = "AbstractDataExportImport";
     private static final String DATE_FORMAT = "dd-MM-yyyy";
-    public static final String DB_EXT = SQLController.DB_EXT;
-    public static final String DB_PREFIX = SQLController.DB_NAME;
+    private static final String DB_EXT = SQLController.DB_EXT;
+    protected static final String DB_PREFIX = SQLController.DB_NAME;
 
     private static final String TXT_PREFIX = "Authors";
     private static final String TXT_EXT      = ".txt";
@@ -226,7 +226,7 @@ public abstract class AbstractDataExportImport {
     public  String exportAuthorList(AuthorController authorController) {
         return exportAuthorList(authorController,backupDIR);
     }
-    public List<String> getAuthorUrls(AuthorController sql){
+    private List<String> getAuthorUrls(AuthorController sql){
         List<String> res = new ArrayList<>();
 
         List<Author> authors = sql.getAll();

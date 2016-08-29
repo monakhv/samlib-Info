@@ -25,11 +25,12 @@ import rx.subjects.SerializedSubject;
 import rx.subjects.Subject;
 
 /**
+ * Simple application event bus
  * Created by monakhv on 15.02.16.
  */
 public class GuiEventBus {
     private final Subject<GuiUpdateObject, GuiUpdateObject> mSubject
-            = new SerializedSubject<>(PublishSubject.<GuiUpdateObject>create());
+            = new SerializedSubject<>(PublishSubject.create());
     public GuiEventBus(){
 
     }
@@ -37,7 +38,7 @@ public class GuiEventBus {
         return mSubject;
     }
 
-    public void post(GuiUpdateObject guiUpdateObject){
+    void post(GuiUpdateObject guiUpdateObject){
         mSubject.onNext(guiUpdateObject);
     }
 }
