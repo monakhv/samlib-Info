@@ -52,6 +52,7 @@ import static android.support.test.espresso.matcher.ViewMatchers.withId;
 @LargeTest
 public class BookGuiTest {
     private static final String AUTHOR_URL="/a/abwow_a_s/";
+    private static final int GROUP_NUM=1;
 
     private static final long SLEEP_TIME=1000;
 
@@ -74,21 +75,23 @@ public class BookGuiTest {
         sleep(SLEEP_TIME);
         int i =10;
 
-        GroupBook groupBook=sql.getGroupBookController().getByAuthor(author).get(0);
+        GroupBook groupBook=sql.getGroupBookController().getByAuthor(author).get(GROUP_NUM);
 
         sql.getBookController().getBookForGroup(groupBook, BookSortOrder.valueOf(mBookActivityTestRule.getActivity().getSettingsHelper().getBookSortOrderString()).getOrder());
 
         int size =groupBook.getBooks().size();
 
         List<Integer> books = new ArrayList<>();
-        books.add(groupBook.getBooks().get(size-1).getId());
-        books.add(groupBook.getBooks().get(size-2).getId());
-        books.add(groupBook.getBooks().get(size-3).getId());
-        books.add(groupBook.getBooks().get(size-4).getId());
+
+        int ii=1;
+        while (ii<=size){
+            books.add(groupBook.getBooks().get(size-ii++).getId());
+        }
+
 
         //open first group of the books
         onView(withId(R.id.bookRV))
-                .perform(RecyclerViewActions.actionOnItemAtPosition(0, click()));
+                .perform(RecyclerViewActions.actionOnItemAtPosition(GROUP_NUM, click()));
 
         //Scroll to book and make it unread
         while (i>0){
@@ -104,9 +107,9 @@ public class BookGuiTest {
             }
 
             onView(withId(R.id.bookRV))
-                    .perform(RecyclerViewActions.scrollToPosition(0));//scroll to group again
+                    .perform(RecyclerViewActions.scrollToPosition(GROUP_NUM));//scroll to group again
             onView(withId(R.id.bookRV))
-                    .perform(RecyclerViewActions.actionOnItemAtPosition(0, swipeRight()));//make group read by right swipe
+                    .perform(RecyclerViewActions.actionOnItemAtPosition(GROUP_NUM, swipeRight()));//make group read by right swipe
             sleep(SLEEP_TIME);
             --i;
 

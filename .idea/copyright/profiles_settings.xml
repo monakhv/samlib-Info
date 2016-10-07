@@ -1,7 +1,3 @@
 <component name="CopyrightManager">
-  <settings default="monakhv">
-    <module2copyright>
-      <element module="All" copyright="monakhv" />
-    </module2copyright>
-  </settings>
+  <settings default="" />
 </component>

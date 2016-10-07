@@ -30,17 +30,17 @@ import monakhv.samlib.db.entity.Author;
  *
  * 10.11.15.
  */
-public class ProgressNotification {
-    public static final int NOTIFICATION_ID = 210;
+class ProgressNotification {
+    private static final int NOTIFICATION_ID = 210;
     private final NotificationManager mNotifyManager;
     private final NotificationCompat.Builder mBuilder;
     private final SettingsHelper mSettingsHelper;
     private int numberUpdated =0;
     private final Context mContext;
-    NotificationCompat.InboxStyle mStyle;
+    private NotificationCompat.InboxStyle mStyle;
 
 
-    public ProgressNotification(SettingsHelper settingsHelper, String notificationTitle) {
+    ProgressNotification(SettingsHelper settingsHelper, String notificationTitle) {
         mSettingsHelper = settingsHelper;
         mContext =settingsHelper.getContext();
         mStyle=new NotificationCompat.InboxStyle();
@@ -55,12 +55,17 @@ public class ProgressNotification {
         Intent notificationIntent = new Intent(mContext, MainActivity.class);
         PendingIntent returnToActivity = PendingIntent.getActivity(mContext, 0, notificationIntent, PendingIntent.FLAG_CANCEL_CURRENT);//must be permanent because of update the same notification
 
+        NotificationCompat.Action action =new NotificationCompat.Action.Builder(
+                R.drawable.ic_cancel_white_36dp,
+                mContext.getText(R.string.Cancel),
+                stopService
+        ).build();
 
         mBuilder
                 .setOngoing(true)
                 .setAutoCancel(false)
                 .setSmallIcon(android.R.drawable.ic_popup_sync)
-                .addAction(R.drawable.ic_cancel_white_36dp, mContext.getText(R.string.Cancel), stopService)
+                .addAction(action)
                 .setContentTitle(notificationTitle)
                 .setContentIntent(returnToActivity)
                 .setStyle(mStyle)
@@ -93,7 +98,7 @@ public class ProgressNotification {
     }
 
 
-    public void updateProgress(int total, int iCurrent, String name) {
+    void updateProgress(int total, int iCurrent, String name) {
 
 
         if (mSettingsHelper.isNotifyTickerEnable()) {
@@ -101,11 +106,13 @@ public class ProgressNotification {
         }
         if (total == 1) {//Single Author update
             mBuilder.setProgress(0, 0, true);
-            mStyle.setBigContentTitle(name);
+            mBuilder.setContentTitle(name);
+            //mStyle.setBigContentTitle(name);
 
         } else {//Update by tag
             mBuilder.setProgress(total, iCurrent, false);
-            mStyle.setBigContentTitle(" [" + iCurrent + "/" + total + "]:   " + name);
+            mBuilder.setContentTitle(" [" + iCurrent + "/" + total + "]:   " + name);
+            //mStyle.setBigContentTitle(" [" + iCurrent + "/" + total + "]:   " + name);
         }
 
 
