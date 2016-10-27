@@ -31,13 +31,13 @@ import java.util.List;
 public abstract class AbstractSettings {
     private static final String DEBUG_TAG = "AbstractSettings";
     private static final String DATE_FORMAT_BOOK_FILE = "dd-MM-yyyy_HH-mm-ss";
-    public static final String BOOKS_DIR = "Book//";
+    static final String BOOKS_DIR = "Book//";
     public static final String sep = System.getProperty("file.separator");
-    public static final long INTERVAL_FIFTEEN_MINUTES = 15 * 60 * 1000;
-    public static final long INTERVAL_HALF_HOUR = 2*INTERVAL_FIFTEEN_MINUTES;
-    public static final long INTERVAL_HOUR = 2*INTERVAL_HALF_HOUR;
-    public static final long INTERVAL_HALF_DAY = 12*INTERVAL_HOUR;
-    public static final long INTERVAL_DAY = 2*INTERVAL_HALF_DAY;
+    private static final long INTERVAL_FIFTEEN_MINUTES = 15 * 60 * 1000;
+    private static final long INTERVAL_HALF_HOUR = 2*INTERVAL_FIFTEEN_MINUTES;
+    private static final long INTERVAL_HOUR = 2*INTERVAL_HALF_HOUR;
+    private static final long INTERVAL_HALF_DAY = 12*INTERVAL_HOUR;
+    private static final long INTERVAL_DAY = 2*INTERVAL_HALF_DAY;
 
 
     public  enum FileType {
@@ -171,7 +171,7 @@ public abstract class AbstractSettings {
      * @param fileType Type of file to opent
      * @return file object of book
      */
-    public File getBookFile4Read(Book book,FileType fileType){
+    File getBookFile4Read(Book book, FileType fileType){
         if (book.isPreserve()){//choose latest version to read
             File dir =  new File(getDataDirectory(), BOOKS_DIR +sep+    book.getUri()    );
             File res = null;
@@ -197,8 +197,9 @@ public abstract class AbstractSettings {
      * Get URL to open book for offline reading
      * @return construct URL to start external program for offline reading
      */
-    public String getBookFileURL(Book book) {
-        return "file://" + getBookFile4Read(book, book.getFileType()).getAbsolutePath();
+    public File getBookFileURL(Book book) {
+
+        return getBookFile4Read(book, book.getFileType());
     }
 
     /**
@@ -237,12 +238,11 @@ public abstract class AbstractSettings {
      * To read  particular version of file
      * @param book Book object
      * @param file version file name
-     * @return file URL to READ
+     * @return file  to READ
      */
-    public String getBookFileURL(Book book,String file) {
+    public File getBookFileURL(Book book,String file) {
         File dir =  new File(getDataDirectory(), BOOKS_DIR +sep+    book.getUri()    );
-        File f=new File(dir,file);
-        return "file://" +f.getAbsolutePath();
+        return new File(dir,file);
     }
     /**
      * Clean downloaded files of any types

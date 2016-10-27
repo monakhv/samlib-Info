@@ -321,6 +321,7 @@ limitations under the License.
     <string name="search_Loading">Идет поиск&#8230;</string>
     <string name="cb_auto_backup">автобэкап</string>
 
+    <string name="permission_external_storage_write_explanation">Для загрузки обновлений с сайта, для последующего из чтения, требуется доступ к внешней помяти устройства! Предоставить доступ?</string>
 
     <string name="fa_book">&#xf02d;</string>
     <string name="fa_file_text">&#xf15c;</string>

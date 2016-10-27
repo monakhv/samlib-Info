@@ -1,13 +1,21 @@
 package monakhv.android.samlib;
 
+import android.Manifest;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.LoaderManager;
+import android.support.v4.content.ContextCompat;
+import android.support.v4.content.FileProvider;
 import android.support.v4.content.Loader;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.*;
@@ -17,6 +25,7 @@ import android.widget.TextView;
 
 
 import android.widget.Toast;
+
 import monakhv.android.samlib.adapter.*;
 
 
@@ -39,7 +48,9 @@ import rx.Subscriber;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 
+import java.io.File;
 import java.util.List;
+
 
 /*
  * Copyright 2014  Dmitry Monakhov
@@ -61,6 +72,8 @@ import java.util.List;
 public class BookFragment extends MyBaseAbstractFragment implements
         ListSwipeListener.SwipeCallBack, LoaderManager.LoaderCallbacks<List<GroupListItem>>,
         BookExpandableAdapter.CallBack {
+    private static final int MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE = 101;
+
     interface Callbacks {
         AuthorGuiState getAuthorGuiState();
 
@@ -186,7 +199,7 @@ public class BookFragment extends MyBaseAbstractFragment implements
         adapter = new BookExpandableAdapter(data, bookLoader.getMaxGroupId(), getActivity(), this, getSettingsHelper());
         adapter.setAuthor_id(author_id);
         bookRV.setAdapter(adapter);
-        Log.d(DEBUG_TAG, "onLoadFinished: adapter size = " + adapter.getItemCount()+" Order: "+bookLoader.getOrder());
+        Log.d(DEBUG_TAG, "onLoadFinished: adapter size = " + adapter.getItemCount() + " Order: " + bookLoader.getOrder());
         mProgressBar.setVisibility(View.GONE);
         makeEmpty();
         if (adapterState != null && !adapterState.isEmpty()) {
@@ -334,9 +347,56 @@ public class BookFragment extends MyBaseAbstractFragment implements
             return false;
         }
         selected_position = position;
-        loadBook(book);
         bookRV.playSoundEffect(SoundEffectConstants.CLICK);
+        if (ContextCompat.checkSelfPermission(getContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+            if (ActivityCompat.shouldShowRequestPermissionRationale(getActivity(), Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+
+                showMessageOkCancel(
+                        getString(R.string.permission_external_storage_write_explanation),
+                        (dialogInterface, i) -> ActivityCompat.requestPermissions(getActivity(),
+                                new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                                MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE));
+            }
+            else {
+                ActivityCompat.requestPermissions(getActivity(),
+                        new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                        MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE);
+
+            }
+
+
+
+
+            return true;
+        }
+        loadBook(book);
         return true;
+    }
+
+    private void showMessageOkCancel(String msg, DialogInterface.OnClickListener okListener){
+        new AlertDialog.Builder(getActivity())
+                .setMessage(msg)
+                .setPositiveButton(R.string.Yes,okListener)
+                .setNegativeButton(R.string.Cancel,null)
+                .create()
+                .show();
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        switch (requestCode) {
+            case MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE:
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    loadBook(book);
+
+                } else {
+                    Toast toast = Toast.makeText(getActivity(), "NOT granted", Toast.LENGTH_SHORT);
+                    toast.show();
+                }
+                break;
+            default:
+                super.onRequestPermissionsResult(requestCode,permissions,grantResults);
+        }
     }
 
     @Override
@@ -590,17 +650,24 @@ public class BookFragment extends MyBaseAbstractFragment implements
      * @param file version file name
      */
     private void launchReader(Book book, String file) {
-        String url;
+        File fileToRead;
         if (file == null) {
-            url = getSettingsHelper().getBookFileURL(book);
+            fileToRead = getSettingsHelper().getBookFileURL(book);
         } else {
-            url = getSettingsHelper().getBookFileURL(book, file);
+            fileToRead = getSettingsHelper().getBookFileURL(book, file);
         }
 
 
         Intent launchBrowser = new Intent();
         launchBrowser.setAction(android.content.Intent.ACTION_VIEW);
-        launchBrowser.setDataAndType(Uri.parse(url), book.getFileMime());
+        launchBrowser.setDataAndType(
+                FileProvider.getUriForFile(
+                        getContext(),
+                        getContext().getApplicationContext().getPackageName() + ".provider",
+                        fileToRead),
+                book.getFileMime());
+        launchBrowser.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+
 
         if (launchBrowser.resolveActivity(getActivity().getPackageManager()) == null) {
             Toast toast = Toast.makeText(getContext(), getString(R.string.no_such_application_to_view), Toast.LENGTH_SHORT);
@@ -657,7 +724,7 @@ public class BookFragment extends MyBaseAbstractFragment implements
 
         adapter.onSaveInstanceState(adapterState);
         LinearLayoutManager lm = (LinearLayoutManager) bookRV.getLayoutManager();
-        mScrollPosition=lm.findFirstVisibleItemPosition();
+        mScrollPosition = lm.findFirstVisibleItemPosition();
     }
 
     Bundle getAdapterState() {
