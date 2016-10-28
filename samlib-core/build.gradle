@@ -22,7 +22,7 @@ dependencies {
     testCompile group: 'org.apache.logging.log4j', name: 'log4j-core', version: '2.1'
 
 
-    compile 'com.squareup.okhttp3:okhttp:3.1.2'
+    compile 'com.squareup.okhttp3:okhttp:3.4.1'
     compile 'com.j256.ormlite:ormlite-core:4.48'
     compile 'javax.inject:javax.inject:1'
     compile 'com.google.dagger:dagger:2.0.2'

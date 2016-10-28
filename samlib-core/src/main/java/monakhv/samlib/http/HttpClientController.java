@@ -55,16 +55,16 @@ import rx.subjects.Subject;
  */
 public class HttpClientController {
 
-    public interface PageReader {
+    interface PageReader {
         String doReadPage(InputStream in) throws IOException;
 
     }
 
-    public static final int RETRY_LIMIT = 5;
-    public static final int CONNECTION_TIMEOUT = 10000;
-    public static final int READ_TIMEOUT = 10000;
-    public static final String ENCODING = "windows-1251";
-    protected static final String USER_AGENT = "Android reader";
+    private static final int RETRY_LIMIT = 5;
+    private static final int CONNECTION_TIMEOUT = 10000;
+    private static final int READ_TIMEOUT = 10000;
+    static final String ENCODING = "windows-1251";
+    private static final String USER_AGENT = "Android reader";
     private static final String DEBUG_TAG = "HttpClientController";
     private ProxyData mProxyData;
     private final SamLibConfig mSamLibConfig;

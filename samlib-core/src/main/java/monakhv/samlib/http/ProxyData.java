@@ -1,13 +1,16 @@
 package monakhv.samlib.http;
 
 
-import monakhv.samlib.log.Log;
-import okhttp3.*;
-
-import java.io.IOException;
-import java.net.*;
+import java.net.InetSocketAddress;
+import java.net.Proxy;
+import java.net.SocketAddress;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+
+import monakhv.samlib.log.Log;
+import okhttp3.Credentials;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
 
 
 /*
@@ -44,7 +47,7 @@ public class ProxyData {
     private String password;
     private boolean isGoogle = false;
 
-    public ProxyData(String host, int port, boolean isGoogle) {
+    private ProxyData(String host, int port, boolean isGoogle) {
         this.host = host;
         this.port = port;
         this.isGoogle = isGoogle;
@@ -66,7 +69,7 @@ public class ProxyData {
 //        };
 //    }
 
-    public void applyProxy(OkHttpClient.Builder builder, Request.Builder requestBuilder) {
+    void applyProxy(OkHttpClient.Builder builder, Request.Builder requestBuilder) {
 
 
         SocketAddress addr = new InetSocketAddress(host, port);
@@ -85,15 +88,11 @@ public class ProxyData {
 
         final String credential = Credentials.basic(user, password);
 
-        builder.authenticator(new okhttp3.Authenticator() {
-            @Override
-            public Request authenticate(Route route, Response response) throws IOException {
-                Log.d("ProxyData", "authenticate: " + user + ":" + password);
-                return response.request().newBuilder()
-                        .header("Proxy-Authorization", credential)
-                        .build();
-            }
-
+        builder.proxyAuthenticator((route, response) -> {
+            Log.d("ProxyData", "authenticate: " + user + ":" + password);
+            return response.request().newBuilder()
+                    .header("Proxy-Authorization", credential)
+                    .build();
         });
 
 
