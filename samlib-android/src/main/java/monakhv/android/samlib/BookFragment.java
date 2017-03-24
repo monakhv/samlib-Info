@@ -13,43 +13,48 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.ContextCompat;
-import android.support.v4.content.FileProvider;
 import android.support.v4.content.Loader;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.view.*;
+import android.view.GestureDetector;
+import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
+import android.view.MotionEvent;
+import android.view.SoundEffectConstants;
+import android.view.View;
+import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-
-
 import android.widget.Toast;
 
-import monakhv.android.samlib.adapter.*;
+import java.io.File;
+import java.util.List;
 
-
+import monakhv.android.samlib.adapter.BookAnimator;
+import monakhv.android.samlib.adapter.BookExpandableAdapter;
+import monakhv.android.samlib.adapter.BookLoader;
+import monakhv.android.samlib.adapter.GroupListItem;
 import monakhv.android.samlib.data.DataExportImport;
 import monakhv.android.samlib.dialogs.ContextMenuDialog;
 import monakhv.android.samlib.dialogs.MyMenuData;
 import monakhv.android.samlib.dialogs.SingleChoiceSelectDialog;
 import monakhv.android.samlib.recyclerview.DividerItemDecoration;
-import monakhv.samlib.service.AuthorGuiState;
-import monakhv.samlib.service.BookGuiState;
-import monakhv.samlib.service.GuiUpdateObject;
 import monakhv.android.samlib.sortorder.BookSortOrder;
-
 import monakhv.samlib.db.AuthorController;
 import monakhv.samlib.db.entity.Book;
 import monakhv.samlib.db.entity.GroupBook;
 import monakhv.samlib.db.entity.SamLibConfig;
 import monakhv.samlib.log.Log;
+import monakhv.samlib.service.AuthorGuiState;
+import monakhv.samlib.service.BookGuiState;
+import monakhv.samlib.service.GuiUpdateObject;
 import rx.Subscriber;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
-
-import java.io.File;
-import java.util.List;
 
 
 /*
@@ -660,12 +665,15 @@ public class BookFragment extends MyBaseAbstractFragment implements
 
         Intent launchBrowser = new Intent();
         launchBrowser.setAction(android.content.Intent.ACTION_VIEW);
-        launchBrowser.setDataAndType(
-                FileProvider.getUriForFile(
-                        getContext(),
-                        getContext().getApplicationContext().getPackageName() + ".provider",
-                        fileToRead),
-                book.getFileMime());
+//        launchBrowser.setDataAndType(
+//                FileProvider.getUriForFile(
+//                        getContext(),
+//                        getContext().getApplicationContext().getPackageName() + ".provider",
+//                        fileToRead),
+//                book.getFileMime());
+
+       launchBrowser.setDataAndType(Uri.parse("file://"+fileToRead.getAbsolutePath()),book.getFileMime());
+
         launchBrowser.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
 
 

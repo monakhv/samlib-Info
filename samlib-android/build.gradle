@@ -12,13 +12,14 @@ repositories {
 
 android {
     compileSdkVersion 25
-    buildToolsVersion '25'
+    buildToolsVersion '25.0.2'
+
 
 
     defaultConfig {
         applicationId "monakhv.android.samlib"
         minSdkVersion 11
-        targetSdkVersion 25
+        targetSdkVersion 23
         versionCode 103336
         versionName "3.3.6"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
@@ -32,6 +33,9 @@ android {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            lintOptions {
+                disable 'MissingTranslation'
+            }
         }
     }
 }
