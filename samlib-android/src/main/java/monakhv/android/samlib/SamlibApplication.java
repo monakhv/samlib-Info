@@ -44,11 +44,12 @@ public class SamlibApplication extends Application {
 
 
     @Inject
-    static Logger mLogger;
+    Logger mLogger;
     @Inject
-    static SettingsHelper settingsHelper;
+    SettingsHelper settingsHelper;
     @Inject
-    static DataExportImport dataExportImport;
+    DataExportImport dataExportImport;
+    static Logger sLogger;
     private ServiceComponent mServiceComponent;
     private DatabaseComponent mDatabaseComponent;
 
@@ -64,9 +65,10 @@ public class SamlibApplication extends Application {
         applicationComponent.inject(this);
         mLogger.debug(DEBUG_TAG,"Logger created!");
         Log.forceInit(mLogger);
+        sLogger = mLogger;
     }
     public static void initLogger(){
-        mLogger.initLogger();
+        sLogger.initLogger();
     }
 
     public ApplicationComponent getApplicationComponent() {
