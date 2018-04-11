@@ -49,13 +49,13 @@ public class SamlibOperationTest {
     private static final String DEBUG_TAG = "SamlibOperationTest";
     private static final long TIMEOUT=300000;
 
-    public static final String AUTHOR_URL = "http://samlib.ru/d/demchenko_aw/";
-    public static final AuthorGuiState authorGuiState = new AuthorGuiState(SamLibConfig.TAG_AUTHOR_ALL, SQLController.COL_isnew + " DESC, " + SQLController.COL_NAME);
-    public static String bookOrder = SQLController.COL_BOOK_ISNEW + " DESC, " + SQLController.COL_BOOK_DATE + " DESC";
-    static AuthorController authorController;
-    static SettingsImpl settings;
-    static GuiEventBus guiEventBus;
-    static HttpClientController httpClientController;
+    private static final String AUTHOR_URL = "http://samlib.ru/d/demchenko_aw/";
+    private static final AuthorGuiState authorGuiState = new AuthorGuiState(SamLibConfig.TAG_AUTHOR_ALL, SQLController.COL_isnew + " DESC, " + SQLController.COL_NAME);
+    private static String bookOrder = SQLController.COL_BOOK_ISNEW + " DESC, " + SQLController.COL_BOOK_DATE + " DESC";
+    private static AuthorController authorController;
+    private static SettingsImpl settings;
+    private static GuiEventBus guiEventBus;
+    private static HttpClientController httpClientController;
 
     private SamlibOperation mSamlibOperation;
     private final Object monitor = new Object();
@@ -71,7 +71,7 @@ public class SamlibOperationTest {
     }
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp()  {
         cleanDataBase();
     }
 
@@ -96,7 +96,7 @@ public class SamlibOperationTest {
 
 
     @Test(timeout = TIMEOUT)
-    public void testMakeBookReadFlip() throws Exception {
+    public void testMakeBookReadFlip()  {
         ArrayList<String> urls = new ArrayList<>();
         urls.add(AUTHOR_URL);
         mSamlibOperation.runAuthorAdd(urls, authorGuiState);
@@ -158,7 +158,7 @@ public class SamlibOperationTest {
     }
 
     @Test(timeout = TIMEOUT)
-    public void testMakeGroupReadFlip() throws Exception {
+    public void testMakeGroupReadFlip()  {
 
         ArrayList<String> urls = new ArrayList<>();
         urls.add(AUTHOR_URL);
@@ -207,7 +207,7 @@ public class SamlibOperationTest {
     }
 
     @Test(timeout = TIMEOUT)
-    public void testMakeAuthorRead() throws Exception {
+    public void testMakeAuthorRead() {
         ArrayList<String> urls = new ArrayList<>();
         urls.add(AUTHOR_URL);
         mSamlibOperation.runAuthorAdd(urls, authorGuiState);
@@ -256,7 +256,7 @@ public class SamlibOperationTest {
     }
 
     @Test(timeout = TIMEOUT)
-    public void testMakeAuthorDel() throws Exception {
+    public void testMakeAuthorDel()  {
 
         ArrayList<String> urls = new ArrayList<>();
         urls.add(AUTHOR_URL);
@@ -291,7 +291,7 @@ public class SamlibOperationTest {
     }
 
     @Test(timeout = TIMEOUT)
-    public void testMakeAuthorAdd() throws Exception {
+    public void testMakeAuthorAdd()  {
 
         guiEventBus.getObservable().subscribe(
                 guiUpdateObject -> {
