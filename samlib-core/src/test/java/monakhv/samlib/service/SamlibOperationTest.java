@@ -47,7 +47,7 @@ import static org.junit.Assert.*;
 @SuppressWarnings("Duplicates")
 public class SamlibOperationTest {
     private static final String DEBUG_TAG = "SamlibOperationTest";
-    private static final long TIMEOUT=3000;
+    private static final long TIMEOUT=300000;
 
     public static final String AUTHOR_URL = "http://samlib.ru/d/demchenko_aw/";
     public static final AuthorGuiState authorGuiState = new AuthorGuiState(SamLibConfig.TAG_AUTHOR_ALL, SQLController.COL_isnew + " DESC, " + SQLController.COL_NAME);

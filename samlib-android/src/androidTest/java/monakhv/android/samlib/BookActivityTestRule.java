@@ -20,6 +20,7 @@
 package monakhv.android.samlib;
 
 import android.content.Intent;
+import android.support.test.InstrumentationRegistry;
 import android.support.test.rule.ActivityTestRule;
 import monakhv.samlib.db.entity.SamLibConfig;
 
@@ -37,7 +38,7 @@ class BookActivityTestRule extends ActivityTestRule<BooksActivity> {
 
     @Override
     protected Intent getActivityIntent() {
-        Intent intent= super.getActivityIntent();
+        Intent intent= new Intent();
         intent.putExtra(BookFragment.AUTHOR_ID, SamLibConfig.SELECTED_BOOK_ID);
         return intent;
     }

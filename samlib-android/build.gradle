@@ -10,7 +10,7 @@ repositories {
 
 android {
     compileSdkVersion 25
-    buildToolsVersion '26.0.2'
+    buildToolsVersion '27.0.3'
 
 
     defaultConfig {
@@ -38,32 +38,32 @@ android {
 }
 
 dependencies {
-    compile project(':samlib-core')
-    compile project(':ptr-lib')
-    compile fileTree(include: '*.jar', dir: 'libs')
-    compile 'com.android.support:appcompat-v7:25.4.0'
-    compile 'com.android.support:recyclerview-v7:25.4.0'
-    compile 'com.android.support:design:25.4.0'
-    compile 'com.android.support:support-annotations:27.0.2'
-    compile 'com.j256.ormlite:ormlite-android:4.48'
-    compile 'com.google.android.gms:play-services-drive:8.4.0'
-    compile 'com.bignerdranch.android:expandablerecyclerview:2.1.1'
+    implementation project(':samlib-core')
+    implementation project(':ptr-lib')
+    implementation fileTree(include: '*.jar', dir: 'libs')
+    implementation 'com.android.support:appcompat-v7:25.4.0'
+    implementation 'com.android.support:recyclerview-v7:25.4.0'
+    implementation 'com.android.support:design:25.4.0'
+    implementation 'com.android.support:support-annotations:27.1.1'
+    implementation 'com.j256.ormlite:ormlite-android:4.48'
+    implementation 'com.google.android.gms:play-services-drive:8.4.0'
+    implementation 'com.bignerdranch.android:expandablerecyclerview:2.1.1'
     // compile 'com.google.dagger:dagger:2.0.2'
-    compile 'io.reactivex:rxjava:1.1.0'
-    compile 'io.reactivex:rxandroid:1.1.0'
+    implementation 'io.reactivex:rxjava:1.1.0'
+    implementation 'io.reactivex:rxandroid:1.1.0'
     // provided 'com.google.dagger:dagger-compiler:2.0.2'
     // provided 'org.glassfish:javax.annotation:10.0-b28'
-    compile 'com.google.dagger:dagger-android:2.14.1'
+    implementation 'com.google.dagger:dagger-android:2.14.1'
     // compile 'com.google.dagger:dagger-android-support:2.14.1' // if you use the support libraries
     annotationProcessor 'com.google.dagger:dagger-android-processor:2.14.1'
     annotationProcessor 'com.google.dagger:dagger-compiler:2.14.1'
-    androidTestCompile 'com.android.support:support-annotations:27.0.2'
-    androidTestCompile 'com.android.support:appcompat-v7:25.4.0'
-    androidTestCompile 'com.android.support:design:25.4.0'
-    androidTestCompile 'com.android.support.test:runner:1.0.1'
-    androidTestCompile 'com.android.support.test:rules:1.0.1'
-    androidTestCompile 'com.android.support.test.espresso:espresso-core:3.0.1'
-    androidTestCompile('com.android.support.test.espresso:espresso-contrib:3.0.1') {
+    androidTestImplementation 'com.android.support:support-annotations:27.1.1'
+    androidTestImplementation 'com.android.support:appcompat-v7:25.4.0'
+    androidTestImplementation 'com.android.support:design:25.4.0'
+    androidTestImplementation 'com.android.support.test:runner:1.0.1'
+    androidTestImplementation 'com.android.support.test:rules:1.0.1'
+    androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.1'
+    androidTestImplementation('com.android.support.test.espresso:espresso-contrib:3.0.1') {
         exclude group: 'com.android.support', module: 'appcompat'
         exclude group: 'com.android.support', module: 'support-v4'
         exclude group: 'com.android.support', module: 'recyclerview-v7'

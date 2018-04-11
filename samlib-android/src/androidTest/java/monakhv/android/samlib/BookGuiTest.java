@@ -52,7 +52,7 @@ import static android.support.test.espresso.matcher.ViewMatchers.withId;
 @LargeTest
 public class BookGuiTest {
     private static final String AUTHOR_URL="/a/abwow_a_s/";
-    private static final int GROUP_NUM=1;
+    private static final int GROUP_NUM=4;
 
     private static final long SLEEP_TIME=1000;
 
